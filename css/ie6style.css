@@ -1,0 +1,9 @@
+span.sf-sub-indicator { padding-left: 2px; }
+#menu { z-index: 5;  position: relative; }
+#content { z-index: 4; position: relative; }
+
+#sidebar-left, #sidebar-right, #main-content, #entries { display: inline; }
+#sidebar-left, #main-content { margin-right:7px; }
+
+#entries { margin-right: 5px;  }
+#entries .entry { margin-right:0px; }

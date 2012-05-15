@@ -1,0 +1,6 @@
+@charset "UTF-8";
+/* CSS Document */
+
+.module, .ui-state-highlight {
+	display: inline;
+}
