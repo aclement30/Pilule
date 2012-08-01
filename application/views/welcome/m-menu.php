@@ -307,7 +307,7 @@ if (isset($_SESSION['loading-errors']) and $_SESSION['loading-errors'] == 1) {
 		<div style="width: 60px; height: 95px; margin-top: 10px; float: left; background-image: url(./images/iphone-bg.gif); background-repeat: no-repeat;"><img src="./images/iphone-2.gif" width="50" /></div>
 		<div style="float: left; margin-top: 5px; width: 130px;">
 		<p style="margin-top: 5px;">Accédez à Pilule depuis votre téléphone intelligent, à l'adresse :</p>
-		<p style="text-align: center; font-weight: bold; margin: 0px; font-size: 11pt; color: black;">www.pilule.ca</p>
+		<p style="text-align: center; font-weight: bold; margin: 0px; font-size: 10pt; color: black;">www.pilule.ulaval.ca</p>
 		</div><div style="clear: both;"></div>
 		<div style="font-size: 7pt; margin-top: 10px; border-top: 1px dotted silver; padding-top: 1px;">Version mobile optimisée pour iPhone</div>
 	</div></div>
