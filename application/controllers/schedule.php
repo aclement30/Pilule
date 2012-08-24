@@ -34,7 +34,7 @@ class Schedule extends CI_Controller {
 		$data['user'] = $this->user;
 		$data['semester_date'] = $this->uri->segment(3);
 		$data['mobile'] = $this->mobile;
-		$default_semester = '201201';
+		$default_semester = '201209';
 		
 		if (isset($_SESSION['cap_offline']) and $_SESSION['cap_offline'] == 'yes') {
 			$data['cap_offline'] = 1;
@@ -221,7 +221,7 @@ class Schedule extends CI_Controller {
 		$data['user'] = $this->user;
 		$data['semester_date'] = $this->uri->segment(3);
 		$data['mobile'] = $this->mobile;
-		$default_semester = '201201';
+		$default_semester = '201209';
 		
 		if (isset($_SESSION['cap_offline']) and $_SESSION['cap_offline'] == 'yes') {
 			$data['cap_offline'] = 1;

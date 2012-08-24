@@ -300,7 +300,7 @@ function requestTimeout (type) {
 </div> <!-- end .entry -->
 <div id="loading-message" style="font-size: 8pt; display: none; text-align: center; color: #777;">Merci de patienter, le chargement des données peut prendre jusqu'à une minute...</div>
 	<div style="text-align: right; display: none; float: right; margin-top: 0px; margin-right: 50px; padding-top: 0px; color: gray; font-size: 7pt; text-transform: uppercase; line-height: 25pt;">Projet hébergé par :<br /><img src="<?php echo site_url(); ?>images/ulaval.png" align="absmiddle" height="40" alt="Université Laval" /></div>
-	<div style="text-align: center; margin-top: 10px; line-height: 16pt; color: silver;"><a href="<?php echo site_url(); ?>support/faq/#faq2">Est-il sécuritaire d'utiliser Pilule ?</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="javascript:loginDemo();"<?php if ($display_tooltip) echo ' id="demo-link" title="Première visite ?"'; else echo ' title="Voir une version démo du site"'; ?>>Tester Pilule</a></div>
+	<div style="text-align: center; margin-top: 10px; line-height: 16pt; color: silver;"><a href="<?php echo site_url(); ?>support/faq/">Est-il sécuritaire d'utiliser Pilule ?</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="javascript:loginDemo();"<?php if ($display_tooltip) echo ' id="demo-link" title="Première visite ?"'; else echo ' title="Voir une version démo du site"'; ?>>Tester Pilule</a></div>
 <div class="clear"></div>
 </div> <!-- end #main-area -->
 <?php if ($mobile_browser!=1 and $display_tooltip==1) { ?>

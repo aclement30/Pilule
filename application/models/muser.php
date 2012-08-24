@@ -100,7 +100,7 @@ class mUser extends CI_Model {
 		$result = $this->db->get('users');
 		
 		$user = $result->row_array();
-		
+
 		if ($idul == $_SESSION['cap_iduser']) {
 			$user['registration'] = $this->canRegister($user['program']);
 		}
@@ -159,7 +159,7 @@ class mUser extends CI_Model {
 		$result = $this->db->get('users_classes');
 		
 		$classes = $result->result_array();
-		
+
 		if ($classes!=array()) {			
 			// Renvoi du paramètre
 			return ($classes);
@@ -207,7 +207,7 @@ class mUser extends CI_Model {
 		$result = $this->db->get('users_courses');
 		
 		$courses = $result->result_array();
-		
+
 		if ($courses!=array()) {			
 			// Renvoi du paramètre
 			return ($courses);
@@ -294,7 +294,7 @@ class mUser extends CI_Model {
 		$result = $this->db->get('studies');
 		
 		$studies = $result->row_array();
-		
+
 		if ($studies!=array()) {
 			$studies['concentrations'] = unserialize($studies['concentrations']);
 			
@@ -520,7 +520,7 @@ END:VCALENDAR';
 		$result = $this->db->get('users_modules');
 		
 		$modules = $result->result_array();
-		
+
 		if ($modules!=array()) {
 			// Renvoi du paramètre
 			return ($modules);

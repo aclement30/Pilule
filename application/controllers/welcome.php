@@ -115,6 +115,7 @@ class Welcome extends CI_Controller {
 		}
 	}
 	
+	
 	function index() {
 		$data = array();
 		$data['section'] = 'welcome';

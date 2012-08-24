@@ -200,4 +200,41 @@ function relativeDate ($timestamp) {
 		return $output;
 	}
 }
+
+function respond ( $data, $callback = '' ) {
+	if (isset($data['modal'])) $data['modal'] = str_replace("\r", '', str_replace("\n", '', $data['modal']));
+	if (isset($data['content'])) $data['content'] = str_replace("\r", '', str_replace("\n", '', $data['content']));
+	if (isset($data['sidebar'])) $data['sidebar'] = str_replace("\r", '', str_replace("\n", '', $data['sidebar']));
+	
+	$CI = & get_instance();
+	switch ($CI->_source) {
+		case 'ajax':
+			if (isset($data['statusCode'])) {
+				$CI->output->set_status_header($data['statusCode']);
+				if (isset($data['message'])) $CI->output->set_output( json_encode($data['message']) );
+			} else {
+				if (!empty($callback)) {
+					$CI->output->set_output( $callback."(".json_encode($data).");" );
+				} else {
+					$CI->output->set_output( json_encode($data) );
+				}
+			}
+			$CI->output->_display();
+		break;
+		case 'iframe':
+			if (!empty($callback)) {
+				$CI->output->set_output( "<script language='javascript'>top.".$callback."(".json_encode($data).");</script>" );
+			} else {
+				$CI->output->set_output( "<script language='javascript'>top.".$data."</script>" );
+			}
+			$CI->output->_display();
+		break;
+		default:
+			$CI->output->set_output( $data );
+			$CI->output->_display();
+		break;
+	}
+	
+	exit();
+}
 ?>

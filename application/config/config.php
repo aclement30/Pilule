@@ -14,6 +14,7 @@
 | path to your installation.
 |
 */
+/*
 if ($_ENV["HOME"] == '/Users/aclement') {
 	if (file_exists('../.webdesk_local_sharing')) {
 		$config['base_url']	= "http://" . trim(file_get_contents('../.webdesk_local_sharing')) . "/Pilule/";
@@ -23,7 +24,8 @@ if ($_ENV["HOME"] == '/Users/aclement') {
 } else {
 	$config['base_url']	= 'https://www.pilule.ulaval.ca/';
 }
-
+*/
+$config['base_url'] = 'http://www.pilule.ulaval.ca/';
 /*
 |--------------------------------------------------------------------------
 | Index File
@@ -323,7 +325,7 @@ $config['csrf_expire'] = 7200;
 | by the output class.  Do not 'echo' any values with compression enabled.
 |
 */
-$config['compress_output'] = TRUE;
+$config['compress_output'] = FALSE;
 
 /*
 |--------------------------------------------------------------------------

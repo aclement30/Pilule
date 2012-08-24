@@ -29,8 +29,8 @@
 <p>Lorsque vous accédez à Pilule, le système détermine si les données stockées par Pilule sont périmées et le cas échéant, actualise celles-ci depuis Capsule en tâche de fond. Les nouvelles données remplacent alors les données déjà stockées et sont affichées à l'écran. Le délai de péremption des données est fixé par défaut à 6 heures, mais ce paramètre peut être changé dans la section Préférences.</p>
 <h4><a name="faq5">6. Est-ce que tous les étudiants peuvent utiliser Pilule ?</a></h4>
 <p>Pilule est encore en développement (bêta). Certaines fonctions peuvent ne pas fonctionner correctement pour tous les étudiants. Ainsi, il est possible que les étudiants ayant un cheminement particulier ou plus complexe (études libres, médecine, plusieurs formations, etc) rencontrent des problèmes d'affichage ou de fonctionnement sur Pilule. Notez toutefois que ces problèmes d'affichage n'ont aucune conséquence sur vos données conservées dans le système de gestion des études de l'université.</p>
-<h4><a name="faq6">7. Quel est le lien entre l'Université Laval, Capsule et le site Web Pilule.ca ?</a></h4>
-<p>Pilule.ca est un projet indépendant du système de gestion des études Capsule. Le site Web de Pilule est hébergé sur le réseau informatique de l'Université Laval et le projet est supervisé par le Vice-rectorat exécutif et au développement (VREX).</p>
+<h4><a name="faq6">7. Quel est le lien entre l'Université Laval, Capsule et le site Web Pilule ?</a></h4>
+<p>Pilule est un projet indépendant du système de gestion des études Capsule. Le site Web de Pilule est hébergé sur le réseau informatique de l'Université Laval et le projet est supervisé par le Vice-rectorat exécutif et au développement (VREX).</p>
 <div class="clear"></div></div>
 </div> <!-- end .entry-content -->
 </div> <!-- end .entry-top -->

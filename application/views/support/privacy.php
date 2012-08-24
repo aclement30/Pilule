@@ -32,7 +32,7 @@ Le droit d'opposition s'entend comme étant la possiblité offerte aux internaut
 <p>Le droit de retrait s'entend comme étant la possiblité offerte aux internautes de demander à ce que leurs renseignements personnels ne figurent plus, par exemple, dans une liste de diffusion.</p>
 <p>Pour pouvoir exercer ces droits, vous pouvez nous contacter à l'adresse suivante :</p>
 <blockquote>
-	Courriel : info@pilule.ca<br />
+	Courriel : pilule@alexandreclement.com<br />
 	Section du site web : https://www.pilule.ulaval.ca/
 </blockquote>
 <h3>Sécurité</h3>

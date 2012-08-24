@@ -9,13 +9,13 @@
 $modules = array(
 				 array(
 					   'id'		=>	'maintenance',
-					   'url'	=>	'./admin/maintenance/',
+					   'url'	=>	'#!/admin/maintenance/',
 					   'img'	=>	'maintenance.png',
 					   'title'	=>	'Maintenance'
 					   ),
 				 array(
 					   'id'		=>	'stats',
-					   'url'	=>	'./admin/stats/',
+					   'url'	=>	'#!/admin/stats/',
 					   'img'	=>	'stats.gif',
 					   'title'	=>	'Statistiques'
 					   ),
@@ -48,7 +48,7 @@ foreach ($modules as $module) {
 	?>
 <li id="box-<?php echo $module['id']; ?>" class="module" onMouseOver="javascript:mouseOver('<?php echo $number; ?>', 1);" onMouseOut="javascript:mouseOver('<?php echo $number; ?>', 2);">
 <a href="<?php echo $module['url']; ?>"<?php if (isset($module['target'])) echo ' target="'.$module['target'].'"'; ?> class="img-link admin-page"><img src="<?php echo site_url(); ?>images/<?php echo $module['img']; ?>" /></a>
-<div class="title"><a href='<?php echo site_url().$module['url']; ?>' class="admin-page"><?php echo $module['title']; ?></a></div>
+<div class="title"><a href='<?php echo $module['url']; ?>' class="admin-page"><?php echo $module['title']; ?></a></div>
 </li>
 	<?php
 		$number++;

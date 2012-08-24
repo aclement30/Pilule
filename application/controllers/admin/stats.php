@@ -34,74 +34,16 @@ class Stats extends CI_Controller {
 		$data['section'] = 'admin';
 		$data['page'] = 'users';
 		$data['user'] = $this->user;
-		$data['mobile_browser'] = $this->lmobile->isMobileBrowser();
+		$data['mobile'] = $this->mobile;
 				
-		// Chargement de l'entête
-		if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
+		// Chargement de la page		
+		$this->output->set_output(json_encode(array(
+			'content'	=>	str_replace("\r", '', str_replace("\n", '', $this->load->view('admin/stats/users', $data, true))),
+			'pageName'	=>	'admin/stats/users',
+			'code'		=>	'displayStatsGraph("users");'
+		)));
 		
-		$items = $this->mUsers->getStatsUsers();
-		$data['faculties'] = array();
-		$data['programs'] = array();
-		$data['total'] = 0;
-		$programs = array();
-		$faculties = array(
-								   'Amén. architect. arts visuels'		=>	'FAAAV',
-								   'DGFC-Formation continue'			=>	'Autres',
-								   'DGPC-Programmes premier cycle'		=>	'Autres',
-								   'Direction de l\'Université'			=>	'Autres',
-								   'Droit'								=>	'Droit',
-								   'FESP-Études sup. et postdoct.'		=>	'FESP',
-								   'Foresterie, géographie géomat.'		=>	'FFGG',
-								   'IQHEI-Hautes études internat.'		=>	'HEI',
-								   'Lettres'							=>	'Lettres',
-								   'Médecine'							=>	'Santé',
-								   'Médecine dentaire'					=>	'Santé',
-								   'Musique'							=>	'Mus.',
-								   'Pharmacie'							=>	'Santé',
-								   'Philosophie'						=>	'Philo.',
-								   'Sc. agriculture, alimentation'		=>	'FSAA',
-								   'Sciences de l\'administration'		=>	'FSA',
-								   'Sciences de l\'éducation'			=>	'FSE',
-								   'Sciences et génie'					=>	'FSG',
-								   'Sciences infirmières'				=>	'Santé',
-								   'Sciences sociales'					=>	'FSS',
-								   'Théologie et sc.  religieuses'		=>	'FTSR'
-								   );
-		
-		
-		foreach ($items as $user) {
-			if ($user['faculty'] != 'Aucune faculté désignée') {
-				if (!isset($data['faculties'][$faculties[$user['faculty']]])) {
-					$data['faculties'][$faculties[$user['faculty']]] = 0;
-					$programs[$faculties[$user['faculty']]] = array();
-				}
-				
-				$data['faculties'][$faculties[$user['faculty']]]++;
-				
-				if (!isset($programs[$faculties[$user['faculty']]][$user['program']])) $programs[$faculties[$user['faculty']]][$user['program']] = 0;
-				
-				$programs[$faculties[$user['faculty']]][$user['program']]++;
-				$data['total']++;
-			}
-		}
-		
-		foreach ($programs as $faculty => $programs) {
-			$n = 0;
-			foreach ($programs as $program => $number) {
-				$data['programs'][$faculty][$program] = round($number/$data['total']*100, 2);
-				$n++;
-				//if ($n == 3) break;
-			}
-		}
-				
-		// Chargement de la page
-		$this->load->view('admin/stats/users', $data);
-		
-		// Chargement du menu
-		$this->load->view('admin/stats/m-menu', $data);
-		
-		// Chargement du bas de page
-		if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
+		return (true);
 	}
 	
 	function index() {
@@ -111,78 +53,235 @@ class Stats extends CI_Controller {
 		$data['section'] = 'admin';
 		$data['page'] = 'visits';
 		$data['user'] = $this->user;
-		$data['mobile_browser'] = $this->lmobile->isMobileBrowser();
+		$data['mobile'] = $this->mobile;
+		
+		// Chargement de la page		
+		$this->output->set_output(json_encode(array(
+			'content'	=>	str_replace("\r", '', str_replace("\n", '', $this->load->view('admin/stats/visits', $data, true))),
+			'pageName'	=>	'admin/stats/visits',
+			'code'		=>	'displayStatsGraph("visits");'
+		)));
+		
+		return (true);
+	}
+	
+	function ajax_displayGraphs () {
+		$graph = $this->uri->segment(4);
+		
+		switch ($graph) {
+			case 'visits':
+				ini_set('memory_limit','250M');
+			
+				$data = array();
 				
-		// Chargement de l'entête
-		if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
-		
-		$items = $this->mHistory->getLogins(15);
-		$data['logins']['days'] = array();
-		foreach ($items[0] as $login) {
-			if (!isset($data['logins']['days'][$login['date']])) $data['logins']['days'][$login['date']] = 0;
-			
-			$data['logins']['days'][$login['date']]++;
-		}
-		$data['loadings']['days'] = array(15);
-		foreach ($items[1] as $loading) {
-			if (!isset($data['loadings']['days'][$loading['date']])) $data['loadings']['days'][$loading['date']] = 0;
-			
-			$data['loadings']['days'][$loading['date']]++;
-		}
-		$items = $this->mHistory->getLogins(90);
-		$data['visits'] = array();
-		$hours = array();
-
-		foreach ($items[0] as $login) {
-			if (!isset($hours[date('H', $login['timestamp'])])) $hours[date('H', $login['timestamp'])] = 0;
-			
-			$hours[date('H', $login['timestamp'])]++;
-		}
-		
-		foreach ($hours as $hour => $number) {
-			$data['visits']['hours'][$hour] = round($number/count($items[0])*100, 2);
-		}
-		
-		$items = $this->mHistory->getPages(90);
-		$data['pages'] = array();
-		$pages = array();
-		$pages['redirect-capsule'] = 0;
-		$pages['redirect-elluminate'] = 0;
-		
-		$data['sections'] = array();
-		$data['sections']['others'] = 0;
-		$data['total'] = 0;
-		
-		foreach ($items as $page) {
-			if ($page['description'] != 'login' && $page['description'] != 'loading-data' && $page['description'] != 'security-check' && $page['description'] != 'logout') {
-				
-				if ($page['description'] == 'registration-courses' || $page['description'] == 'phishing-email') {
-					$data['sections']['others']++;
-				} else {
-					if (!isset($data['sections'][substr($page['description'], 0, strpos($page['description'], "-"))])) $data['sections'][substr($page['description'], 0, strpos($page['description'], "-"))] = 0;
+				$items = $this->mHistory->getLogins(15);
+				$data['logins']['days'] = array();
+				foreach ($items[0] as $login) {
+					if (!isset($data['logins']['days'][$login['date']])) $data['logins']['days'][$login['date']] = 0;
 					
-					$data['sections'][substr($page['description'], 0, strpos($page['description'], "-"))]++;
+					$data['logins']['days'][$login['date']]++;
+				}
+				$data['loadings']['days'] = array(15);
+				foreach ($items[1] as $loading) {
+					if (!isset($data['loadings']['days'][$loading['date']])) $data['loadings']['days'][$loading['date']] = 0;
+					
+					$data['loadings']['days'][$loading['date']]++;
+				}
+				$items = $this->mHistory->getLogins(90);
+				$data['visits'] = array();
+				$hours = array();
+		
+				foreach ($items[0] as $login) {
+					if (!isset($hours[date('H', $login['timestamp'])])) $hours[date('H', $login['timestamp'])] = 0;
+					
+					$hours[date('H', $login['timestamp'])]++;
 				}
 				
-				if (!isset($pages[$page['description']])) $pages[$page['description']] = 0;
+				foreach ($hours as $hour => $number) {
+					$data['visits']['hours'][$hour] = round($number/count($items[0])*100, 2);
+				}
 				
-				$pages[$page['description']]++;
-				$data['total']++;
-			}
+				$items = $this->mHistory->getPages(200);
+		
+				$data['pages'] = array();
+				$pages = array();
+				$pages['redirect-capsule'] = 0;
+				$pages['redirect-elluminate'] = 0;
+				
+				$data['sections'] = array();
+				$data['sections']['others'] = 0;
+				$data['total'] = 0;
+				
+				foreach ($items as $page) {
+					if ($page['description'] != 'login' && $page['description'] != 'loading-data' && $page['description'] != 'security-check' && $page['description'] != 'logout') {
+						
+						if ($page['description'] == 'registration-courses' || $page['description'] == 'phishing-email') {
+							$data['sections']['others']++;
+						} else {
+							if (!isset($data['sections'][substr($page['description'], 0, strpos($page['description'], "-"))])) $data['sections'][substr($page['description'], 0, strpos($page['description'], "-"))] = 0;
+							
+							$data['sections'][substr($page['description'], 0, strpos($page['description'], "-"))]++;
+						}
+						
+						if (!isset($pages[$page['description']])) $pages[$page['description']] = 0;
+						
+						$pages[$page['description']]++;
+						$data['total']++;
+					}
+				}
+				
+				foreach ($pages as $page => $number) {
+					$data['pages'][$page] = round($number/$data['total']*100, 2);
+				}
+			
+				// Chargement de la page
+				$content = $this->load->view('admin/stats/visits-js', $data, true);
+			break;
+			case 'users':
+				ini_set('memory_limit','100M');
+				
+				$data = array();
+
+				$items = $this->mUsers->getStatsUsers();
+				$data['faculties'] = array();
+				$data['programs'] = array();
+				$data['total'] = 0;
+				$programs = array();
+				$faculties = array(
+				   'Amén. architect. arts visuels'		=>	'FAAAV',
+				   'DGFC-Formation continue'			=>	'Autres',
+				   'DGPC-Programmes premier cycle'		=>	'Autres',
+				   'Direction de l\'Université'			=>	'Autres',
+				   'Droit'								=>	'Droit',
+				   'FESP-Études sup. et postdoct.'		=>	'FESP',
+				   'Foresterie, géographie géomat.'		=>	'FFGG',
+				   'IQHEI-Hautes études internat.'		=>	'HEI',
+				   'Lettres'							=>	'Lettres',
+				   'Médecine'							=>	'Santé',
+				   'Médecine dentaire'					=>	'Santé',
+				   'Musique'							=>	'Mus.',
+				   'Pharmacie'							=>	'Santé',
+				   'Philosophie'						=>	'Philo.',
+				   'Sc. agriculture, alimentation'		=>	'FSAA',
+				   'Sciences de l\'administration'		=>	'FSA',
+				   'Sciences de l\'éducation'			=>	'FSE',
+				   'Sciences et génie'					=>	'FSG',
+				   'Sciences infirmières'				=>	'Santé',
+				   'Sciences sociales'					=>	'FSS',
+				   'Théologie et sc.  religieuses'		=>	'FTSR'
+				);
+				
+				foreach ($items as $user) {
+					if ($user['faculty'] != 'Aucune faculté désignée') {
+						if (!isset($data['faculties'][$faculties[$user['faculty']]])) {
+							$data['faculties'][$faculties[$user['faculty']]] = 0;
+							$programs[$faculties[$user['faculty']]] = array();
+						}
+						
+						$data['faculties'][$faculties[$user['faculty']]]++;
+						
+						if (!isset($programs[$faculties[$user['faculty']]][$user['program']])) $programs[$faculties[$user['faculty']]][$user['program']] = 0;
+						
+						$programs[$faculties[$user['faculty']]][$user['program']]++;
+						$data['total']++;
+					}
+				}
+				
+				foreach ($programs as $faculty => $programs) {
+					$n = 0;
+					foreach ($programs as $program => $number) {
+						$data['programs'][$faculty][$program] = round($number/$data['total']*100, 2);
+						$n++;
+						//if ($n == 3) break;
+					}
+				}
+				
+				// Chargement de la page
+				$content = $this->load->view('admin/stats/users-js', $data, true);
+			break;
+			case 'registration':
+				ini_set('memory_limit','100M');
+		
+				$data = array();
+				
+				$stats = $this->mHistory->getRegistrationStats(60);
+				
+				// Analyse des données de l'étape 1
+				$step1_users = array();
+				$step1_programs = array();
+				foreach ($stats[0] as $user2) {
+					$info = $this->mUser->info($user2['idul']);
+					if (!array_key_exists($info['program'], $step1_programs)) {
+						$step1_programs[$info['program']] = array();
+						$step1_programs[$info['program']]['registration'] = 0;
+						$step1_programs[$info['program']]['users'] = 0;
+						$step1_programs[$info['program']]['result'] = 0;
+					}
+					if (!isset($step1_programs[$info['program']]['registration'])) $step1_programs[$info['program']]['registration'] = 0;
+					
+					if (!array_key_exists($user2['idul'], $step1_users)) {
+						$step1_users[$user2['idul']] = array();
+						$step1_programs[$info['program']]['registration']++;
+					}
+					if (!isset($step1_users[$user2['idul']]['time'])) $step1_users[$user2['idul']]['time'] = 0;
+					$step1_users[$user2['idul']]['time']++;
+				}
+				$items = $this->mUsers->getStatsUsers();
+				foreach ($items as $user2) {
+					if (array_key_exists($user2['program'], $step1_programs)) {
+						$step1_programs[$user2['program']]['users']++;
+					}
+				}
+				$data['step1_users'] = $step1_users;
+		
+				// Analyse des données de l'étape 2
+				$step2_users_register = array();
+				foreach ($stats[1] as $user2) {
+					if (!array_key_exists($user2['idul'], $step2_users_register)) $step2_users_register[$user2['idul']] = 0; 
+					$step2_users_register[$user2['idul']]++;
+				}
+				$data['step2_users_register'] = $step2_users_register;
+				
+				$step2_users_remove = array();
+				foreach ($stats[2] as $user2) {
+					if (!array_key_exists($user2['idul'], $step2_users_remove)) $step2_users_remove[$user2['idul']] = 0; 
+					$step2_users_remove[$user2['idul']]++;
+				}
+				$data['step2_users_remove'] = $step2_users_remove;
+				
+				// Analyse des données de l'étape 3
+				$step3_users = array();
+				foreach ($stats[3] as $user2) {
+					$info = $this->mUser->info($user2['idul']);
+					
+					if (!array_key_exists($user2['idul'], $step3_users)) {
+						$step3_users[$user2['idul']] = array();
+						$step1_programs[$info['program']]['result']++;
+					}
+					if (!isset($step3_users[$user2['idul']]['time'])) $step3_users[$user2['idul']]['time'] = 0;
+					$step3_users[$user2['idul']]['time']++;
+				}
+				$data['step3_users'] = $step3_users;
+				$data['step1_programs'] = $step1_programs;
+				arsort($data['step1_programs']);
+				
+				// Chargement de la page
+				$content = $this->load->view('admin/stats/registration-js', $data, true);
+			break;
 		}
 		
-		foreach ($pages as $page => $number) {
-			$data['pages'][$page] = round($number/$data['total']*100, 2);
-		}
+		$this->output->set_output($content);
 		
-		// Chargement de la page
-		$this->load->view('admin/stats/visits', $data);
+		$this->output->set_content_type('application/javascript');
+
+		return (true);
+	}
+	
+	function getMenu() {
+		$data['mobile'] = $this->mobile;
 		
-		// Chargement du menu
-		$this->load->view('admin/stats/m-menu', $data);
-		
-		// Chargement du bas de page
-		if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
+		$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('admin/stats/m-menu', $data, true)));
+		echo "$('#rcolumn').html(\"".addslashes($content)."\");updateMenu();";
 	}
 	
 	function registration() {
@@ -192,80 +291,16 @@ class Stats extends CI_Controller {
 		$data['section'] = 'admin';
 		$data['page'] = 'stats/registration';
 		$data['user'] = $this->user;
-		$data['mobile_browser'] = $this->lmobile->isMobileBrowser();
+		$data['mobile'] = $this->mobile;
 				
-		// Chargement de l'entête
-		if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
+		// Chargement de la page		
+		$this->output->set_output(json_encode(array(
+			'content'	=>	str_replace("\r", '', str_replace("\n", '', $this->load->view('admin/stats/registration', $data, true))),
+			'pageName'	=>	'admin/stats/registration',
+			'code'		=>	'displayStatsGraph("registration");'
+		)));
 		
-		$stats = $this->mHistory->getRegistrationStats(60);
-		
-		// Analyse des données de l'étape 1
-		$step1_users = array();
-		$step1_programs = array();
-		foreach ($stats[0] as $user2) {
-			$info = $this->mUser->info($user2['idul']);
-			if (!array_key_exists($info['program'], $step1_programs)) {
-				$step1_programs[$info['program']] = array();
-				$step1_programs[$info['program']]['registration'] = 0;
-				$step1_programs[$info['program']]['users'] = 0;
-				$step1_programs[$info['program']]['result'] = 0;
-			}
-			if (!isset($step1_programs[$info['program']]['registration'])) $step1_programs[$info['program']]['registration'] = 0;
-			
-			if (!array_key_exists($user2['idul'], $step1_users)) {
-				$step1_users[$user2['idul']] = array();
-				$step1_programs[$info['program']]['registration']++;
-			}
-			if (!isset($step1_users[$user2['idul']]['time'])) $step1_users[$user2['idul']]['time'] = 0;
-			$step1_users[$user2['idul']]['time']++;
-		}
-		$items = $this->mUsers->getStatsUsers();
-		foreach ($items as $user2) {
-			if (array_key_exists($user2['program'], $step1_programs)) {
-				$step1_programs[$user2['program']]['users']++;
-			}
-		}
-		$data['step1_users'] = $step1_users;
-
-		// Analyse des données de l'étape 2
-		$step2_users_register = array();
-		foreach ($stats[1] as $user2) {
-			if (!array_key_exists($user2['idul'], $step2_users_register)) $step2_users_register[$user2['idul']] = 0; 
-			$step2_users_register[$user2['idul']]++;
-		}
-		$data['step2_users_register'] = $step2_users_register;
-		
-		$step2_users_remove = array();
-		foreach ($stats[2] as $user2) {
-			if (!array_key_exists($user2['idul'], $step2_users_remove)) $step2_users_remove[$user2['idul']] = 0; 
-			$step2_users_remove[$user2['idul']]++;
-		}
-		$data['step2_users_remove'] = $step2_users_remove;
-		
-		// Analyse des données de l'étape 3
-		$step3_users = array();
-		foreach ($stats[3] as $user2) {
-			$info = $this->mUser->info($user2['idul']);
-			
-			if (!array_key_exists($user2['idul'], $step3_users)) {
-				$step3_users[$user2['idul']] = array();
-				$step1_programs[$info['program']]['result']++;
-			}
-			if (!isset($step3_users[$user2['idul']]['time'])) $step3_users[$user2['idul']]['time'] = 0;
-			$step3_users[$user2['idul']]['time']++;
-		}
-		$data['step3_users'] = $step3_users;
-		$data['step1_programs'] = $step1_programs;
-		arsort($data['step1_programs']);
-		
-		// Chargement de la page
-		$this->load->view('admin/stats/registration', $data);
-		
-		// Chargement du menu
-		$this->load->view('admin/stats/m-menu', $data);
-		
-		// Chargement du bas de page
-		if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
+		return (true);
 	}
 	
 	function errors() {
@@ -315,13 +350,9 @@ class Stats extends CI_Controller {
 		}
 		
 		// Chargement de la page
-		$this->load->view('admin/stats/errors', $data);
+		$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('admin/stats/errors', $data, true)));
 		
-		// Chargement du menu
-		$this->load->view('admin/stats/m-menu', $data);
-		
-		// Chargement du bas de page
-		if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
+		echo "setPageInfo('admin/stats/errors');setPageContent(\"".addslashes($content)."\");";
 	}
 }
 

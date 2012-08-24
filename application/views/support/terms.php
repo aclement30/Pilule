@@ -18,3 +18,8 @@
 </ol>
 <p>Le système de Pilule faisant partie du réseau informatique de l'Université Laval, l'utilisation du service est soumise à la <a href="https://www.bsi.ulaval.ca/cms/cadre" target="_blank">Politique de sécurité de l'information</a> de l'Université Laval.</p>
 <div class="clear"></div></div>
+</div> <!-- end .entry-content -->
+</div> <!-- end .entry-top -->
+</div> <!-- end .entry -->
+<div class="clear"></div>
+</div> <!-- end #main-area -->

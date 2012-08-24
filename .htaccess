@@ -3,7 +3,7 @@
     RewriteEngine On
     #RewriteBase /
 
-    RewriteRule /support/(.*) https://www.pilule.ulaval.ca/welcome/\%23!/support/$1 [R=301,L,NE]
+    #RewriteRule /support/(.*) https://www.pilule.ulaval.ca/welcome/\%23!/support/$1 [R=301,L,NE]
     #Removes access to the system folder by users.
     #Additionally this will allow you to create a System.php controller,
     #previously this would not have been possible.

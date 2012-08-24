@@ -7,7 +7,7 @@ class mHistory extends CI_Model {
 	}
 	
 	function getCache ($name) {
-		// Sélection des données
+		// SÃ©lection des donnÃ©es
 		$this->db->where(array('idul'=>$_SESSION['cap_iduser'], 'name'=>$name));
 		$result = $this->db->get('cache');
 		
@@ -45,7 +45,7 @@ class mHistory extends CI_Model {
 	
 	// Fonctions de statistiques
 	function getLogins ($days) {
-		// Sélection des données
+		// SÃ©lection des donnÃ©es
 		$this->db->where(array('timestamp >=' => time()-3600*24*$days, 'description'=>'login', 'idul !='=>'alcle8'));
 		$result = $this->db->get('history');
 		$logins = $result->result_array();
@@ -62,11 +62,11 @@ class mHistory extends CI_Model {
 	}
 	
 	function getPages ($days) {
-		// Sélection des données
+		// SÃ©lection des donnÃ©es
 		$this->db->where(array('timestamp >=' => time()-3600*24*$days, 'description !='=>'login', 'idul !='=>'alcle8'));
 		$result = $this->db->get('history');
 		$pages = $result->result_array();
-		
+
 		if ($pages!=array()) {
 			return ($pages);
 		} else {
@@ -75,25 +75,25 @@ class mHistory extends CI_Model {
 	}
 	
 	function getRegistrationStats ($days) {
-		// Sélection des données
+		// SÃ©lection des donnÃ©es
 		$this->db->where(array('timestamp >=' => time()-3600*24*$days, 'description'=>'registration-courses', 'idul !='=>'alcle8'));
 		
 		$result = $this->db->get('history');
 		$step1 = $result->result_array();
 		
-		// Sélection des données
+		// SÃ©lection des donnÃ©es
 		$this->db->where(array('timestamp >=' => time()-3600*24*$days, 'description'=>'registration-register-courses', 'idul !='=>'alcle8'));
 		
 		$result = $this->db->get('history');
 		$step2_register = $result->result_array();
 		
-		// Sélection des données
+		// SÃ©lection des donnÃ©es
 		$this->db->where(array('timestamp >=' => time()-3600*24*$days, 'description'=>'registration-remove-courses', 'idul !='=>'alcle8'));
 		
 		$result = $this->db->get('history');
 		$step2_remove = $result->result_array();
 		
-		// Sélection des données
+		// SÃ©lection des donnÃ©es
 		$this->db->where(array('timestamp >=' => time()-3600*24*$days, 'description'=>'registration-result', 'idul !='=>'alcle8'));
 		
 		$result = $this->db->get('history');

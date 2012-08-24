@@ -4,7 +4,7 @@
 <base href="<?php echo site_url(); ?>" />
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="description" content="Pilule est un système de gestion des études pour les étudiants de l'Université Laval, conçu pour être simple et ergonomique. Vous pouvez l'utiliser pour consulter votre cheminement scolaire, votre relevé de notes, votre horaire de cours, votre boîte Exchange et vos frais de scolarité." />
-<meta property="og:image" content="https://www.pilule.ulaval.ca/images/thumbnail.jpg"/> 
+<meta property="og:image" content="<?php echo site_url(); ?>images/thumbnail.jpg"/> 
 <meta property="og:title" content="Pilule - Gestion des études"/> 
 <meta property="og:description" content="Pilule est un système de gestion des études pour les étudiants de l'Université Laval, conçu pour être simple et ergonomique. Vous pouvez l'utiliser pour consulter votre cheminement scolaire, votre relevé de notes, votre horaire de cours, votre boîte Exchange et vos frais de scolarité."/> 
 <meta property="og:url" content="http://www.pilule.ulaval.ca"/> 
@@ -46,9 +46,7 @@
 <script language="javascript" src="<?php echo site_url(); ?>js/fees.js"></script>
 <script language="javascript" src="<?php echo site_url(); ?>js/registration.js"></script>
 <script language="javascript" src="<?php echo site_url(); ?>js/settings.js"></script>
-<?php if (isset($section) && $section == 'admin') { ?>
 <script language="javascript" src="<?php echo site_url(); ?>js/highcharts.js"></script>
-<?php } ?>
 <?php if ($_SERVER["HTTP_HOST"]!='localhost') { ?>
 <script type="text/javascript">
 
@@ -75,7 +73,7 @@
 <div id="header">
 		<div id="header-inner">
 			<div class="container">
-				<a href="./dashboard/" style="display: block; float: left; width: 320px;">
+				<a href="<?php echo site_url(); ?>#!/dashboard/" style="display: block; float: left; width: 320px;">
 					<img src="./images/logo-3.png" id="logo" height="59" alt="Pilule - Facilite la gestion de vos études" />
 				</a>
 				<img src="./images/header-picture.png" style="float: left; display: block; margin-left: 20px; position: relative; top: -50px; margin-bottom: -60px;" width="480" height="157" alt="Campus de l'Université Laval" />	
@@ -90,18 +88,18 @@
 	<div id="header-bottom">
 		<div class="container">
 				<ul id="secondary-menu" class="nav clearfix">
-					<li class="tab-welcome"><a href="./dashboard/">Tableau de bord</a></li>
+					<li class="tab-welcome"><a href="<?php echo site_url(); ?>#!/dashboard/">Tableau de bord</a></li>
 					<?php if ($_SESSION['cap_datacheck'] == 1) { ?>
-					<li class="tab-studies"><a href="./studies/">Dossier scolaire</a></li>
-					<li class="tab-schedule"><a href="./schedule/">Horaire</a></li>
-					<li class="tab-fees"><a href="./fees/">Frais de scolarité</a></li>
-					<li class="tab-settings"><a href="./settings/">Préférences</a></li>
+					<li class="tab-studies"><a href="<?php echo site_url(); ?>#!/studies/">Dossier scolaire</a></li>
+					<li class="tab-schedule"><a href="<?php echo site_url(); ?>#!/schedule/">Horaire</a></li>
+					<li class="tab-fees"><a href="<?php echo site_url(); ?>#!/fees/">Frais de scolarité</a></li>
+					<li class="tab-settings"><a href="<?php echo site_url(); ?>#!/settings/">Préférences</a></li>
 					<?php
 					} ?>
-					<?php if ($_SESSION['cap_iduser'] == 'alcle8' and (isset($section) and $section=='admin')) { ?><li class="tab-admin"><a href="./admin/dashboard/">Admin</a></li><?php } ?>
+					<?php if ($_SESSION['cap_iduser'] == 'alcle8' and (isset($section) and $section=='admin')) { ?><li class="tab-admin"><a href="<?php echo site_url(); ?>#!/admin/dashboard/">Admin</a></li><?php } ?>
 				</ul> <!-- end ul#nav -->
 				<div id="search-bar" class="nav clearfix">
-					<a style="margin-top: 0px; float: right;" href="./welcome/s_logout" class='icon-button logout-icon'><span class='et-icon'><span>Déconnexion</span></span></a><div style="float: right; margin-right: 15px; color: #4289CF; margin-top: 7px; font-size: 11pt;"><?php if (isset($user)) echo $user['name']; ?></div><div class="clear"></div>
+					<a style="margin-top: 0px; float: right;" href="<?php echo site_url(); ?>welcome/s_logout" class='icon-button logout-icon'><span class='et-icon'><span>Déconnexion</span></span></a><div style="float: right; margin-right: 15px; color: #4289CF; margin-top: 7px; font-size: 11pt;"><?php if (isset($user)) echo $user['name']; ?></div><div class="clear"></div>
 				
 				</div>
 		</div> <!-- end .container -->

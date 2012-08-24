@@ -9,7 +9,7 @@ class Support extends CI_Controller {
 		
 		// Ouverture de la session
 		if (!isset($_SESSION)) session_start();
-				
+		
 		// Chargement des modèles
 		$this->load->model('mUser');
 		
@@ -25,7 +25,7 @@ class Support extends CI_Controller {
 		// Détection des navigateurs mobiles
 		$this->mobile = $this->lmobile->isMobile();
 	}
-	
+
 	function getMenu() {
 		$data['mobile'] = $this->mobile;
 		
@@ -34,33 +34,54 @@ class Support extends CI_Controller {
 	}
 	
 	function terms () {
-		$data = array();
+		$data = array('page' => 'support/terms');
 		if (isset($_SESSION['cap_iduser'])) $data['user'] = $this->user;
 		
-		// Chargement de la page
-		$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('support/terms', $data, true)));
+		// Chargement de l'entête
+		if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
 		
-		echo "setPageInfo('support/terms');setPageContent(\"".addslashes($content)."\");";
+		// Affichage de la page
+		$this->load->view('support/terms', $data);
+		
+		// Chargement du menu
+		if ($this->mobile!=1) $this->load->view('support/m-menu', $data);
+		
+		// Chargement du bas de page
+		if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
 	}
 		
 	function privacy () {
-		$data = array();
+		$data = array('page' => 'support/privacy');
 		if (isset($_SESSION['cap_iduser'])) $data['user'] = $this->user;
 		
-		// Chargement de la page
-		$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('support/privacy', $data, true)));
+		// Chargement de l'entête
+		if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
 		
-		echo "setPageInfo('support/privacy');setPageContent(\"".addslashes($content)."\");";
+		// Affichage de la page
+		$this->load->view('support/privacy', $data);
+		
+		// Chargement du menu
+		if ($this->mobile!=1) $this->load->view('support/m-menu', $data);
+		
+		// Chargement du bas de page
+		if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
 	}
 	
 	function faq () {
-		$data = array();
+		$data = array('page' => 'support/faq');
 		if (isset($_SESSION['cap_iduser'])) $data['user'] = $this->user;
 		
-		// Chargement de la page
-		$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('support/faq', $data, true)));
+		// Chargement de l'entête
+		if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
 		
-		echo "setPageInfo('support/faq');setPageContent(\"".addslashes($content)."\");";
+		// Affichage de la page
+		$this->load->view('support/faq', $data);
+		
+		// Chargement du menu
+		if ($this->mobile!=1) $this->load->view('support/m-menu', $data);
+		
+		// Chargement du bas de page
+		if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
 	}
 	
 	function phishingEmail () {
@@ -68,13 +89,20 @@ class Support extends CI_Controller {
 	}
 	
 	function contact () {
-		$data = array();
+		$data = array('page' => 'support/contact');
 		if (isset($_SESSION['cap_iduser'])) $data['user'] = $this->user;
 		
-		// Chargement de la page
-		$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('support/contact', $data, true)));
+		// Chargement de l'entête
+		if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
 		
-		echo "setPageInfo('support/contact');setPageContent(\"".addslashes($content)."\");";
+		// Affichage de la page
+		$this->load->view('support/contact', $data);
+		
+		// Chargement du menu
+		if ($this->mobile!=1) $this->load->view('support/m-menu', $data);
+		
+		// Chargement du bas de page
+		if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
 	}
 	
 	function w_reportBug () {

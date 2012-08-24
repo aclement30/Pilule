@@ -18,7 +18,7 @@ class mCourses extends CI_Model {
 		}
 	}
 	
-	// Recherche de l'information sur un cours et les classes liées
+	// Recherche de l'information sur un cours et les classes liÃ©es
 	function getCourseInfo ($code, $loadClasses = false, $semester = '') {
 		$this->db->where(array('id'=>$code));
 		$result = $this->db->get('courses');
@@ -36,7 +36,7 @@ class mCourses extends CI_Model {
 		}
 	}
 	
-	// Ajout d'une classe à un cours
+	// Ajout d'une classe Ã  un cours
 	function addClass ($class) {
 		if ($this->db->insert('classes', $class)) {
 			return (true);
@@ -103,7 +103,7 @@ class mCourses extends CI_Model {
 		
 		if ($spots != array()) {
 			if ($update) {
-				// Vérification de la date d'actualisation
+				// VÃ©rification de la date d'actualisation
 				if ($spots['remaining'] <= 10) {
 					// Actualisation des places disponibles
 					$this->lcapsule->updateClassSpots($nrc, $semester);
@@ -174,7 +174,7 @@ class mCourses extends CI_Model {
 	}
 	
 	function updateCoursesData ($semester) {
-		// Sélection des données
+		// SÃ©lection des donnÃ©es
 		$result = $this->db->get('programs_courses');
 		
 		$courses = $result->result_array();
@@ -194,7 +194,7 @@ class mCourses extends CI_Model {
 	
 	// Cours de programmes
 	
-	// Ajout d'un cours à un programme
+	// Ajout d'un cours Ã  un programme
 	function addProgramCourses ($courses) {
 		foreach ($courses as $course) {
 			if (!$this->db->insert('programs_courses', $course)) {
@@ -207,7 +207,7 @@ class mCourses extends CI_Model {
 	
 	// Recherche des cours d'un programme
 	function getProgramCourses ($program) {
-		// Sélection des données
+		// SÃ©lection des donnÃ©es
 		$this->db->where(array('program'=>$program));
 		$this->db->order_by('id asc, optional asc'); 
 		$result = $this->db->get('programs_courses');
