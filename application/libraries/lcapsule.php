@@ -56,7 +56,6 @@ class lCapsule {
 			
 			// Vérification de la disponibilité du formulaire de connexion
 			if (strpos($response, '<INPUT TYPE="text" NAME="sid" SIZE="10" MAXLENGTH="8" ID="UserID" >')<1) {
-			//} else {
 				$this->CI->lfetch->Close();
 				return('server-unavailable');
 			}
@@ -2089,7 +2088,6 @@ class lCapsule {
 		$data = substr($response, strpos($response, '<TABLE  CLASS="datadisplaytable" SUMMARY="Horaire actuel">')+20);
 		$data = substr($data, strpos($data, '</TR>')+5);
 		$data = substr($data, 0, strpos($data, '<TABLE  CLASS="datadisplaytable"'));
-		//error_log($data);
 		$data = explode("<TR>", $data);
 		
 		$arguments['PostString'] = "term_in=".$semester."&RSTS_IN=DUMMY&assoc_term_in=DUMMY&CRN_IN=DUMMY&start_date_in=DUMMY&end_date_in=DUMMY&SUBJ=DUMMY&CRSE=DUMMY&SEC=DUMMY&LEVL=DUMMY&CRED=DUMMY&GMOD=DUMMY&TITLE=DUMMY&MESG=DUMMY&REG_BTN=DUMMY";

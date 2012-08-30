@@ -35,3 +35,6 @@ Thumbs.db
 
 temp/*
 application/logs/*
+/nbproject/private/
+.idea/*
+nbproject/*
