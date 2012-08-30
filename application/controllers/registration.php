@@ -4,8 +4,8 @@ class Registration extends CI_Controller {
 	var $mobile = 0;
 	var $usebots = 0;
 	var $user;
-	var $registrationSemester = '201201';
-	var $currentSemester = '201201';
+	var $registrationSemester = '201209';
+	var $currentSemester = '201209';
 	var $deadlines = array(
 						   '201201'	=> array(
 											'registration_start'=>	'20111107',
@@ -27,7 +27,6 @@ class Registration extends CI_Controller {
 											)
 						   );
 	var $registrationSemesters = array('201201'=>'Hiver 2012', '201205'=>'Été 2012', '201209'=>'Automne 2012');
-	//var $registrationSemesters = array('201201'=>'Hiver 2012');
 	
 	function Registration() {
 		parent::__construct();
