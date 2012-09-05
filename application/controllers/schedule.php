@@ -3,87 +3,74 @@
 class Schedule extends CI_Controller {
 	var $mobile = 0;
 	var $user;
-	
+    var $_source;
+
 	function Schedule() {
 		parent::__construct();
-		
-		// Ouverture de la session
-		if (!isset($_SESSION)) session_start();
+
+        // Détection de l'origine de la requête (HTML, AJAX, iframe...)
+        getRequestSource();
 				
 		// Chargement des modèles
 		$this->load->model('mUser');
-		$this->load->model('mFacebook');
-		
-		if (!isset($_SESSION['cap_iduser']) and $this->uri->segment(1)!='login' and $this->uri->segment(2)!='s_login') {
-			$_SESSION['login_redirect'] = $this->uri->uri_string();
-			redirect('login');
-		}
-		
-		// Sélection des données de l'utilisateur
-		if (isset($_SESSION['cap_iduser'])) {
-			$this->user = $this->mUser->info();
-			$this->user['password'] = $_SESSION['cap_password'];
-		}
+		$this->load->model('mSchedule');
+
+        // Vérification de la connexion
+        if ((!$this->mUser->isAuthenticated())) {
+            $_SESSION['login_redirect'] = $this->uri->uri_string();
+            redirect('login');
+        }
 		
 		// Détection des navigateurs mobiles
 		$this->mobile = $this->lmobile->isMobile();
 	}
 	
 	function index () {
-		$data = array();
-		$data['user'] = $this->user;
-		$data['semester_date'] = $this->uri->segment(3);
-		$data['mobile'] = $this->mobile;
-		$default_semester = '201209';
-		
-		if (isset($_SESSION['cap_offline']) and $_SESSION['cap_offline'] == 'yes') {
-			$data['cap_offline'] = 1;
-		}
-		
+        $data = array(
+            'section'           =>  'studies',
+            'user'              =>  $this->mUser->info(),
+            'mobile_browser'    =>  $this->mobile,
+            'capsule_offline'   =>  ($this->session->userdata('capsule_offline') == 'yes') ? true: false,
+            // Set page specific data
+            'semester_date'     =>  ($this->uri->segment(3) != '') ? $this->uri->segment(3): CURRENT_SEMESTER
+        );
+
 		$this->mHistory->save('schedule-timetable');
-		
-		if ($data['semester_date']=='') {
-			if (isset($_SESSION['schedule_current_semester'])) {
-				$data['semester_date'] = $_SESSION['schedule_current_semester'];
-			} else {
-				// Vérification de l'existence des sessions en cache
-				$cache = $this->mCache->getCache('data|schedule,semesters');
-				
-				if ($cache!=array()) {
-					$semesters = unserialize($cache['value']);
-					
-					if ($semesters!=array()) {
-						if (isset($semesters[$default_semester])) {
-							$data['semester_date'] = $default_semester;
-						} else {
-							$data['semester_date'] = key($semesters);
-						}
-						$_SESSION['schedule_current_semester'] = $data['semester_date'];
-					}
-				}
-			}
-		} else {
-			$_SESSION['schedule_current_semester'] = $data['semester_date'];
-		}
-		
-		if ($data['semester_date']!='') {
-			// Vérification de l'existence des sessions en cache
-			$cache = $this->mCache->getCache('data|schedule['.$data['semester_date'].']');
-			
-			if ($cache!=array()) {
-				$data['schedule'] = unserialize($cache['value']);
-				$data['cache_date'] = $cache['date'];
-				$data['cache_time'] = $cache['time'];
-				// Vérification de la date de chargement des données
-				if ($cache['timestamp']<(time()-$this->mUser->expirationDelay)) {
-					$data['reload_data'] = 'data|schedule,semesters';
-				}
-			}
-		}
-		
-		$cache = $this->mCache->getCache('data|schedule,semesters');
-		
-		if ($cache!=array()) {
+
+        // Vérification de l'existence des données en cache
+        $last_request = $this->mCache->getLastRequest('schedule');
+
+        if (empty($last_request)) {
+            // Aucune données n'existe pour cette page
+            respond(array(
+                'title'         =>  'Horaire de cours',
+                'content'       =>  $this->load->view('errors/loading-data', $data, true),
+                'reloadData'    =>  'schedule',
+                'breadcrumb'    =>  array(
+                    array(
+                        'url'   =>  '#!/dashboard',
+                        'title' =>  'Tableau de bord'
+                    ),
+                    array(
+                        'url'   =>  '#!/schedule',
+                        'title' =>  'Horaire de cours'
+                    )
+                ),
+                'buttons'       =>  array(
+                    array(
+                        'action'=>  "app.cache.reloadData('schedule');",
+                        'type'  =>  'refresh'
+                    )
+                )
+            ));
+
+            return (false);
+        }
+
+        // Sélection de l'horaire pour le semestre sélectionné
+        $data['classes'] = $this->mSchedule->getClasses(array('stu_schedule_classes.semester' => $data['semester_date']));
+        /*
+		if (!empty($data['classes'])) {
 			$data['semesters'] = unserialize($cache['value']);
 			$data['timetable'] = array();
 			if (isset($_SESSION['schedule_current_period'])) $data['current_period'] = $_SESSION['schedule_current_period'];
@@ -197,14 +184,61 @@ class Schedule extends CI_Controller {
 		} else {
 			$data['require_fb_login'] = 0;
 		}
-		*/
-		
+
 		echo "setPageInfo('schedule/timetable');setPageContent(\"".addslashes($content)."\");$('.class .class-title').shorten();$('.class').tipTip({maxWidth: 'auto', edgeOffset: -2, defaultPosition: 'top'});";
 		if (isset($schedule) and $schedule!=array()) {
 			echo "scheduleObj.currentPeriod='".$current_period."';";
 		}
 		if (isset($data['reload_data']) and $_SESSION['cap_iduser'] != 'demo' and $_SESSION['cap_offline'] != 'yes') echo "reloadData('".$data['reload_data']."', 1);";
-	}
+	    */
+
+        $code = <<<EOT
+        $('#fullcalendar').fullCalendar({
+			header: {
+				left: 'prev,next',
+				center: 'title',
+				right: 'month,basicWeek,basicDay'
+			},
+			firstDay:   1,
+			weekends:   false,
+			events: [
+                {
+                    title:  'My Event',
+                    start:  '2012-09-05T15:30:00',
+                    end:    '2012-09-05T18:30:00',
+                    allDay: false
+                }
+                // other events here...
+            ],
+            timeFormat: 'H(:mm)' // uppercase H for 24-hour clock
+		});
+EOT;
+
+        // Chargement de la page
+        respond(array(
+            'title'         =>  'Horaire de cours',
+            'content'       =>  $this->load->view('schedule/timetable', $data, true),
+            'code'          =>  $code,
+            'timestamp'     =>  $last_request['timestamp'],
+            'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay)) ? 'schedule': false,
+            'breadcrumb'    =>  array(
+                array(
+                    'url'   =>  '#!/dashboard',
+                    'title' =>  'Tableau de bord'
+                ),
+                array(
+                    'url'   =>  '#!/schedule',
+                    'title' =>  'Horaire de cours'
+                )
+            ),
+            'buttons'       =>  array(
+                array(
+                    'action'=>  "app.cache.reloadData('schedule');",
+                    'type'  =>  'refresh'
+                )
+            )
+        ));
+    }
 	
 	function getMenu() {
 		$data['mobile'] = $this->mobile;

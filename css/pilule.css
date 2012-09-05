@@ -1,0 +1,30 @@
+
+#header h1 {
+    background-image: url(../img/logo-h1.png);
+    height: 40px;
+}
+
+.quick-actions.dashboard {
+    margin-bottom:  20px;
+}
+
+.quick-actions.dashboard li a img {
+    height: 48px;
+}
+
+.action-buttons .btn-refresh img {
+    display: none;
+}
+
+#user-nav ul li a {
+    font-size: 10pt;
+}
+
+.widget-content table th {
+    text-align: right;
+    font-size: 8pt;
+}
+
+#content-layer .alert.alert-error {
+    display: none;
+}

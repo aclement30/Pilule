@@ -3,252 +3,341 @@
 class Studies extends CI_Controller {
 	var $mobile = 0;
 	var $user;
+    var $_source;
 	
 	function Studies() {
 		parent::__construct();
-		
-		// Ouverture de la session
-		if (!isset($_SESSION)) session_start();
+
+        // Détection de l'origine de la requête (HTML, AJAX, iframe...)
+        getRequestSource();
 		
 		// Augmentation de la limitation de mémoire
-		ini_set('memory_limit', '50M');
+		//ini_set('memory_limit', '50M');
 		
 		// Chargement des modèles
 		$this->load->model('mCourses');
 		$this->load->model('mUser');
-		
-		if (!isset($_SESSION['cap_iduser']) and $this->uri->segment(1)!='login' and $this->uri->segment(2)!='s_login') {
-			$_SESSION['login_redirect'] = $this->uri->uri_string();
-			redirect('login');
-		}
-		
-		// Sélection des données de l'utilisateur
-		if (isset($_SESSION['cap_iduser'])) {
-			$this->user = $this->mUser->info();
-			$this->user['password'] = $_SESSION['cap_password'];
-		}
+
+        // Vérification de la connexion
+        if ((!$this->mUser->isAuthenticated())) {
+            $_SESSION['login_redirect'] = $this->uri->uri_string();
+            redirect('login');
+        }
 		
 		// Détection des navigateurs mobiles
 		$this->mobile = $this->lmobile->isMobile();
 	}
 	
 	function index () {
-		$data = array();
-		$data['user'] = $this->user;
-		$data['mobile'] = $this->mobile;
-		
-		if (isset($_SESSION['cap_offline']) and $_SESSION['cap_offline'] == 'yes') {
-			$data['cap_offline'] = 1;
-		}
-		
-		$this->mHistory->save('studies-summary');
-		
-		// Sélection des données des études
-		$data['studies'] = $this->mUser->getStudies();
-		
-		// Vérification de l'existence de la page en cache
-		$cache = $this->mCache->getCache('data|studies,summary');
-		
-		if ($cache!=array()) {
-			$data['cache_date'] = $cache['date'];
-			$data['cache_time'] = $cache['time'];
-			// Vérification de la date de chargement des données
-			if ($cache['timestamp']<(time()-$this->mUser->expirationDelay)) {
-				$data['reload_data'] = 'data|studies,summary';
-			}
-		}
+        $data = array(
+            'section'           =>  'studies',
+            'user'              =>  $this->user,
+            'mobile_browser'    =>  $this->mobile,
+            'capsule_offline'   =>  ($this->session->userdata('capsule_offline') == 'yes') ? true: false,
+            // Set page specific data
+            'programs'           =>  $this->mStudies->getPrograms(),
+            'user'              =>  $this->mUser->info()
+        );
 
-		// Chargement de la page
-		if ($data['studies']!=array()) {
-			$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('studies/home', $data, true)));
-		} else {
-			// Chargement de la page d'erreur
-			$data['title'] = 'Programme d\'études';
-			$data['reload_name'] = 'data|studies,summary';
-			
-			$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('errors/loading-data', $data, true)));
-		}
-		
-		echo "setPageInfo('studies/home');setPageContent(\"".addslashes($content)."\");";
-		if (isset($data['reload_data']) and $_SESSION['cap_iduser'] != 'demo' and $_SESSION['cap_offline'] != 'yes') echo "reloadData('".$data['reload_data']."', 1);";
-	}
-	
-	function getMenu() {
-		$data['mobile'] = $this->mobile;
-		
-		$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('studies/m-menu', $data, true)));
-		echo "$('#rcolumn').html(\"".addslashes($content)."\");updateMenu();";
-		if ($this->mobile == 1) echo "$('h2.title').after($('#sidebar'));";
+		$this->mHistory->save('studies-summary');
+
+		// Vérification de l'existence des données en cache
+		$last_request = $this->mCache->getLastRequest('studies-summary');
+
+        if (empty($last_request)) {
+            // Aucune données n'existe pour cette page
+            respond(array(
+                'title'         =>  'Programme d\'études',
+                'content'       =>  $this->load->view('errors/loading-data', $data, true),
+                'reloadData'    =>  'studies',
+                'breadcrumb'    =>  array(
+                    array(
+                        'url'   =>  '#!/dashboard',
+                        'title' =>  'Tableau de bord'
+                    ),
+                    array(
+                        'url'   =>  '#!/studies',
+                        'title' =>  'Dossier scolaire'
+                    )
+                ),
+                'buttons'       =>  array(
+                    array(
+                        'action'=>  "app.cache.reloadData('studies');",
+                        'type'  =>  'refresh'
+                    )
+                )
+            ));
+
+            return (false);
+        }
+
+        if ($data['programs']!=array()) {
+            respond(array(
+                'title'         =>  'Programme d\'études',
+                'content'       =>  $this->load->view('studies/summary', $data, true),
+                'timestamp'     =>  $last_request['timestamp'],
+                'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay)) ? 'studies': false,
+                'breadcrumb'=>  array(
+                    array(
+                        'url'   =>  '#!/dashboard',
+                        'title' =>  'Tableau de bord'
+                    ),
+                    array(
+                        'url'   =>  '#!/studies',
+                        'title' =>  'Dossier scolaire'
+                    )
+                ),
+                'buttons'       =>  array(
+                    array(
+                        'action'=>  "app.cache.reloadData('studies');",
+                        'type'  =>  'refresh'
+                    )
+                )
+            ));
+        } else {
+            respond(array(
+                'title'     =>  'Programme d\'études',
+                'content'   =>  $this->load->view('errors/loading-data', $data, true)
+            ));
+        }
 	}
 	
 	function details () {
-		$data = array();
-		$data['user'] = $this->user;
-		$data['type'] = $this->uri->segment(3);
-		if ($data['type']=='') $data['type'] = '1';
+        $data = array(
+            'section'           =>  'studies',
+            'user'              =>  $this->user,
+            'mobile'            =>  $this->mobile,
+            'capsule_offline'   =>  ($this->session->userdata('capsule_offline') == 'yes') ? true: false,
+            // Set page specific data
+            'programs'          =>  $this->mStudies->getPrograms(),
+            'user'              =>  $this->mUser->info(),
+        );
 		
-		$data['mobile'] = $this->mobile;
-		if ($this->mobile==1) {
-			$data['type'] = 2;
-		}
-		
-		if (isset($_SESSION['cap_offline']) and $_SESSION['cap_offline'] == 'yes') {
-			$data['cap_offline'] = 1;
-		}
-		
-		if ($data['type'] == '1') {
-			$this->mHistory->save('studies-details-attestation');
-		} else {
-			$this->mHistory->save('studies-details-education');
-		}
-		
-		// Chargement de l'entête
-		$data['tabs'] = array(
-					  '0'	=>	array(
-								  'url'		=>	'./studies/details/1',
-								  'title'	=>	'Attestation',
-								  'current'	=>	0
-								  ),
-					  '1'	=>	array(
-								  'url'		=>	'./studies/details/2',
-								  'title'	=>	'Formation',
-								  'current'	=>	0
-								  )
-					  );
-		
-		$data['tabs'][$data['type']-1]['current'] = 1;
-		
+		$this->mHistory->save('studies-details');
+
+        // Vérification de l'existence des données en cache
+        $last_request = $this->mCache->getLastRequest('studies-details');
+
+        if (empty($last_request)) {
+            // Aucune données n'existe pour cette page
+            respond(array(
+                'title'     =>  'Rapport de cheminement',
+                'content'   =>  $this->load->view('errors/loading-data', $data, true),
+                'reloadData'=>  'studies-details',
+                'breadcrumb'=>  array(
+                    array(
+                        'url'   =>  '#!/dashboard',
+                        'title' =>  'Tableau de bord'
+                    ),
+                    array(
+                        'url'   =>  '#!/studies',
+                        'title' =>  'Dossier scolaire'
+                    ),
+                    array(
+                        'url'   =>  '#!/studies/details',
+                        'title' =>  'Rapport de cheminement'
+                    )
+                ),
+                'buttons'       =>  array(
+                    array(
+                        'action'=>  "app.cache.reloadData('studies-details');",
+                        'type'  =>  'refresh'
+                    )
+                )
+            ));
+
+            return (false);
+        }
+
 		// Sélection des données des études
-		$data['studies'] = $this->mUser->getStudies();
-		
-		if ($data['studies']!=array()) {
+		if ($data['programs']!=array()) {
+            foreach ($data['programs'] as &$program) {
 			// Vérification de l'existence de la page en cache
-			if ($data['type']=='2') {
-				$sections = $this->mUser->getCoursesSections($_SESSION['cap_iduser']);
-				$courses = $this->mUser->getCourses($_SESSION['cap_iduser']);
-				
-				foreach ($sections as $section) {
-					$section['courses'] = array();
-					
-					foreach ($courses as $course) {
-						if ($section['title']==$course['section']) {
-							$course_info = $this->mCourses->getCourseInfo($course['idcourse']);
-							if ($course_info!=array()) {
-								$course['title'] = $course_info['title'];
-								$course['credits'] = $course_info['credits'];
-							}
-							
-							$section['courses'][] = $course;
-						}
-					}
-					
-					$data['sections'][] = $section;
-				}
-				
-				$cache = $this->mCache->getCache('data|studies,details,2');
-					
-				if ($cache!=array()) {
-					$data['cache_date'] = $cache['date'];
-					$data['cache_time'] = $cache['time'];
-					// Vérification de la date de chargement des données
-					if ($cache['timestamp']<(time()-$this->mUser->expirationDelay)) {
-						$data['reload_data'] = 'data|studies,details';
-					}
-				}
-				
-				$cache = $this->mCache->getCache('data|studies,details');
-					
-				if ($cache!=array()) {
-					$cache['value'] = unserialize($cache['value']);
-					$data['details']['other_courses'] = $cache['value']['other_courses'];
-				}
-			
-				if ($this->mobile==1) {
-					$data['details']['other'] = $cache['value']['other_courses'];
-				}
-			} else {
-				$cache = $this->mCache->getCache('data|studies,details');
-			
-				if ($cache!=array()) {
-					$data['cache_date'] = $cache['date'];
-					$data['cache_time'] = $cache['time'];
-					// Vérification de la date de chargement des données
-					if ($cache['timestamp']<(time()-$this->mUser->expirationDelay)) {
-						$data['reload_data'] = 'data|studies,details';
-					}
-				}
-			}
-			
+				$program['sections'] = $this->mStudies->getProgramSections($program['id']);
+
+                foreach ($program['sections'] as &$section) {
+                    $section['courses'] = $this->mStudies->getProgramCourses(array('section_id' => $section['id']));
+                }
+            }
+
+            // Sélection de la moyenne de cohorte
+            $program['cohort_gpa'] = $this->mStudies->getCohortAverageGPA($program['name'], $program['session_repertoire']);
+
+            // Sélection des moyennes pour chaque semestre
+            $program['gpas'] = $this->mStudies->getSemestersGPA($program['session_repertoire'], $program['session_evaluation']);
+
+            $chart_data = array();
+            $chart_x_axis = array();
+            $smallest = 4.33;
+            $highest = 0;
+
+            $n = 0;
+            foreach ($program['gpas'] as $semester) {
+                $chart_data[] = '[' . $n . ', ' . $semester['gpa'] . ']';
+                $chart_x_axis[] = '[' . $n . ', \'' . convertSemester($semester['semester'], true) . '\']';
+
+                if ($semester['gpa'] < $smallest) $smallest = $semester['gpa'];
+                if ($semester['gpa'] > $highest) $highest = $semester['gpa'];
+
+                $n++;
+            }
+
+            $smallest = $smallest - 0.1;
+            $highest = $highest + 0.1;
+            $chart_data = implode(', ', $chart_data);
+            $chart_x_axis = implode(', ', $chart_x_axis);
+
+            $code = <<<EOD
+                    var plot = $.plot($(".chart"),
+                    [ { data: [{$chart_data}], label: "Moyennes", color: "#BA1E20", hoverable: true} ], {
+                        series: {
+                            lines: { show: true },
+                            points: { show: true }
+                        },
+                        grid: { hoverable: true, clickable: true },
+                        yaxis: { min: {$smallest}, max: {$highest} },
+                        xaxis: {
+                            ticks: [{$chart_x_axis}]
+                          },
+                        legend: { show: false }
+                    });
+                    var previousPoint = null;
+                    $(".chart").bind("plothover", function (event, pos, item) {
+
+                        if (item) {
+                            if (previousPoint != item.datapoint) {
+                                previousPoint = item.datapoint;
+
+                                $("#tooltip").remove();
+                                var x = item.datapoint[0],
+                                    y = item.datapoint[1] - item.datapoint[2];
+
+                                $(item).tooltip({'title': y + " " + item.series.label});
+
+                               // showTooltip(item.pageX, item.pageY, y + " " + item.series.label);
+                            }
+                        } else {
+                            $("#tooltip").remove();
+                            previousPoint = null;
+                        }
+                    });
+EOD;
+
 			// Chargement de la page
-			if (($data['type'] == '2' and (isset($data['cache_date']))) or ($data['type'] == '1' and $data['studies'] != array())) {
-				$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('studies/details', $data, true)));
-			} elseif ($data['type'] == '2') {
-				// Chargement de la page d'erreur
-				$data['title'] = 'Rapport de cheminement';
-				$data['reload_name'] = 'data|studies,details';
-				
-				$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('errors/loading-data', $data, true)));
-			}
-		} else {
-			// Chargement de la page d'erreur
-			$data['title'] = 'Rapport de cheminement';
-			$data['reload_name'] = 'data|studies,details';
-			
-			$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('errors/loading-data', $data, true)));
-		}
-		
-		echo "setPageInfo('studies/details');setPageContent(\"".addslashes($content)."\");";
-		if (isset($data['reload_data']) and $_SESSION['cap_iduser'] != 'demo' and $_SESSION['cap_offline'] != 'yes') echo "reloadData('".$data['reload_data']."', 1);";
+            respond(array(
+                'title'         =>  'Rapport de cheminement',
+                'content'       =>  $this->load->view('studies/details', $data, true),
+                'code'          =>  $code,
+                'timestamp'     =>  $last_request['timestamp'],
+                'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay)) ? 'studies-details': false,
+                'breadcrumb'    =>  array(
+                    array(
+                        'url'   =>  '#!/dashboard',
+                        'title' =>  'Tableau de bord'
+                    ),
+                    array(
+                        'url'   =>  '#!/studies',
+                        'title' =>  'Dossier scolaire'
+                    ),
+                    array(
+                        'url'   =>  '#!/studies/details',
+                        'title' =>  'Rapport de cheminement'
+                    )
+                ),
+                'buttons'       =>  array(
+                    array(
+                        'action'=>  "app.cache.reloadData('studies-details');",
+                        'type'  =>  'refresh'
+                    )
+                )
+            ));
+        }
 	}
 	
 	function report () {
-		$data = array();
-		$data['user'] = $this->user;
-		$data['mobile'] = $this->mobile;
-		
-		if (isset($_SESSION['cap_offline']) and $_SESSION['cap_offline'] == 'yes') {
-			$data['cap_offline'] = 1;
-		}
-		
+        $data = array(
+            'section'           =>  'studies',
+            'user'              =>  $this->mUser->info(),
+            'mobile'            =>  $this->mobile,
+            'capsule_offline'   =>  ($this->session->userdata('capsule_offline') == 'yes') ? true: false,
+            // Set page specific data
+            'report'            =>  $this->mStudies->getReport(),
+            'admitted_sections' =>  $this->mStudies->getReportAdmittedSections(),
+            'semesters'         =>  $this->mStudies->getReportSemesters()
+        );
+
 		$this->mHistory->save('studies-report');
-		
+
+        // Vérification de l'existence des données en cache
+        $last_request = $this->mCache->getLastRequest('studies-report');
+
+        if (empty($last_request)) {
+            // Aucune données n'existe pour cette page
+            respond(array(
+                'title'     =>  'Relevé de notes',
+                'content'   =>  $this->load->view('errors/loading-data', $data, true),
+                'reloadData'=>  'studies-report',
+                'breadcrumb'=>  array(
+                    array(
+                        'url'   =>  '#!/dashboard',
+                        'title' =>  'Tableau de bord'
+                    ),
+                    array(
+                        'url'   =>  '#!/studies',
+                        'title' =>  'Dossier scolaire'
+                    ),
+                    array(
+                        'url'   =>  '#!/studies/report',
+                        'title' =>  'Relevé de notes'
+                    )
+                ),
+                'buttons'       =>  array(
+                    array(
+                        'action'=>  "app.cache.reloadData('studies-report');",
+                        'type'  =>  'refresh'
+                    )
+                )
+            ));
+
+            return (false);
+        }
+
 		// Sélection des données des études
-		$data['studies'] = $this->mUser->getStudies();
-		
-		// Vérification de l'existence de la page en cache
-		$cache = $this->mCache->getCache('data|studies,report');
-		
-		if ($cache!=array()) {
-			$data['report'] = unserialize($cache['value']);
-			$data['cache_date'] = $cache['date'];
-			$data['cache_time'] = $cache['time'];
-			
-			if ($data['report']!=array()) {
-				// Vérification de la date de chargement des données
-				if ($cache['timestamp']<(time()-$this->mUser->expirationDelay)) {
-					$data['reload_data'] = 'data|studies,report';
-				}
-				
-				// Chargement de la page
-				$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('studies/report', $data, true)));
-			} else {
-				// Chargement de la page d'erreur
-				$data['title'] = 'Relevé de notes';
-				$data['reload_name'] = 'data|studies,report';
-				
-				$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('errors/loading-data', $data, true)));
-			}
-		} else {
-			// Chargement de la page d'erreur
-			$data['title'] = 'Relevé de notes';
-			$data['reload_name'] = 'data|studies,report';
-			
-			$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('errors/loading-data', $data, true)));
-		}
-		
-		echo "setPageInfo('studies/report');setPageContent(\"".addslashes($content)."\");";
-		if (isset($data['reload_data']) and $_SESSION['cap_iduser'] != 'demo' and $_SESSION['cap_offline'] != 'yes') echo "reloadData('".$data['reload_data']."', 1);";
-	}
+        foreach ($data['admitted_sections'] as &$section) {
+            $section['courses'] = $this->mStudies->getReportCourses(array('section_id' => $section['id']));
+        }
+        foreach ($data['semesters'] as &$semester) {
+            $semester['courses'] = $this->mStudies->getReportCourses(array('semester_id' => $semester['id']));
+        }
+
+        // Chargement de la page
+        respond(array(
+            'title'         =>  'Relevé de notes',
+            'content'       =>  $this->load->view('studies/report', $data, true),
+            'timestamp'     =>  $last_request['timestamp'],
+            'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay)) ? 'studies-report': false,
+            'breadcrumb'=>  array(
+                array(
+                    'url'   =>  '#!/dashboard',
+                    'title' =>  'Tableau de bord'
+                ),
+                array(
+                    'url'   =>  '#!/studies',
+                    'title' =>  'Dossier scolaire'
+                ),
+                array(
+                    'url'   =>  '#!/studies/report',
+                    'title' =>  'Relevé de notes'
+                )
+            ),
+            'buttons'       =>  array(
+                array(
+                    'action'=>  "app.cache.reloadData('studies-report');",
+                    'type'  =>  'refresh'
+                )
+            )
+        ));
+    }
 }
 
 /* End of file welcome.php */

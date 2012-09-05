@@ -1,0 +1,157 @@
+/*-------------------------
+	Simple reset
+--------------------------*/
+
+
+*{
+    margin:0;
+    padding:0;
+}
+
+
+/*-------------------------
+	General Styles
+--------------------------*/
+
+body{
+    background:url('../img/background/bg-1.jpg') no-repeat center center;
+    background-attachment: fixed;
+    min-height: 600px;
+    padding: 150px 0 0;
+    background-attachment: fixed;
+    margin: 0px;
+}
+
+
+h1 {
+    margin-top: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+h1 img {
+    width: 150px;
+}
+
+/*----------------------------
+	Styling the forms
+-----------------------------*/
+
+
+#formContainer{
+    width: 250px;
+    margin: 0 auto;
+    position:relative;
+    z-index:1;
+
+    -moz-perspective: 800px;
+    -webkit-perspective: 800px;
+    perspective: 800px;
+}
+
+#formContainer form{
+    width:100%;
+    height: 300px;
+    position:absolute;
+    top:0;
+    left:0;
+    border-radius: 5px;
+    background:url('../img/login-form-bg.gif') no-repeat;
+    background-position: center;
+    -webkit-box-shadow: 0px 0px 5px 1px rgba(15, 50, 100, 0.5);
+    box-shadow: 0px 0px 5px 1px rgba(15, 50, 100, 0.5);
+    z-index:100;
+    padding: 40px;
+
+    /* Enabling 3d space for the transforms */
+    -moz-transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+
+    /* When the forms are flipped, they will be hidden */
+    -moz-backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+
+    /* Enabling a smooth animated transition */
+    -moz-transition:0.8s;
+    -webkit-transition:0.8s;
+    transition:0.8s;
+
+    /* Configure a keyframe animation for Firefox */
+    -moz-animation: pulse 2s infinite;
+
+    /* Configure it for Chrome and Safari */
+    -webkit-animation: pulse 2s infinite;
+}
+
+#login-form.error {
+    height: 350px;
+}
+
+#login-form .alert-error {
+    display: none;
+    font-size: 10pt;
+    padding: 8px 10px;
+}
+
+#loading{
+    background:url('../img/login-form-bg.gif') no-repeat;
+    z-index:1;
+    opacity:0;
+    padding: 40px;
+
+    /* Rotating the recover password form by default */
+    -moz-transform:rotateY(180deg);
+    -webkit-transform:rotateY(180deg);
+    transform:rotateY(180deg);
+}
+
+#formContainer.flipped #login-form{
+
+    opacity:0;
+
+    /**
+      * Rotating the login form when the
+      * flipped class is added to the container
+      */
+
+    -moz-transform:rotateY(-180deg);
+    -webkit-transform:rotateY(-180deg);
+    transform:rotateY(-180deg);
+}
+
+#formContainer.flipped #loading {
+    margin-top: 110px;
+    height: 120px;
+    opacity:1;
+
+    /* Rotating the recover div into view */
+    -moz-transform:rotateY(0deg);
+    -webkit-transform:rotateY(0deg);
+    transform:rotateY(0deg);
+}
+
+
+#login-form label {
+    color: #c4e2ff;
+}
+
+/*----------------------------
+	The Footer
+-----------------------------*/
+
+
+footer {
+    position: fixed;
+    bottom: 0px;
+    background-image: url('../img/footer-bg.png');
+    width: 100%;
+    margin: 0px;
+}
+
+footer p.inside {
+    padding: 10px 30px;
+    color: #aaa;
+    font-size: 8pt;
+}

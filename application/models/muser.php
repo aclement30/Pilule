@@ -6,7 +6,7 @@ class mUser extends CI_Model {
 	function mUser () {
 		parent::__construct();
 		
-		if (isset($_SESSION['cap_iduser'])) {
+		if ($this->session->userdata('pilule_user') != '') {
 			if (!$this->getParam('data-expiration-delay')) {
 				$this->expirationDelay = 3600*6;
 			} else {
@@ -14,10 +14,20 @@ class mUser extends CI_Model {
 			}
 		}
 	}
-	
+
+    function isAuthenticated () {
+        if ($this->session->userdata('pilule_user') == '') {
+            return (false);
+        } else {
+            $this->user = $this->info();
+
+            return (true);
+        }
+    }
+
 	// Enregistrement de la dernière visite de l'utilisateur
 	function registerLogin () {
-		$this->db->where('idul', $_SESSION['cap_iduser']);
+		$this->db->where('idul', $this->session->userdata('pilule_user'));
 		
 		if ($this->db->update('users', array('last_visit'=>time()))) {
 			return (true);
@@ -27,7 +37,7 @@ class mUser extends CI_Model {
 	}
 	
 	function getParam ($name, $idul = '') {
-		if ($idul == '') $idul = $_SESSION['cap_iduser'];
+		if ($idul == '') $idul = $this->session->userdata('pilule_user');
 		
 		// Sélection des données
 		$this->db->where(array('idul'=>$idul, 'name'=>$name));
@@ -46,13 +56,13 @@ class mUser extends CI_Model {
 	// Modification d'un paramètre
 	function setParam ($name, $value) {
 		if (!$this->getParam($name)) {
-			if ($this->db->insert('params', array('idul'=>$_SESSION['cap_iduser'], 'name'=>$name, 'value'=>$value))) {
+			if ($this->db->insert('params', array('idul'=>$this->session->userdata('pilule_user'), 'name'=>$name, 'value'=>$value))) {
 				return (true);
 			} else {
 				return (false);
 			}
 		} else {
-			$this->db->where(array('idul'=>$_SESSION['cap_iduser'], 'name'=>$name));
+			$this->db->where(array('idul'=>$this->session->userdata('pilule_user'), 'name'=>$name));
 			
 			if ($this->db->update('params', array('value'=>$value))) {
 				return (true);
@@ -64,7 +74,7 @@ class mUser extends CI_Model {
 	
 	// Suppression d'un paramètre
 	function deleteParam ($name) {
-		if ($this->db->delete('params', array('idul'=>$_SESSION['cap_iduser'], 'name'=>$name))) {
+		if ($this->db->delete('params', array('idul'=>$this->session->userdata('pilule_user'), 'name'=>$name))) {
 			return (true);
 		} else {
 			return (false);
@@ -93,7 +103,7 @@ class mUser extends CI_Model {
 	}
 	
 	function info ($idul = '') {
-		if ($idul=='') $idul = $_SESSION['cap_iduser'];
+		if ($idul=='') $idul = $this->session->userdata('pilule_user');
 		
 		$this->db->where('idul', $idul);
 				
@@ -101,7 +111,7 @@ class mUser extends CI_Model {
 		
 		$user = $result->row_array();
 
-		if ($idul == $_SESSION['cap_iduser']) {
+		if ($idul == $this->session->userdata('pilule_user')) {
 			$user['registration'] = $this->canRegister($user['program']);
 		}
 		// Renvoi de l'utilisateur
@@ -110,7 +120,7 @@ class mUser extends CI_Model {
 	
 	// Modification d'un utilisateur
 	function editUser ($user) {
-		if (!isset($user['idul'])) $user['idul'] = $_SESSION['cap_iduser'];
+		if (!isset($user['idul'])) $user['idul'] = $this->session->userdata('pilule_user');
 		
 		$this->db->where('idul', $user['idul']);
 		unset($user['idul']);
@@ -132,7 +142,7 @@ class mUser extends CI_Model {
 	
 	// Ajout d'une classe de l'utilisateur
 	function addClass ($class) {
-		if (!array_key_exists('idul', $class)) $class['idul'] = $_SESSION['cap_iduser'];
+		if (!array_key_exists('idul', $class)) $class['idul'] = $this->session->userdata('pilule_user');
 		
 		if ($this->db->insert('users_classes', $class)) {
 			return (true);
@@ -171,7 +181,7 @@ class mUser extends CI_Model {
 	
 	// Suppression des classes de l'utilisateur
 	function deleteClasses ($idul = '') {
-		if ($idul=='') $idul = $_SESSION['cap_iduser'];
+		if ($idul=='') $idul = $this->session->userdata('pilule_user');
 		
 		if ($idul == 'demo') return (true);
 		
@@ -184,7 +194,7 @@ class mUser extends CI_Model {
 	
 	// Ajout d'un cours de l'utilisateur
 	function addCourse ($course) {
-		if (!array_key_exists('idul', $course)) $course['idul'] = $_SESSION['cap_iduser'];
+		if (!array_key_exists('idul', $course)) $course['idul'] = $this->session->userdata('pilule_user');
 		
 		if ($this->db->insert('users_courses', $course)) {
 			return (true);
@@ -218,7 +228,7 @@ class mUser extends CI_Model {
 	
 	// Ajout d'une section de cours de l'utilisateur
 	function addCoursesSection ($section) {
-		if (!array_key_exists('idul', $section)) $section['idul'] = $_SESSION['cap_iduser'];
+		if (!array_key_exists('idul', $section)) $section['idul'] = $this->session->userdata('pilule_user');
 		
 		if ($this->db->insert('users_courses_sections', $section)) {
 			return (true);
@@ -247,7 +257,7 @@ class mUser extends CI_Model {
 	
 	// Suppression des cours de l'utilisateur
 	function deleteCourses ($idul = '') {
-		if ($idul=='') $idul = $_SESSION['cap_iduser'];
+		if ($idul=='') $idul = $this->session->userdata('pilule_user');
 		
 		if ($idul != 'demo') {
 			$this->db->delete('users_courses', array('idul'=>$idul));
@@ -258,46 +268,61 @@ class mUser extends CI_Model {
 	
 	// Ajout des infos d'études de l'utilisateur
 	function setStudies ($studies) {
-		$this->db->where('idul', $_SESSION['cap_iduser']);
-		
-		$result = $this->db->from('studies');
-		
 		if (isset($studies['concentrations']) and is_array($studies['concentrations'])) $studies['concentrations'] = serialize($studies['concentrations']);
-		if (isset($studies['data'])) unset($studies['data']);
-		if (isset($studies['rawdata'])) unset($studies['rawdata']);
-		
-		if ($this->db->count_all_results()==0) {
-			$studies['idul'] = $_SESSION['cap_iduser'];
-			
-			if ($this->db->insert('studies', $studies)) {
-				return (true);
-			} else {
-				return (false);
-			}
-		} else {
-			$this->db->where('idul', $_SESSION['cap_iduser']);
-			
-			if ($this->db->update('studies', $studies)) {
-				return (true);
-			} else {
-				return (false);
-			}
-		}
+        $studies['idul'] = $this->session->userdata('pilule_user');
+
+        if ($this->db->insert('studies', $studies)) {
+            return (true);
+        } else {
+            return (false);
+        }
 	}
-	
+
+    function getProgram ( $where ) {
+       $where['idul'] = $this->session->userdata('pilule_user');
+
+        // Sélection des données
+        $this->db->where( $where );
+        $result = $this->db->get('studies');
+
+        $studies = $result->row_array();
+
+        if ($studies!=array()) {
+            // Renvoi du paramètre
+            return ($studies);
+        } else {
+            return (array());
+        }
+    }
+
+    function editProgram ($program) {
+        if (!isset($program['idul'])) $program['idul'] = $this->session->userdata('pilule_user');
+
+        $this->db->where(array('idul' => $program['idul']));
+        unset($program['idul']);
+        unset($program['id']);
+
+        if ($this->db->update('studies', $program)) {
+            return (true);
+        } else {
+            return (false);
+        }
+    }
+
 	// Recherche des infos d'étude de l'utilisateur
 	function getStudies ($idul = '') {
-		if ($idul=='') $idul = $_SESSION['cap_iduser'];
+		if ($idul=='') $idul = $this->session->userdata('pilule_user');
 		
 		// Sélection des données
 		$this->db->where(array('idul'=>$idul));
 		$result = $this->db->get('studies');
 		
-		$studies = $result->row_array();
+		$studies = $result->result_array();
+        foreach ($studies as &$study) {
+            $study['concentrations'] = unserialize($study['concentrations']);
+        }
 
 		if ($studies!=array()) {
-			$studies['concentrations'] = unserialize($studies['concentrations']);
-			
 			// Renvoi du paramètre
 			return ($studies);
 		} else {
@@ -307,7 +332,7 @@ class mUser extends CI_Model {
 	
 	// Suppression des infos d'études de l'utilisateur
 	function deleteStudies ($idul = '') {
-		if ($idul=='') $idul = $_SESSION['cap_iduser'];
+		if ($idul=='') $idul = $this->session->userdata('pilule_user');
 		
 		if ($idul == 'demo') return (true);
 			
@@ -320,7 +345,7 @@ class mUser extends CI_Model {
 	
 	// Suppression de l'horaire de cours de l'utilisateur
 	function deleteSchedule ($idul = '', $semester = '') {
-		if ($idul=='') $idul = $_SESSION['cap_iduser'];
+		if ($idul=='') $idul = $this->session->userdata('pilule_user');
 		
 		if ($idul == 'demo') return (true);
 		
@@ -344,8 +369,8 @@ class mUser extends CI_Model {
 	}
 	
 	function exportSchedule ($semester, $format = "ical", $alarm = 'no', $title = 'name') {
-		$classes = $this->getClasses(array('semester'=>$semester, 'day !='=>'', 'idul'=>$_SESSION['cap_iduser']));
-        $courses = $this->getCourses($_SESSION['cap_iduser'], $semester);
+		$classes = $this->getClasses(array('semester'=>$semester, 'day !='=>'', 'idul'=>$this->session->userdata('pilule_user')));
+        $courses = $this->getCourses($this->session->userdata('pilule_user'), $semester);
 		
         if (count($classes) > 0) {
 			$ics = 
@@ -493,7 +518,7 @@ END:VCALENDAR';
 	
 	// Suppression des sommaires de frais de scolarité de l'utilisateur
 	function deleteFeesSummary ($idul = '') {
-		if ($idul=='') $idul = $_SESSION['cap_iduser'];
+		if ($idul=='') $idul = $this->session->userdata('pilule_user');
 		
 		if ($idul == 'demo') return (true);
 		
@@ -512,7 +537,7 @@ END:VCALENDAR';
 	
 	// Recherche des modules de l'utilisateur
 	function getModules ($idul = '') {
-		if ($idul=='') $idul = $_SESSION['cap_iduser'];
+		if ($idul=='') $idul = $this->session->userdata('pilule_user');
 		
 		// Sélection des données
 		$this->db->where(array('idul'=>$idul));
@@ -530,7 +555,7 @@ END:VCALENDAR';
 	}
 	
 	function updateModules ($modules) {
-		$idul = $_SESSION['cap_iduser'];
+		$idul = $this->session->userdata('pilule_user');
 		
 		$this->db->where('idul', $idul);
 		$this->db->delete('users_modules');
@@ -549,7 +574,7 @@ END:VCALENDAR';
 	
 	// Suppression des préférences du tableau de bord de l'utilisateur
 	function deleteModules ($idul = '') {
-		if ($idul=='') $idul = $_SESSION['cap_iduser'];
+		if ($idul=='') $idul = $this->session->userdata('pilule_user');
 		
 		if ($idul == 'demo') return (true);
 		

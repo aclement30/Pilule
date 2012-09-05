@@ -1,19 +1,46 @@
-<h2 class="title">Horaire des cours<span class="semester"> : <?php echo $semesters[$_SESSION['schedule_current_semester']]['title']; ?></span><a href="javascript:window.print();" class="link" style="margin-right: 15px;"><img src="<?php echo site_url(); ?>images/printer.png" align="absmiddle" />&nbsp;Imprimer</a><div class="clear"></div></h2>	
-<div class="clear"></div>
-<div class="page-separator"></div>
-<div class="post-content">
-
-<div id="notice" style="margin-bottom: 20px;<?php if (isset($cap_offline) and $cap_offline == 1) echo 'display: block;'; ?>">Ces données sont extraites du système Capsule de l'Université Laval, en date du <?php echo currentDate($cache_date, 'd F Y'); ?> à <?php echo str_replace(":", "h", $cache_time); ?>.</div>
-
-<div class="semester-selection">Session : <select name="semester" id="semester" onchange="javascript:scheduleObj.selectSemester(this.options[this.selectedIndex].value);">
-	<?php
-	foreach ($semesters as $semester_date => $semester2) {
-		?><option value="<?php echo $semester_date; ?>"<?php if ($_SESSION['schedule_current_semester']==$semester_date) echo ' selected="selected"'; ?>> <?php echo $semester2['title']; ?></option><?php
-		//if ($_SESSION['schedule_current_semester']==$semester_date) break;
-	}
-	?>
-</select>
+<div class="row-fluid" style="margin-top: 10px;">
+    <div class="span12">
+        <div class="widget-box">
+            <div class="widget-title">
+                <span class="icon"><i class="icon-calendar"></i></span>
+                <h5>Cours en classe</h5>
+                <div class="buttons">
+                    <a id="add-event" data-toggle="modal" href="#modal-add-event" class="btn btn-success btn-mini"><i class="icon-plus icon-white"></i> Add new event</a>
+                    <div class="modal hide" id="modal-add-event">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">×</button>
+                            <h3>Add a new event</h3>
+                        </div>
+                        <div class="modal-body">
+                            <p>Enter event name:</p>
+                            <p><input id="event-name" type="text" /></p>
+                        </div>
+                        <div class="modal-footer">
+                            <a href="#" class="btn" data-dismiss="modal">Cancel</a>
+                            <a href="#" id="add-event-submit" class="btn btn-primary">Add event</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="widget-content nopadding">
+                <div class="panel-left">
+                    <div id="fullcalendar"></div>
+                </div>
+                <div id="external-events" class="panel-right">
+                    <div class="panel-title"><h5>Events</h5></div>
+                    <div class="panel-content">
+                        <div class="external-event ui-draggable label label-inverse">My Event 1</div>
+                        <div class="external-event ui-draggable label label-inverse">My Event 2</div>
+                        <div class="external-event ui-draggable label label-inverse">My Event 3</div>
+                        <div class="external-event ui-draggable label label-inverse">My Event 4</div>
+                        <div class="external-event ui-draggable label label-inverse">My Event 5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
 <h3>Cours en classe
 <?php
 if (isset($schedule) and $schedule!=array()) {
@@ -187,238 +214,3 @@ foreach ($other_classes as $class) {
 }
 //}
 ?><br />
-<style type="text/css">
-.page-break { display:none; }
-
-.post-content table {
-	width: 100%;
-	font-size: 10pt;
-	padding: 0px;
-}
-
-.post-content table th {
-	width: 300px;
-	font-weight: bold;
-	text-align: center;
-	vertical-align: bottom;
-	padding-bottom: 0px;
-	font-size: 12px;
-}
-
-.post-content table td {
-	border: 1px solid #efefef;
-}
-
-.post-content table th.hour {
-	text-align: right;
-	font-size: 8pt;
-	background-color: #fff;
-	border-bottom: 0px;
-	padding: 0px;
-	font-weight: normal;
-	width: 50px;
-	vertical-align: top;
-	padding-right: 5px;
-	padding-left: 0px;
-}
-
-.post-content table td.empty {
-	padding: 3px;
-}
-
-.post-content table td.class {
-	background-color: #dae6f1;
-	border: 1px solid white;
-	font-size: 12px;
-}
-
-.post-content .class .class-title {
-	font-size: 15px;
-	font-weight: bold;
-	padding-bottom: 5px;
-}
-
-.post-content table td.class {
-	padding: 10px;
-}
-
-.post-content a.type {
-	background-color: #eee;
-	-moz-border-radius: 5px;
-	text-decoration: none;
-	color: #444;
-	padding: 8px 15px;
-	float: left;
-	margin-right: 10px;
-	margin-bottom: 10px;
-}
-
-.post-content a.type:hover, #content a.type.active {
-	background-color: #888;
-	color: #fff;
-}
-
-h2.title .semester {
-	display: none;
-}
-
-#notice {
-	background-color: silver;
-	padding: 7px 10px;
-	font-size: 8pt;
-	margin-top: 10px;
-	display: none;
-}
-</style>
-<style type="text/css" media="print">
-body {
-	margin: 0px;
-	font-family: Helvetica, Arial;
-	font-size: 10pt;
-	background: none;
-	width: 8.5in;
-}
-
-#page {
-	width: 100%;
-}
-
-#content {
-	background: none;
-}
-
-.entry {
-	margin: 0px;
-	padding: 0px;
-	width: 100%;
-	background: none;
-}
-
-.entry-top, .entry-content {
-	width: 100%;
-	padding-top: 0px;
-	background: none;
-}
-
-#header, #header-bottom, a.link, a.refresh, #footer, #sidebar, .content-tabs, #top-shadow {
-	display: none;
-}
-
-#main-area, .entry-page, .post-content {
-	width: 100%;
-}
-
-.post-content table {
-	width: 100%;
-	font-size: 10pt;
-	padding: 0px;
-	border-spacing: 0px;
-	border-collapse: collapse;
-}
-
-.post-content table th {
-	text-align: left;
-	font-weight: normal;
-	text-transform: uppercase;
-	border-bottom: 2px solid gray;
-	padding: 10px;
-	vertical-align: top;
-}
-
-.post-content table th.left {
-	width: 170px;
-	font-weight: bold;
-	text-align: right;
-	padding-right: 20px;
-	text-transform: none;
-}
-
-.post-content table td.empty {
-	border-right: 1px solid silver;
-}
-
-.post-content table td.empty.half {
-	border-bottom: 1px dotted #ddd;
-}
-
-.post-content .class .class-title {
-	font-size: 15px;
-	font-weight: bold;
-	padding-bottom: 5px;
-}
-
-.post-content table td.class {
-	padding: 10px;
-}
-
-.post-content table th.left, .post-content table td {
-	padding: 5px;
-	vertical-align: top;
-	border-bottom: 1px solid silver;
-}
-
-.post-content table td.class {
-	background-color: #dae6f1;
-	border: 1px solid silver;
-	font-size: 12px;
-}
-
-.post-content table th.hour {
-	text-align: right;
-	font-size: 8pt;
-	background-color: #fff;
-	border-bottom: 0px;
-	padding: 0px;
-	font-weight: normal;
-	width: 50px;
-	vertical-align: top;
-	padding-right: 5px;
-	padding-left: 0px;
-}
-
-#semester, #period {
-	background-color: #fff;
-	border: none;
-	font-size: 10pt;
-}
-
-.post-content table th.weekday {
-	width: 20%;
-}
-
-.post-content div.class {
-	border: 1px solid silver;
-}
-
-.post-content div.class {
-}
-
-h2.title .semester {
-	display: inline;
-}
-
-#notice {
-	background-color: none;
-	padding: 0px;
-	font-size: 7pt;
-	margin-bottom: 25px;
-	color: #999;
-	display: none;
-	text-align: right;
-}
-
-h1 {
-	margin-bottom: 10px;
-}
-
-h2.title a.link {
-	display: none;
-}
-
-h2.title {
-	margin-bottom: 10px;
-}
-
-.page-break { display:block; page-break-before:always; }
-</style>
-<div class="clear"></div></div>

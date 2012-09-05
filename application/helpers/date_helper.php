@@ -237,4 +237,153 @@ function respond ( $data, $callback = '' ) {
 	
 	exit();
 }
+
+
+function pluralize ($count, $singular, $plural = false) {
+    if (!$plural) $plural = $singular . 's';
+
+    return ($count < 2 ? $singular : $plural) ;
+}
+
+function generate_xml_from_array($array, $node_name) {
+    $xml = '';
+
+    if (is_array($array) || is_object($array)) {
+        foreach ($array as $key=>$value) {
+            if (is_numeric($key)) {
+                $key = $node_name;
+            }
+
+            $xml .= '<' . $key . '>' . "\n" . generate_xml_from_array($value, $node_name) . '</' . $key . '>' . "\n";
+        }
+    } else {
+        $xml = htmlspecialchars($array, ENT_QUOTES) . "\n";
+    }
+
+    return $xml;
+}
+
+function _unlink ($file) {
+    if (rename ($file, dirname($file).'/.'.basename($file))) {
+        return (true);
+    } else {
+        return (false);
+    }
+}
+
+/**
+ * Generatting CSV formatted string from an array.
+ * By Sergey Gurevich.
+ */
+function array2csv ($array, $header_row = true, $col_sep = ",", $row_sep = "\n", $qut = '"') {
+    if (!is_array($array) or !is_array($array[0])) return false;
+
+    $output = '';
+
+    //Header row.
+    if ($header_row)
+    {
+        foreach ($array[0] as $key => $val)
+        {
+            //Escaping quotes.
+            $key = str_replace($qut, "$qut$qut", $key);
+            $output .= "$col_sep$qut$key$qut";
+        }
+        $output = substr($output, 1)."\n";
+    }
+    //Data rows.
+    foreach ($array as $key => $val)
+    {
+        $tmp = '';
+        foreach ($val as $cell_key => $cell_val)
+        {
+            //Escaping quotes.
+            $cell_val = str_replace($qut, "$qut$qut", $cell_val);
+            $tmp .= "$col_sep$qut$cell_val$qut";
+        }
+        $output .= substr($tmp, 1).$row_sep;
+    }
+
+    return $output;
+}
+
+
+function getRequestSource () {
+    $CI = & get_instance();
+    if ($CI->input->post('_source')) {
+        $CI->_source = $CI->input->post('_source');
+    } elseif ($CI->input->get('_source')) {
+        $CI->_source = $CI->input->get('_source');
+    } else {
+        $params = $CI->uri->uri_to_assoc(4);
+        if (isset($params['_source'])) {
+            $CI->_source = $params['_source'];
+        } else {
+            $params = $CI->uri->uri_to_assoc(3);
+
+            if (isset($params['_source'])) {
+                $CI->_source = $params['_source'];
+            }
+        }
+    }
+}
+
+function detect_encoding ( $string ) {
+    $encodings = array("ASCII", "UTF-8", "ISO-8859-1");
+    $encoding = mb_detect_encoding($string, $encodings);
+    if ($encoding == 'ISO-8859-1') {
+        $macos = array("\0x8E", "\0x8F", "\0x9A", "\0xA1", "\0xA5", "\0xA8", "\0xD0", "\0xD1", "\0xD5", "\0xE1");
+
+        // Check if encoding is not a similar one
+        foreach ($macos as $char) {
+            if (strpos($string, $char) >= 0) {
+                $encoding = "MACINTOSH";
+                break;
+            }
+        }
+    }
+
+    return ( $encoding );
+}
+
+function convertSemester($semester, $small_format = false) {
+    if (is_numeric($semester) and strlen($semester) == 6) {
+        // Le semestre est au format YYYYMM
+        switch (substr($semester, 5, 2)) {
+            case '09';
+                if ($small_format) {
+                    $semester = 'A-' . substr($semester, 2, 2);
+                } else {
+                    $semester = 'Automne '.substr($semester, 0, 4);
+                }
+                break;
+            case '01';
+                if ($small_format) {
+                    $semester = 'H-' . substr($semester, 2, 2);
+                } else {
+                    $semester = 'Hiver '.substr($semester, 0, 4);
+                }
+                break;
+            case '05';
+                if ($small_format) {
+                    $semester = 'E-' . substr($semester, 2, 2);
+                } else {
+                    $semester = 'Été '.substr($semester, 0, 4);
+                }
+                break;
+        }
+
+        return ($semester);
+    } else {
+        // Le semestre est au format textuel
+        $text_semester = '';
+        $semester = explode(' ', $semester);
+        $text_semester = $semester[1];
+        if ($semester[0] == 'Automne') $text_semester .= '09';
+        elseif ($semester[0] == 'Hiver') $text_semester .= '01';
+        elseif ($semester[0] == 'Été') $text_semester .= '05';
+
+        return ($text_semester);
+    }
+}
 ?>

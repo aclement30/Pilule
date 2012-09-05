@@ -3,63 +3,51 @@
 class Fees extends CI_Controller {
 	var $mobile = 0;
 	var $user;
-	
+    var $_source;
+
 	function Fees() {
 		parent::__construct();
-		
-		// Ouverture de la session
-		if (!isset($_SESSION)) session_start();
+
+        // Détection de l'origine de la requête (HTML, AJAX, iframe...)
+        getRequestSource();
 		
 		// Chargement des modèles
 		$this->load->model('mUser');
-		
-		if (!isset($_SESSION['cap_iduser']) and $this->uri->segment(1)!='login' and $this->uri->segment(2)!='s_login') {
-			$_SESSION['login_redirect'] = $this->uri->uri_string();
-			redirect('login');
-		}
-		
-		// Sélection des données de l'utilisateur
-		if (isset($_SESSION['cap_iduser'])) {
-			$this->user = $this->mUser->info();
-			$this->user['password'] = $_SESSION['cap_password'];
-		}
+
+        // Vérification de la connexion
+        if ((!$this->mUser->isAuthenticated())) {
+            $_SESSION['login_redirect'] = $this->uri->uri_string();
+            redirect('login');
+        }
 		
 		// Détection des navigateurs mobiles
 		$this->mobile = $this->lmobile->isMobile();
 	}
 	
 	function index () {
-		$data = array();
-		$data['user'] = $this->user;
-		$data['semester'] = $this->uri->segment(3);
-		$data['mobile'] = $this->mobile;
-		
-		if (isset($_SESSION['cap_offline']) and $_SESSION['cap_offline'] == 'yes') {
-			$data['cap_offline'] = 1;
-		}
-		
+        $data = array(
+            'section'           =>  'fees',
+            'user'              =>  $this->user,
+            'mobile_browser'    =>  $this->mobile,
+            'capsule_offline'   =>  ($this->session->userdata('capsule_offline') == 'yes') ? true: false,
+            'studies'           =>  $this->mUser->getStudies()
+            // Set page specific data
+        );
+
 		$this->mHistory->save('fees-summary');
 		
-		if ($data['semester']=='') {
-			if (isset($_SESSION['fees_current_semester'])) {
-				$data['semester'] = $_SESSION['fees_current_semester'];
-			} else {
-				// Vérification de l'existence des sessions en cache
-				$cache = $this->mCache->getCache('data|fees,semesters');
-				
-				if ($cache!=array()) {
-					$semesters = unserialize($cache['value']);
-					
-					if ($semesters!=array()) {
-						$data['semester'] = key($semesters);
-						$_SESSION['fees_current_semester'] = $data['semester'];
-					}
-				}
-			}
-		} else {
-			$_SESSION['fees_current_semester'] = $data['semester'];
-		}
-		
+        // Vérification de l'existence des sessions en cache
+        $cache = $this->mCache->getCache('data|fees,semesters');
+
+        if ($cache!=array()) {
+            $semesters = unserialize($cache['value']);
+
+            if ($semesters!=array()) {
+                $data['semester'] = key($semesters);
+                $this->session->set_userdata('fees_current_semester', $data['semester']);
+            }
+        }
+
 		// Vérification de l'existence des sessions en cache
 		$cache = $this->mCache->getCache('data|fees,summary');
 		
@@ -73,62 +61,57 @@ class Fees extends CI_Controller {
 			}
 			
 			if ($data['summary']!=array()) {
-				// Chargement de la page
-				$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('fees/summary', $data, true)));
 			} else {
 				// Chargement de la page d'erreur
 				$data['title'] = 'État de compte';
 				$data['reload_name'] = 'data|fees,summary';
-				
-				$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('errors/loading-data', $data, true)));
 			}
 		} else {
 			// Chargement de la page d'erreur
 			$data['title'] = 'État de compte';
 			$data['reload_name'] = 'data|fees,summary';
-			
-			$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('errors/loading-data', $data, true)));
 		}
-		
-		echo "setPageInfo('fees/summary');setPageContent(\"".addslashes($content)."\");";
-		if (isset($data['reload_data']) and $_SESSION['cap_iduser'] != 'demo' and $_SESSION['cap_offline'] != 'yes') echo "reloadData('".$data['reload_data']."', 1);";
+
+        // Chargement de la page
+        respond(array(
+            'title'         =>  'État de compte',
+            'content'       =>  $this->load->view('fees/summary', $data, true),
+            'reloadData'    =>  (isset($data['reload_data'])) ? $data['reload_data']: '',
+            'breadcrumb'=>  array(
+                array(
+                    'url'   =>  '#!/dashboard',
+                    'title' =>  'Tableau de bord'
+                ),
+                array(
+                    'url'   =>  '#!/fees',
+                    'title' =>  'Frais de scolarité'
+                )
+            ),
+            'buttons'       =>  array(
+                array(
+                    'action'=>  "app.cache.reloadData('data|fees,summary');",
+                    'type'  =>  'refresh'
+                )
+            )
+        ));
 	}
-	
-	function getMenu() {
-		$data['mobile'] = $this->mobile;
-		// Vérification de l'existence des sessions en cache
-		$cache = $this->mCache->getCache('data|holds');
-		
-		if ($cache!=array()) {
-			$data['holds'] = unserialize($cache['value']);
-			// Vérification de la date de chargement des données
-			if ($cache['timestamp']<(time()-$this->mUser->expirationDelay)) {
-				$data['reload_data'] = 'data|holds';
-			}
-		} else {
-			$data['holds'] = array();
-		}
-		
-		$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('fees/m-menu', $data, true)));
-		echo "$('#rcolumn').html(\"".addslashes($content)."\");updateMenu();";
-		if ($this->mobile == 1) echo "$('h2.title').after($('#sidebar'));";
-	}
-	
+
 	function details () {
-		$data = array();
-		$data['user'] = $this->user;
-		$data['semester'] = $this->uri->segment(3);
-		$data['mobile'] = $this->mobile;
-		
-		if (isset($_SESSION['cap_offline']) and $_SESSION['cap_offline'] == 'yes') {
-			$data['cap_offline'] = 1;
-		}
+        $data = array(
+            'section'           =>  'fees',
+            'user'              =>  $this->user,
+            'mobile_browser'    =>  $this->mobile,
+            'capsule_offline'   =>  ($this->session->userdata('capsule_offline') == 'yes') ? true: false,
+            'studies'           =>  $this->mUser->getStudies(),
+            // Set page specific data
+            'semester'          =>  $this->uri->segment(3)
+        );
 		
 		$this->mHistory->save('fees-details');
 		
 		if ($data['semester']=='') {
-			if (isset($_SESSION['fees_current_semester'])) {
-				$data['semester'] = $_SESSION['fees_current_semester'];
+			if ($this->session->userdata('fees_current_semester') != '') {
+				$data['semester'] = $this->session->userdata('fees_current_semester');
 			} else {
 				// Vérification de l'existence des sessions en cache
 				$cache = $this->mCache->getCache('data|fees,semesters');
@@ -138,12 +121,12 @@ class Fees extends CI_Controller {
 					
 					if ($semesters!=array()) {
 						$data['semester'] = key($semesters);
-						$_SESSION['fees_current_semester'] = $data['semester'];
+						$this->session->set_userdata('fees_current_semester', $data['semester']);
 					}
 				}
 			}
 		} else {
-			$_SESSION['fees_current_semester'] = $data['semester'];
+            $this->session->set_userdata('fees_current_semester', $data['semester']);
 		}
 		
 		// Vérification de l'existence des sessions en cache
@@ -167,7 +150,31 @@ class Fees extends CI_Controller {
 		
 		if (isset($data['fees']) and $data['fees']!=array()) {
 			// Chargement de la page
-			$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('fees/details', $data, true)));
+            respond(array(
+                'title'         =>  'Relevé par session',
+                'content'       =>  $this->load->view('fees/details', $data, true),
+                'reloadData'    =>  (isset($data['reload_data'])) ? $data['reload_data']: '',
+                'breadcrumb'=>  array(
+                    array(
+                        'url'   =>  '#!/dashboard',
+                        'title' =>  'Tableau de bord'
+                    ),
+                    array(
+                        'url'   =>  '#!/fees',
+                        'title' =>  'Frais de scolarité'
+                    ),
+                    array(
+                        'url'   =>  '#!/fees/details',
+                        'title' =>  'Relevé par session'
+                    )
+                ),
+                'buttons'       =>  array(
+                    array(
+                        'action'=>  "app.cache.reloadData('data|fees,summary');",
+                        'type'  =>  'refresh'
+                    )
+                )
+            ));
 		} else {
 			// Chargement de la page d'erreur
 			$data['title'] = 'Relevé par session';
@@ -175,8 +182,5 @@ class Fees extends CI_Controller {
 			
 			$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('errors/loading-data', $data, true)));
 		}
-		
-		echo "setPageInfo('fees/details');setPageContent(\"".addslashes($content)."\");";
-		if (isset($data['reload_data']) and $_SESSION['cap_iduser'] != 'demo' and $_SESSION['cap_offline'] != 'yes') echo "reloadData('".$data['reload_data']."', 1);";
 	}
 }
