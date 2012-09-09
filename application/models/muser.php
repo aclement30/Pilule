@@ -80,20 +80,7 @@ class mUser extends CI_Model {
 			return (false);
 		}
 	}
-	
-	// Vérification de l'existence des données en cache
-	function checkData () {
-		if (isset($_SESSION['cap_datacheck']) and $_SESSION['cap_datacheck'] == 2) return (true);
-		
-		$studies = $this->getStudies();
-		
-		if ($studies!=array()) {
-			return (true);
-		} else {
-			return (false);
-		}
-	}
-	
+
 	function keepData () {
 		if ($this->mUser->getParam('data-storage') == 'yes') {
 			return (true);
@@ -114,6 +101,7 @@ class mUser extends CI_Model {
 		if ($idul == $this->session->userdata('pilule_user')) {
 			$user['registration'] = $this->canRegister($user['program']);
 		}
+
 		// Renvoi de l'utilisateur
 		return ($user);
 	}
@@ -136,236 +124,6 @@ class mUser extends CI_Model {
 	function getUser ($idul) {
 		// Sélection des données
 		return ($this->info($idul));
-	}
-	
-	// Cours de l'utilisateur
-	
-	// Ajout d'une classe de l'utilisateur
-	function addClass ($class) {
-		if (!array_key_exists('idul', $class)) $class['idul'] = $this->session->userdata('pilule_user');
-		
-		if ($this->db->insert('users_classes', $class)) {
-			return (true);
-		} else {
-			return (false);
-		}
-	}
-	
-	// Recherche des cours d'un utilisateur
-	function getClasses ($params) {
-		if (isset($params['type']) and is_array($params['type'])) {
-			$types = $params['type'];
-			unset($params['type']);
-		}
-		
-		// Sélection des données
-		$this->db->where($params);
-		if (isset($types)) {
-			$this->db->where_in('type', $types);
-		}
-		
-		$this->db->order_by('hour_start');
-		
-		$result = $this->db->get('users_classes');
-		
-		$classes = $result->result_array();
-
-		if ($classes!=array()) {			
-			// Renvoi du paramètre
-			return ($classes);
-		} else {
-			return (array());
-		}
-	}
-	
-	
-	// Suppression des classes de l'utilisateur
-	function deleteClasses ($idul = '') {
-		if ($idul=='') $idul = $this->session->userdata('pilule_user');
-		
-		if ($idul == 'demo') return (true);
-		
-		if ($this->db->delete('users_classes', array('idul'=>$idul))) {
-			return (true);
-		} else {
-			return (false);
-		}
-	}
-	
-	// Ajout d'un cours de l'utilisateur
-	function addCourse ($course) {
-		if (!array_key_exists('idul', $course)) $course['idul'] = $this->session->userdata('pilule_user');
-		
-		if ($this->db->insert('users_courses', $course)) {
-			return (true);
-		} else {
-			return (false);
-		}
-	}
-	
-	// Recherche des cours d'un utilisateur
-	function getCourses ($idul, $semester = '') {
-		// Sélection des données
-		if ($semester != '') {
-			$this->db->where(array('idul'=>$idul, 'semester'=>$semester));
-			$this->db->group_by('idcourse');
-		} else {
-			$this->db->where(array('idul'=>$idul));
-		}
-		$this->db->order_by("idcourse", "asc");
-		
-		$result = $this->db->get('users_courses');
-		
-		$courses = $result->result_array();
-
-		if ($courses!=array()) {			
-			// Renvoi du paramètre
-			return ($courses);
-		} else {
-			return (array());
-		}
-	}
-	
-	// Ajout d'une section de cours de l'utilisateur
-	function addCoursesSection ($section) {
-		if (!array_key_exists('idul', $section)) $section['idul'] = $this->session->userdata('pilule_user');
-		
-		if ($this->db->insert('users_courses_sections', $section)) {
-			return (true);
-		} else {
-			return (false);
-		}
-	}
-	
-	// Recherche des sections de cours de l'utilisateur
-	function getCoursesSections ($idul) {
-		// Sélection des données
-		$this->db->where(array('idul'=>$idul));
-		$this->db->order_by("number", "asc");
-		
-		$result = $this->db->get('users_courses_sections');
-		
-		$sections = $result->result_array();
-		
-		if ($sections!=array()) {			
-			// Renvoi du paramètre
-			return ($sections);
-		} else {
-			return (array());
-		}
-	}
-	
-	// Suppression des cours de l'utilisateur
-	function deleteCourses ($idul = '') {
-		if ($idul=='') $idul = $this->session->userdata('pilule_user');
-		
-		if ($idul != 'demo') {
-			$this->db->delete('users_courses', array('idul'=>$idul));
-			$this->db->delete('users_courses_sections', array('idul'=>$idul));
-		}
-		return (true);
-	}
-	
-	// Ajout des infos d'études de l'utilisateur
-	function setStudies ($studies) {
-		if (isset($studies['concentrations']) and is_array($studies['concentrations'])) $studies['concentrations'] = serialize($studies['concentrations']);
-        $studies['idul'] = $this->session->userdata('pilule_user');
-
-        if ($this->db->insert('studies', $studies)) {
-            return (true);
-        } else {
-            return (false);
-        }
-	}
-
-    function getProgram ( $where ) {
-       $where['idul'] = $this->session->userdata('pilule_user');
-
-        // Sélection des données
-        $this->db->where( $where );
-        $result = $this->db->get('studies');
-
-        $studies = $result->row_array();
-
-        if ($studies!=array()) {
-            // Renvoi du paramètre
-            return ($studies);
-        } else {
-            return (array());
-        }
-    }
-
-    function editProgram ($program) {
-        if (!isset($program['idul'])) $program['idul'] = $this->session->userdata('pilule_user');
-
-        $this->db->where(array('idul' => $program['idul']));
-        unset($program['idul']);
-        unset($program['id']);
-
-        if ($this->db->update('studies', $program)) {
-            return (true);
-        } else {
-            return (false);
-        }
-    }
-
-	// Recherche des infos d'étude de l'utilisateur
-	function getStudies ($idul = '') {
-		if ($idul=='') $idul = $this->session->userdata('pilule_user');
-		
-		// Sélection des données
-		$this->db->where(array('idul'=>$idul));
-		$result = $this->db->get('studies');
-		
-		$studies = $result->result_array();
-        foreach ($studies as &$study) {
-            $study['concentrations'] = unserialize($study['concentrations']);
-        }
-
-		if ($studies!=array()) {
-			// Renvoi du paramètre
-			return ($studies);
-		} else {
-			return (array());
-		}
-	}
-	
-	// Suppression des infos d'études de l'utilisateur
-	function deleteStudies ($idul = '') {
-		if ($idul=='') $idul = $this->session->userdata('pilule_user');
-		
-		if ($idul == 'demo') return (true);
-			
-		if ($this->db->delete('studies', array('idul'=>$idul))) {
-			return (true);
-		} else {
-			return (false);
-		}
-	}
-	
-	// Suppression de l'horaire de cours de l'utilisateur
-	function deleteSchedule ($idul = '', $semester = '') {
-		if ($idul=='') $idul = $this->session->userdata('pilule_user');
-		
-		if ($idul == 'demo') return (true);
-		
-		if ($semester=='') {
-			$this->db->delete('users_classes', array('idul'=>$idul));
-			$this->db->delete('cache', array('idul'=>$idul, 'name'=>'data|schedule,semesters'));
-			
-			$this->db->like('name', 'data|schedule[', 'after');
-		} else {
-			$this->db->delete('users_classes', array('idul'=>$idul, 'semester'=>$semester));
-			
-			$this->db->where('name', 'data|schedule['.$semester.']');
-		}
-		$this->db->where('idul', $idul);
-		
-		if ($this->db->delete('cache')) {
-			return (true);
-		} else {
-			return (false);
-		}
 	}
 	
 	function exportSchedule ($semester, $format = "ical", $alarm = 'no', $title = 'name') {
@@ -514,26 +272,7 @@ END:VEVENT';
 END:VCALENDAR';
         
 		return ($ics);
-	}
-	
-	// Suppression des sommaires de frais de scolarité de l'utilisateur
-	function deleteFeesSummary ($idul = '') {
-		if ($idul=='') $idul = $this->session->userdata('pilule_user');
-		
-		if ($idul == 'demo') return (true);
-		
-		$this->db->delete('cache', array('idul'=>$idul, 'name'=>'data|fees,summary'));
-		$this->db->delete('cache', array('idul'=>$idul, 'name'=>'data|fees,semesters'));
-		
-		$this->db->like('name', 'data|fees[', 'after');
-		$this->db->where('idul', $idul);
-		
-		if ($this->db->delete('cache')) {
-			return (true);
-		} else {
-			return (false);
-		}
-	}
+    }
 	
 	// Recherche des modules de l'utilisateur
 	function getModules ($idul = '') {

@@ -475,8 +475,12 @@ class lCapsule {
         // Analyse des données
         if (strpos($response, "tudes en cours")) {
             // Nettoyage du code HTML
-            $tidy = tidy_parse_string($response);
-            $tidy->cleanRepair();
+            if (function_exists('tidy_repair_string')) {
+                $tidy = tidy_parse_string($response);
+                $tidy->cleanRepair();
+            } else {
+                $tidy = $response;
+            }
 
             // Analyse de la structure DOM de la page
             $this->CI->load->library('domparser');
@@ -624,8 +628,12 @@ class lCapsule {
         if (!$this->checkPage($response)) return (false);
 
         // Nettoyage du code HTML
-        $tidy = tidy_parse_string($response);
-        $tidy->cleanRepair();
+        if (function_exists('tidy_repair_string')) {
+            $tidy = tidy_parse_string($response);
+            $tidy->cleanRepair();
+        } else {
+            $tidy = $response;
+        }
 
         // Analyse de la structure DOM de la page
         $this->CI->load->library('domparser');
@@ -674,67 +682,19 @@ class lCapsule {
                 // Vérification des données
                 if (!$this->checkPage($details1)) return (false);
 
-                /*
                 // Rapport détaillé
-
-                // Définition des valeurs du formulaire
-                $arguments["RequestURI"] = "/pls/etprod7/bwckcapp.P_VerifyDispEvalViewOption";
-                $arguments["PostValues"] = array(
-                      'request_no'		=>	$id,
-                      'program_summary'	=>	'3'
-                );
-
-                // Ouverture de la connexion
-                $this->CI->lfetch->Open($arguments);
-
-                // Envoi du formulaire
-                $error = $this->CI->lfetch->SendRequest($arguments);
-                if (!empty($error)) return (false);
-
-                // Lecture du contenu de la réponse
-                $this->CI->lfetch->ReadWholeReplyBody($response);
-                $details2 = utf8_encode(html_entity_decode($response));
-
-                // Fermeture de la connexion
-                $this->CI->lfetch->Close();
-
-                // Vérification des données
-                if (!$this->checkPage($details2)) return (false);
-
-                // Infos supplémentaires
-
-                // Définition des valeurs du formulaire
-                $arguments["RequestURI"] = "/pls/etprod7/bwckcapp.P_VerifyDispEvalViewOption";
-                $arguments["PostValues"] = array(
-                      'request_no'		=>	$id,
-                      'program_summary'	=>	'2'
-                );
-
-                // Ouverture de la connexion
-                $this->CI->lfetch->Open($arguments);
-
-                // Envoi du formulaire
-                $error = $this->CI->lfetch->SendRequest($arguments);
-                if (!empty($error)) return (false);
-
-                // Lecture du contenu de la réponse
-                $this->CI->lfetch->ReadWholeReplyBody($response);
-                $details3 = utf8_encode(html_entity_decode($response));
-
-                // Fermeture de la connexion
-                $this->CI->lfetch->Close();
-
-                // Vérification des données
-                if (!$this->checkPage($details3)) return (false);
-                */
 
                 // TODO : Remove this part
                 if ($this->CI->session->userdata('saved_data') != '') $details1 = ($this->CI->mHistory->getRequestData($this->CI->session->userdata('saved_data')));
 
                 // Sélection des informations dans les rapports
                 // Nettoyage du code HTML
-                $tidy = tidy_parse_string($details1);
-                $tidy->cleanRepair();
+                if (function_exists('tidy_repair_string')) {
+                    $tidy = tidy_parse_string($details1);
+                    $tidy->cleanRepair();
+                } else {
+                    $tidy = $response;
+                }
 
                 // Analyse de la structure DOM de la page
                 $this->CI->load->library('domparser');
@@ -935,8 +895,12 @@ class lCapsule {
         $this->CI->mHistory->saveRequestData($this->CI->session->userdata('pilule_user'), 'get-report', $response, __FILE__." : ligne ".__LINE__." | ".$error);
 
         // Nettoyage du code HTML
-        $tidy = tidy_parse_string($response);
-        $tidy->cleanRepair();
+        if (function_exists('tidy_repair_string')) {
+            $tidy = tidy_parse_string($response);
+            $tidy->cleanRepair();
+        } else {
+            $tidy = $response;
+        }
 
         // Analyse de la structure DOM de la page
         $this->CI->load->library('domparser');
@@ -1164,13 +1128,13 @@ class lCapsule {
 
         if ($requested_semester=='') {
             $suggested_semesters = array(
-                                         (date('Y')+1)."01"		=>	"Hiver ".(date('Y')+1),
+                                         (date('Y')+1)."01"	=>	"Hiver ".(date('Y')+1),
                                          date('Y')."09"		=>	"Automne ".date('Y'),
                                          date('Y')."05"		=>	"Été ".date('Y'),
                                          date('Y')."01"		=>	"Hiver ".date('Y'),
-                                         (date('Y')-1)."09"		=>	"Automne ".(date('Y')-1),
-                                         (date('Y')-1)."05"		=>	"Été ".(date('Y')-1),
-                                         (date('Y')-1)."01"		=>	"Hiver ".(date('Y')-1)
+                                         (date('Y')-1)."09"	=>	"Automne ".(date('Y')-1),
+                                         (date('Y')-1)."05"	=>	"Été ".(date('Y')-1),
+                                         (date('Y')-1)."01"	=>	"Hiver ".(date('Y')-1)
                                          );
 
             $semesters = array();
@@ -1213,8 +1177,12 @@ class lCapsule {
                 $schedule[$semester] = array();
 
                 // Nettoyage du code HTML
-                $tidy = tidy_parse_string($response);
-                $tidy->cleanRepair();
+                if (function_exists('tidy_repair_string')) {
+                    $tidy = tidy_parse_string($response);
+                    $tidy->cleanRepair();
+                } else {
+                    $tidy = $response;
+                }
 
                 // Analyse de la structure DOM de la page
                 $this->CI->load->library('domparser');
@@ -1245,11 +1213,12 @@ class lCapsule {
                             $class = array(
                                 'type'     =>  trim(html_entity_decode($row->nodes[1]->text(), ENT_COMPAT, 'cp1252')),
                                 'hours'    =>  explode(' - ', trim(str_replace('ACU', '', html_entity_decode($row->nodes[3]->text(), ENT_COMPAT, 'cp1252')))),
-                                'day'      =>  trim(html_entity_decode($row->nodes[5]->text(), ENT_COMPAT, 'cp1252')),
+                                'day'      =>  trim(str_replace(' ', '', html_entity_decode($row->nodes[5]->text(), ENT_COMPAT, 'cp1252'))),
                                 'location' =>  trim(str_replace('ACU', '', html_entity_decode($row->nodes[7]->text(), ENT_COMPAT, 'cp1252'))),
                                 'dates'    =>  explode(' - ', trim(html_entity_decode($row->nodes[9]->text(), ENT_COMPAT, 'cp1252'))),
                                 'teaching' =>  trim(html_entity_decode($row->nodes[11]->text(), ENT_COMPAT, 'cp1252')),
                                 'teacher'  =>  trim(str_replace('ACU', '', html_entity_decode($row->nodes[13]->text(), ENT_COMPAT, 'cp1252'))),
+                                'code'     =>   $course['code']
                             );
 
                             if (count($class['hours']) == 2) {
@@ -1314,66 +1283,6 @@ class lCapsule {
                 }
 
                 $schedule[$semester]['courses'] = $courses;
-/*
-                $courses_type1 = 0;
-                $courses_type2 = 0;
-                $days_start = array();
-                $days_end = array();
-
-                foreach ($classes as $class) {
-                    if (strtolower($class['type'])!='cours en classe') {
-                        $courses_type2++;
-                    } else {
-                        $days_start[] = $class['day_start'];
-                        $days_end[] = $class['day_end'];
-                    }
-                }
-
-                $array_difference = array_count_values($days_start);
-                $array_difference2 = array_count_values($days_end);
-
-                $periods_days = array();
-                foreach ($array_difference as $day => $number) {
-                    $periods_days[] = $day;
-                }
-                foreach ($array_difference2 as $day => $number) {
-                    $periods_days[] = $day;
-                }
-                sort($periods_days);
-                $periods = array();
-                if (count($array_difference)>1) {
-                    $number = 0;
-                    $periods_days2 = $periods_days;
-                    $last_date = '';
-                    foreach ($periods_days as $date) {
-                        if ($number == (count($periods_days)-1)) break;
-
-                        if ($last_date == '') {
-                            $first_date = $date;
-                        } else {
-                            $first_date = date('Ymd', mktime(0, 0, 0, substr($last_date, 4, 2), substr($last_date, 6, 2), substr($last_date, 0, 4))+(3600*24));
-                        }
-
-                        if ($number == (count($periods_days)-2)) {
-                            $last_date = $periods_days2[$number+1];
-                        } else {
-                            $last_date = date('Ymd', mktime(0, 0, 0, substr($periods_days2[$number+1], 4, 2), substr($periods_days2[$number+1], 6, 2), substr($periods_days2[$number+1], 0, 4))-(3600*24));
-                        }
-
-                        // Vérification que des classes sont données pendant la période visée
-                        $found = 0;
-                        foreach ($classes as $class) {
-                            if ($class['day_end']>$first_date and $class['day_start']<=$last_date) $found = 1;
-                        }
-
-                        if ($found == 1) {
-                            $periods[$first_date . '-' . $last_date] = strtolower(currentDate($first_date, 'd M'))." &ndash; ".currentDate($periods_days2[$number+1], "d M Y");
-                        }
-
-                        $number++;
-                    }
-                }*/
-
             }
         }
 
@@ -1381,192 +1290,114 @@ class lCapsule {
 	}
 	
 	public function getFees ($requested_semester = '') {
-        $this->CI->lfetch->cookies = $_SESSION['cookies'];
-        $this->CI->lfetch->debug = $this->debug;
+        // Définition des paramètres de la requête
+        $this->CI->lfetch->set(array(
+            'cookies'       =>  $this->CI->session->userdata('capsule_cookies'),
+            'debug'         =>  $this->debug,
+            'protocol'      =>  'https',
+            'referer'       =>  'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_StuMainMnu'
+        ));
 
-        if ($_SESSION['referer']=='') {
-            $this->CI->lfetch->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_StuMainMnu';
-        } else {
-            $this->CI->lfetch->referer = $_SESSION['referer'];
-        }
+        $arguments = array(
+            'RequestURI'    =>  "/pls/etprod7/bwskoacc.P_ViewAcct"
+        );
 
-        $this->CI->lfetch->protocol="https";
+        // Ouverture de la connexion
+        $this->CI->lfetch->Open($arguments);
 
-        $arguments['HostName'] = "capsuleweb.ulaval.ca";
-        $arguments["RequestURI"] = "/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_ARMnu";
-        $error=$this->CI->lfetch->Open($arguments);
-        if ($error!="") {
-            error_log(__FILE__." : ligne ".__LINE__." | ".$error);
-            return (false);
-        }
+        // Envoi du formulaire
+        $error = $this->CI->lfetch->SendRequest($arguments);
+        if (!empty($error)) return (false);
 
-        $error=$this->CI->lfetch->SendRequest($arguments);
+        // Lecture du contenu de la réponse
+        $this->CI->lfetch->ReadWholeReplyBody($response);
+        $response = utf8_encode(html_entity_decode($response));
 
-        $headers=array();
-        $error=$this->CI->lfetch->ReadReplyHeaders($headers);
-        if ($error!="") {
-            error_log(__FILE__." : ligne ".__LINE__." | ".$error);
-            return (false);
-        }
-
+        // Fermeture de la connexion
         $this->CI->lfetch->Close();
 
-        $this->CI->lfetch->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_ARMnu';
-        $arguments["RequestURI"] = "/pls/etprod7/bwskoacc.P_ViewAcct";
+        // Vérification des données
+        if (!$this->checkPage($response)) return (false);
 
-        $error=$this->CI->lfetch->Open($arguments);
-        if ($error!="") {
-            error_log(__FILE__." : ligne ".__LINE__." | ".$error);
-            return (false);
-        }
-
-        $error=$this->CI->lfetch->SendRequest($arguments);
-        if ($error!="") {
-            error_log(__FILE__." : ligne ".__LINE__." | ".$error);
-            return (false);
-        }
-
-        $headers=array();
-        $error=$this->CI->lfetch->ReadReplyHeaders($headers);
-        if ($error!="") {
-            error_log(__FILE__." : ligne ".__LINE__." | ".$error);
-            return (false);
-        }
-
-        // Extraction du code source du résultat
-        $error = $this->CI->lfetch->ReadWholeReplyBody($body);
-        $data = utf8_encode(html_entity_decode($body));
-
-        $this->CI->lfetch->Close();
-
-        if (!$this->checkPage($data)) return (false);
-
-        // Vérification de l'existence des sessions en cache
-        $cache = $this->CI->mCache->getCache('data|fees,client_number');
-
-        if ($cache!=array()) {
-            $client_number = $cache['value'];
+        // Nettoyage du code HTML
+        if (function_exists('tidy_repair_string')) {
+            $tidy = tidy_parse_string($response);
+            $tidy->cleanRepair();
         } else {
-            $number = substr($data, strpos($data, "Numéro de client:")+5, 500);
-            $number = substr($number, strpos($number, "<TD"));
-            $number = trim(strip_tags(substr($number, 0, strpos($number, "</TD>"))));
-
-            // Mise en cache des données du numéro de client
-            $this->CI->mCache->addCache('data|fees,client_number', $number);
-
-            $client_number = $number;
+            $tidy = $response;
         }
 
-        $content = substr($data, strpos($data, "Solde du compte:"));
-        $content = substr($content, strpos($content, "<SPAN class=fieldOrangetextbold>"));
-        $content = substr($content, 0, strpos($content, "</TABLE>"));
-        $content = explode("fieldOrangetextbold", $content);
+        // Analyse de la structure DOM de la page
+        $this->CI->load->library('domparser');
+        $this->CI->domparser->load($tidy);
+        $tables = $this->CI->domparser->find('table.datadisplaytable');
 
-        $number = 0;
-        $semesters = array();
-
-        foreach ($content as $line) {
-            $semester = array();
-            $title = "";
-            if ($number!=0) {
-                $semester['name'] = substr($line, strpos($line, ">")+1);
-                $semester['name'] = trim(strip_tags(substr($semester['name'], 0, strpos($semester['name'], "</SPAN>"))));
-
-                $semester['total_fees'] = substr($line, strpos($line, "Frais de session:"));
-                $semester['total_fees'] = substr($semester['total_fees'], strpos($semester['total_fees'], '<p'));
-                $semester['total_fees'] = str_replace(" ", "", str_replace("$", "", trim(strip_tags(substr($semester['total_fees'], 0, strpos($semester['total_fees'], '</TD>'))))));
-
-                $semester['total_payments'] = substr($line, strpos($line, "paiements de session:"));
-                $semester['total_payments'] = substr($semester['total_payments'], strpos($semester['total_payments'], '<p'));
-                $semester['total_payments'] = str_replace(" ", "", str_replace("$", "", trim(strip_tags(substr($semester['total_payments'], 0, strpos($semester['total_payments'], '</TD>'))))));
-
-                $semester['balance'] = substr($line, strpos($line, "Solde de session:"));
-                $semester['balance'] = substr($semester['balance'], strpos($semester['balance'], '<p'));
-                $semester['balance'] = str_replace(" ", "", str_replace("$", "", trim(strip_tags(substr($semester['balance'], 0, strpos($semester['balance'], '</TD>'))))));
-
-                $details = substr($line, strpos($line, "<TH CLASS=\"ddheader\" scope=\"col\" >Description</TH>"));
-                $details = substr($details, strpos($details, "<TR>"));
-                $details = substr($details, 0, strpos($details, "<TH CLASS=\"ddlabel\""));
-                $details = substr($details, 0, strrpos($details, "</TR>"));
-                $details = explode("<TR>", $details);
-
-                $number2 = 0;
-                foreach ($details as $line2) {
-                    $fee = array();
-                    if ($number2>=1) {
-                        $line2 = explode("</TD>", $line2);
-
-                        $fee['name'] = trim(strip_tags($line2[0]));
-                        if (substr($fee['name'], 0, 8)=='Paiement') {
-                            $fee['type'] = 'payment';
-                            $fee['amount'] = str_replace(" ", "", str_replace("$", "", trim(strip_tags($line2[2]))));
-                        } else {
-                            $fee['type'] = 'fee';
-                            $fee['amount'] = str_replace(" ", "", str_replace("$", "", trim(strip_tags($line2[1]))));
-                        }
-
-                        $semester['fees'][] = $fee;
-                    }
-                    $number2++;
-                }
-
-                // Mise en cache des données du sommaire du semestre
-                $semester_date = explode(" ", $semester['name']);
-
-                switch (strtolower($semester_date[0])) {
-                    case 'hiver':
-                        $semester_name = $semester_date[1]."01";
-                    break;
-                    case 'automne':
-                        $semester_name = $semester_date[1]."09";
-                    break;
-                    default:
-                        $semester_name = $semester_date[1]."05";
-                    break;
-                }
-                $this->CI->mCache->addCache('data|fees['.$semester_name.']', $semester);
-
-                $semesters[] = $semester;
-            }
-            $number++;
+        // Vérification d'une requête similaire
+        $md5 = md5(serialize($tables));
+        if ($this->CI->mCache->requestExists('fees', $md5)) {
+            return (true);
+        } else {
+           // $this->CI->mCache->addRequest('fees', $md5);
         }
 
-        $balance = substr($data, strpos($data, "Solde du compte:"), 500);
-        $balance = substr($balance, strpos($balance, "<TD"));
-        $balance = str_replace(" ", "", str_replace("$", "", trim(strip_tags(substr($balance, 0, strpos($balance, "</TD>"))))));
+        $account = array();
 
-        $summary = array(
-                         'client_number'	=>	$client_number,
-                         'balance'			=>	$balance,
-                         'semesters'		=>	$semesters
-                         );
-
-        // Mise en cache des données de l'état de compte
-        $this->CI->mCache->addCache('data|fees,summary', $summary);
-
-        // Mise en cache des données de la liste des semestres
-        $semesters_list = array();
-        foreach ($semesters as $semester) {
-            $semester_date = explode(" ", $semester['name']);
-
-            switch (strtolower($semester_date[0])) {
-                case 'hiver':
-                    $semester_name = $semester_date[1]."01";
-                break;
-                case 'automne':
-                    $semester_name = $semester_date[1]."09";
-                break;
+        $rows = $tables[0]->find('tr');
+        foreach ($rows as $row) {
+            $name = trim(str_replace(':', '', html_entity_decode($row->nodes[1]->text(), ENT_COMPAT, 'cp1252')));
+            $value = trim(html_entity_decode($row->nodes[3]->text(), ENT_COMPAT, 'cp1252'));
+            switch ($name) {
+                case 'Numéro de client':
+                    $account['account_number'] = $value;
+                    break;
                 default:
-                    $semester_name = $semester_date[1]."05";
-                break;
+                    if (strpos($name, 'Numéro d\'assuré AELIÉS') !== false) {
+                        $account['aelies_number'] = str_replace(' ', '', $value);
+                    }
+                    break;
             }
-
-            $semesters_list[$semester_name] = $semester['name'];
         }
 
-        $this->CI->mCache->addCache('data|fees,semesters', $semesters_list);
+        $semesters = array();
+        $semester = array();
+        $rows = $tables[1]->find('tr');
+        foreach ($rows as $row) {
+            if (isset($row->nodes[1])) $name = trim(str_replace(':', '', html_entity_decode($row->nodes[1]->text(), ENT_COMPAT, 'cp1252')));
+            if (isset($row->nodes[3])) $value = trim(str_replace(' ', '', str_replace(',', '.', html_entity_decode($row->nodes[3]->text(), ENT_COMPAT, 'cp1252'))));
 
-        return($summary);
+            switch ($name) {
+                case 'Description':
+                    break;
+                case 'Frais de session':
+                    $semester['total'] = (float)str_replace('$', '', $value);
+                    break;
+                case 'Crédits et paiements de session':
+                    $semester['payments'] = (float)str_replace('$', '', $value);
+                    break;
+                case 'Solde de session':
+                    $semester['balance'] = (float)str_replace('$', '', $value);
+
+                    // Save last semester and start a new one
+                    $semesters[] = $semester;
+                    $semester = array();
+                    break;
+                case 'Solde du compte':
+                    $account['balance'] = (float)str_replace('$', '', $value);
+                    break;
+                default:
+                    if (strpos($name, 'Automne ') !== false || strpos($name, 'Été ') !== false || strpos($name, 'Hiver ') !== false) {
+                        $semester['semester'] = convertSemester($name);
+                    } elseif (str_replace(' ', '', $name) != '') {
+                        if (str_replace(' ', '', $value) != '') {
+                            $semester['fees'][] = array('name' => $name, 'amount' => (float)str_replace('$', '', $value));
+                        }
+                    }
+            }
+        }
+
+        if (!empty($semester)) $semesters[] = $semester;
+
+        return (array('account' => $account, 'semesters' => $semesters));
 	}
 	
 	public function registerCourses ($nrc_array, $semester) {

@@ -102,7 +102,7 @@ class Welcome extends CI_Controller {
 	function index() {
 		$data = array(
             'section'       =>  'welcome',
-            'user'          =>  $this->user,
+            'user'          =>  $this->mUser->info(),
             'mobile_browser'=>  $this->mobile
         );
 
@@ -156,6 +156,14 @@ class Welcome extends CI_Controller {
                 array(
                     'url'   =>  '#!/dashboard',
                     'title' =>  'Tableau de bord'
+                )
+            ),
+            'buttons'       =>  array(
+                array(
+                    'action'=>  "app.dashboard.unlockModules();",
+                    'type'  =>  'edit',
+                    'title' =>  '<i class="icon-pencil"></i>',
+                    'tip'   =>  'Modifier le tableau de bord'
                 )
             )
         ));

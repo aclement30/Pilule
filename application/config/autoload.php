@@ -64,7 +64,7 @@ $autoload['libraries'] = array('database', 'lmobile', 'session');
 |	$autoload['helper'] = array('url', 'file');
 */
 
-$autoload['helper'] = array('url', 'date');
+$autoload['helper'] = array('url', 'date', 'calendar');
 
 
 /*

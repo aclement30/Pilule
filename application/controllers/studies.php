@@ -71,35 +71,28 @@ class Studies extends CI_Controller {
             return (false);
         }
 
-        if ($data['programs']!=array()) {
-            respond(array(
-                'title'         =>  'Programme d\'études',
-                'content'       =>  $this->load->view('studies/summary', $data, true),
-                'timestamp'     =>  $last_request['timestamp'],
-                'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay)) ? 'studies': false,
-                'breadcrumb'=>  array(
-                    array(
-                        'url'   =>  '#!/dashboard',
-                        'title' =>  'Tableau de bord'
-                    ),
-                    array(
-                        'url'   =>  '#!/studies',
-                        'title' =>  'Dossier scolaire'
-                    )
+        respond(array(
+            'title'         =>  'Programme d\'études',
+            'content'       =>  $this->load->view('studies/summary', $data, true),
+            'timestamp'     =>  time_ago($last_request['timestamp']),
+            'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay)) ? 'studies': false,
+            'breadcrumb'=>  array(
+                array(
+                    'url'   =>  '#!/dashboard',
+                    'title' =>  'Tableau de bord'
                 ),
-                'buttons'       =>  array(
-                    array(
-                        'action'=>  "app.cache.reloadData('studies');",
-                        'type'  =>  'refresh'
-                    )
+                array(
+                    'url'   =>  '#!/studies',
+                    'title' =>  'Dossier scolaire'
                 )
-            ));
-        } else {
-            respond(array(
-                'title'     =>  'Programme d\'études',
-                'content'   =>  $this->load->view('errors/loading-data', $data, true)
-            ));
-        }
+            ),
+            'buttons'       =>  array(
+                array(
+                    'action'=>  "app.cache.reloadData('studies');",
+                    'type'  =>  'refresh'
+                )
+            )
+        ));
 	}
 	
 	function details () {
@@ -150,22 +143,22 @@ class Studies extends CI_Controller {
         }
 
 		// Sélection des données des études
-		if ($data['programs']!=array()) {
-            foreach ($data['programs'] as &$program) {
-			// Vérification de l'existence de la page en cache
-				$program['sections'] = $this->mStudies->getProgramSections($program['id']);
+        foreach ($data['programs'] as &$program) {
+        // Vérification de l'existence de la page en cache
+            $program['sections'] = $this->mStudies->getProgramSections($program['id']);
 
-                foreach ($program['sections'] as &$section) {
-                    $section['courses'] = $this->mStudies->getProgramCourses(array('section_id' => $section['id']));
-                }
+            foreach ($program['sections'] as &$section) {
+                $section['courses'] = $this->mStudies->getProgramCourses(array('section_id' => $section['id']));
             }
+        }
 
-            // Sélection de la moyenne de cohorte
-            $program['cohort_gpa'] = $this->mStudies->getCohortAverageGPA($program['name'], $program['session_repertoire']);
+        // Sélection de la moyenne de cohorte
+        $program['cohort_gpa'] = $this->mStudies->getCohortAverageGPA($program['name'], $program['session_repertoire']);
 
-            // Sélection des moyennes pour chaque semestre
-            $program['gpas'] = $this->mStudies->getSemestersGPA($program['session_repertoire'], $program['session_evaluation']);
+        // Sélection des moyennes pour chaque semestre
+        $program['gpas'] = $this->mStudies->getSemestersGPA($program['session_repertoire'], $program['session_evaluation']);
 
+        if (!empty($program['gpas'])) {
             $chart_data = array();
             $chart_x_axis = array();
             $smallest = 4.33;
@@ -188,8 +181,9 @@ class Studies extends CI_Controller {
             $chart_x_axis = implode(', ', $chart_x_axis);
 
             $code = <<<EOD
+                var displayChart = function () {
                     var plot = $.plot($(".chart"),
-                    [ { data: [{$chart_data}], label: "Moyennes", color: "#BA1E20", hoverable: true} ], {
+                    [ { data: [{$chart_data}], label: "Moyennes", color: "#134a7f", hoverable: true} ], {
                         series: {
                             lines: { show: true },
                             points: { show: true }
@@ -221,37 +215,43 @@ class Studies extends CI_Controller {
                             previousPoint = null;
                         }
                     });
-EOD;
+                };
 
-			// Chargement de la page
-            respond(array(
-                'title'         =>  'Rapport de cheminement',
-                'content'       =>  $this->load->view('studies/details', $data, true),
-                'code'          =>  $code,
-                'timestamp'     =>  $last_request['timestamp'],
-                'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay)) ? 'studies-details': false,
-                'breadcrumb'    =>  array(
-                    array(
-                        'url'   =>  '#!/dashboard',
-                        'title' =>  'Tableau de bord'
-                    ),
-                    array(
-                        'url'   =>  '#!/studies',
-                        'title' =>  'Dossier scolaire'
-                    ),
-                    array(
-                        'url'   =>  '#!/studies/details',
-                        'title' =>  'Rapport de cheminement'
-                    )
-                ),
-                'buttons'       =>  array(
-                    array(
-                        'action'=>  "app.cache.reloadData('studies-details');",
-                        'type'  =>  'refresh'
-                    )
-                )
-            ));
+                // Wait until the refresh effect end so the chart is displayed and can be filled
+                setTimeout(displayChart, 100);
+EOD;
+        } else {
+            $code = "$('.chart').parent().hide();";
         }
+
+        // Chargement de la page
+        respond(array(
+            'title'         =>  'Rapport de cheminement',
+            'content'       =>  $this->load->view('studies/details', $data, true),
+            'code'          =>  $code,
+            'timestamp'     =>  time_ago($last_request['timestamp']),
+            'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay)) ? 'studies-details': false,
+            'breadcrumb'    =>  array(
+                array(
+                    'url'   =>  '#!/dashboard',
+                    'title' =>  'Tableau de bord'
+                ),
+                array(
+                    'url'   =>  '#!/studies',
+                    'title' =>  'Dossier scolaire'
+                ),
+                array(
+                    'url'   =>  '#!/studies/details',
+                    'title' =>  'Rapport de cheminement'
+                )
+            ),
+            'buttons'       =>  array(
+                array(
+                    'action'=>  "app.cache.reloadData('studies-details');",
+                    'type'  =>  'refresh'
+                )
+            )
+        ));
 	}
 	
 	function report () {
@@ -314,7 +314,7 @@ EOD;
         respond(array(
             'title'         =>  'Relevé de notes',
             'content'       =>  $this->load->view('studies/report', $data, true),
-            'timestamp'     =>  $last_request['timestamp'],
+            'timestamp'     =>  time_ago($last_request['timestamp']),
             'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay)) ? 'studies-report': false,
             'breadcrumb'=>  array(
                 array(

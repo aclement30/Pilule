@@ -1,4 +1,17 @@
 <?php
+function time_ago ( $time, $now = '', $number = 1) {
+    if (empty($now)) $now = time();
+
+    $timespan = explode(',', timespan((int)$time, $now));
+    $short_timespan = array();
+    for ($n=0; $n<$number; $n++) {
+        if (isset($timespan[$n])) $short_timespan[] = $timespan[$n];
+    }
+    $short_timespan = implode(',', $short_timespan);
+
+    return str_replace("second", "seconde", str_replace("hour", "heure", str_replace("day", "jour", str_replace("week", "semaine", str_replace("month", "mois", str_replace("months", "mois", str_replace("year", "an", strtolower($short_timespan))))))));
+}
+
 function currentDate ($date, $format) {
 	$date = str_replace(".", "-", str_replace(" ", "-", str_replace("/", "-", $date)));
 	// Détection du format d'entrée de la date

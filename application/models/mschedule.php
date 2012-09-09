@@ -139,4 +139,120 @@ class mSchedule extends CI_Model {
             return (false);
         }
     }
+
+    function export ($semester, $format = "ical", $alarm = 'no', $title = 'name') {
+        $classes = $this->getClasses(array('stu_schedule_classes.semester'=>$semester, 'stu_schedule_classes.day !='=>''));
+
+        if (count($classes) > 0) {
+            $ics =
+                'BEGIN:VCALENDAR
+CALSCALE:GREGORIAN
+X-WR-TIMEZONE;VALUE=TEXT:Canada/Eastern
+METHOD:PUBLISH
+PRODID:-//Pilule //NONSGML iCalendar Template//EN
+X-WR-CALNAME;VALUE=TEXT:Université Laval
+VERSION:2.0';
+            $weekdays = array("L"=>0,"M"=>1,"R"=>2,"J"=>3,"V"=>4,"S"=>5);
+            $sectors = array(
+                "Est"					=>	'PVE',
+                "Pavillon de l'Éducation physique et des sports"	=>	'EPS',
+                "PEPS"	                =>	'PEPS',
+                "Médecine dentaire"	    =>	'MDE',
+                "Centre de foresterie des Laurentides"	=>	'CFL',
+                "Abitibi-Price"		    =>	'ABP',
+                "Palasis-Prince"		=>	'PAP',
+                "Maison Omer-Gingras"	=>	'OMG',
+                "Services"				=>	'PSA',
+                "Ferdinand-Vandry"		=>	'VND',
+                "Charles-Eugène-Marchand"=>'CHM',
+                "Alexandre-Vachon"		=>	'VCH',
+                "Adrien-Pouliot"		=>	'PLT',
+                "Charles-De Koninck"	=>	'DKN',
+                "Jean-Charles-Bonenfant"=>	'BNF',
+                "Sciences de l'éducation"=>'TSE',
+                "Félix-Antoine-Savard"	=>	'FAS',
+                "Louis-Jacques-Casault"=>	'CSL',
+                "Paul-Comtois"			=>	'CMT',
+                "Maison Eugène-Roberge" =>	'EGR',
+                "Maison Marie-Sirois"	=>	'MRS',
+                "Agathe-Lacerte"		=>	'LCT',
+                "Ernest-Lemieux"		=>	'LEM',
+                "Alphonse-Desjardins"	=>	'ADJ',
+                "Maurice-Pollack"		=>	'POL',
+                "H.-Biermans-L.-Moraud" =>	'PBM',
+                "Alphonse-Marie-Parent" =>	'PRN',
+                "J.-A.-DeSève"			=>	'DES',
+                "La Laurentienne"		=>	'LAU',
+                "Envirotron"			=>	'EVT',
+                "Optique-photonique"	=>	'COP',
+                "Gene-H.-Kruger"		=>	'GHK',
+                "Héma-Québec"			=>	'HQ',
+                "Maison Michael-John-Brophy"=>'BRY',
+                "Maison Couillard"		=>	'MCO',
+                "Serres haute performance"=>'EVS',
+                'Édifice de La Fabrique'=>	'FAB',
+                'Édifice du Boulevard'	=>	'E-BLVD',
+                'Éd. Vieux-Séminaire-de-Québec'	=>	'SEM'
+
+            );
+
+            $readingWeekStart = mktime(0, 0, 0, 03, 05, 2012);
+            $readingWeekEnd = mktime(0, 0, 0, 03, 11, 2012);
+
+            foreach($classes as $class) {
+                //if (!isset($class['name'])) $class['name'] = $class['idcourse'];
+
+                $firstDay = mktime(floor($class['hour_start']), 0, 0, substr($class['date_start'], 4, 2), substr($class['date_start'], 6, 2), substr($class['date_start'], 0, 4))+($weekdays[$class['day']]*3600*24);
+                $lastDay = mktime(floor($class['hour_end']), 0, 0, substr($class['date_end'], 4, 2), substr($class['date_end'], 6, 2), substr($class['date_end'], 0, 4));
+                $currentDay = $firstDay;
+
+                while ($currentDay < $lastDay) {
+                    if ($currentDay > $lastDay) break;
+                    if ($currentDay >= $readingWeekStart && $currentDay <= $readingWeekEnd) {
+                        // Semaine de lecture
+                    } else {
+                        $startTime = floor($class['hour_start']);
+                        if ($startTime < 10) $startTime = "0".$startTime;
+                        $startTime .= (ceil($class['hour_start'])-$class['hour_start'])*60;
+
+                        $endTime = floor($class['hour_end']);
+                        if ($endTime < 10) $endTime = "0".$endTime;
+                        $endTime .= (ceil($class['hour_end'])-$class['hour_end'])*60;
+
+                        $local = $class['location'];
+                        $sector = substr($local, 0, strrpos($local, ' '));
+                        $local_number = substr($local, strrpos($local, ' ')+1);
+                        if (array_key_exists($sector, $sectors)) {
+                            $location = $sectors[$sector]." ".$local_number;
+                        } else {
+                            $location = $sector.", local ".$local_number;
+                        }
+
+                        $eventTitle = $class['title'];
+                        //$eventTitle = $class['idcourse'];
+
+                        $ics .=
+                            '
+BEGIN:VEVENT
+SEQUENCE:1
+DTSTART;TZID=Canada/Eastern:'.date('Ymd', $currentDay).'T'.$startTime.'00
+SUMMARY:'.$eventTitle.'
+DTEND;TZID=Canada/Eastern:'.date('Ymd', $currentDay).'T'.$endTime.'00
+LOCATION:'.$location;
+                        $ics .=
+                            '
+END:VEVENT';
+                    }
+                    $currentDay += 3600*24*7;
+
+                }
+            }
+        }
+
+        $ics .=
+            '
+END:VCALENDAR';
+
+        return ($ics);
+    }
 }

@@ -341,7 +341,9 @@ class mStudies extends CI_Model {
         $result = $this->db->get('stu_reports');
 
         $report = $result->row_array();
-        $report['programs'] = unserialize($report['programs']);
+        if (!empty($report)) {
+            $report['programs'] = unserialize($report['programs']);
+        }
 
         if ($report!=array()) {
             // Renvoi des données

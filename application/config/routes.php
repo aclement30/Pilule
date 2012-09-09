@@ -50,5 +50,7 @@ $route['pixel'] = "services/pixel";
 $route['joinfb/(:any)'] = "welcome/";
 $route['admin/getMenu'] = "admin/dashboard/getMenu";
 
+$route['schedule/(:num)'] = "schedule/index/$1";
+
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

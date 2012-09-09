@@ -194,4 +194,18 @@ class mCache extends CI_Model {
             return ($request);
         }
     }
+
+    // Suppression des relevés de notes de l'étudiant
+    function deleteRequests ($idul = '') {
+        if ($idul=='') $idul = $this->session->userdata('pilule_user');
+
+        // Si le compte demo est activé, ne pas supprimer les données
+        if ($idul == 'demo') return (true);
+
+        if ($this->db->delete('capsule_requests', array('idul'=>$idul))) {
+            return (true);
+        } else {
+            return (false);
+        }
+    }
 }

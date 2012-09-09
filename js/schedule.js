@@ -1,3 +1,14 @@
+var schedule = {
+    controllerURL: './schedule/',
+    object:        'schedule',
+
+    displaySemester: function (semester) {
+        document.location.hash = '#!/schedule/'+semester;
+    }
+}
+
+addChild(app, 'schedule', schedule);
+
 // JavaScript Document
 var scheduleObj = {
 	currentPeriod: '',

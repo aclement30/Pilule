@@ -214,7 +214,7 @@ foreach ($programs as $program) {
     <div class="row-fluid">
 
     <div class="span12">
-        <div class="widget-box">
+        <div class="widget-box" style="margin-bottom: 0px;">
             <div class="widget-title">
                                     <span class="icon">
                                         <?php if ($credits==$section['credits']) echo '<i class="icon-ok"></i>'; else echo '<i class="icon-th"></i>'; ?>

@@ -12,6 +12,7 @@ class Fees extends CI_Controller {
         getRequestSource();
 		
 		// Chargement des modèles
+        $this->load->model('mTuitions');
 		$this->load->model('mUser');
 
         // Vérification de la connexion
@@ -30,70 +31,146 @@ class Fees extends CI_Controller {
             'user'              =>  $this->user,
             'mobile_browser'    =>  $this->mobile,
             'capsule_offline'   =>  ($this->session->userdata('capsule_offline') == 'yes') ? true: false,
-            'studies'           =>  $this->mUser->getStudies()
             // Set page specific data
         );
 
 		$this->mHistory->save('fees-summary');
-		
-        // Vérification de l'existence des sessions en cache
-        $cache = $this->mCache->getCache('data|fees,semesters');
 
-        if ($cache!=array()) {
-            $semesters = unserialize($cache['value']);
+        // Vérification de l'existence des données en cache
+        $last_request = $this->mCache->getLastRequest('fees');
 
-            if ($semesters!=array()) {
-                $data['semester'] = key($semesters);
-                $this->session->set_userdata('fees_current_semester', $data['semester']);
-            }
+        if (empty($last_request)) {
+            // Aucune données n'existe pour cette page
+            respond(array(
+                'title'         =>  'État de compte',
+                'content'       =>  $this->load->view('errors/loading-data', $data, true),
+                'reloadData'    =>  'fees',
+                'breadcrumb'    =>  array(
+                    array(
+                        'url'   =>  '#!/dashboard',
+                        'title' =>  'Tableau de bord'
+                    ),
+                    array(
+                        'url'   =>  '#!/fees',
+                        'title' =>  'Frais de scolarité'
+                    )
+                ),
+                'buttons'       =>  array(
+                    array(
+                        'action'=>  "app.cache.reloadData('fees');",
+                        'type'  =>  'refresh'
+                    )
+                )
+            ));
+
+            return (false);
         }
 
-		// Vérification de l'existence des sessions en cache
-		$cache = $this->mCache->getCache('data|fees,summary');
-		
-		if ($cache!=array()) {
-			$data['summary'] = unserialize($cache['value']);
-			$data['cache_date'] = $cache['date'];
-			$data['cache_time'] = $cache['time'];
-			// Vérification de la date de chargement des données
-			if ($cache['timestamp']<(time()-$this->mUser->expirationDelay)) {
-				$data['reload_data'] = 'data|fees,summary';
-			}
-			
-			if ($data['summary']!=array()) {
-			} else {
-				// Chargement de la page d'erreur
-				$data['title'] = 'État de compte';
-				$data['reload_name'] = 'data|fees,summary';
-			}
-		} else {
-			// Chargement de la page d'erreur
-			$data['title'] = 'État de compte';
-			$data['reload_name'] = 'data|fees,summary';
-		}
+        // Sélection des frais de scolarité pour le semestre sélectionné
+        $data['account'] = $this->mTuitions->getAccount();
+        $semesters = $this->mTuitions->getSemesters(array('semester' => CURRENT_SEMESTER));
 
-        // Chargement de la page
-        respond(array(
-            'title'         =>  'État de compte',
-            'content'       =>  $this->load->view('fees/summary', $data, true),
-            'reloadData'    =>  (isset($data['reload_data'])) ? $data['reload_data']: '',
-            'breadcrumb'=>  array(
-                array(
-                    'url'   =>  '#!/dashboard',
-                    'title' =>  'Tableau de bord'
+        if (empty($semesters)) {
+            // Si aucun sommaire n'existe pour la session en cours, afficher la dernière session disponible
+            $semesters = $this->mTuitions->getSemesters();
+        }
+
+        if (!empty($semesters)) {
+            $data['summary'] = $semesters[0];
+            $chart_data = array();
+
+            $tuition_fees = 0;
+            foreach ($data['summary']['fees'] as $fee) {
+                if (strpos($fee['name'], 'Droits de scolarité') !== false) $tuition_fees = $fee['amount'];
+
+                if (strpos($fee['name'], 'Frais modern. gest. études') !== false) $fee['name'] = 'Capsule';
+                if (strpos($fee['name'], 'Droits de scolarité') === false) {
+                    $chart_data[] = '{label: \''.addslashes($fee['name']).'\', data: '.round(($fee['amount']/($data['summary']['total']-$tuition_fees)*100)).'}';
+                }
+            }
+
+            $chart_data = implode(', ', $chart_data);
+            $code = <<<EOD
+                    var displayChart = function () {
+                        var pie = $.plot($(".chart"), [{$chart_data}],{
+                            series: {
+                                pie: {
+                                    show: true,
+                                    radius: 3/4,
+                                    label: {
+                                        show: true,
+                                        radius: 3/4,
+                                        formatter: function(label, series){
+                                            return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+Math.round(series.percent)+'%</div>';
+                                        },
+                                        background: {
+                                            opacity: 0.5,
+                                            color: '#000'
+                                        }
+                                    },
+                                    innerRadius: 0.2
+                                },
+                                legend: {
+                                    show: false
+                                }
+                            }
+                        });
+                    };
+
+                    // Wait until the refresh effect end so the chart is displayed and can be filled
+                    setTimeout(displayChart, 100);
+EOD;
+
+            // Chargement de la page
+            respond(array(
+                'title'         =>  'État de compte',
+                'content'       =>  $this->load->view('fees/summary', $data, true),
+                'code'          =>  $code,
+                'timestamp'     =>  time_ago($last_request['timestamp']),
+                'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay)) ? 'fees': false,
+                'breadcrumb'=>  array(
+                    array(
+                        'url'   =>  '#!/dashboard',
+                        'title' =>  'Tableau de bord'
+                    ),
+                    array(
+                        'url'   =>  '#!/fees',
+                        'title' =>  'Frais de scolarité'
+                    )
                 ),
-                array(
-                    'url'   =>  '#!/fees',
-                    'title' =>  'Frais de scolarité'
+                'buttons'       =>  array(
+                    array(
+                        'action'=>  "app.cache.reloadData('fees');",
+                        'type'  =>  'refresh'
+                    )
                 )
-            ),
-            'buttons'       =>  array(
-                array(
-                    'action'=>  "app.cache.reloadData('data|fees,summary');",
-                    'type'  =>  'refresh'
+            ));
+        } else {
+            // Aucune données n'existe pour cette page
+            respond(array(
+                'title'         =>  'État de compte',
+                'content'       =>  $this->load->view('errors/no-data', $data, true),
+                'timestamp'     =>  time_ago($last_request['timestamp']),
+                'breadcrumb'    =>  array(
+                    array(
+                        'url'   =>  '#!/dashboard',
+                        'title' =>  'Tableau de bord'
+                    ),
+                    array(
+                        'url'   =>  '#!/fees',
+                        'title' =>  'Frais de scolarité'
+                    )
+                ),
+                'buttons'       =>  array(
+                    array(
+                        'action'=>  "app.cache.reloadData('fees');",
+                        'type'  =>  'refresh'
+                    )
                 )
-            )
-        ));
+            ));
+
+            return (false);
+        }
 	}
 
 	function details () {
@@ -102,59 +179,20 @@ class Fees extends CI_Controller {
             'user'              =>  $this->user,
             'mobile_browser'    =>  $this->mobile,
             'capsule_offline'   =>  ($this->session->userdata('capsule_offline') == 'yes') ? true: false,
-            'studies'           =>  $this->mUser->getStudies(),
             // Set page specific data
-            'semester'          =>  $this->uri->segment(3)
+            'semester_date'     =>  ($this->uri->segment(3) !='' ) ? $this->uri->segment(3): CURRENT_SEMESTER
         );
-		
-		$this->mHistory->save('fees-details');
-		
-		if ($data['semester']=='') {
-			if ($this->session->userdata('fees_current_semester') != '') {
-				$data['semester'] = $this->session->userdata('fees_current_semester');
-			} else {
-				// Vérification de l'existence des sessions en cache
-				$cache = $this->mCache->getCache('data|fees,semesters');
-				
-				if ($cache!=array()) {
-					$semesters = unserialize($cache['value']);
-					
-					if ($semesters!=array()) {
-						$data['semester'] = key($semesters);
-						$this->session->set_userdata('fees_current_semester', $data['semester']);
-					}
-				}
-			}
-		} else {
-            $this->session->set_userdata('fees_current_semester', $data['semester']);
-		}
-		
-		// Vérification de l'existence des sessions en cache
-		$cache = $this->mCache->getCache('data|fees['.$data['semester'].']');
-		
-		if ($cache!=array()) {
-			$data['fees'] = unserialize($cache['value']);
-			$data['cache_date'] = $cache['date'];
-			$data['cache_time'] = $cache['time'];
-			// Vérification de la date de chargement des données
-			if ($cache['timestamp']<(time()-$this->mUser->expirationDelay)) {
-				$data['reload_data'] = 'data|fees,summary';
-			}
-		}
-		
-		$cache = $this->mCache->getCache('data|fees,semesters');
-		
-		if ($cache!=array()) {
-			$data['semesters'] = unserialize($cache['value']);
-		}
-		
-		if (isset($data['fees']) and $data['fees']!=array()) {
-			// Chargement de la page
+
+        // Vérification de l'existence des données en cache
+        $last_request = $this->mCache->getLastRequest('fees');
+
+        if (empty($last_request)) {
+            // Aucune données n'existe pour cette page
             respond(array(
                 'title'         =>  'Relevé par session',
-                'content'       =>  $this->load->view('fees/details', $data, true),
-                'reloadData'    =>  (isset($data['reload_data'])) ? $data['reload_data']: '',
-                'breadcrumb'=>  array(
+                'content'       =>  $this->load->view('errors/loading-data', $data, true),
+                'reloadData'    =>  'fees',
+                'breadcrumb'    =>  array(
                     array(
                         'url'   =>  '#!/dashboard',
                         'title' =>  'Tableau de bord'
@@ -170,17 +208,46 @@ class Fees extends CI_Controller {
                 ),
                 'buttons'       =>  array(
                     array(
-                        'action'=>  "app.cache.reloadData('data|fees,summary');",
+                        'action'=>  "app.cache.reloadData('fees');",
                         'type'  =>  'refresh'
                     )
                 )
             ));
-		} else {
-			// Chargement de la page d'erreur
-			$data['title'] = 'Relevé par session';
-			$data['reload_name'] = 'data|fees,summary';
-			
-			$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('errors/loading-data', $data, true)));
-		}
+
+            return (false);
+        }
+
+        $data['semesters'] = $this->mTuitions->getSemesters();
+        $semesters = $this->mTuitions->getSemesters(array('semester' => $data['semester_date']));
+
+        if (!empty($semesters)) $data['semester'] = $semesters[0];
+
+        // Chargement de la page
+        respond(array(
+            'title'         =>  'Relevé par session',
+            'content'       =>  $this->load->view('fees/details', $data, true),
+            'timestamp'     =>  time_ago($last_request['timestamp']),
+            'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay)) ? 'fees': false,
+            'breadcrumb'=>  array(
+                array(
+                    'url'   =>  '#!/dashboard',
+                    'title' =>  'Tableau de bord'
+                ),
+                array(
+                    'url'   =>  '#!/fees',
+                    'title' =>  'Frais de scolarité'
+                ),
+                array(
+                    'url'   =>  '#!/fees/details',
+                    'title' =>  'Relevé par session'
+                )
+            ),
+            'buttons'       =>  array(
+                array(
+                    'action'=>  "app.cache.reloadData('fees');",
+                    'type'  =>  'refresh'
+                )
+            )
+        ));
 	}
 }

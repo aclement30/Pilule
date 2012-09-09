@@ -1,3 +1,95 @@
+var dashboard = {
+    goTo: function (moduleName) {
+        document.location.hash = $('#module-'+moduleName+'-action').val();
+    },
+    connectTo: function (url) {
+        loading('Ouverture de la page...');
+
+        !sendData('GET',url, '');
+    },
+    edit: function () {
+        loading();
+
+        !sendData('GET','./welcome/s_getAvailableModules', '');
+    },
+    saveModules: function () {
+        var modules_list = '';
+
+        // Enregistrement de la liste des modules
+        var modules = $('#modules').find('li');
+
+        $.each(modules, function(key, value) {
+            modules_list += ','+$(value).attr('id');
+        });
+
+        !sendData('POST','./welcome/s_saveDashboard', 'modules='+encodeURIComponent(modules_list));
+    },
+    unlockModules: function () {
+        // Ajout de modules
+        //$("#available-modules ul .module").draggable({ containment: $('.entry-content'), helper: 'clone', scope: 'modules', revert: 'invalid', connectToSortable: '.modules-list', opacity: 0.35});
+
+        $(".modules-list").sortable({
+            cursor: 'move',
+            containment: $('.entry-content'),
+            scope: 'modules',
+            revert: 'invalid',
+            connectToSortable: '.modules-list',
+            opacity: 0.35,
+            connectWith: '.modules-list',
+            placeholder: 'ui-state-highlight',
+            tolerance: 'pointer',
+            forcePlaceholderSize: true,
+            stop: function(e, ui) {
+                if (ui.item.parent().attr('id') == 'modules') {
+                    ui.item.removeClass('available');
+                    ui.item.css('backgroundColor', '#efefef');
+
+                    dashboardObj.saveModules();
+                } else {
+                    ui.item.addClass('available');
+                    ui.item.css('backgroundColor', '#fff');
+                }
+            }
+        });
+
+        // Suppression de modules
+        //$("#modules .module").draggable({ containment: $('.entry-content'), helper: 'clone', scope: 'modules', revert: 'invalid', connectToSortable: '.modules-list'});
+
+        $( ".modules-list" ).disableSelection();
+        $( ".modules-list li" ).disableSelection();
+
+        $(".modules-list li a").css('cursor', 'move');
+        $(".modules-list li a").bind('click', function() {
+            return false;
+        });
+
+        this.editMode = 1;
+    },
+    lockModules: function () {
+        this.saveModules();
+
+        $('#available-modules').slideUp();
+
+        $(".modules-list").sortable( "destroy" );
+
+        $( ".modules-list" ).enableSelection();
+        $( ".modules-list li" ).enableSelection();
+
+        $(".modules-list li a").css('cursor', 'pointer');
+
+        $(".modules-list li a").unbind('click');
+
+        $('#edit-dashboard-link').show();
+
+        processLinks();
+        this.editMode = 0;
+        document.location.hash = '#!/dashboard/';
+        hash = '#!/dashboard/';
+    }
+}
+
+addChild(app, 'dashboard', dashboard);
+
 // JavaScript Document
 var dashboardObj = {
 	dataList: new Array(),

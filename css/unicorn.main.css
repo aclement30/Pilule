@@ -86,19 +86,23 @@ a:hover {
 	padding: 5px 10px;
 	display: block;
 	font-size: 10px;
+    color: #fff;
 }
 
+#user-nav > ul > li.user-name {
+    color: #82b1dd;
+}
 #user-nav > ul > li > a:hover, #user-nav > ul > li.open > a {
-	color: #ffffff;
+	color: #82b1dd;
 }
 #user-nav > ul > li > a > i, #sidebar li a i {
 	vertical-align: top;
 	background-image: url('../img/glyphicons-halflings-white.png');
-	opacity: .5;
+	opacity: 1;
 	margin-top: 2px;
 }
 #user-nav > ul > li > a:hover > i, #user-nav > ul > li.open > a > i {
-	opacity: 1;
+	opacity: 0.5;
 }
 
 #user-nav > ul > li > a > .label {
@@ -117,6 +121,9 @@ a:hover {
 	text-shadow: 0 1px 0 rgba(0,0,0,0.5);
 }
 
+#user-nav ul li.active a {
+    background: #12487c;
+}
 
 /* Sidebar Navigation */
 #sidebar {
@@ -228,10 +235,30 @@ a:hover {
 
 #content-header .btn-group {
 	float: right;
-	right: 20px;
-	position: absolute;
+    margin-right: 20px;
 }
 
+#content-header .timestamp {
+    float: right;
+    margin-top: 20px;
+    margin-right: 10px;
+    padding-top: 10px;
+    font-size: 8pt;
+    color: gray;
+}
+
+#content-header .loading-status {
+    float: right;
+    margin-top: 20px;
+    margin-right: 0px;
+    padding-top: 10px;
+    font-size: 8pt;
+    color: gray;
+}
+
+#content-header .loading-status.error {
+    color: red;
+}
 #content-header h1, #content-header .btn-group {
 	margin-top: 20px;
 }

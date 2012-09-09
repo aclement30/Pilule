@@ -1,15 +1,68 @@
+body {
+    background-color: #35383b;
+}
+
+#header {
+    background-image: url('../img/header-bg.gif');
+    background-repeat: repeat-x;
+}
 
 #header h1 {
     background-image: url(../img/logo-h1.png);
     height: 40px;
+    top: 18px;
+}
+
+
+
+#sidebar > ul > li a:hover {
+    background-color: #48494a;
+}
+
+#sidebar ul ul {
+    background-color: #282a2b;
+}
+
+#sidebar > ul > li.active {
+    background: rgb(41,43,45); /* Old browsers */
+    background: -moz-linear-gradient(top, rgba(41,43,45,1) 0%, rgba(64,65,66,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(41,43,45,1)), color-stop(100%,rgba(64,65,66,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, rgba(41,43,45,1) 0%,rgba(64,65,66,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, rgba(41,43,45,1) 0%,rgba(64,65,66,1) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, rgba(41,43,45,1) 0%,rgba(64,65,66,1) 100%); /* IE10+ */
+    background: linear-gradient(to bottom, rgba(41,43,45,1) 0%,rgba(64,65,66,1) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#292b2d', endColorstr='#404142',GradientType=0 ); /* IE6-9 */
+}
+#sidebar ul ul li a:hover {
+    background-color: #191b1c;
+}
+
+#user-nav .user-name {
+    color: #fff;
+    margin-top: 5px;
+    margin-right: 10px;
 }
 
 .quick-actions.dashboard {
+    text-align: left;
+}
+.quick-actions.dashboard li {
     margin-bottom:  20px;
+    width: 150px;
+}
+
+.quick-actions.dashboard li a {
+    padding: 15px;
+}
+
+.quick-actions.dashboard li a .title {
+    font-size: 10pt;
 }
 
 .quick-actions.dashboard li a img {
-    height: 48px;
+    height: 90px;
+    display: block;
+    margin: 0 auto 20px;
 }
 
 .action-buttons .btn-refresh img {
@@ -25,6 +78,94 @@
     font-size: 8pt;
 }
 
-#content-layer .alert.alert-error {
+#content-layer .alert.alert-error, #content-layer .alert.alert-success {
     display: none;
+    margin-top: 20px;
+    margin-bottom: 0px;
+}
+
+/* Horaire de cours */
+#calendar .fc-widget-header {
+    text-align: center;
+    text-transform: lowercase;
+}
+
+#calendar .fc-header-title h2 {
+    font-size: 10pt;
+    font-weight: normal;
+}
+
+#calendar .fc-header-left {
+    width: 50px;
+}
+
+#calendar .fc-header-center {
+    padding-right: 10%;
+}
+
+#calendar .fc-event-title {
+    font-weight: bold;
+}
+
+#calendar .fc-event-title div {
+    font-weight: normal;
+}
+
+#external-events .class {
+    background-color: #dae6f1;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    width: 92%;
+}
+
+#external-events .class .title {
+font-weight: bold;
+    margin-bottom: 5px;
+}
+
+#external-events .class .code, #external-events .class {
+    float: left;
+}
+
+#external-events .class .nrc, #external-events .class {
+    float: right;
+}
+
+#external-events .class .type {
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.hero-unit.no-data {
+    background-color: #ccc;
+}
+
+.alert.alert-error, .alert.alert-success {
+    display: none;
+}
+
+.footer .navbar, .footer .navbar-inner {
+    background: none;
+    border: 0px;
+    box-shadow: none;
+}
+
+.footer {
+    padding: 10px;
+    background-image: url('../img/footer-bg.gif');
+}
+
+.footer .nav li.active {
+    background: none;
+}
+
+#sidebar li.submenu .label {
+    background: none;
+    border: 1px solid none!important;
+    box-shadow: none;
+}
+
+#content-layer .row-fluid:first-child {
+    margin-top: 5px;
 }

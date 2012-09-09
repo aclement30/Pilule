@@ -15,9 +15,9 @@ class Cache extends CI_Controller {
 		$this->load->library('lfetch');
 
 		// Chargement des modèles
-		$this->load->model('mBots');
 		$this->load->model('mCourses');
         $this->load->model('mSchedule');
+        $this->load->model('mTuitions');
 		$this->load->model('mUser');
 		$this->load->model('mUsers');
 
@@ -39,128 +39,7 @@ class Cache extends CI_Controller {
 			?>statusRefreshData(2);<?php
 		}
 	}
-	
-	function s_getLocalStorageVars () {
-		$dataList = array(
-						  'data|studies,summary',
-						  'data|studies,details',
-						  'data|studies,report',
-						  'data|schedule',
-						  'data|fees',
-						  'data|holds'
-						  );
-		
-		ob_start();
-		
-		?>localStorageVars = new Array(<?php
-		$num = 0;
-		
-		foreach ($dataList as $item) {
-			if ($num != 0) echo ', ';
-			
-			echo '\''.$item.'\'';
-			
-			$num++;
-		}
-		
-		?>);storeLocalData();<?php
-		
-		$content = ob_get_clean();
-		
-		echo $content;
-	}
-	
-	function s_getLocalStorageValue () {
-		$var = urldecode($this->uri->segment(3));
-		
-		$data = '';
-		switch ($var) {
-			case 'data|studies,summary':
-				$data = json_encode($this->mUser->getStudies());
-			break;
-			case 'data|studies,details':
-				$data['sections'] = $this->mUser->getCoursesSections($_SESSION['cap_iduser']);
-				$data['courses'] = $this->mUser->getCourses($_SESSION['cap_iduser']);
-				
-				$cache = $this->mCache->getCache('data|studies,details');
-				
-				if ($cache!=array()) {
-					$cache['value'] = unserialize($cache['value']);
-					$data['other_courses'] = $cache['value']['other_courses'];
-				}
-				
-				$data = json_encode($data);
-			break;
-			case 'data|studies,report':
-				$cache = $this->mCache->getCache('data|studies,report');
-			
-				if ($cache!=array()) {
-					$data = unserialize($cache['value']);
-				}
-				
-				$data = json_encode($data);
-			break;
-			case 'data|schedule':
-				// Vérification de l'existence des sessions en cache
-				$cache = $this->mCache->getCache('data|schedule,semesters');
-				
-				if ($cache!=array()) {
-					$data['semesters'] = unserialize($cache['value']);
-				}
-				
-				$data['schedule'] = array();
-				
-				foreach ($data['semesters'] as $semester => $name) {
-					if (isset($name['title'])) {
-					} else {
-						// Vérification de l'existence des sessions en cache
-						$cache = $this->mCache->getCache('data|schedule['.$semester.']');
-						
-						if ($cache!=array()) {
-							$data['schedule'][$semester] = unserialize($cache['value']);
-						}
-					}
-				}
-								
-				$data = json_encode($data);
-			break;
-			case 'data|fees':
-				// Vérification de l'existence des sessions en cache
-				$cache = $this->mCache->getCache('data|fees,semesters');
-				
-				if ($cache!=array()) {
-					$data['semesters'] = unserialize($cache['value']);
-				}
-				
-				$data['fees'] = array();
-				
-				foreach ($data['semesters'] as $semester => $name) {
-					// Vérification de l'existence des sessions en cache
-					$cache = $this->mCache->getCache('data|fees['.$semester.']');
-					
-					if ($cache!=array()) {
-						$data['fees'][$semester] = unserialize($cache['value']);
-					}
-				}
-								
-				$data = json_encode($data);
-			break;
-			case 'data|holds':
-				$cache = $this->mCache->getCache('data|holds');
-		
-				if ($cache!=array()) {
-					$data = unserialize($cache['value']);
-				}
-				
-				$data = json_encode($data);
-			break;
-		}
-		
-		error_log($data);
-		
-		?>writeLocalData('<?php echo $var; ?>', '<?php echo addslashes($data); ?>');<?php
-	}
-	
+
 	// Chargement des données de l'utilisateur depuis Capsule
 	function ajax_reloadData () {
         $admin_mode = $this->input->get('admin');
@@ -196,6 +75,7 @@ class Cache extends CI_Controller {
 		$this->lcapsule->testConnection();
 
 		switch ($reload_name) {
+            case 'studies-details':
 			case 'studies':
                 $this->session->set_userdata('saved_data', '');
 
@@ -237,7 +117,7 @@ class Cache extends CI_Controller {
                     // Actualisation de la date de la dernière actualisation des données
                     $this->mCache->addRequest('studies-summary');
 				}
-			case 'studies-details':
+
                 $programs = $this->mStudies->getPrograms();
                 if (empty($programs)) break;
 
@@ -401,19 +281,35 @@ class Cache extends CI_Controller {
                     $error = 1;
                 }
 			    break;
-			case 'data|fees,summary':
-				// Suppression des données en cache
-				$this->mUser->deleteFeesSummary();
-				
+			case 'fees':
 				// Chargement des détails des frais de scolarité
-				$result = $this->lcapsule->getFeesSummary();
-				
-				if ($result===false) {
-					// Enregistrement de l'erreur
-					$this->mErrors->addError('reload-data', 'fees : parsing error');
-					
-					$error = 1;
-				}
+				$result = $this->lcapsule->getFees();
+
+                if ($result === true) {
+                    // Les données similaires existent déjà dans la BDD
+
+                    // Actualisation de la date de la dernière actualisation des données
+                    $this->mCache->addRequest('fees');
+                } elseif (is_array($result)) {
+                    // Suppression des données en cache
+                    $this->mTuitions->deleteAccount();
+                    $this->mTuitions->deleteSemesters();
+
+                    // Enregistrement du compte de frais
+                    $this->mTuitions->addAccount($result['account']);
+
+                    foreach($result['semesters'] as $semester) {
+                        $this->mTuitions->addSemester($semester);
+                    }
+
+                    // Actualisation de la date de la dernière actualisation des données
+                    $this->mCache->addRequest('fees');
+                } elseif ($result===false) {
+                    // Enregistrement de l'erreur
+                    $this->mErrors->addError('reload-data', 'fees : parsing error');
+
+                    $error = 1;
+                }
 			    break;
 			case 'data|holds':
 				// Suppression des données en cache

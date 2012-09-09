@@ -1,3 +1,30 @@
+function displaySubmenu ( object ) {
+    var submenu = $(object).siblings('ul');
+    var li = $(object).parents('li');
+    var submenus = $('#sidebar li.submenu ul');
+    var submenus_parents = $('#sidebar li.submenu');
+    if(li.hasClass('open'))
+    {
+        if(($(window).width() > 768) || ($(window).width() < 479)) {
+            submenu.slideUp();
+        } else {
+            submenu.fadeOut(250);
+        }
+        li.removeClass('open');
+    } else
+    {
+        if(($(window).width() > 768) || ($(window).width() < 479)) {
+            submenus.slideUp();
+            submenu.slideDown();
+        } else {
+            submenus.fadeOut(250);
+            submenu.fadeIn(250);
+        }
+        submenus_parents.removeClass('open');
+        li.addClass('open');
+    }
+}
+
 $(document).ready(function(){
     // === Sidebar navigation === //
 
@@ -76,19 +103,6 @@ $(document).ready(function(){
         ul.css({'display':'block'});
     }
 
-    // === Tooltips === //
-    $('.tip').tooltip();
-    $('.tip-left').tooltip({ placement: 'left' });
-    $('.tip-right').tooltip({ placement: 'right' });
-    $('.tip-top').tooltip({ placement: 'top' });
-    $('.tip-bottom').tooltip({ placement: 'bottom' });
-
-    // === Search input typeahead === //
-    $('#search input[type=text]').typeahead({
-        source: ['Dashboard','Form elements','Common Elements','Validation','Wizard','Buttons','Icons','Interface elements','Support','Calendar','Gallery','Reports','Charts','Graphs','Widgets'],
-        items: 4
-    });
-
     // === Fixes the position of buttons group in content header and top user navigation === //
     function fix_position()
     {
@@ -97,15 +111,11 @@ $(document).ready(function(){
     }
 
     $(window).on("load",function(){
-        $('#tasksSideList').collapse('hide');
         fixLayout();
-        loadContent('settings');
-        tasks.update();
     });
     $(window).on("resize",function(){
         fixLayout();
     });
-
 
     //FLIP SIDEBAR ACTIVE
     $('.sideBar>ul>li>figure:first-child').on("click",function(){
@@ -135,110 +145,155 @@ $(document).ready(function(){
         $(this).addClass('active');
     });
 
-    //Bind Tooltips With Anchors only on Navbar
-    $(".navbar a[rel='tooltip']").tooltip({
-        placement:'bottom',
-        trigger:'hover',
-        animation:'true'
-    });
-
-
-
-    //Bind Content Loading Script
-    $('.sideBar li').on("click",function(){
-        var dt = $(this).attr('data-target');
-        $.ajax({
-            url:'pages/'+dt+'.html',
-            cache:false,
-            success:function(data){
-                $('.content').empty();
-                $('.content').html(data);
-            }
-        }).done(function(d){
-                updateTooltips();
-            });
-    });
-
-
-
-
-    //Testing Page Stuff
-    $('#loadContentTestButton').live("click",function(){
-        var target = $('#loadContentTestText')[0].value;
-        loadContent(target);
-    });
-
-
-    $("#addProjectAdd").live("click",function(){
-        addProject({
-            id:$('.table-projects').find('tr:last-child td:nth-child(1)').text()+1,
-            name:$("#addProjectName")[0].value,
-            client:$('#addProjectClient')[0].value,
-            desc: $('#addProjectDesc')[0].value,
-            messages:"0",
-            files:"0",
-            tasks:"0",
-            completion:"80%"
-        });
-        console.log('Added Project');
-        alert('Project Added, Update the Details Using updateProject() function');
-    });
-
-    $("#testAddMiniTask").live("click",function(){
-        tasks.add(
-            $("#testTask")[0].value,
-            $("#testTaskState")[0].value
-        );
-    });
-    $("#testRemoveMiniTask").live("click",function(){
-        tasks.remove(
-            $("#testTaskRemoveId")[0].value
-        );
-    });
-    $("#testChangeMiniTask").live("click",function(){
-        tasks.changeTask(
-            $("#testTaskChangeId")[0].value,
-            $("#testChangeTask")[0].value
-        );
-    });
-    $("#testUpdateMiniTask").live("click",function(){
-        tasks.updateState(
-            $("#testTaskUpdateId")[0].value,
-            $("#testUpdateState")[0].value
-        );
-    });
-
-    if (Path) {
-        // Init Path.JS map
+    if (!login) {
         Path.map("#!/dashboard").to(function(){
+            var active = $('.nav li.active')[0];
+            $(active).removeClass('active');
+            $('.nav .link-dashboard').addClass('active');
+
             loadContent('/welcome/dashboard');
         }).enter(clearPanel);
 
         Path.map("#!/studies").to(function(){
+            var active = $('.nav li.active')[0];
+            $(active).removeClass('active');
+            $('.nav .link-studies').addClass('active');
+
             loadContent('/studies');
         }).enter(clearPanel);
 
         Path.map("#!/studies/details").to(function(){
+            var active = $('.nav li.active')[0];
+            $(active).removeClass('active');
+            $('.nav .link-studies').addClass('active');
+
             loadContent('/studies/details');
         }).enter(clearPanel);
 
         Path.map("#!/studies/report").to(function(){
+            var active = $('.nav li.active')[0];
+            $(active).removeClass('active');
+            $('.nav .link-studies').addClass('active');
+
             loadContent('/studies/report');
         }).enter(clearPanel);
 
         Path.map("#!/schedule").to(function(){
+            var active = $('.nav li.active')[0];
+            $(active).removeClass('active');
+            $('.nav .link-schedule').addClass('active');
+
             loadContent('/schedule');
         }).enter(clearPanel);
 
+        Path.map("#!/schedule/:semester").to(function(){
+            var active = $('.nav li.active')[0];
+            $(active).removeClass('active');
+            $('.nav .link-schedule').addClass('active');
+
+            loadContent('/schedule/'+this.params['semester']);
+        }).enter(clearPanel);
+
         Path.map("#!/fees").to(function(){
+            var active = $('.nav li.active')[0];
+            $(active).removeClass('active');
+            $('.nav .link-tuitions').addClass('active');
+
             loadContent('/fees');
         }).enter(clearPanel);
 
         Path.map("#!/fees/details").to(function(){
+            var active = $('.nav li.active')[0];
+            $(active).removeClass('active');
+            $('.nav .link-tuitions').addClass('active');
+
             loadContent('/fees/details');
         }).enter(clearPanel);
 
+        Path.map("#!/fees/details/:semester").to(function(){
+            var active = $('.nav li.active')[0];
+            $(active).removeClass('active');
+            $('.nav .link-tuitions').addClass('active');
+
+            loadContent('/fees/details/'+this.params['semester']);
+        }).enter(clearPanel);
+
+        Path.map("#!/settings").to(function(){
+            var active = $('.nav li.active')[0];
+            $(active).removeClass('active');
+            $('.nav .link-settings').addClass('active');
+
+            loadContent('/settings');
+        }).enter(clearPanel);
+
+        Path.map("#!/support/terms").to(function(){
+            var active = $('.nav li.active')[0];
+            $(active).removeClass('active');
+            $('.nav .link-support-terms').addClass('active');
+
+            loadContent('/support/terms');
+        }).enter(clearPanel);
+
+        Path.map("#!/support/privacy").to(function(){
+            var active = $('.nav li.active')[0];
+            $(active).removeClass('active');
+            $('.nav .link-support-privacy').addClass('active');
+
+            loadContent('/support/privacy');
+        }).enter(clearPanel);
+
+        Path.map("#!/support/faq").to(function(){
+            var active = $('.nav li.active')[0];
+            $(active).removeClass('active');
+            $('.nav .link-support-faq').addClass('active');
+
+            loadContent('/support/faq');
+        }).enter(clearPanel);
+
+        Path.map("#!/support/contact").to(function(){
+            var active = $('.nav li.active')[0];
+            $(active).removeClass('active');
+            $('.nav .link-support-contact').addClass('active');
+
+            loadContent('/support/contact');
+        }).enter(clearPanel);
+
+
         Path.root("#!/dashboard");
+
+        Path.listen();
+    } else {
+        Path.map("#!/support/terms").to(function(){
+            var active = $('.nav li.active')[0];
+            $(active).removeClass('active');
+            $('.nav .link-support-terms').addClass('active');
+
+            loadContent('/support/terms');
+        }).enter(clearPanel);
+
+        Path.map("#!/support/privacy").to(function(){
+            var active = $('.nav li.active')[0];
+            $(active).removeClass('active');
+            $('.nav .link-support-privacy').addClass('active');
+
+            loadContent('/support/privacy');
+        }).enter(clearPanel);
+
+        Path.map("#!/support/faq").to(function(){
+            var active = $('.nav li.active')[0];
+            $(active).removeClass('active');
+            $('.nav .link-support-faq').addClass('active');
+
+            loadContent('/support/faq');
+        }).enter(clearPanel);
+
+        Path.map("#!/support/contact").to(function(){
+            var active = $('.nav li.active')[0];
+            $(active).removeClass('active');
+            $('.nav .link-support-contact').addClass('active');
+
+            loadContent('/support/contact');
+        }).enter(clearPanel);
 
         Path.listen();
     }
@@ -291,10 +346,15 @@ function displayActionButtons ( items ) {
             }
         }
 
-        buttons += '<a class="btn btn-large" href="javascript:' + value.action + '">' + value.title + '</a>';
+        buttons += '<a class="btn btn-large';
+        if (value.tip) buttons += ' tip-left';
+        buttons += '" href="javascript:' + value.action + '"';
+        if (value.tip) buttons += ' rel="tooltip" title="' + value.tip + '"';
+        buttons += '>' + value.title + '</a>';
     });
 
     $('.action-buttons').html(buttons);
+    $('.action-buttons').show();
 }
 
 function displayBreadcrumb ( pages ) {
@@ -313,51 +373,85 @@ function displayBreadcrumb ( pages ) {
     $('#breadcrumb').html(breadcrumb);
 }
 
-function fixLayout(){
-    $('.content').css('height',getDocHeight()-40+'px');
-    $('.sideBar').css('height',getDocHeight()-70+'px');
-}
-
-//Call this function after updating data that contains tooltips
-function updateTooltips(){
-    //Bind Tooltips with Buttons
-    $("button[rel='tooltip']").tooltip({
-        placement:'top',
-        trigger:'hover',
-        animation:'true'
-    });
+function fixLayout (){
+    if ($('#content').height() < $(window).height()) {
+        $('#content').css('minHeight', ($(window).height()-170));
+    } else {
+        $('#content').css('minHeight', 'auto');
+    }
+    //$('#content').css('height',getDocHeight()-170+'px');
+    //$('#sideBar').css('height',getDocHeight()-170+'px');
 }
 
 var isMobile = 0;
-//This function is for custom triggering of sidebar content targets 
-//Usage .. 
-// loadContent('dashboard')
-// or
-// loadContent('tables')
-// etc.
-// If you run into problem... I'm Always Here :) ... Contact me at nanu.clickity@gmail.com
 var pageRefresh = false;
 
 function loadContent(url, pageRefreshEffect) {
     if (pageRefreshEffect) pageRefresh = true;
+
+    switch (url) {
+        case '/studies':
+        case '/studies/details':
+        case '/studies/report':
+            $('#sidebar li.submenu ul').not('.link-studies ul').slideUp();
+            $('#sidebar li.submenu').not('.link-studies').removeClass('open');
+            break;
+        case '/fees':
+        case '/fees/details':
+            $('#sidebar li.submenu ul').not('.link-tuitions ul').slideUp();
+            $('#sidebar li.submenu').not('.link-tuitions').removeClass('open');
+            break;
+        default:
+            $('#sidebar li.submenu ul').slideUp();
+            $('#sidebar li.submenu').removeClass('open');
+            break;
+    }
+
+    // Envoi de la requête AJAX pour obtenir le contenu à afficher
     ajax.request({
         url:        url,
         callback:   function ( response ) {
+            // Masquer le layer de contenu pour faire un effet d'apparition
             if (pageRefresh) $('#content-layer').hide();
 
             if (response.content) {
                 $('h1').html(response.title);
-                $('#content-layer').html(response.content);
-                if (response.breadcrumb) displayBreadcrumb(response.breadcrumb);
-                if (response.buttons) displayActionButtons(response.buttons);
-                if (response.reloadData) app.cache.reloadData(response.reloadData, 1);
-                if (response.code) eval(response.code);
+                $('#content-layer .content-inside').html(response.content);
 
-                if (pageRefresh) {
-                    $('#content-layer').fadeIn();
-                    pageRefresh = false;
+                // Affichage du fil d'Ariane
+                if (response.breadcrumb) displayBreadcrumb(response.breadcrumb);
+
+                // Affichage des boutons à gauche du titre, s'il y a lieu
+                if (response.buttons) {
+                    displayActionButtons(response.buttons);
+                } else {
+                    $('.action-buttons').html('');
+                    $('.action-buttons').hide();
                 }
 
+                // Si les données ont expirées, appeler la fonction d'actualisation des données
+                if (response.reloadData) app.cache.reloadData(response.reloadData, 1);
+
+                // S'il y a lieu, exécuter le code JS
+                if (response.code) eval(response.code);
+
+                // Affichage du timestamp des données
+                if (response.timestamp) {
+                    $('#content-header .timestamp').html('Données actualisées : il y a ' + response.timestamp + '.');
+                } else {
+                    $('#content-header .timestamp').html('');
+                }
+
+                if (pageRefresh) {
+                    // Effet d'apparition de la page
+                    $('#content-layer').fadeIn('normal', function () {
+                        fixLayout();
+                    });
+
+                    pageRefresh = false;
+                } else {
+                    fixLayout();
+                }
 
             } else {
                 if (response.error) {
@@ -368,115 +462,15 @@ function loadContent(url, pageRefreshEffect) {
     });
 }
 
-
-//Call this function to add data to project Table
-function addProject(_object){
-    var tr = new dummy.project();
-    tr.find("td:first-child").text(_object.id);
-    tr.find("td:nth-child(2)").text(_object.name);
-    tr.find("td:nth-child(3)").text(_object.client);
-    tr.find("td:nth-child(4)").text(_object.desc);
-    tr.find("td:nth-child(5) button:nth-child(1)").html("<i class='icon-white icon-envelope'></i> "+_object.messages);
-    tr.find("td:nth-child(5) button:nth-child(2)").html("<i class='icon-white icon-file'></i> "+_object.files);
-    tr.find("td:nth-child(5) button:nth-child(3)").html("<i class='icon-white icon-edit'></i> "+_object.tasks);
-    tr.find("td:nth-child(6) .bar").css('width',_object.completion);
-
-    $('.table-projects').append(tr);
-    updateTooltips();
-}
-
-
-
-
-
-
-
-
-/*--------------- TASKS MODULE --------------*/
-var tasks = {
-    updateIcons: function(){
-        //Remove Previous Icons
-        $("#tasksSideList li").find('i').each(function(index){$(this).remove();});
-
-        //For Task Completed
-        $("#tasksSideList li[data-taskState='0']").prepend("<i class='icon-remove'></i> ");
-        //For Task Incomplete
-        $("#tasksSideList li[data-taskState='1']").prepend("<i class='icon-ok'></i> ");
-    },
-    add: function(data,state){
-        var taskItem = $("<li/>").text(data)
-            .attr('data-taskId',parseInt($("#tasksSideList").find('li:first-child').attr('data-taskId'))+1)
-            .attr('data-taskState',state.toString());
-        //Prepend to TasksSideList
-        $('#tasksSideList').prepend(taskItem);
-
-        tasks.update();
-    },
-    remove: function(taskid){
-        $('#tasksSideList li').each(function(index){
-            if(parseInt($(this).attr('data-taskId'))==parseInt(taskid)){
-                $(this).remove();
-            }
-        });
-        tasks.update();
-    },
-    updateState: function(taskid,taskstate){
-        $('#tasksSideList li').each(function(index){
-            if(parseInt($(this).attr('data-taskId'))==parseInt(taskid)){
-                $(this).attr('data-taskState',taskstate.toString());
-            }
-        });
-        tasks.update();
-    },
-    changeTask: function(taskid,task){
-        $('#tasksSideList li').each(function(index){
-            if(parseInt($(this).attr('data-taskId'))==parseInt(taskid)){
-                $(this).text(task);
-            }
-        });
-        tasks.update();
-    },
-    updateNumbers: function(){
-        $('#tasksSideList li').each(function(index){
-            var space = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];  //Mini List Should not have more than 20 tasks
-            for(var j=0;j<space.length;j++){
-                var ck = space[j].toString()+". ";
-                if( ($(this).text().indexOf(ck)+1) > 0){
-                    $(this).text( $(this).text().replace(ck,'') );
-                }
-            }
-            var taskId = $(this).attr('data-taskId')+". ";
-            $(this).prepend(taskId.toString());
-        });
-    },
-    update: function(){
-        tasks.updateNumbers();
-        tasks.updateIcons();
-    }
-
-};
-
-
-
-
-
 var alertObject;
 
 function resultMessage ( message, object ) {
-    if (object === undefined) {
-        if (currentModalID != null) {
-            // If modal is displayed, display message in modal
-            if ($('.modal-body').find('.alert-success').length > 0 ) {
-            } else {
-                $('.modal-body').prepend('<div class="alert alert-success" id="alert-success"></div>');
-            }
-            alertObject = $('.modal-body .alert-success');
-        } else {
-            alertObject = $('#alert-success');
-        }
+    if (object === undefined || object == null) {
+        alertObject = $('#content-layer .alert.alert-success');
     } else {
         alertObject = object;
     }
+
     $('#content .alert').hide();
     alertObject.html( message );
     alertObject.fadeIn();
@@ -524,12 +518,7 @@ function stripslashes(str) {
 
 /* --------- FEATURED ON JAMES PADOLSEY's Website ------------*/
 function getDocHeight() {
-    var D = document;
-    return Math.max(
-        Math.max(D.body.scrollHeight, D.documentElement.scrollHeight),
-        Math.max(D.body.offsetHeight, D.documentElement.offsetHeight),
-        Math.max(D.body.clientHeight, D.documentElement.clientHeight)
-    );
+   return ($(window).height());
 }
 function getDocWidth() {
     var D = document;
@@ -539,7 +528,3 @@ function getDocWidth() {
         Math.max(D.body.clientWidth, D.documentElement.clientWidth)
     );
 }
-
-/*----------- DUMMY OBJECTS -------------*/
-dummy = {};
-dummy.project = function () { return $("<tr/>").html("<td>__id__</td><td>__name__</td><td>__client__</td><td>__desc__</td><td><div class='btn-group sharp'><button class='btn btn-primary' rel='tooltip' title='Messages'><i class='icon-white icon-envelope'></i> __messages__</button><button class='btn btn-primary' rel='tooltip' title='Files'><i class='icon-white icon-file'></i> __files__</button><button class='btn btn-primary' rel='tooltip' title='Tasks'><i class='icon-white icon-edit'></i> __tasks__</button></div></td><td><div class='progress progress-success'><div class='bar' style='width:__completion__'></div></div></td>");}

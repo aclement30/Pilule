@@ -1,8 +1,8 @@
 <div id="available-modules" style="display: none;"></div>
 
-<div class="row-fluid">
+<div class="row-fluid" style="margin-top: 10px;">
 
-    <div class="span12 center" style="text-align: center;">
+    <div class="span12 center" style="text-align: left;">
         <ul class="quick-actions dashboard">
 <?php
 // Sélection des modules de l'utilisateur
@@ -32,7 +32,7 @@ foreach ($modules as $module) {
     <li>
         <a href="<?php if (strpos($module['url'], "s_connect")>0) echo "javascript:app.dashboard.connectTo('".$module['url']."');"; else echo $module['url']; ?>">
             <img src="<?php echo site_url(); ?>images/<?php echo $module['icon']; ?>" />
-            <?php echo $module['title']; ?>
+            <div class="title"><?php echo $module['title']; ?></div>
         </a>
     </li>
 <!--

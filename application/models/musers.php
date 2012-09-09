@@ -57,12 +57,7 @@ class mUsers extends CI_Model {
 			return ($users);
 		}
 	}
-	
-	// Fonction de rétro-compatibilité
-	function getBetaUsers ($idul = '') {
-		return ($this->getUsers($idul));
-	}
-	
+
 	// Ajout d'un utilisateur
 	function addUser ($user) {
 		if ($this->db->insert('users', $user)) {
@@ -71,12 +66,7 @@ class mUsers extends CI_Model {
 			return (false);
 		}
 	}
-	
-	// Fonction de rétro-compatibilité
-	function addBetaUser ($user) {
-		return ($this->addUser($user));
-	}
-	
+
 	// Modification d'un utilisateur
 	function editUser ($user) {
 		$this->db->where('idul', $user['idul']);
@@ -91,15 +81,6 @@ class mUsers extends CI_Model {
 	
 	// Suppression de l'utilisateur
 	function removeUser ($idul) {
-		// Suppression du cache de l'utilisateur
-		$this->mCache->deleteUserCache($idul);
-		
-		// Suppression des paramètres, des infos d'étude et des cours de l'utilisateur
-		$this->db->delete('params', array('idul'=>$idul));
-		$this->db->delete('studies', array('idul'=>$idul));
-		$this->db->delete('users_courses', array('idul'=>$idul));
-		$this->db->delete('users_courses_sections', array('idul'=>$idul));
-		
 		// Suppression de l'utilisateur de la liste
 		if ($this->db->delete('users', array('idul'=>$idul))) {
 			return (true);

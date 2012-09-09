@@ -6,7 +6,7 @@
 <meta property="og:image" content="<?php echo site_url(); ?>images/thumbnail.jpg"/>
 <meta property="og:title" content="Pilule - Gestion des études"/>
 <meta property="og:description" content="Pilule est un système de gestion des études pour les étudiants de l'Université Laval, conçu pour être simple et ergonomique. Vous pouvez l'utiliser pour consulter votre cheminement scolaire, votre relevé de notes, votre horaire de cours, votre boîte Exchange et vos frais de scolarité."/>
-<meta property="og:url" content="http://www.pilule.ulaval.ca"/>
+<meta property="og:url" content="<?php echo site_url(); ?>"/>
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="Pilule - Gestion des études"/>
 <meta property="fb:app_id" content="102086416558659"/>
@@ -58,17 +58,29 @@
 <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
 <script src="<?php echo site_url(); ?>js/jquery-ui-1.8.23.custom.min.js"></script>
 <script src="<?php echo site_url(); ?>js/users.js"></script>
+<script src="<?php echo site_url(); ?>js/login.js"></script>
+<script src="<?php echo site_url(); ?>js/path.min.js"></script>
 <script src="<?php echo site_url(); ?>js/main.js"></script>
 <script src="<?php echo site_url(); ?>js/ajax.js"></script>
 <script type='text/javascript' src="<?php echo site_url(); ?>js/bootstrap.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {
-        $('#idul').focus();
+        // Mettre le focus sur le champ IDUL
+        setTimeout("$('#idul').focus()", 500);
 
+        // Quand la touche Enter est pressée dans le champ Password, valider le formulaire
         $('#password').keypress(function(e){
             if (e.which == 13) {
                 app.users.login();
             }
+        });
+
+        // Positionner la boîte de connexion verticalement
+        $('#formContainer form').fadeIn();
+        $('#formContainer form').css('marginTop', ($(window).height()/2)-200);
+
+        $(window).resize(function() {
+            $('#formContainer form').css('marginTop', ($(window).height()/2)-200);
         });
     });
 </script>

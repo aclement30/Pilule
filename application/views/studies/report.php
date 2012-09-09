@@ -1,7 +1,7 @@
 <div class="row-fluid">
 
 <div class="span6">
-    <div class="widget-box">
+    <div class="widget-box" style="margin-bottom: 0px;">
         <div class="widget-title">
 								<span class="icon">
 									<i class="icon-user"></i>
@@ -39,7 +39,7 @@
     if ($semesters!=array()) {
     ?>
 <div class="span6">
-    <div class="widget-box">
+    <div class="widget-box" style="margin-bottom: 0px;">
         <div class="widget-title">
                             <span class="icon">
                                 <i class="icon-signal"></i>
@@ -72,7 +72,7 @@
                 <tr>
                     <th style="text-align: left;" class="left">Total</th>
                     <td style="text-align: center;"><?php echo ($report['credits_registered']+$report['credits_admitted']); ?></td>
-                    <td style="text-align: center;"><?php echo ($report['points']+$report['credits_admitted_points']); ?></td>
+                    <td style="text-align: center;"><?php echo number_format($report['points']+$report['credits_admitted_points'], 2); ?></td>
                     <td style="text-align: center;"><?php echo $report['gpa_cycle']; ?></td>
                 </tr>
                 </tbody>
@@ -151,7 +151,7 @@ foreach ($semesters as $semester) {
 	?>
 <div class="row-fluid">
     <div class="span12">
-        <div class="widget-box">
+        <div class="widget-box" style="margin-bottom: 0px;">
             <div class="widget-title">
                                     <span class="icon">
                                         <i class="icon-th"></i>
@@ -218,16 +218,7 @@ foreach ($semesters as $semester) {
 			<tr>
 				<td style="font-weight: bold; text-align: right;<?php if ($mobile==1) echo 'font-size: 9pt;'; ?>" colspan="<?php if ($mobile!=1) echo 3; else echo 1; ?>">Total</td>
 				<td style="text-align: center; font-weight: bold;"><?php echo $semester['credits_registered']; ?></td>
-				<td>&nbsp;</td>
-				<td>&nbsp;</td>
-			</tr>
-			<tr>
-				<td style="font-weight: bold; text-align: right;<?php if ($mobile==1) echo 'font-size: 9pt;'; ?>" colspan="<?php if ($mobile!=1) echo 4; else echo 2; ?>">Moyenne</td>
 				<td style="text-align: center; font-weight: bold;"><?php echo $semester['gpa']; ?></td>
-				<td>&nbsp;</td>
-			</tr>
-			<tr>
-				<td style="font-weight: bold; text-align: right;<?php if ($mobile==1) echo 'font-size: 9pt;'; ?>" colspan="<?php if ($mobile!=1) echo 5; else echo 3; ?>">Total</td>
 				<td style="text-align: center; font-weight: bold;"><?php echo $semester['points']; ?></td>
 			</tr>
             </tbody>
@@ -246,7 +237,7 @@ foreach ($semesters as $semester) {
 }
 ?>
 
-<h2>Cours reconnus</h2>
+<h2 style="margin-top: 20px;">Cours reconnus</h2>
 
 <?php
 
@@ -254,7 +245,7 @@ foreach ($admitted_sections as $section) {
     ?>
 <div class="row-fluid">
     <div class="span12">
-        <div class="widget-box">
+        <div class="widget-box" style="margin-bottom: 0px;">
             <div class="widget-title">
                                     <span class="icon">
                                         <i class="icon-th"></i>
@@ -321,16 +312,7 @@ foreach ($admitted_sections as $section) {
                         <tr>
                             <td style="font-weight: bold; text-align: right;<?php if ($mobile==1) echo 'font-size: 9pt;'; ?>" colspan="<?php if ($mobile!=1) echo 3; else echo 1; ?>">Total</td>
                             <td style="text-align: center; font-weight: bold;"><?php echo $section['credits_admitted']; ?></td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight: bold; text-align: right;<?php if ($mobile==1) echo 'font-size: 9pt;'; ?>" colspan="<?php if ($mobile!=1) echo 4; else echo 2; ?>">Moyenne</td>
                             <td style="text-align: center; font-weight: bold;"><?php echo $section['credits_gpa']; ?></td>
-                            <td>&nbsp;</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight: bold; text-align: right;<?php if ($mobile==1) echo 'font-size: 9pt;'; ?>" colspan="<?php if ($mobile!=1) echo 5; else echo 3; ?>">Total</td>
                             <td style="text-align: center; font-weight: bold;"><?php echo $section['points']; ?></td>
                         </tr>
                         </tbody>

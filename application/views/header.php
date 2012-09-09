@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="./css/fullcalendar.css" />
     <link rel="stylesheet" href="./css/unicorn.main.css" />
     <link rel="stylesheet" href="./css/unicorn.grey.css" class="skin-color" />
+    <link rel="stylesheet" href="./css/fullcalendar.print.css" media="print" />
     <link rel="stylesheet" href="./css/pilule.css" />
     <script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <!--[if lt IE 7]>
@@ -60,33 +61,33 @@
 
 <div id="user-nav" class="navbar">
     <ul class="nav btn-group">
-        <li><a title="" href="#"><i class="icon icon-user"></i> <span class="text">Profile</span></a></li>
-        <li><a title="" href="#!/settings"><i class="icon icon-cog"></i> <span class="text">Préférences</span></a></li>
+        <li class="user-name"><?php echo $user['name']; ?></li>
+        <li class="link-settings"><a title="" href="#!/settings"><i class="icon icon-cog"></i> <span class="text">Préférences</span></a></li>
         <li><a title="" href="./logout"><i class="icon icon-off"></i> <span class="text">Déconnexion</span></a></li>
     </ul>
 </div>
 
 <div id="sidebar">
     <a href="#!/dashboard" class="visible-phone"><i class="icon icon-home"></i> Dashboard</a>
-        <ul>
-        <li class="active"><a href="#!/dashboard"><i class="icon icon-home"></i> <span>Tableau de bord</span></a></li>
-        <li class="submenu">
-            <a href="#!/studies"><i class="icon icon-folder-open"></i> <span>Dossier scolaire</span></a>
-            <ul>
-                <li><a href="#!/studies">Programme d'études</a></li>
-                <li><a href="#!/studies/details">Rapport de cheminement</a></li>
-                <li><a href="#!/studies/report">Relevé de notes</a></li>
+        <ul class="nav">
+        <li class="active link-dashboard"><a href="#!/dashboard"><i class="icon icon-home"></i> <span>Tableau de bord</span></a></li>
+        <li class="submenu link-studies">
+            <a href="#!/studies"><i class="icon icon-folder-open"></i> <span>Dossier scolaire</span><span class="label"><i class="icon-chevron-down icon-white" style="margin:  0px;"></i></span></a>
+            <ul class="nav">
+                <li class="link-studies-summary"><a href="#!/studies">Programme d'études</a></li>
+                <li class="link-studies-details"><a href="#!/studies/details">Rapport de cheminement</a></li>
+                <li class="link-studies-report"><a href="#!/studies/report">Relevé de notes</a></li>
             </ul>
         </li>
-        <li><a href="#!/schedule"><i class="icon icon-calendar"></i> <span>Horaire</span></a></li>
-        <li class="submenu"><a href="#!/fees"><i class="icon icon-list"></i> <span>Frais de scolarité</span></a>
-            <ul>
+        <li class="link-schedule"><a href="#!/schedule"><i class="icon icon-calendar"></i> <span>Horaire</span></a></li>
+        <li class="submenu link-fees link-tuitions"><a href="#!/fees"><i class="icon icon-list"></i> <span>Frais de scolarité</span><span class="label"><i class="icon-chevron-down icon-white" style="margin:  0px;"></i></span></a>
+            <ul class="nav">
                 <li><a href="#!/fees">Sommaire du compte</a></li>
                 <li><a href="#!/fees/details">Relevé par session</a></li>
             </ul>
         </li>
         <?php if (isset($user) and $user['admin']) { ?>
-        <li><a href="#!/admin"><i class="icon icon-briefcase"></i> <span>Admin</span></a></li>
+        <li class="link-admin"><a href="#!/admin"><i class="icon icon-briefcase"></i> <span>Administration</span></a></li>
         <?php } ?>
     </ul>
 

@@ -1,3 +1,5 @@
+var login = false;
+
 var users = {
     controllerURL: './users/',
     object:        'users',
@@ -58,6 +60,25 @@ var users = {
     }
 }
 
+var user = {
+    isAuthenticated: false,
+
+    eraseData: function () {
+        if (confirm("Voulez-vous vraiment effacer toutes vos données des serveurs de Pilule ?")) {
+            ajax.request({
+                controller:     './settings/',
+                method:         'eraseData',
+                data:           {},
+                callback:       function (response) {
+                    resultMessage("Vos données ont été supprimées.");
+
+                    setTimeout("document.location='welcome/';", 1500);
+                }
+            });
+        }
+    }
+}
+
 function addChild(ob, childName, childOb) {
     ob[childName] = childOb;
     childOb.parent = ob;
@@ -66,6 +87,7 @@ function addChild(ob, childName, childOb) {
 var app = {};
 
 addChild(app, 'users', users);
+addChild(app, 'user', user);
 
 function loading() {
 

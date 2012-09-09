@@ -24,7 +24,7 @@ class Schedule extends CI_Controller {
 		// Détection des navigateurs mobiles
 		$this->mobile = $this->lmobile->isMobile();
 	}
-	
+
 	function index () {
         $data = array(
             'section'           =>  'studies',
@@ -32,7 +32,7 @@ class Schedule extends CI_Controller {
             'mobile_browser'    =>  $this->mobile,
             'capsule_offline'   =>  ($this->session->userdata('capsule_offline') == 'yes') ? true: false,
             // Set page specific data
-            'semester_date'     =>  ($this->uri->segment(3) != '') ? $this->uri->segment(3): CURRENT_SEMESTER
+            'semester_date'     =>  ($this->uri->segment(2) != '') ? $this->uri->segment(2): CURRENT_SEMESTER
         );
 
 		$this->mHistory->save('schedule-timetable');
@@ -69,175 +69,237 @@ class Schedule extends CI_Controller {
 
         // Sélection de l'horaire pour le semestre sélectionné
         $data['classes'] = $this->mSchedule->getClasses(array('stu_schedule_classes.semester' => $data['semester_date']));
-        /*
-		if (!empty($data['classes'])) {
-			$data['semesters'] = unserialize($cache['value']);
-			$data['timetable'] = array();
-			if (isset($_SESSION['schedule_current_period'])) $data['current_period'] = $_SESSION['schedule_current_period'];
-			
-			$classMaxEndTime = 0;
-			$periods = $data['semesters'][$data['semester_date']]['periods'];
-			$data['semesters'][$data['semester_date']]['periods'] = array();
-			
-			if ($periods!=array()) {
-				$day_start = '';
-				foreach ($periods as $dates => $name) {
-					if ((!isset($_SESSION['schedule_current_period'])) || $_SESSION['schedule_current_period'] == '0') {
-						$data['current_period'] = $dates;
-						$_SESSION['schedule_current_period'] = $dates;
-					}
-					
-					$dates2 = explode('-', $dates);
-					
-					if ($day_start=='') $day_start = $dates2[0];
-					if ($day_start==$dates2[0]) {
-						$classes = $this->mUser->getClasses(array('day_start >='=>$day_start, 'day_start <='=>$dates2[1], 'day_end >='=>$dates2[1], 'idul'=>$_SESSION['cap_iduser']));
-					} else {
-						$classes = $this->mUser->getClasses(array('day_end >'=>$dates2[0], 'day_start <='=>$dates2[1], 'idul'=>$_SESSION['cap_iduser']));
-					}
-					
-					$number = 0;
-					foreach ($classes as $class) {
-						if ($class['type'] != 'Sur Internet' && $class['type'] != 'Mobilité' && $class['type'] != 'Stage' && $class['type'] != 'Matériel imprimé' && $class['type'] != 'Télévisé-Canal Savoir') {
-							if (!isset($data['timetable'][$dates][$class['day']])) $data['timetable'][$dates][$class['day']] = array();
-							$data['timetable'][$dates][$class['day']][] = $class;
-							if ($class['hour_end']>$classMaxEndTime) $classMaxEndTime = $class['hour_end'];
-							$number++;
-						}
-					}
-					
-					if ($number != 0) {
-						$data['semesters'][$data['semester_date']]['periods'][$dates] = $name;
-					}
-				}
+        $data['semesters'] = $this->mSchedule->getSemesters(array());
 
-				$data['semester']['periods'] = $data['semesters'][$data['semester_date']]['periods'];
-			} else {
-				$classes = $this->mUser->getClasses(array('semester'=>$data['semester_date'], 'idul'=>$_SESSION['cap_iduser']));
-				
-				foreach ($classes as $class) {
-					if ($class['type'] != 'Sur Internet' && $class['type'] != 'Mobilité' && $class['type'] != 'Stage' && $class['type'] != 'Matériel imprimé' && $class['type'] != 'Télévisé-Canal Savoir') {
-						if (!isset($data['timetable'][0][$class['day']])) $data['timetable'][0][$class['day']] = array();
-						$data['timetable'][0][$class['day']][] = $class;
-						if ($class['hour_end']>$classMaxEndTime) $classMaxEndTime = $class['hour_end'];
-					}
-				}
-				
-				$data['current_period'] = 0;
-				$_SESSION['schedule_current_period'] = 0;
-			}
-			$data['max_end_time'] = $classMaxEndTime;
-			
-			$data['other_classes'] = $this->mUser->getClasses(array('type'=>array('Mobilité','Sur Internet','Stage','Matériel imprimé','Télévisé-Canal Savoir'), 'semester'=>$data['semester_date'], 'idul'=>$_SESSION['cap_iduser']));
-		}
-		
-		if (isset($data['schedule']) and $data['schedule']!=array()) {
-			$u_agent = $_SERVER['HTTP_USER_AGENT'];
-			$browser = '';
-			if(preg_match('/MSIE/i',$u_agent) && !preg_match('/Opera/i',$u_agent)) 
-			{ 
-				$browser = "MSIE"; 
-			} 
-			elseif(preg_match('/Firefox/i',$u_agent)) 
-			{ 
-				$browser = "Firefox"; 
-			} 
-			elseif(preg_match('/Chrome/i',$u_agent)) 
-			{ 
-				$browser = "Chrome"; 
-			} 
-			elseif(preg_match('/Safari/i',$u_agent)) 
-			{ 
-				$browser = "Safari"; 
-			} 
-			elseif(preg_match('/Opera/i',$u_agent)) 
-			{ 
-				$browser = "Opera"; 
-			} 
-			elseif(preg_match('/Netscape/i',$u_agent)) 
-			{ 
-				$browser = "Netscape"; 
-			}
-			
-			if ($browser == 'Firefox' || $browser == 'Safari' || $browser == 'Chrome') {
-				$template = "new-timetable";
-			} else {
-				$template = "timetable";
-			}
-			
-			// Chargement de la page
-			if ($this->mobile!=1) $content = str_replace("\r", '', str_replace("\n", '', $this->load->view('schedule/'.$template, $data, true))); else $content = str_replace("\r", '', str_replace("\n", '', $this->load->view('schedule/m-timetable', $data, true)));
-		} else {
-			// Chargement de la page d'erreur
-			$data['title'] = 'Horaire de cours';
-			$data['reload_name'] = 'data|schedule,semesters';
-			
-			$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('errors/loading-data', $data, true)));
-		}
-		/*
-		// Vérification de la connexion à Facebook
-		$fb_data = $_SESSION['fb_data']; // This array contains all the user FB information
-		$data['fb_data'] = $fb_data;
-		
-		if((!$fb_data['uid']) or (!$fb_data['me'])) {
-			$data['require_fb_login'] = 1;
-		} else {
-			$data['require_fb_login'] = 0;
-		}
+        ob_start();
 
-		echo "setPageInfo('schedule/timetable');setPageContent(\"".addslashes($content)."\");$('.class .class-title').shorten();$('.class').tipTip({maxWidth: 'auto', edgeOffset: -2, defaultPosition: 'top'});";
-		if (isset($schedule) and $schedule!=array()) {
-			echo "scheduleObj.currentPeriod='".$current_period."';";
-		}
-		if (isset($data['reload_data']) and $_SESSION['cap_iduser'] != 'demo' and $_SESSION['cap_offline'] != 'yes') echo "reloadData('".$data['reload_data']."', 1);";
-	    */
+        $startDate = date('Ymd', time()+3600*24*365);
 
-        $code = <<<EOT
-        $('#fullcalendar').fullCalendar({
-			header: {
-				left: 'prev,next',
-				center: 'title',
-				right: 'month,basicWeek,basicDay'
-			},
-			firstDay:   1,
-			weekends:   false,
-			events: [
-                {
-                    title:  'My Event',
-                    start:  '2012-09-05T15:30:00',
-                    end:    '2012-09-05T18:30:00',
-                    allDay: false
+        if (!empty($data['semesters'])) {
+            $weekdays = array("L"=>0,"M"=>1,"R"=>2,"J"=>3,"V"=>4,"S"=>5);
+            $sectors = array(
+                "Est"					=>	'PVE',
+                "Pavillon de l'Éducation physique et des sports"	=>	'EPS',
+                "PEPS"	                =>	'PEPS',
+                "Médecine dentaire"	    =>	'MDE',
+                "Centre de foresterie des Laurentides"	=>	'CFL',
+                "Abitibi-Price"		    =>	'ABP',
+                "Palasis-Prince"		=>	'PAP',
+                "Maison Omer-Gingras"	=>	'OMG',
+                "Services"				=>	'PSA',
+                "Ferdinand-Vandry"		=>	'VND',
+                "Charles-Eugène-Marchand"=>'CHM',
+                "Alexandre-Vachon"		=>	'VCH',
+                "Adrien-Pouliot"		=>	'PLT',
+                "Charles-De Koninck"	=>	'DKN',
+                "Jean-Charles-Bonenfant"=>	'BNF',
+                "Sciences de l'éducation"=>'TSE',
+                "Félix-Antoine-Savard"	=>	'FAS',
+                "Louis-Jacques-Casault"=>	'CSL',
+                "Paul-Comtois"			=>	'CMT',
+                "Maison Eugène-Roberge" =>	'EGR',
+                "Maison Marie-Sirois"	=>	'MRS',
+                "Agathe-Lacerte"		=>	'LCT',
+                "Ernest-Lemieux"		=>	'LEM',
+                "Alphonse-Desjardins"	=>	'ADJ',
+                "Maurice-Pollack"		=>	'POL',
+                "H.-Biermans-L.-Moraud" =>	'PBM',
+                "Alphonse-Marie-Parent" =>	'PRN',
+                "J.-A.-DeSève"			=>	'DES',
+                "La Laurentienne"		=>	'LAU',
+                "Envirotron"			=>	'EVT',
+                "Optique-photonique"	=>	'COP',
+                "Gene-H.-Kruger"		=>	'GHK',
+                "Héma-Québec"			=>	'HQ',
+                "Maison Michael-John-Brophy"=>'BRY',
+                "Maison Couillard"		=>	'MCO',
+                "Serres haute performance"=>'EVS',
+                'Édifice de La Fabrique'=>	'FAB',
+                'Édifice du Boulevard'	=>	'E-BLVD',
+                'Éd. Vieux-Séminaire-de-Québec'	=>	'SEM'
+
+            );
+
+            $holidays = array(
+                'action-graces' =>  20121008,
+                'reading-week'  =>  array(mktime(0, 0, 0, 10, 29, 2012), mktime(23, 59, 0, 11, 03, 2012)),
+                'noel'          =>  array(mktime(0, 0, 0, 12, 22, 2012), mktime(23, 59, 0, 1, 2, 2013))
+            );
+
+            foreach($data['classes'] as $class) {
+                if (empty($class['day'])) continue;
+
+                // Vérification que la session commence avant le 1er jour du cours
+                if (($weekdays[$class['day']]+1) < date('N', mktime(floor($class['hour_start']), 0, 0, substr($class['date_start'], 4, 2), substr($class['date_start'], 6, 2), substr($class['date_start'], 0, 4)))) {
+                    $firstDay = mktime(floor($class['hour_start']), 0, 0, substr($class['date_start'], 4, 2), substr($class['date_start'], 6, 2), substr($class['date_start'], 0, 4))+(((6-$weekdays[$class['day']])+$weekdays[$class['day']])*3600*24);
+                } else {
+                    $firstDay = mktime(floor($class['hour_start']), 0, 0, substr($class['date_start'], 4, 2), substr($class['date_start'], 6, 2), substr($class['date_start'], 0, 4))+((($weekdays[$class['day']]+1)-date('N', mktime(floor($class['hour_start']), 0, 0, substr($class['date_start'], 4, 2), substr($class['date_start'], 6, 2), substr($class['date_start'], 0, 4))))*3600*24);
                 }
-                // other events here...
-            ],
-            timeFormat: 'H(:mm)' // uppercase H for 24-hour clock
-		});
+                $lastDay = mktime(floor($class['hour_end']), 0, 0, substr($class['date_end'], 4, 2), substr($class['date_end'], 6, 2), substr($class['date_end'], 0, 4));
+                $currentDay = $firstDay;
+
+                if (date('Ymd', $firstDay) < $startDate) $startDate = date('Ymd', $firstDay);
+
+                while ($currentDay < $lastDay) {
+                    if ($currentDay > $lastDay) break;
+                    // Check if currentDay is not a holidays
+                    $holiday = false;
+
+                    foreach ($holidays as $name => $range) {
+                        if (is_array($range) && $currentDay >= $range[0] && $currentDay <= $range[1]) {
+                            $holiday = true;
+                        } elseif(!is_array($range) && date('Ymd', $currentDay) == $range) {
+                            $holiday = true;
+                        }
+                    }
+
+                    if (!$holiday) {
+                        $startTime = floor($class['hour_start']);
+                        if ($startTime < 10) $startTime = "0".$startTime;
+                        $startTime .= ':' . (ceil($class['hour_start'])-$class['hour_start'])*60;
+
+                        $endTime = floor($class['hour_end']);
+                        if ($endTime < 10) $endTime = "0".$endTime;
+                        $endTime .= ':' . (ceil($class['hour_end'])-$class['hour_end'])*60;
+
+                        $local = $class['location'];
+                        $sector = substr($local, 0, strrpos($local, ' '));
+                        $local_number = substr($local, strrpos($local, ' ')+1);
+
+                        if (array_key_exists($sector, $sectors)) {
+                            $location = $sectors[$sector]." ".$local_number;
+                        } else {
+                            $location = $sector.", local ".$local_number;
+                        }
+
+                        $eventTitle = $class['title'];
+                        ?>
+                    {
+                    title:  '<?php echo addslashes($eventTitle); ?>',
+                    code:   '<strong><?php echo $class['code']; ?></strong>',
+                    location:    '<div style="margin-top: 5px;"><i class="icon-map-marker icon-white"></i> <span title="<?php echo addslashes($class['location']); ?>"><?php echo $location; ?></span></div><div style="margin-bottom: 5px; margin-top:  5px;"><i class="icon-user icon-white"></i> <span><?php echo addslashes($class['teacher']); ?></span></div>',
+                    start:  '<?php echo date('Y-m-d', $currentDay).' '.$startTime; ?>:00',
+                    end:    '<?php echo date('Y-m-d', $currentDay).' '.$endTime; ?>:00',
+                    allDay: false
+                    },
+                        <?php
+                    }
+                    $currentDay += 3600*24*7;
+                }
+            }
+
+            if ($data['semester_date'] == CURRENT_SEMESTER) {
+                $startDay = (int)date('d');
+                $startMonth = (int)date('m');
+                $startYear = date('Y');
+            } else {
+                $startDay = (int)substr($startDate, 6, 2);
+                $startMonth = (int)substr($startDate, 4, 2);
+                $startYear = substr($startDate, 0, 4);
+            }
+
+            $events = ob_get_clean();
+
+            $code = <<<EOT
+        var displayCalendar = function () {
+            $('#calendar').fullCalendar({
+                header: {
+                    left: 'prev,next',
+                    center: 'title',
+                    right: ''
+                },
+                firstDay:   1,
+                defaultView :   'agendaWeek',
+                allDaySlot:     false,
+                firstHour:      8,
+                minTime:        8,
+                maxTime:        22,
+                weekends:   false,
+                year:           {$startYear},
+                month:          {$startMonth},
+                timeFormat: 'H(:mm)', // uppercase H for 24-hour clock
+                axisFormat: 'H:mm',
+                 buttonText: {
+                    prev: '',
+                    next: ''
+                },
+                titleFormat:    {
+                    month:  'MMMM yyyy',
+                    week: "d[ MMM][ yyyy]{ '&#8212;' d MMM. yyyy}",
+                    day: 'dddd, MMM d, yyyy'
+                },
+                eventRender: function(event, element) {
+                    element.find(".fc-event-time").append(" " + event.code);
+                    element.find(".fc-event-title").append("<br />" + event.location);
+                },
+                monthNamesShort:    ['janv', 'fév', 'mars', 'avril', 'mai', 'juin', 'juil', 'août', 'sept', 'oct', 'nov', 'déc'],
+                dayNamesShort:      ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'],
+                columnFormat:       {
+                    month: 'ddd',    // Mon
+                    week: 'ddd. d', // Mon 9/7
+                    day: 'dddd M/d'  // Monday 9/7
+                },
+                height: 650,
+                events: [
+                    {$events}
+                ]
+            });
+         };
+
+         // Wait until the refresh effect end so the chart is displayed and can be filled
+         setTimeout(displayCalendar, 100);
 EOT;
 
-        // Chargement de la page
-        respond(array(
-            'title'         =>  'Horaire de cours',
-            'content'       =>  $this->load->view('schedule/timetable', $data, true),
-            'code'          =>  $code,
-            'timestamp'     =>  $last_request['timestamp'],
-            'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay)) ? 'schedule': false,
-            'breadcrumb'    =>  array(
-                array(
-                    'url'   =>  '#!/dashboard',
-                    'title' =>  'Tableau de bord'
+            // Chargement de la page
+            respond(array(
+                'title'         =>  'Horaire de cours',
+                'content'       =>  $this->load->view('schedule/timetable', $data, true),
+                'code'          =>  $code,
+                'timestamp'     =>  time_ago($last_request['timestamp']),
+                'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay)) ? 'schedule': false,
+                'breadcrumb'    =>  array(
+                    array(
+                        'url'   =>  '#!/dashboard',
+                        'title' =>  'Tableau de bord'
+                    ),
+                    array(
+                        'url'   =>  '#!/schedule',
+                        'title' =>  'Horaire de cours'
+                    )
                 ),
-                array(
-                    'url'   =>  '#!/schedule',
-                    'title' =>  'Horaire de cours'
+                'buttons'       =>  array(
+                    array(
+                        'action'=>  "app.cache.reloadData('schedule');",
+                        'type'  =>  'refresh'
+                    )
                 )
-            ),
-            'buttons'       =>  array(
-                array(
-                    'action'=>  "app.cache.reloadData('schedule');",
-                    'type'  =>  'refresh'
+            ));
+        } else {
+            // Aucune données n'existe pour cette page
+            respond(array(
+                'title'         =>  'Horaire de cours',
+                'content'       =>  $this->load->view('errors/no-data', $data, true),
+                'timestamp'     =>  time_ago($last_request['timestamp']),
+                'breadcrumb'    =>  array(
+                    array(
+                        'url'   =>  '#!/dashboard',
+                        'title' =>  'Tableau de bord'
+                    ),
+                    array(
+                        'url'   =>  '#!/schedule',
+                        'title' =>  'Horaire de cours'
+                    )
+                ),
+                'buttons'       =>  array(
+                    array(
+                        'action'=>  "app.cache.reloadData('schedule');",
+                        'type'  =>  'refresh'
+                    )
                 )
-            )
-        ));
+            ));
+
+            return (false);
+        }
     }
 	
 	function getMenu() {
@@ -414,7 +476,16 @@ EOT;
 		// Chargement de la page d'aide
 		$this->load->view('schedule/w-export', $data);
 	}
-	
+
+    function ical_download () {
+        $data = $this->mSchedule->export(CURRENT_SEMESTER);
+
+        $this->output->set_content_type('text/calendar');
+        $this->output->set_output($data);
+
+        return(true);
+    }
+
 	function s_export() {
 		$semester = $this->input->post('semester');
 		$alarm = $this->input->post('alarm');
