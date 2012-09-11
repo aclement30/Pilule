@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="./css/unicorn.grey.css" class="skin-color" />
     <link rel="stylesheet" href="./css/fullcalendar.print.css" media="print" />
     <link rel="stylesheet" href="./css/pilule.css" />
+    <link rel="stylesheet" href="./css/print.css" media="print" />
     <script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <!--[if lt IE 7]>
 	<script type="text/javascript" src="<?php echo site_url(); ?>js/DD_belatedPNG_0.0.8a-min.js"></script>
@@ -59,6 +60,8 @@
     <h1><a href="<?php echo site_url(); ?>#!/dashboard">Pilule</a></h1>
 </div>
 
+<?php
+if (!empty($user)) { ?>
 <div id="user-nav" class="navbar">
     <ul class="nav btn-group">
         <li class="user-name"><?php echo $user['name']; ?></li>
@@ -69,7 +72,7 @@
 
 <div id="sidebar">
     <a href="#!/dashboard" class="visible-phone"><i class="icon icon-home"></i> Dashboard</a>
-        <ul class="nav">
+    <ul class="nav">
         <li class="active link-dashboard"><a href="#!/dashboard"><i class="icon icon-home"></i> <span>Tableau de bord</span></a></li>
         <li class="submenu link-studies">
             <a href="#!/studies"><i class="icon icon-folder-open"></i> <span>Dossier scolaire</span><span class="label"><i class="icon-chevron-down icon-white" style="margin:  0px;"></i></span></a>
@@ -90,5 +93,24 @@
         <li class="link-admin"><a href="#!/admin"><i class="icon icon-briefcase"></i> <span>Administration</span></a></li>
         <?php } ?>
     </ul>
-
 </div>
+
+<?php } else { ?>
+
+<div id="sidebar">
+    <a href="#!/dashboard" class="visible-phone"><i class="icon icon-home"></i> Dashboard</a>
+        <ul class="nav">
+        <li class="link-dashboard"><a href="/login"><i class="icon icon-home"></i> <span>Tableau de bord</span></a></li>
+        <li class="submenu active open link-support">
+            <a href="/support/terms"><i class="icon icon-folder-open"></i> <span>Support</span><span class="label"><i class="icon-chevron-down icon-white" style="margin:  0px;"></i></span></a>
+            <ul class="nav">
+                <li class="link-support-terms"><a href="/support/terms">Conditions d'utilisation</a></li>
+                <li class="link-support-privacy"><a href="/support/privacy">Confidentialité des données</a></li>
+                <li class="link-support-faq"><a href="/support/faq">F.A.Q.</a></li>
+                <li class="link-support-contact"><a href="/support/contact">Contact</a></li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+<?php } ?>

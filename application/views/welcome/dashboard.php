@@ -31,7 +31,7 @@ foreach ($modules as $module) {
 	?>
     <li>
         <a href="<?php if (strpos($module['url'], "s_connect")>0) echo "javascript:app.dashboard.connectTo('".$module['url']."');"; else echo $module['url']; ?>">
-            <img src="<?php echo site_url(); ?>images/<?php echo $module['icon']; ?>" />
+            <img src="<?php echo site_url(); ?>img/modules/<?php echo $module['icon']; ?>" />
             <div class="title"><?php echo $module['title']; ?></div>
         </a>
     </li>

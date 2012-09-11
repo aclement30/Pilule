@@ -14,7 +14,7 @@ foreach ($programs as $program) {
     ?>
 <div class="program-panel" id="program-<?php echo $program['id']; ?>"<?php if ($program_number != 1) echo ' style="display: none;"'; ?>>
 
-<div class="row-fluid">
+<div class="row-fluid no-print">
     <div class="span12">
         <div class="widget-box widget-plain">
             <div class="widget-content center">
@@ -169,7 +169,7 @@ foreach ($programs as $program) {
                         <th style="text-align: center;">Programme</th>
                         <th style="text-align: center;">Cheminement</th>
                         <?php if ($program['cohort_gpa']['number'] >= 10) { ?>
-                        <th style="text-align: center;">Cohorte <?php echo substr($program['session_repertoire'], 0, 4); ?> *</th>
+                        <th style="text-align: center;" class="no-print">Cohorte <?php echo substr($program['session_repertoire'], 0, 4); ?> *</th>
                         <?php } ?>
                     </tr>
                     </thead>
@@ -178,7 +178,7 @@ foreach ($programs as $program) {
                         <td style="text-align: center;"><?php echo $program['gpa_program']; ?></td>
                         <td style="text-align: center;"><?php echo $program['gpa_overall']; ?></td>
                         <?php if ($program['cohort_gpa']['number'] >= 10) { ?>
-                        <td style="text-align: center;"><?php echo number_format($program['cohort_gpa']['average'], 2); ?></td>
+                        <td style="text-align: center;" class="no-print"><?php echo number_format($program['cohort_gpa']['average'], 2); ?></td>
                         <?php } ?>
                     </tr>
                     <tr>
@@ -186,13 +186,13 @@ foreach ($programs as $program) {
                 </table>
             </div>
         </div>
-        <div class="widget-box" style="margin-top: 0px; border-top:  0px; margin-bottom: 5px;">
+        <div class="widget-box no-print style="margin-top: 0px; border-top:  0px; margin-bottom: 5px;">
             <div class="widget-content">
                 <div class="chart" style="height: 98px;"></div>
             </div>
         </div>
         <?php if ($program['cohort_gpa']['number'] >= 10) { ?>
-        <p style="font-size: 7pt; color:  gray; line-height: 9pt;">* La moyenne de cohorte évalue l'ensemble des moyennes de programme des <?php echo $program['cohort_gpa']['number']; ?> étudiants de cette cohorte inscrits sur Pilule. Cette moyenne est affichée à titre indicatif.</p>
+        <p class="no-print" style="font-size: 7pt; color:  gray; line-height: 9pt;">* La moyenne de cohorte évalue l'ensemble des moyennes de programme des <?php echo $program['cohort_gpa']['number']; ?> étudiants de cette cohorte inscrits sur Pilule. Cette moyenne est affichée à titre indicatif.</p>
         <?php } ?>
     </div>
 
@@ -225,7 +225,7 @@ foreach ($programs as $program) {
                 <table class="table table-bordered table-striped">
                     <thead>
                     <tr>
-                        <th style="font-weight: bold; text-align: left; width: 10%;">Cours</th>
+                        <th style="font-weight: bold; text-align: left; width: 10%;" class="course-code">Cours</th>
                         <?php if ($mobile!=1) { ?><th style="font-weight: bold; text-align: left;">Titre</th><?php } ?>
                         <th style="font-weight: bold; text-align: center; width: 12%;">Session</th>
                         <th style="font-weight: bold; text-align: center; width: 12%;">Crédits</th>

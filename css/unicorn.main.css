@@ -235,12 +235,16 @@ a:hover {
 
 #content-header .btn-group {
 	float: right;
-    margin-right: 20px;
+    position: absolute;
+    right: 20px;
+}
+
+#content-header .action-buttons .buttons {
+    float: right;
 }
 
 #content-header .timestamp {
     float: right;
-    margin-top: 20px;
     margin-right: 10px;
     padding-top: 10px;
     font-size: 8pt;
@@ -249,7 +253,6 @@ a:hover {
 
 #content-header .loading-status {
     float: right;
-    margin-top: 20px;
     margin-right: 0px;
     padding-top: 10px;
     font-size: 8pt;

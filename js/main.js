@@ -353,8 +353,8 @@ function displayActionButtons ( items ) {
         buttons += '>' + value.title + '</a>';
     });
 
-    $('.action-buttons').html(buttons);
-    $('.action-buttons').show();
+    $('.action-buttons .buttons').html(buttons);
+    $('.action-buttons .buttons').show();
 }
 
 function displayBreadcrumb ( pages ) {
@@ -371,6 +371,7 @@ function displayBreadcrumb ( pages ) {
     });
 
     $('#breadcrumb').html(breadcrumb);
+    $('#breadcrumb').show();
 }
 
 function fixLayout (){
@@ -425,12 +426,11 @@ function loadContent(url, pageRefreshEffect) {
                 if (response.buttons) {
                     displayActionButtons(response.buttons);
                 } else {
-                    $('.action-buttons').html('');
-                    $('.action-buttons').hide();
+                    $('.action-buttons .buttons').hide();
                 }
 
                 // Si les données ont expirées, appeler la fonction d'actualisation des données
-                if (response.reloadData) app.cache.reloadData(response.reloadData, 1);
+                if (response.reloadData) app.cache.reloadData([{name: response.reloadData, auto: 1}]);
 
                 // S'il y a lieu, exécuter le code JS
                 if (response.code) eval(response.code);
@@ -438,8 +438,9 @@ function loadContent(url, pageRefreshEffect) {
                 // Affichage du timestamp des données
                 if (response.timestamp) {
                     $('#content-header .timestamp').html('Données actualisées : il y a ' + response.timestamp + '.');
+                    $('#content-header .timestamp').show();
                 } else {
-                    $('#content-header .timestamp').html('');
+                    $('#content-header .timestamp').hide();
                 }
 
                 if (pageRefresh) {

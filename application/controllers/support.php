@@ -30,24 +30,14 @@ class Support extends CI_Controller {
             // Set page specific data
         );
 
-        respond(array(
-            'title'         =>  'Conditions d\'utilisation',
-            'content'       =>  $this->load->view('support/terms', $data, true),
-            'breadcrumb'    =>  array(
-                array(
-                    'url'   =>  '#!/dashboard',
-                    'title' =>  'Tableau de bord'
-                ),
-                array(
-                    'url'   =>  '#!/support/faq',
-                    'title' =>  'Support'
-                ),
-                array(
-                    'url'   =>  '#!/support/terms',
-                    'title' =>  'Conditions d\'utilisations'
-                )
-            )
-        ));
+        // Chargement de l'entête
+        if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
+
+        // Chargement de la page
+        $this->load->view('support/terms', $data);
+
+        // Chargement du bas de page
+        if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
 	}
 		
 	function privacy () {
@@ -59,24 +49,14 @@ class Support extends CI_Controller {
             // Set page specific data
         );
 
-        respond(array(
-            'title'         =>  'Politique de confidentialité',
-            'content'       =>  $this->load->view('support/privacy', $data, true),
-            'breadcrumb'    =>  array(
-                array(
-                    'url'   =>  '#!/dashboard',
-                    'title' =>  'Tableau de bord'
-                ),
-                array(
-                    'url'   =>  '#!/support/faq',
-                    'title' =>  'Support'
-                ),
-                array(
-                    'url'   =>  '#!/support/privacy',
-                    'title' =>  'Politique de confidentialité'
-                )
-            )
-        ));
+        // Chargement de l'entête
+        if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
+
+        // Chargement de la page
+        $this->load->view('support/privacy', $data);
+
+        // Chargement du bas de page
+        if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
 	}
 	
 	function faq () {
@@ -88,20 +68,14 @@ class Support extends CI_Controller {
             // Set page specific data
         );
 
-        respond(array(
-            'title'         =>  'F.A.Q.',
-            'content'       =>  $this->load->view('support/faq', $data, true),
-            'breadcrumb'    =>  array(
-                array(
-                    'url'   =>  '#!/dashboard',
-                    'title' =>  'Tableau de bord'
-                ),
-                array(
-                    'url'   =>  '#!/support/faq',
-                    'title' =>  'Support'
-                )
-            )
-        ));
+        // Chargement de l'entête
+        if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
+
+        // Chargement de la page
+        $this->load->view('support/faq', $data);
+
+        // Chargement du bas de page
+        if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
 	}
 	
 	function phishingEmail () {
@@ -117,25 +91,14 @@ class Support extends CI_Controller {
             // Set page specific data
         );
 
-        respond(array(
-            'title'         =>  'Contact',
-            'content'       =>  $this->load->view('support/contact', $data, true),
-            'breadcrumb'    =>  array(
-                array(
-                    'url'   =>  '#!/dashboard',
-                    'title' =>  'Tableau de bord'
-                ),
-                array(
-                    'url'   =>  '#!/support/faq',
-                    'title' =>  'Support'
-                )
-            ,
-                array(
-                    'url'   =>  '#!/support/contact',
-                    'title' =>  'Contact'
-                )
-            )
-        ));
+        // Chargement de l'entête
+        if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
+
+        // Chargement de la page
+        $this->load->view('support/contact', $data);
+
+        // Chargement du bas de page
+        if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
 	}
 	
 	function w_reportBug () {

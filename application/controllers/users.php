@@ -104,9 +104,23 @@ class Users extends CI_Controller {
             // Enregistrement de la connexion dans l'historique
             $this->mHistory->save('login');
 
+            // Vérification de l'existence des données de l'utilisateur
+            $data_loaded = true;
+            $reload_list = array();
+            $data_requests = array('studies-summary', 'studies-details', 'studies-report', 'schedule', 'fees');
+            foreach ($data_requests as $request_name) {
+                $last_request = $this->mCache->getLastRequest($request_name);
+                if (empty($last_request)) {
+                    $reload_list[] = $request_name;
+                    $data_loaded = false;
+                }
+            }
+
             // Renvoi d'un statut de connexion SUCCÈS
             respond(array(
-                'status'    =>  true
+                'status'    =>  true,
+                'loading'   =>  (!$data_loaded) ? true: false,
+                'reloadList'=>  $reload_list
             ));
 
             return (true);

@@ -3,7 +3,8 @@
 class lCapsule {
 	public $CI;
 	private $debug = 0;
-	
+	public $forceReload = false;
+
 	function __construct() {
 		$this->CI =& get_instance();
 	}
@@ -490,7 +491,7 @@ class lCapsule {
             // Vérification d'une requête similaire
             $md5 = md5(serialize($tables));
             if ($this->CI->mCache->requestExists('studies', $md5)) {
-                return (true);
+                if (!$this->forceReload) return (true);
             } else {
                 $this->CI->mCache->addRequest('studies', $md5);
             }
@@ -706,7 +707,7 @@ class lCapsule {
                 if ($this->CI->mCache->requestExists('studies-details-program-'.md5($program['name']), $md5)) {
                     $studies = true;
                     $program = true;
-                    continue;
+                    if (!$this->forceReload) continue;
                 } else {
                     $this->CI->mCache->addRequest('studies-details-program-'.md5($program['name']), $md5);
                 }
@@ -910,7 +911,7 @@ class lCapsule {
         // Vérification d'une requête similaire
         $md5 = md5(serialize($table));
         if ($this->CI->mCache->requestExists('studies-report', $md5)) {
-            return (true);
+            if (!$this->forceReload) return (true);
         } else {
             $this->CI->mCache->addRequest('studies-report', $md5);
         }
@@ -1193,7 +1194,7 @@ class lCapsule {
                 $md5 = md5(serialize($tables));
                 if ($this->CI->mCache->requestExists('schedule-' . $semester, $md5)) {
                     $schedule[$semester] = true;
-                    continue;
+                    if (!$this->forceReload) continue;
                 } else {
                     $this->CI->mCache->addRequest('schedule-' . $semester, $md5);
                 }
@@ -1335,9 +1336,9 @@ class lCapsule {
         // Vérification d'une requête similaire
         $md5 = md5(serialize($tables));
         if ($this->CI->mCache->requestExists('fees', $md5)) {
-            return (true);
+            if (!$this->forceReload) return (true);
         } else {
-           // $this->CI->mCache->addRequest('fees', $md5);
+            $this->CI->mCache->addRequest('fees', $md5);
         }
 
         $account = array();

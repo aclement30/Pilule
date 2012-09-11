@@ -1,44 +1,69 @@
 var cache = {
     controllerURL: './cache/',
+    reloadCallback: null,
+    isLoading: false,
+    loadingQueue: new Array(),
 
-    reloadData: function ( params, auto ) {
-        if (isMobile == 0) {
-            // Affichage du symbole de chargement sur le bouton
-            $('.action-buttons .btn-refresh i').hide();
-            $('.action-buttons .btn-refresh img').fadeIn();
-            $('.action-buttons .btn-refresh').parent().attr('title', 'Actualisation des données en cours');
+    // Fonction d'ajout d'éléments à recharger depuis Capsule à la file d'attente
+    reloadData: function ( params ) {
+        if ($.isArray(params)) {
+            $.each(params, function(key, value) {
+                app.cache.loadingQueue.push(value);
+            });
         } else {
-            $('#loading-message').slideDown();
+            this.loadingQueue.push(params);
         }
 
-        $('#content-header .timestamp').html('');
-        $('#content-header .timestamp').html('');
-        $('#content-header .loading-status').removeClass('error');
-        $('#content-header .loading-status').html('Actualisation des données en cours');
+        if (!this.isLoading) this.loadData();
+    },
+
+    loadData: function () {
+        this.isLoading = true;
+
+        // Affichage du symbole de chargement sur le bouton Actualiser
+        $('.action-buttons .btn-refresh i').hide();
+        $('.action-buttons .btn-refresh img').fadeIn();
+        $('.action-buttons .btn-refresh').parent().attr('title', 'Actualisation des données en cours');
+        $('#content-header .timestamp').hide();
+        $('#content-header .loading-status').removeClass('error').html('Actualisation des données en cours').fadeIn();
+
+        this.reloadCallback = this.loadingQueue[0].callback;
 
         ajax.request({
             type:           'POST',
             controller:     this.controllerURL,
             method:         'ajax_reloadData',
             data:           {
-                name:       params,
-                auto:       auto
+                name:       this.loadingQueue[0].name,
+                auto:       this.loadingQueue[0].auto
             },
             callback:       function (response) {
-                $('#content-header .loading-status').html('');
-                $('.action-buttons .btn-refresh img').hide();
-                $('.action-buttons .btn-refresh i').fadeIn();
-                $('.action-buttons .btn-refresh').parent().attr('title', 'Actualiser les données');
-
                 if (response.status) {
-                    //alert('Données actualisées !');
-                    if (response.auto == 1) {
-                        refreshPage(false);
+                    app.cache.loadingQueue.shift();
+                    if (app.cache.loadingQueue.length == 0) app.cache.isLoading = false;
+
+                    // Exécution du callback
+                    if (app.cache.reloadCallback != null && app.cache.reloadCallback != undefined) {
+                        (app.cache.reloadCallback)();
+                        app.cache.reloadCallback = null;
                     } else {
-                        refreshPage(true);
+                        if (response.auto == 1) {
+                            refreshPage(false);
+                        } else {
+                            refreshPage(true);
+                        }
+                    }
+
+                    if (app.cache.loadingQueue.length == 0) {
+                        $('#content-header .loading-status').hide();
+                        $('.action-buttons .btn-refresh img').hide();
+                        $('.action-buttons .btn-refresh i').fadeIn();
+                        $('.action-buttons .btn-refresh').parent().attr('title', 'Actualiser les données');
+                    } else {
+                        // Chargement de l'élément suivant
+                        app.cache.loadData();
                     }
                 } else {
-                    $('#content-header .timestamp').html('');
                     $('#content-header .loading-status').addClass('error');
                     if (response.error) {
                         errorMessage(response.error, $('#content-header .loading-status'), false);

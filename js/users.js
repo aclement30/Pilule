@@ -5,58 +5,75 @@ var users = {
     object:        'users',
 
     login: function () {
-        $('#login-form').removeClass('error');
         $('#login-form .alert-error').hide();
 
-        // Checking for CSS 3D transformation support
-        $.support.css3d = supportsCSS3D();
-
-        var formContainer = $('#formContainer');
-
-        // Flipping the forms
-        formContainer.toggleClass('flipped');
-
-        // If there is no CSS3 3D support, simply
-        // hide the login form (exposing the recover one)
-        if(!$.support.css3d){
-            $('#login-form').toggle();
-        }
+        $('#login-form').fadeOut('fast', function () {
+            $('#loading-panel').fadeIn();
+        });
 
         // Send login request
         ajax.request({
             controller:     this.controllerURL,
             method:         'ajax_login',
             data:           {
-                idul:   $('#idul').val(),
+                idul:       $('#idul').val(),
                 password:   $('#password').val()
             },
             callback:       function ( response ) {
                 if (response.status) {
-                    var redirectURL = $('#redirect_url').val();
 
-                    formContainer.fadeOut();
+                    if (response.loading) {
+                        $('#loading-panel .loading-message').html('Chargement de vos données');
+                        $('#loading-panel .waiting-notice').fadeIn();
 
-                    // Redirection à la page demandée, s'il y a lieu
-                    if (redirectURL != '' && redirectURL != undefined) {
-                        document.location = redirectURL;
+                        var reloadItems = new Array();
+                        $.each(response.reloadList, function(key, value) {
+                            // Ajout d'un élément à la liste
+                            reloadItems.push({name: value, auto: 1, callback: function() {
+                                if (app.cache.loadingQueue.length == 0 && (!app.cache.isLoading)) {
+                                    app.users.redirectToDashboard();
+                                }
+                            }});
+                        });
+
+                        // Actualisation de la liste d'éléments
+                        app.cache.reloadData(reloadItems);
                     } else {
-                        document.location = './welcome/';
+                        var redirectURL = $('#redirect_url').val();
+
+                        $('#formContainer').fadeOut();
+
+                        // Redirection à la page demandée, s'il y a lieu
+                        if (redirectURL != '' && redirectURL != undefined) {
+                            document.location = redirectURL;
+                        } else {
+                            document.location = './welcome/';
+                        }
                     }
                 } else {
-                    $('#login-form').addClass('error');
                     errorMessage(response.error, $('#login-form .alert-error'), false);
 
-                    // Flipping the forms
-                    formContainer.toggleClass('flipped');
-
-                    // If there is no CSS3 3D support, simply
-                    // hide the login form (exposing the recover one)
-                    if(!$.support.css3d){
-                        $('#login-form').toggle();
-                    }
+                    $('#loading-panel').fadeOut('fast', function () {
+                        $('#login-form').fadeIn();
+                    });
                 }
             }
         });
+    },
+
+    redirectToDashboard: function () {
+        if (!app.cache.isLoading) {
+            var redirectURL = $('#redirect_url').val();
+
+            $('#formContainer').fadeOut();
+
+            // Redirection à la page demandée, s'il y a lieu
+            if (redirectURL != '' && redirectURL != undefined) {
+                setTimeout("document.location = redirectURL;", 100);
+            } else {
+                setTimeout("document.location = './#!/dashboard';", 100);
+            }
+        }
     }
 }
 

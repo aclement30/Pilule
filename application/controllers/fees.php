@@ -57,7 +57,7 @@ class Fees extends CI_Controller {
                 ),
                 'buttons'       =>  array(
                     array(
-                        'action'=>  "app.cache.reloadData('fees');",
+                        'action'=>  "app.cache.reloadData({name: 'fees', auto: 0});",
                         'type'  =>  'refresh'
                     )
                 )
@@ -140,7 +140,7 @@ EOD;
                 ),
                 'buttons'       =>  array(
                     array(
-                        'action'=>  "app.cache.reloadData('fees');",
+                        'action'=>  "app.cache.reloadData({name: 'fees', auto: 0});",
                         'type'  =>  'refresh'
                     )
                 )
@@ -163,7 +163,7 @@ EOD;
                 ),
                 'buttons'       =>  array(
                     array(
-                        'action'=>  "app.cache.reloadData('fees');",
+                        'action'=>  "app.cache.reloadData({name: 'fees', auto: 0});",
                         'type'  =>  'refresh'
                     )
                 )
@@ -208,7 +208,7 @@ EOD;
                 ),
                 'buttons'       =>  array(
                     array(
-                        'action'=>  "app.cache.reloadData('fees');",
+                        'action'=>  "app.cache.reloadData({name: 'fees', auto: 0});",
                         'type'  =>  'refresh'
                     )
                 )
@@ -244,7 +244,7 @@ EOD;
             ),
             'buttons'       =>  array(
                 array(
-                    'action'=>  "app.cache.reloadData('fees');",
+                    'action'=>  "app.cache.reloadData({name: 'fees', auto: 0});",
                     'type'  =>  'refresh'
                 )
             )

@@ -9,6 +9,7 @@ var ajax = {
 	request: function ( params ) {
 		// Define default parameters
 		var defaults = {
+            async:          true,
 			type: 			'GET',
 			data: 			{},
 			controller:		null,
@@ -31,6 +32,7 @@ var ajax = {
 		loadingDisplayTimeout = setTimeout("loading('Ouverture de la page...');", 2000);
 		
 		$.ajax({
+            async:p.async,
 			type: p.type,
 			url: p.url,
 			data: p.data,

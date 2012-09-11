@@ -14,7 +14,7 @@ if (substr(CURRENT_SEMESTER, 4, 2) == '01') {
 }
 ?>
 
-<div class="row-fluid">
+<div class="row-fluid no-print">
     <div class="span12">
         <div class="widget-box widget-plain">
             <div class="widget-content center">
@@ -109,7 +109,7 @@ if (substr(CURRENT_SEMESTER, 4, 2) == '01') {
         </div>
     </div>
 
-    <div class="span5">
+    <div class="span5 no-print">
         <div class="widget-box">
             <div class="widget-title">
 								<span class="icon">

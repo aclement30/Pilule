@@ -25,7 +25,7 @@
                     <div id="calendar">
                     </div>
                 </div>
-                <div id="external-events" class="panel-right">
+                <div id="external-events" class="panel-right no-print">
                     <div class="panel-title"><h5>Autres cours</h5></div>
                     <div class="panel-content">
                         <?php

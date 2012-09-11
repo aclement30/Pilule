@@ -58,7 +58,7 @@ class Schedule extends CI_Controller {
                 ),
                 'buttons'       =>  array(
                     array(
-                        'action'=>  "app.cache.reloadData('schedule');",
+                        'action'=>  "app.cache.reloadData({name: 'schedule', auto: 0});",
                         'type'  =>  'refresh'
                     )
                 )
@@ -269,7 +269,7 @@ EOT;
                 ),
                 'buttons'       =>  array(
                     array(
-                        'action'=>  "app.cache.reloadData('schedule');",
+                        'action'=>  "app.cache.reloadData({name: 'schedule', auto: 0});",
                         'type'  =>  'refresh'
                     )
                 )
@@ -292,7 +292,7 @@ EOT;
                 ),
                 'buttons'       =>  array(
                     array(
-                        'action'=>  "app.cache.reloadData('schedule');",
+                        'action'=>  "app.cache.reloadData({name: 'schedule', auto: 0});",
                         'type'  =>  'refresh'
                     )
                 )
@@ -301,15 +301,7 @@ EOT;
             return (false);
         }
     }
-	
-	function getMenu() {
-		$data['mobile'] = $this->mobile;
-		
-		$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('schedule/m-menu', $data, true)));
-		echo "$('#rcolumn').html(\"".addslashes($content)."\");updateMenu();";
-		if ($this->mobile == 1) echo "$('h2.title').after($('#sidebar'));";
-	}
-	
+
 	function share () {
 		$data = array();
 		$data['section'] = 'schedule';
@@ -392,73 +384,6 @@ EOT;
 	// Fonction de rétro-compatibilité
 	function timetable() {
 		$this->index();
-	}
-	
-	function courses () {
-		$data = array();
-		$data['user'] = $this->user;
-		$data['semester_date'] = $this->uri->segment(3);
-		$data['mobile'] = $this->mobile;
-		
-		if (isset($_SESSION['cap_offline']) and $_SESSION['cap_offline'] == 'yes') {
-			$data['cap_offline'] = 1;
-		}
-		
-		$this->mHistory->save('schedule-courses');
-		
-		if ($data['semester_date']=='') {
-			if (isset($_SESSION['schedule_current_semester'])) {
-				$data['semester_date'] = $_SESSION['schedule_current_semester'];
-			} else {
-				// Vérification de l'existence des sessions en cache
-				$cache = $this->mCache->getCache('data|schedule,semesters');
-				
-				if ($cache!=array()) {
-					$semesters = unserialize($cache['value']);
-					
-					if ($semesters!=array()) {
-						$data['semester_date'] = key($semesters);
-						$_SESSION['schedule_current_semester'] = $data['semester_date'];
-					}
-				}
-			}
-		} else {
-			$_SESSION['schedule_current_semester'] = $data['semester_date'];
-		}
-		
-		if ($data['semester_date']!='') {
-			$courses = $this->mUser->getCourses($_SESSION['cap_iduser'], $data['semester_date']);
-
-			$data['courses'] = array();
-			foreach ($courses as $course) {
-				$course['classes'] = $this->mUser->getClasses(array('idcourse'=>$course['idcourse'], 'semester'=>$data['semester_date'], 'idul'=>$_SESSION['cap_iduser']));
-				$data['courses'][] = $course;
-			}
-		}
-		
-		$cache = $this->mCache->getCache('data|schedule,semesters');
-		
-		if ($cache!=array()) {
-			$data['semesters'] = unserialize($cache['value']);
-			// Vérification de la date de chargement des données
-			if ($cache['timestamp']<(time()-$this->mUser->expirationDelay)) {
-				$data['reload_data'] = 'data|schedule,semesters';
-			}
-		}
-		
-		if (isset($data['semesters']) and $data['semesters']!=array()) {
-			// Chargement de la page
-			$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('schedule/courses', $data, true)));
-		} else {
-			// Chargement de la page d'erreur
-			$data['title'] = 'Liste des cours';
-			$data['reload_name'] = 'data|schedule,semesters';
-			
-			$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('errors/loading-data', $data, true)));
-		}
-		
-		echo "setPageInfo('schedule/courses');setPageContent(\"".addslashes($content)."\");";
-		if (isset($data['reload_data']) and $_SESSION['cap_iduser'] != 'demo' and $_SESSION['cap_offline'] != 'yes') echo "reloadData('".$data['reload_data']."', 1);";
 	}
 	
 	function w_export () {

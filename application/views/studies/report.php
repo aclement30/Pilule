@@ -164,7 +164,7 @@ foreach ($semesters as $semester) {
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th style="font-weight: bold; width: 10%; text-align: left;">Cours</th>
+                        <th style="font-weight: bold; width: 10%; text-align: left;" class="course-code">Cours</th>
                         <th style="font-weight: bold; text-align: left;">Titre</th>
                         <th style="font-weight: bold; text-align: center; width: 12%;">Reprise</th>
                         <th style="font-weight: bold; text-align: center; width: 12%;">Crédits</th>
@@ -258,7 +258,7 @@ foreach ($admitted_sections as $section) {
                     <table class="table table-bordered table-striped">
                         <thead>
                         <tr>
-                            <th style="font-weight: bold; width: 10%; text-align: left;">Cours</th>
+                            <th style="font-weight: bold; width: 10%; text-align: left;" class="course-code">Cours</th>
                             <th style="font-weight: bold; text-align: left;">Titre</th>
                             <th style="font-weight: bold; text-align: center; width: 12%;">Reprise</th>
                             <th style="font-weight: bold; text-align: center; width: 12%;">Crédits</th>

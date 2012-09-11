@@ -13,8 +13,6 @@ body {
     top: 18px;
 }
 
-
-
 #sidebar > ul > li a:hover {
     background-color: #48494a;
 }
@@ -96,7 +94,11 @@ body {
 }
 
 #calendar .fc-header-left {
-    width: 50px;
+    width: 90px;
+}
+
+#calendar .fc-header-left .fc-button {
+    float: left;
 }
 
 #calendar .fc-header-center {
@@ -168,4 +170,8 @@ font-weight: bold;
 
 #content-layer .row-fluid:first-child {
     margin-top: 5px;
+}
+
+.loading-status {
+    padding-right: 10px;
 }

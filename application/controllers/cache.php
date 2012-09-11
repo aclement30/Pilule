@@ -71,12 +71,18 @@ class Cache extends CI_Controller {
 		$error = 0;
 		$dataErrors = array();
 
+        // Forcer le rechargement des données si la requête a été initée par l'utilisateur
+        if ($auto == 0) {
+            $this->lcapsule->forceReload = true;
+        }
+
 		// Test de connexion à Capsule
 		$this->lcapsule->testConnection();
 
 		switch ($reload_name) {
             case 'studies-details':
 			case 'studies':
+            case 'studies-summary':
                 $this->session->set_userdata('saved_data', '');
 
 				// Chargement du programme d'études
@@ -311,6 +317,7 @@ class Cache extends CI_Controller {
                     $error = 1;
                 }
 			    break;
+            /*
 			case 'data|holds':
 				// Suppression des données en cache
 				$this->mCache->deleteCache('data|holds', 1);
@@ -325,6 +332,7 @@ class Cache extends CI_Controller {
 					$error = 1;
 				}
 			    break;
+            */
 		}
 		
 		if ($admin_mode != 1) ob_clean();

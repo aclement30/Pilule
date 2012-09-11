@@ -25,39 +25,59 @@
 <body>
 
 <div id="formContainer">
-    <form id="login-form" method="post" target="frame">
-        <div id="ulaval-ribbon" style="position: relative; right: -45px; text-align: right; top: -41px; margin-bottom: -93px;"><img src="<?php echo site_url(); ?>img/approbation-ulaval.png" alt="Approuvé par l'Université Laval" style="border: 0px;" /></div>
-        <h1><a href="#" id="flipToRecover" class="flipLink"><img src="<?php echo site_url(); ?>img/logo.png" alt="Pilule - Gestion des études - Université Laval" /></a></h1>
+    <div id="login-form">
+        <div id="ulaval-ribbon" style="position: relative; right: -45px; text-align: right; top: -10px; margin-bottom: -93px;"><img src="<?php echo site_url(); ?>img/approbation-ulaval.png" alt="Approuvé par l'Université Laval" style="border: 0px;" /></div>
+        <h1><img src="<?php echo site_url(); ?>img/logo.png" alt="Pilule - Gestion des études - Université Laval" /></h1>
         <div class="alert-error alert"></div>
-        <div class="control-group">
-            <label for="username">IDUL</label>
-            <div class="input-prepend"><span class="add-on"><i class="icon-user"></i></span><input type="text" name="idul" id="idul" autocorrect="off" spellcheck="false" /></div>
-        </div>
-        <div style="margin: 15px 0;" class="control-group">
-            <label for="password">Mot de passe</label>
-            <div class="input-prepend"><span class="add-on"><i class="icon-lock"></i></span><input type="password" name="password" id="password"  /></div>
-            <div style="font-size: 7pt; color: #4a99e6;" class="help-block">Votre NIP ne sera pas enregistré dans le système.</div>
-        </div>
-        <div style="text-align: center; margin-top: 30px; margin-bottom: 10px;">
-            <button type="button" id="btn-login" class="btn btn-success" onclick="javascript:app.users.login();"><i class="icon-chevron-right icon-white"></i>&nbsp;Connexion</button>
-        </div>
-        <div style="clear: both;"></div>
-        <input type="hidden" name="redirect_url" id="redirect_url" value="<?php if (isset($url)) echo $url; ?>" />
-    </form>
-    <form id="loading" method="post" action="./">
-        <div style="margin-top:  7%; text-align: center; color: #fff; font-weight: bold;">Connexion en cours<br /><br />
-        <img src="./img/loading-login.gif" /></div>
-    </form>
+        <form method="post" target="frame">
+            <div class="control-group">
+                <label for="idul">IDUL</label>
+                <div class="input-prepend"><span class="add-on"><i class="icon-user"></i></span><input type="text" name="idul" id="idul" autocorrect="off" spellcheck="false" /></div>
+            </div>
+            <div style="margin: 15px 0;" class="control-group">
+                <label for="password">Mot de passe</label>
+                <div class="input-prepend"><span class="add-on"><i class="icon-lock"></i></span><input type="password" name="password" id="password"  /></div>
+                <div style="font-size: 7pt; color: #4a99e6;" class="help-block">Votre NIP ne sera pas enregistré dans le système.</div>
+            </div>
+            <div style="text-align: center; margin-top: 30px; margin-bottom: 10px;">
+                <button type="button" id="btn-login" class="btn btn-success" onclick="javascript:app.users.login();"><i class="icon-chevron-right icon-white"></i>&nbsp;Connexion</button>
+            </div>
+            <div style="clear: both;"></div>
+            <input type="hidden" name="redirect_url" id="redirect_url" value="<?php if (isset($url)) echo $url; ?>" />
+        </form>
+    </div>
+    <div id="loading-panel">
+            <div style="margin-top: 50%; text-align: center; color: #fff; font-weight: bold;"><span class="loading-message">Connexion en cours</span><br /><br />
+            <img src="./img/loading-login.gif" /></div>
+            <div class="waiting-notice" style="text-align: center; opacity: 0.5; -moz-opacity: 0.5; display: none; margin-top: 80px; color: #fff; font-size: 8pt;">Cette étape peut prendre jusqu'à une minute.<br />Merci de patienter.</div>
+    </div>
 </div>
 
 <footer>
-    <p class="inside">&copy; Pilule 2012</p>
+    <p class="inside">
+    <div class="navbar">
+        <div class="navbar-inner">
+            <ul class="nav" style="margin-top: 20px;">
+                <li><a href="<?php echo site_url(); ?>support/terms">Conditions d'utilisation</a></li>
+                <li><a href="<?php echo site_url(); ?>support/privacy">Confidentialité des données</a></li>
+                <li><a href="<?php echo site_url(); ?>support/faq">F.A.Q.</a></li>
+                <li><a href="<?php echo site_url(); ?>support/contact">Contact</a></li>
+            </ul>
+            <div class="nav" style="float: right; padding-top: 10px; margin-right: 20px;">
+                <p style="float: right; margin-left: 40px; font-style: italic; font-size: 8pt; text-align: right;">Projet hébergé par<br /><img src="<?php echo site_url(); ?>img/ulaval-black.png" height="36" align="absbottom" style="padding-top: 6px; padding-bottom: 5px;" /></p>
+                <p id="copyright" style="text-align: right; float: right;">Conception<br /><a href="http://www.alexandreclement.com" target="_blank" style="font-style: normal; font-size: 9pt;">Alexandre Clément</a></p>
+                <div style="clear: both;"></div>
+            </div>
+        </div>
+    </div>
+    </p>
 </footer>
 
 <!-- JavaScript includes -->
 <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
 <script src="<?php echo site_url(); ?>js/jquery-ui-1.8.23.custom.min.js"></script>
 <script src="<?php echo site_url(); ?>js/users.js"></script>
+<script src="<?php echo site_url(); ?>js/cache.js"></script>
 <script src="<?php echo site_url(); ?>js/login.js"></script>
 <script src="<?php echo site_url(); ?>js/path.min.js"></script>
 <script src="<?php echo site_url(); ?>js/main.js"></script>
@@ -76,11 +96,10 @@
         });
 
         // Positionner la boîte de connexion verticalement
-        $('#formContainer form').fadeIn();
-        $('#formContainer form').css('marginTop', ($(window).height()/2)-200);
+        $('#formContainer').css('marginTop', ($(window).height()/2)-200);
 
         $(window).resize(function() {
-            $('#formContainer form').css('marginTop', ($(window).height()/2)-200);
+            $('#formContainer').css('marginTop', ($(window).height()/2)-200);
         });
     });
 </script>
