@@ -54,7 +54,7 @@ class Cache extends CI_Controller {
         }
 
 		// Augmentation de la limitation de mémoire
-		ini_set('memory_limit', '30M');
+		ini_set('memory_limit', '50M');
 
 		// Vérification que l'utilisateur soit connecté
 		if ($this->session->userdata('pilule_user') == '') {
@@ -149,6 +149,8 @@ class Cache extends CI_Controller {
 
                         // Suppression des données en cache de cours de l'étudiant
                         $this->mStudies->deleteProgramSections($program['id']);
+                        $this->mStudies->deleteProgramCourses($program['id']);
+
                         foreach ($program['sections'] as $section) {
                             $courses = $section['courses'];
                             unset($section['courses']);
@@ -201,13 +203,12 @@ class Cache extends CI_Controller {
 
                     // Enregistrement des données d'études
                     $this->mStudies->deleteReports();
+                    $this->mStudies->deleteReportCourses();
                     $this->mStudies->addReport($result['report']);
 
                     foreach ($result['admitted_sections'] as $section) {
                         $courses = $section['courses'];
                         unset($section['courses']);
-                        //$section['number'] = $section_number;
-                        //$section['program_id'] = $program['id'];
 
                         // Enregistrement de la section
                         $section_id = $this->mStudies->addReportAdmittedSection($section);
@@ -220,8 +221,6 @@ class Cache extends CI_Controller {
                     foreach ($result['semesters'] as $semester) {
                         $courses = $semester['courses'];
                         unset($semester['courses']);
-                        //$section['number'] = $section_number;
-                        //$section['program_id'] = $program['id'];
 
                         // Enregistrement du semestre
                         $semester_id = $this->mStudies->addReportSemester($semester);
@@ -252,6 +251,8 @@ class Cache extends CI_Controller {
                 } elseif (is_array($result)) {
                     // Suppression des données en cache
                     $this->mSchedule->deleteSemesters();
+                    $this->mSchedule->deleteCourses();
+                    $this->mSchedule->deleteClasses();
 
                     foreach($result as $semester => $schedule) {
                         if ($schedule === true) continue;
@@ -272,7 +273,7 @@ class Cache extends CI_Controller {
                             foreach($classes as $class) {
                                 $class['semester'] = $semester;
                                 $class['nrc'] = $course['nrc'];
-
+                                error_log(print_r($class, true));
                                 $this->mSchedule->addClass($class);
                             }
                         }

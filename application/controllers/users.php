@@ -42,7 +42,7 @@ class Users extends CI_Controller {
     }
 
     function ajax_login () {
-        $idul = $this->input->get('idul');
+        $idul = strtolower($this->input->get('idul'));
         $password = $this->input->get('password');
 
         $auth_response = false;
@@ -78,13 +78,13 @@ class Users extends CI_Controller {
             break;
             case 'server-connection':
                 // Deuxième tentative, via WebCT
-                $response = $this->lcapsule->login($idul, $password);
+                $auth_response = $this->lcapsule->login($idul, $password);
 
                 if ($auth_response == 'success') {
                     $authenticated = true;
-                } elseif ($response == 'server-connection') {
+                } elseif ($auth_response == 'server-connection') {
                     // Troisième tentative, via WebCT
-                    $response = $this->lcapsule->loginWebCT($idul, $password);
+                    $auth_response = $this->lcapsule->loginWebCT($idul, $password);
 
                     if ($auth_response == 'success') $authenticated = true;
 

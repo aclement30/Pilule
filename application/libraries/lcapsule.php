@@ -4,6 +4,7 @@ class lCapsule {
 	public $CI;
 	private $debug = 0;
 	public $forceReload = false;
+    private $host = "132.203.189.178";
 
 	function __construct() {
 		$this->CI =& get_instance();
@@ -18,7 +19,7 @@ class lCapsule {
         $url="/pls/etprod7/twbkwbis.P_WWWLogin";
         $this->CI->lfetch->protocol="https";
 
-        $arguments['HostName'] = "capsuleweb.ulaval.ca";
+        $arguments['HostName'] = $this->host;
         $arguments["RequestURI"] = $url;
 
         $error=$this->CI->lfetch->Open($arguments);
@@ -278,7 +279,7 @@ class lCapsule {
 
         $this->CI->lfetch->protocol="https";
 
-        $arguments['HostName'] = "capsuleweb.ulaval.ca";
+        $arguments['HostName'] = $this->host;
         $arguments["RequestURI"] = "/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_AdminMnu";
 
         $error=$this->CI->lfetch->Open($arguments);
@@ -338,7 +339,7 @@ class lCapsule {
 
         $this->CI->lfetch->protocol="https";
 
-        $arguments['HostName'] = "capsuleweb.ulaval.ca";
+        $arguments['HostName'] = $this->host;
         $arguments["RequestURI"] = "/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_AdminMnu";
         $error=$this->CI->lfetch->Open($arguments);
         if ($error!="") {
@@ -441,9 +442,9 @@ class lCapsule {
 
         // Définition des valeurs du formulaire
         $arguments = array(
-            'HostName'      =>  "capsuleweb.ulaval.ca",
+            'HostName'      =>  $this->host,
             'RequestURI'    =>  "/pls/etprod7/bwskgstu.P_StuInfo",
-            'PostValues'    =>  array('term_in'	=>	$semester),
+            'PostValues'    =>  array('term_in'	=>	$semester)
         );
 
         // Ouverture de la connexion
@@ -459,9 +460,6 @@ class lCapsule {
 
         // Fermeture de la connexion
         $this->CI->lfetch->Close();
-
-        // TODO : Remove this part
-        if ($this->CI->session->userdata('saved_data') != '') $response = ($this->CI->mHistory->getRequestData($this->CI->session->userdata('saved_data')));
 
         // Vérification des données
         if (!$this->checkPage($response)) return (false);
@@ -604,7 +602,7 @@ class lCapsule {
 
         // Définition des valeurs du formulaire
         $arguments = array(
-            'HostName'      =>  "capsuleweb.ulaval.ca",
+            'HostName'      =>  $this->host,
             'RequestURI'    =>  "/pls/etprod7/bwcksmmt.P_DispPrevEval",
             'PostValues'    =>  array(
                 'term_in'	=>	$semester
@@ -684,9 +682,6 @@ class lCapsule {
                 if (!$this->checkPage($details1)) return (false);
 
                 // Rapport détaillé
-
-                // TODO : Remove this part
-                if ($this->CI->session->userdata('saved_data') != '') $details1 = ($this->CI->mHistory->getRequestData($this->CI->session->userdata('saved_data')));
 
                 // Sélection des informations dans les rapports
                 // Nettoyage du code HTML
@@ -867,7 +862,7 @@ class lCapsule {
 
         // Définition des valeurs du formulaire
         $arguments = array(
-            'HostName'      =>  "capsuleweb.ulaval.ca",
+            'HostName'      =>  $this->host,
             'RequestURI'    =>  "/pls/etprod7/bwskotrn.P_ViewTran",
             'PostValues'    =>  array(
                 'levl'	=>	'1',
@@ -891,9 +886,6 @@ class lCapsule {
 
         // Vérification des données
         if (!$this->checkPage($response)) return (false);
-
-        // Enregistrement du résultat de la requête dans la BD pour débug
-        $this->CI->mHistory->saveRequestData($this->CI->session->userdata('pilule_user'), 'get-report', $response, __FILE__." : ligne ".__LINE__." | ".$error);
 
         // Nettoyage du code HTML
         if (function_exists('tidy_repair_string')) {
@@ -1148,7 +1140,7 @@ class lCapsule {
         foreach ($suggested_semesters as $semester => $name) {
             // Définition des valeurs du formulaire
             $arguments = array(
-                'HostName'      =>  "capsuleweb.ulaval.ca",
+                'HostName'      =>  $this->host,
                 'RequestURI'    =>  "/pls/etprod7/bwskfshd.P_CrseSchdDetl",
                 'PostValues'    =>  array(
                     'term_in'	=>	$semester
@@ -1171,8 +1163,6 @@ class lCapsule {
 
             // Vérification des données
             if (!$this->checkPage($response)) return (false);
-
-            //$this->CI->mHistory->saveRequestData($this->CI->session->userdata('pilule_user'), 'get-schedule-'.$semester, $data, __FILE__." : ligne ".__LINE__." | ".$error);
 
             if (!strpos($response, "Vous n'êtes pas actuellement inscrit pour la session.")) {
                 $schedule[$semester] = array();
@@ -1204,7 +1194,6 @@ class lCapsule {
 
                 for ($n = 1; $n < count($tables); $n++) {
                     if (html_entity_decode($tables[$n]->nodes[1]->text(), ENT_COMPAT, 'cp1252') == 'Horaires prévus') {
-                        //print html_entity_decode($tables[$n]->nodes[1]->text(), ENT_COMPAT, 'cp1252');
                         // Recherche des classes prévus à l'horaire
                         $rows = $tables[$n]->find('tr');
 
@@ -1413,7 +1402,7 @@ class lCapsule {
 		
 		$this->CI->lfetch->protocol="https";
 		
-		$arguments['HostName'] = "capsuleweb.ulaval.ca";
+		$arguments['HostName'] = $this->host;
 		$arguments["RequestURI"] = "/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_RegMnu";
 		
 		$error=$this->CI->lfetch->Open($arguments);
@@ -1735,7 +1724,7 @@ class lCapsule {
 		
 		$this->CI->lfetch->protocol="https";
 		
-		$arguments['HostName'] = "capsuleweb.ulaval.ca";
+		$arguments['HostName'] = $this->host;
 		$arguments["RequestURI"] = "/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_RegMnu";
 		
 		$error=$this->CI->lfetch->Open($arguments);
@@ -2019,7 +2008,7 @@ class lCapsule {
 		
 		$this->CI->lfetch->protocol="https";
 		
-		$arguments['HostName'] = "capsuleweb.ulaval.ca";
+		$arguments['HostName'] = $this->host;
 		$arguments["RequestURI"] = "/pls/etprod7/bwckctlg.p_disp_course_detail?cat_term_in=".$semester."&subj_code_in=".$code[0]."&crse_numb_in=".$code[1];
 		
 		//echo "<H2><LI>Opening connection to:</H2>\n<PRE>",HtmlEntities($arguments["HostName"]),"</PRE>\n";
@@ -2145,7 +2134,7 @@ class lCapsule {
 				
 					$this->CI->lfetch->protocol="https";
 					
-					$arguments['HostName'] = "capsuleweb.ulaval.ca";
+					$arguments['HostName'] = $this->host;
 					$arguments["RequestURI"] = $link;
 			
 					$error=$this->CI->lfetch->Open($arguments);
@@ -2273,7 +2262,7 @@ class lCapsule {
 		
 		$this->CI->lfetch->protocol="https";
 		
-		$arguments['HostName'] = "capsuleweb.ulaval.ca";
+		$arguments['HostName'] = $this->host;
 		$arguments["RequestURI"] = "/pls/etprod7/bwckschd.p_disp_detail_sched?term_in=".$semester."&crn_in=".$nrc;
 
 		$error=$this->CI->lfetch->Open($arguments);

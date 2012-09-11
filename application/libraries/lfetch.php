@@ -60,7 +60,7 @@ class lFetch
 	var $response_message="";
 	var $file_buffer_length=8000;
 	var $force_multipart_form_post=0;
-	var $prefer_curl = 0;
+	var $prefer_curl = 1;
 
 	/* private variables - DO NOT ACCESS */
 

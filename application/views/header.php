@@ -23,30 +23,19 @@
     <link rel="stylesheet" href="./css/pilule.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
     <script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-<!--[if lt IE 7]>
-	<script type="text/javascript" src="<?php echo site_url(); ?>js/DD_belatedPNG_0.0.8a-min.js"></script>
-    <!-- TODO : Corriger la liste des PNG -->
-	<script type="text/javascript">
-        $(document).ready(function() {
-           // DD_belatedPNG.fix('img#logo, p#slogan, #menu, #top-overlay, #featured-overlay, span.overlay, .entry-content p.meta-info, #controllers span#right-arrow, #controllers span#left-arrow, #footer-content, #footer');
-        });
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-345357-28']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
     </script>
-<![endif]-->
-<?php if ($_SERVER["HTTP_HOST"]!='localhost') { ?>
-<script type="text/javascript">
-
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-345357-28']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-
-</script>
-<?php } ?>
 </head>
 
 <body>

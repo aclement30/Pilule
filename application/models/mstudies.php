@@ -29,7 +29,11 @@ class mStudies extends CI_Model {
         $programs = $result->result_array();
 
         foreach ($programs as &$program) {
-            $program['concentrations'] = unserialize($program['concentrations']);
+            if ($program['concentrations'] != 0 and $program['concentrations'] != '') {
+                $program['concentrations'] = unserialize($program['concentrations']);
+            } else {
+                $program['concentrations'] = array();
+            }
         }
 
         if ($programs!=array()) {
@@ -70,7 +74,7 @@ class mStudies extends CI_Model {
 
     function getSemestersGPA ($first, $last) {
         $this->db->select('semester, cumulative_gpa AS gpa');
-        $this->db->where(array('semester >=' => $first, 'semester <=' => $last));
+        $this->db->where(array('semester >=' => $first, 'semester <=' => $last, 'idul' => $this->session->userdata('pilule_user')));
         $result = $this->db->get('stu_reports_semesters');
 
         $average = $result->result_array();
@@ -174,6 +178,15 @@ class mStudies extends CI_Model {
         } else {
             return (array());
         }
+    }
+
+    // Suppression des semestres du relevé de notes de l'utilisateur
+    function deleteProgramCOurses ($id) {
+        if ($this->session->userdata('pilule_user') != 'demo') {
+            $this->db->delete('stu_programs_courses', array('program_id' => $id, 'idul' => $this->session->userdata('pilule_user')));
+        }
+
+        return (true);
     }
 
     // Ajout d'une section de cours de l'utilisateur
@@ -316,6 +329,20 @@ class mStudies extends CI_Model {
             return ($courses);
         } else {
             return (array());
+        }
+    }
+
+    // Suppression des relevés de notes de l'étudiant
+    function deleteReportCourses ($idul = '') {
+        if ($idul=='') $idul = $this->session->userdata('pilule_user');
+
+        // Si le compte demo est activé, ne pas supprimer les données
+        if ($idul == 'demo') return (true);
+
+        if ($this->db->delete('stu_reports_courses', array('idul'=>$idul))) {
+            return (true);
+        } else {
+            return (false);
         }
     }
 

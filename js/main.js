@@ -454,6 +454,8 @@ function loadContent(url, pageRefreshEffect) {
                     fixLayout();
                 }
 
+                if(typeof _gaq !== 'undefined')
+                    _gaq.push(['_trackPageview', document.location.hash.substr(2)]);
             } else {
                 if (response.error) {
                     errorMessage ('Erreur interne : impossible d\'afficher la page demandée.');

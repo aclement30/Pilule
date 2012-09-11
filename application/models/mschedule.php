@@ -100,6 +100,7 @@ class mSchedule extends CI_Model {
         if ($this->db->insert('stu_schedule_classes', $class)) {
             return ($this->db->insert_id());
         } else {
+            error_log(__FILE__ . ' ligne '.__LINE__);
             return (false);
         }
     }
