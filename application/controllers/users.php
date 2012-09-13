@@ -4,6 +4,7 @@ class Users extends CI_Controller {
     var $mobile = 0;
     var $user;
     var $_source;
+    var $debug = false;
 
     function Users() {
         parent::__construct();

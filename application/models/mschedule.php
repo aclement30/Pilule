@@ -100,7 +100,6 @@ class mSchedule extends CI_Model {
         if ($this->db->insert('stu_schedule_classes', $class)) {
             return ($this->db->insert_id());
         } else {
-            error_log(__FILE__ . ' ligne '.__LINE__);
             return (false);
         }
     }
@@ -113,7 +112,7 @@ class mSchedule extends CI_Model {
         $this->db->select('stu_schedule_classes.*, stu_schedule_courses.*');
         $this->db->from('stu_schedule_classes');
         $this->db->where($params);
-        $this->db->join('stu_schedule_courses', 'stu_schedule_courses.nrc = stu_schedule_classes.nrc', 'left');
+        $this->db->join('stu_schedule_courses', 'stu_schedule_courses.nrc = stu_schedule_classes.nrc AND stu_schedule_courses.idul = stu_schedule_classes.idul ', 'left');
 
         $result = $this->db->get();
 

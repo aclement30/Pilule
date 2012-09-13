@@ -4,6 +4,7 @@ class Fees extends CI_Controller {
 	var $mobile = 0;
 	var $user;
     var $_source;
+    var $debug = false;
 
 	function Fees() {
 		parent::__construct();
@@ -127,7 +128,7 @@ EOD;
                 'content'       =>  $this->load->view('fees/summary', $data, true),
                 'code'          =>  $code,
                 'timestamp'     =>  time_ago($last_request['timestamp']),
-                'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay)) ? 'fees': false,
+                'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay) && (!$this->debug)) ? 'fees': false,
                 'breadcrumb'=>  array(
                     array(
                         'url'   =>  '#!/dashboard',
@@ -227,7 +228,7 @@ EOD;
             'title'         =>  'Relevé par session',
             'content'       =>  $this->load->view('fees/details', $data, true),
             'timestamp'     =>  time_ago($last_request['timestamp']),
-            'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay)) ? 'fees': false,
+            'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay) && (!$this->debug)) ? 'fees': false,
             'breadcrumb'=>  array(
                 array(
                     'url'   =>  '#!/dashboard',

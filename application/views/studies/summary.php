@@ -16,7 +16,7 @@
                 <tbody>
                 <tr>
                     <th style="vertical-align: middle;">Programme</th>
-                    <td><?php echo $program['name'] ; ?> (<?php echo $program['diploma'] ; ?>)</td>
+                    <td><?php echo $program['name'] ; if (!empty($program['diploma'])) { ?> (<?php echo $program['diploma'] ; ?>)<?php } ?></td>
                 </tr>
                 <tr>
                     <th style="vertical-align: middle;">Cycle</th>
@@ -78,12 +78,14 @@
                 </tr>
                 <tr>
                     <th style="vertical-align: middle;">1ère session</th>
-                    <td><?php echo convertSemester($user['first_sem']); ?></td>
+                    <td><?php if (!empty($user['first_sem'])) echo convertSemester($user['first_sem']); ?></td>
                 </tr>
+                <?php if (!empty($user['last_sem'])) { ?>
                 <tr>
                     <th style="vertical-align: middle;">Dernière session</th>
                     <td><?php echo convertSemester($user['last_sem']); ?></td>
                 </tr>
+                <?php } ?>
                 </tbody>
             </table>
         </div>

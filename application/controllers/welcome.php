@@ -26,7 +26,7 @@ class Welcome extends CI_Controller {
 			$_SESSION['login_redirect'] = $this->uri->uri_string();
 			redirect('login');
 		}
-				
+
 		// Détection des navigateurs mobiles
 		$this->mobile = $this->lmobile->isMobile();
 	}

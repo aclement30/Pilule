@@ -4,7 +4,8 @@ class Studies extends CI_Controller {
 	var $mobile = 0;
 	var $user;
     var $_source;
-	
+	var $debug = false;
+
 	function Studies() {
 		parent::__construct();
 
@@ -76,7 +77,7 @@ class Studies extends CI_Controller {
                 'title'         =>  'Programme d\'études',
                 'content'       =>  $this->load->view('studies/summary', $data, true),
                 'timestamp'     =>  time_ago($last_request['timestamp']),
-                'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay)) ? 'studies': false,
+                'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay) && (!$this->debug)) ? 'studies': false,
                 'breadcrumb'=>  array(
                     array(
                         'url'   =>  '#!/dashboard',
@@ -258,7 +259,7 @@ EOD;
                 'content'       =>  $this->load->view('studies/details', $data, true),
                 'code'          =>  $code,
                 'timestamp'     =>  time_ago($last_request['timestamp']),
-                'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay)) ? 'studies-details': false,
+                'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay) && (!$this->debug)) ? 'studies-details': false,
                 'breadcrumb'    =>  array(
                     array(
                         'url'   =>  '#!/dashboard',
@@ -373,7 +374,7 @@ EOD;
             'title'         =>  'Relevé de notes',
             'content'       =>  $this->load->view('studies/report', $data, true),
             'timestamp'     =>  time_ago($last_request['timestamp']),
-            'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay)) ? 'studies-report': false,
+            'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay) && (!$this->debug)) ? 'studies-report': false,
             'breadcrumb'=>  array(
                 array(
                     'url'   =>  '#!/dashboard',

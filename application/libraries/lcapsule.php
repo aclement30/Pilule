@@ -930,7 +930,7 @@ class lCapsule {
             if (isset($row->nodes[11])) $value5 = html_entity_decode($row->nodes[11]->text());
             switch ($name) {
                 case 'Jour de naissance':
-                    $student['birthday'] = trim(strtolower($value));
+                    $student['birthday'] = utf8_encode(trim(strtolower($value)));
                     break;
                 case 'No de dossier':
                     $student['da'] = trim(str_replace(' ', '', $value));
@@ -1212,6 +1212,15 @@ class lCapsule {
                             );
 
                             if (count($class['hours']) == 2) {
+                                if (strpos($class['hours'][0], ':50')) {
+                                    $class['hours'][0] = substr($class['hours'][0], 0, strpos($class['hours'][0], ':'));
+                                    $class['hours'][0]++;
+                                }
+                                if (strpos($class['hours'][1], ':50')) {
+                                    $class['hours'][1] = substr($class['hours'][1], 0, strpos($class['hours'][1], ':'));
+                                    $class['hours'][1]++;
+                                }
+
                                 $class['hour_start'] = str_replace(':00', '', str_replace(':30', '.5', str_replace(':20', '.5', $class['hours'][0])));
                                 $class['hour_end'] = str_replace(':00', '', str_replace(':30', '.5', str_replace(':20', '.5', $class['hours'][1])));
                             } else {

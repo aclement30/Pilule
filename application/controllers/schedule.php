@@ -4,6 +4,7 @@ class Schedule extends CI_Controller {
 	var $mobile = 0;
 	var $user;
     var $_source;
+    var $debug = false;
 
 	function Schedule() {
 		parent::__construct();
@@ -75,6 +76,9 @@ class Schedule extends CI_Controller {
 
         $startDate = date('Ymd', time()+3600*24*365);
 
+        // Calcul du nombre de cours à distance
+        $other_courses = 0;
+
         if (!empty($data['semesters'])) {
             $weekdays = array("L"=>0,"M"=>1,"R"=>2,"J"=>3,"V"=>4,"S"=>5);
             $sectors = array(
@@ -127,7 +131,10 @@ class Schedule extends CI_Controller {
             );
 
             foreach($data['classes'] as $class) {
-                if (empty($class['day'])) continue;
+                if (empty($class['day'])) {
+                    $other_courses++;
+                    continue;
+                }
 
                 // Vérification que la session commence avant le 1er jour du cours
                 if (($weekdays[$class['day']]+1) < date('N', mktime(floor($class['hour_start']), 0, 0, substr($class['date_start'], 4, 2), substr($class['date_start'], 6, 2), substr($class['date_start'], 0, 4)))) {
@@ -142,7 +149,7 @@ class Schedule extends CI_Controller {
 
                 while ($currentDay < $lastDay) {
                     if ($currentDay > $lastDay) break;
-                    // Check if currentDay is not a holidays
+                    // Check if currentDay is not a holiday
                     $holiday = false;
 
                     foreach ($holidays as $name => $range) {
@@ -162,14 +169,18 @@ class Schedule extends CI_Controller {
                         if ($endTime < 10) $endTime = "0".$endTime;
                         $endTime .= ':' . (ceil($class['hour_end'])-$class['hour_end'])*60;
 
-                        $local = $class['location'];
-                        $sector = substr($local, 0, strrpos($local, ' '));
-                        $local_number = substr($local, strrpos($local, ' ')+1);
+                        if (!empty($class['location'])) {
+                            $local = $class['location'];
+                            $sector = substr($local, 0, strrpos($local, ' '));
+                            $local_number = substr($local, strrpos($local, ' ')+1);
 
-                        if (array_key_exists($sector, $sectors)) {
-                            $location = $sectors[$sector]." ".$local_number;
+                            if (array_key_exists($sector, $sectors)) {
+                                $location = $sectors[$sector]." ".$local_number;
+                            } else {
+                                $location = $sector.", local ".$local_number;
+                            }
                         } else {
-                            $location = $sector.", local ".$local_number;
+                            $location = '';
                         }
 
                         $eventTitle = $class['title'];
@@ -177,7 +188,7 @@ class Schedule extends CI_Controller {
                     {
                     title:  '<?php echo addslashes($eventTitle); ?>',
                     code:   '<strong><?php echo $class['code']; ?></strong>',
-                    location:    '<div style="margin-top: 5px;"><i class="icon-map-marker icon-white"></i> <span title="<?php echo addslashes($class['location']); ?>"><?php echo $location; ?></span></div><div style="margin-bottom: 5px; margin-top:  5px;"><i class="icon-user icon-white"></i> <span><?php echo addslashes($class['teacher']); ?></span></div>',
+                    location:    '<?php if (!empty($location)) { ?><div style="margin-top: 5px;"><i class="icon-map-marker icon-white"></i> <span title="<?php echo addslashes($class['location']); ?>"><?php echo $location; ?></span></div><?php } ?><div style="margin-bottom: 5px; margin-top:  5px;"><i class="icon-user icon-white"></i> <span><?php echo addslashes($class['teacher']); ?></span></div>',
                     start:  '<?php echo date('Y-m-d', $currentDay).' '.$startTime; ?>:00',
                     end:    '<?php echo date('Y-m-d', $currentDay).' '.$endTime; ?>:00',
                     allDay: false
@@ -250,13 +261,18 @@ class Schedule extends CI_Controller {
          setTimeout(displayCalendar, 100);
 EOT;
 
+            // Si aucun cours à distance pour la session, on masque la colonne de droite
+            if ($other_courses == 0) {
+                $code .= "$('.widget-content .panel-right').hide();$('.widget-content .panel-left').css('width', '100%');";
+            }
+
             // Chargement de la page
             respond(array(
                 'title'         =>  'Horaire de cours',
                 'content'       =>  $this->load->view('schedule/timetable', $data, true),
                 'code'          =>  $code,
                 'timestamp'     =>  time_ago($last_request['timestamp']),
-                'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay)) ? 'schedule': false,
+                'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay) && (!$this->debug)) ? 'schedule': false,
                 'breadcrumb'    =>  array(
                     array(
                         'url'   =>  '#!/dashboard',

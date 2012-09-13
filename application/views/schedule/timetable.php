@@ -1,3 +1,4 @@
+<div class="alert alert-info" style="display: none; margin-top: 20px; margin-bottom: 0px;">Nous avons actuellement quelques soucis avec l'affichage de l'horaire et nous sommes en train de travailler à résoudre le problème.<br />Si vous avez un problème avec votre horaire, merci de nous envoyer une capture d'écran et votre IDUL à l'adresse <a href="mailto:pilule@alexandreclement.com" style="font-weight: bold;">pilule@alexandreclement.com</a>.</div>
 <div class="row-fluid" style="margin-top: 5px;">
     <div class="span12">
         <div class="widget-box">
