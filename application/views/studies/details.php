@@ -1,3 +1,7 @@
+<div class="row-fluid">
+    <div class="request-description">Données extraites du système de gestion des études de l'Université Laval, le <?php echo date('d/m/Y, à H:i', $last_request['timestamp']); ?>.</div>
+</div>
+
 <?php
 if (count($programs) > 1) { ?>
     <p style="margin-top: 20px; margin-bottom: 0px; text-align: right;">Programme : <select onchange="javascript:app.studies.displayProgramPanel(this.options[this.selectedIndex].value);">

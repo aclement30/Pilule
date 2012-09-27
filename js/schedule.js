@@ -2,8 +2,20 @@ var schedule = {
     controllerURL: './schedule/',
     object:        'schedule',
 
+    // Affichage de l'horaire de cours pour un semestre
     displaySemester: function (semester) {
         document.location.hash = '#!/schedule/'+semester;
+    },
+
+    // Téléchargement de l'horaire au format iCal
+    download: function (semester) {
+        // Notification à Google Analytics d'un téléchargement de l'horaire
+        _gaq.push(['_trackEvent', 'Schedule', 'Download', 'Téléchargement de l\'horaire']);
+
+        $('#frame').attr('src', './schedule/ical_download/'+semester);
+        $('#frame').load(function() {
+            //alert('calendar loaded');
+        });
     }
 }
 

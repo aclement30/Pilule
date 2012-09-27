@@ -6,6 +6,9 @@ var cache = {
 
     // Fonction d'ajout d'éléments à recharger depuis Capsule à la file d'attente
     reloadData: function ( params ) {
+        // Vérification de la disponibilité de Capsule
+        if ( app.isCapsuleOffline ) return ( false );
+
         if ($.isArray(params)) {
             $.each(params, function(key, value) {
                 app.cache.loadingQueue.push(value);
@@ -20,13 +23,17 @@ var cache = {
     loadData: function () {
         this.isLoading = true;
 
+        // Notification à Google Analytics d'une demande d'actualisation des données par l'utilisateur
+        if (this.loadingQueue[0].auto != 1) _gaq.push(['_trackEvent', 'Cache', 'Reload', this.loadingQueue[0].name]);
+
         // Affichage du symbole de chargement sur le bouton Actualiser
         $('.action-buttons .btn-refresh i').hide();
         $('.action-buttons .btn-refresh img').fadeIn();
         $('.action-buttons .btn-refresh').parent().attr('title', 'Actualisation des données en cours');
-        $('#content-header .timestamp').hide();
+        $('.action-buttons .timestamp').hide();
         $('#content-header .loading-status').removeClass('error').html('Actualisation des données en cours').fadeIn();
 
+        // Définition du callback
         this.reloadCallback = this.loadingQueue[0].callback;
 
         ajax.request({

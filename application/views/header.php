@@ -20,9 +20,10 @@
     <link rel="stylesheet" href="./css/unicorn.main.css" />
     <link rel="stylesheet" href="./css/unicorn.grey.css" class="skin-color" />
     <link rel="stylesheet" href="./css/fullcalendar.print.css" media="print" />
-    <link rel="stylesheet" href="./css/pilule.css" />
+    <link rel="stylesheet" href="./css/pilule.css?v=2.01" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
-    <script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+    <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
     <script type="text/javascript">
 
       var _gaq = _gaq || [];
@@ -35,6 +36,7 @@
         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
       })();
 
+      <?php if (isset($_GET['debug']) and $_GET['debug'] == 1) echo 'var debug = 1;'; else echo 'var debug=0;'; ?>
     </script>
 </head>
 
@@ -57,11 +59,13 @@ if (!empty($user)) { ?>
         <li class="link-settings"><a title="" href="#!/settings"><i class="icon icon-cog"></i> <span class="text">Préférences</span></a></li>
         <li><a title="" href="./logout"><i class="icon icon-off"></i> <span class="text">Déconnexion</span></a></li>
     </ul>
+    <ul class="nav btn-group external-frame">
+        <li><a title="Revenir au site de Pilule" href="javascript:app.closeExternalFrame();"><i class="icon icon-arrow-left"></i> <span class="text">Revenir à Pilule</span></a></li>
+    </ul>
 </div>
 
 <div id="sidebar">
-    <a href="#!/dashboard" class="visible-phone"><i class="icon icon-home"></i> Dashboard</a>
-    <ul class="nav">
+    <ul class="nav" style="border-bottom: 0px; margin-bottom: 0px;">
         <li class="active link-dashboard"><a href="#!/dashboard"><i class="icon icon-home"></i> <span>Tableau de bord</span></a></li>
         <li class="submenu link-studies">
             <a href="#!/studies"><i class="icon icon-folder-open"></i> <span>Dossier scolaire</span><span class="label"><i class="icon-chevron-down icon-white" style="margin:  0px;"></i></span></a>
@@ -81,6 +85,11 @@ if (!empty($user)) { ?>
         <?php if (isset($user) and $user['admin']) { ?>
         <li class="link-admin"><a href="#!/admin"><i class="icon icon-briefcase"></i> <span>Administration</span></a></li>
         <?php } ?>
+        <li style="height: 10px;">&nbsp;</li>
+        <li id="notifications"><div class="alert alert-warning">
+            <h4>Frais de scolarité</h4>
+            L’Université Laval attend les instructions du ministère de l’Éducation concernant la tarification des droits de scolarité pour la session d’automne 2012. L’émission des factures ainsi que la date limite de paiement sont retardées pour le moment.
+        </div></li>
     </ul>
 </div>
 
@@ -88,7 +97,7 @@ if (!empty($user)) { ?>
 
 <div id="sidebar">
     <a href="#!/dashboard" class="visible-phone"><i class="icon icon-home"></i> Dashboard</a>
-        <ul class="nav">
+    <ul class="nav">
         <li class="link-dashboard"><a href="/login"><i class="icon icon-home"></i> <span>Tableau de bord</span></a></li>
         <li class="submenu active open link-support">
             <a href="/support/terms"><i class="icon icon-folder-open"></i> <span>Support</span><span class="label"><i class="icon-chevron-down icon-white" style="margin:  0px;"></i></span></a>

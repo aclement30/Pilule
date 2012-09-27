@@ -21,9 +21,9 @@
 </head>
 
 <body>
-<div style="padding: 20px; margin: 100px auto; background-color: #efefef; text-align: center; border-radius: 10px; -moz-border-radius: 10px; width: 400px; font-family: Helvetica, Arial; font-size: 10pt;">
+<div style="padding: 20px; margin: 100px auto; margin-top: 20%; background-color: #efefef; text-align: center; border-radius: 10px; -moz-border-radius: 10px; width: 400px; font-family: Helvetica, Arial; font-size: 10pt;">
 <?php if ($user['idul'] == 'demo') { ?><div style="margin-bottom: 25px; color: red;">La connexion automatique n'est pas<br /> disponible pour la version démo.</div><?php } ?>
-<div style="margin-bottom: 20px; margin-top: 10px;"><img src="./img/redirect-loading.gif" alt="Chargement" /></div><strong>Redirection vers Exchange...</strong></div>
+<div style="margin-bottom: 20px; margin-top: 10px;"><img src="./img/redirect-loading.gif" alt="Chargement" /></div><strong>Ouverture de Exchange...</strong></div>
 <form id="login-form" action="https://exchange.ulaval.ca/exchweb/bin/auth/owaauth.dll" method="post">
 <input type="hidden" name="destination" value="https://exchange.ulaval.ca/exchange/" />
 <input type="hidden" name="flags" value="0" />

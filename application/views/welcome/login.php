@@ -89,6 +89,7 @@
 <!-- JavaScript includes -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script src="<?php echo site_url(); ?>js/jquery-ui-1.8.23.custom.min.js"></script>
+<script src="<?php echo site_url(); ?>js/pilule.js"></script>
 <script src="<?php echo site_url(); ?>js/users.js"></script>
 <script src="<?php echo site_url(); ?>js/cache.js"></script>
 <script src="<?php echo site_url(); ?>js/login.js"></script>

@@ -91,6 +91,8 @@ $(document).ready(function(){
         {
             $('#user-nav > ul').css({width:'auto',margin:'0'});
         }
+
+        app.resizeExternalFrame();
     });
 
     if($(window).width() < 468)
@@ -145,6 +147,7 @@ $(document).ready(function(){
         $(this).addClass('active');
     });
 
+
     if (!login) {
         Path.map("#!/dashboard").to(function(){
             var active = $('.nav li.active')[0];
@@ -152,6 +155,14 @@ $(document).ready(function(){
             $('.nav .link-dashboard').addClass('active');
 
             loadContent('/welcome/dashboard');
+        }).enter(clearPanel);
+
+        Path.map("#!/dashboard/edit").to(function(){
+            var active = $('.nav li.active')[0];
+            $(active).removeClass('active');
+            $('.nav .link-dashboard').addClass('active');
+
+            loadContent('/welcome/dashboard_edit');
         }).enter(clearPanel);
 
         Path.map("#!/studies").to(function(){
@@ -338,23 +349,56 @@ function displayActionButtons ( items ) {
     var buttons = '';
 
     $.each(items, function(index, value) {
-        if (value.type) {
-            switch (value.type) {
-                case 'refresh':
-                    value.title = '<div class="btn-refresh"><i class="icon-refresh"></i><img src="./img/loading-btn.gif" style="position: relative; height:  14px; top: -3px;" /></div>';
-                    break;
-            }
-        }
+        if (value) {
+            var tooltipData = false;
 
-        buttons += '<a class="btn btn-large';
-        if (value.tip) buttons += ' tip-left';
-        buttons += '" href="javascript:' + value.action + '"';
-        if (value.tip) buttons += ' rel="tooltip" title="' + value.tip + '"';
-        buttons += '>' + value.title + '</a>';
+            if (value.type) {
+                switch (value.type) {
+                    case 'refresh':
+                        // Vérification de la disponibilité de Capsule
+                        if (app.isCapsuleOffline) return true;
+
+                        value.title = '<div class="btn-refresh"><i class="icon-refresh"></i><img src="./img/loading-btn.gif" style="position: relative; height:  14px; top: -3px;" /></div>';
+                        value.tip = 'Actualiser les données';
+                        break;
+                    case 'print':
+                        value.title = '<div><i class="icon-print"></i></div>';
+                        value.tip = 'Imprimer la page';
+                        break;
+                    case 'download':
+                        value.title = '<div><i class="icon-download-alt"></i></div>';
+                        break;
+                    case 'edit':
+                        value.title = '<div><i class="icon-pencil"></i></div>';
+                        break;
+                    case 'share':
+                        value.title = '<div><i class="icon-share-alt"></i></div>';
+                        break;
+                    case 'save':
+                        value.title = '<div><i class="icon-ok"></i></div>';
+                        break;
+                }
+            }
+
+            buttons += '<a class="btn btn-large';
+            if (value.tip) buttons += '';
+            buttons += '" href="javascript:' + value.action + '"';
+            if (tooltipData) buttons += ' tip-left';
+            if (value.tip) {
+                if (index == (items.length-1)) {
+                    buttons += ' data-placement="left"';
+                } else {
+                    buttons += ' data-placement="bottom"';
+                }
+                buttons += ' data-title="' + value.tip + '"';
+            }
+            buttons += '>' + value.title + '</a>';
+        }
     });
 
     $('.action-buttons .buttons').html(buttons);
     $('.action-buttons .buttons').show();
+    $('.action-buttons .buttons a').tooltip();
 }
 
 function displayBreadcrumb ( pages ) {
@@ -386,6 +430,7 @@ function fixLayout (){
 
 var isMobile = 0;
 var pageRefresh = false;
+var loadContentCallback = null;
 
 function loadContent(url, pageRefreshEffect) {
     if (pageRefreshEffect) pageRefresh = true;
@@ -433,6 +478,8 @@ function loadContent(url, pageRefreshEffect) {
                 if (response.reloadData) app.cache.reloadData([{name: response.reloadData, auto: 1}]);
 
                 // S'il y a lieu, exécuter le code JS
+                if (debug == 1) alert(response.content);
+                if (debug == 1) alert(response.code);
                 if (response.code) eval(response.code);
 
                 // Affichage du timestamp des données
@@ -452,6 +499,12 @@ function loadContent(url, pageRefreshEffect) {
                     pageRefresh = false;
                 } else {
                     fixLayout();
+                }
+
+                // Si un callback a été défini par Javascript, exécution du callback
+                if (loadContentCallback) {
+                    (loadContentCallback)();
+                    loadContentCallback = null;
                 }
 
                 if(typeof _gaq !== 'undefined')

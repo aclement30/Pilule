@@ -1,3 +1,7 @@
+<div class="row-fluid">
+    <div class="request-description">Données extraites du système de gestion des études de l'Université Laval, le <?php echo date('d/m/Y, à H:i', $last_request['timestamp']); ?>.</div>
+</div>
+
 <div class="row-fluid" style="margin-top: 20px;">
     <div class="btn-group" style="float: right;">
         <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">

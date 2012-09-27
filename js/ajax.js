@@ -26,9 +26,13 @@ var ajax = {
 			// Define AJAX URL
 			p.url = p.controller + p.method;
 		}
-		
-		p.data._source = 'ajax';
-		
+
+        if (p.data != null) {
+		    p.data._source = 'ajax';
+        } else {
+            p.data = { _source : 'ajax' };
+        }
+
 		loadingDisplayTimeout = setTimeout("loading('Ouverture de la page...');", 2000);
 		
 		$.ajax({

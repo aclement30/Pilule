@@ -701,7 +701,7 @@ class lCapsule {
                 $md5 = md5(serialize($tables));
                 if ($this->CI->mCache->requestExists('studies-details-program-'.md5($program['name']), $md5)) {
                     $studies = true;
-                    $program = true;
+                    //$program = true;
                     if (!$this->forceReload) continue;
                 } else {
                     $this->CI->mCache->addRequest('studies-details-program-'.md5($program['name']), $md5);
@@ -930,7 +930,7 @@ class lCapsule {
             if (isset($row->nodes[11])) $value5 = html_entity_decode($row->nodes[11]->text());
             switch ($name) {
                 case 'Jour de naissance':
-                    $student['birthday'] = utf8_encode(trim(strtolower($value)));
+                    $student['birthday'] = str_replace('É', 'é', str_replace('È', 'è', str_replace('Û', 'û', utf8_encode(trim(strtolower($value))))));
                     break;
                 case 'No de dossier':
                     $student['da'] = trim(str_replace(' ', '', $value));

@@ -73,6 +73,9 @@ class Studies extends CI_Controller {
         }
 
         if (!empty($data['programs'])) {
+            // Ajout des données de la dernière requête Capsule
+            $data['last_request'] = $last_request;
+
             respond(array(
                 'title'         =>  'Programme d\'études',
                 'content'       =>  $this->load->view('studies/summary', $data, true),
@@ -92,6 +95,10 @@ class Studies extends CI_Controller {
                     array(
                         'action'=>  "app.cache.reloadData({name: 'studies', auto: 0});",
                         'type'  =>  'refresh'
+                    ),
+                    array(
+                        'action'=>  "window.print();",
+                        'type'  =>  'print'
                     )
                 )
             ));
@@ -253,6 +260,10 @@ EOD;
                 $code = "$('.chart').parent().hide();";
             }
 
+            // Ajout des données de la dernière requête Capsule
+            $data['last_request'] = $last_request;
+
+
             // Chargement de la page
             respond(array(
                 'title'         =>  'Rapport de cheminement',
@@ -278,6 +289,10 @@ EOD;
                     array(
                         'action'=>  "app.cache.reloadData({name: 'studies-details', auto: 0});",
                         'type'  =>  'refresh'
+                    ),
+                    array(
+                        'action'=>  "window.print();",
+                        'type'  =>  'print'
                     )
                 )
             ));
@@ -369,33 +384,71 @@ EOD;
             $semester['courses'] = $this->mStudies->getReportCourses(array('semester_id' => $semester['id']));
         }
 
-        // Chargement de la page
-        respond(array(
-            'title'         =>  'Relevé de notes',
-            'content'       =>  $this->load->view('studies/report', $data, true),
-            'timestamp'     =>  time_ago($last_request['timestamp']),
-            'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay) && (!$this->debug)) ? 'studies-report': false,
-            'breadcrumb'=>  array(
-                array(
-                    'url'   =>  '#!/dashboard',
-                    'title' =>  'Tableau de bord'
+        if ((!empty($data['semesters'])) or (!empty($data['admitted_sections']))) {
+            // Ajout des données de la dernière requête Capsule
+            $data['last_request'] = $last_request;
+
+            // Chargement de la page
+            respond(array(
+                'title'         =>  'Relevé de notes',
+                'content'       =>  $this->load->view('studies/report', $data, true),
+                'timestamp'     =>  time_ago($last_request['timestamp']),
+                'reloadData'    =>  ($last_request['timestamp'] < (time()-$this->mUser->expirationDelay) && (!$this->debug)) ? 'studies-report': false,
+                'breadcrumb'=>  array(
+                    array(
+                        'url'   =>  '#!/dashboard',
+                        'title' =>  'Tableau de bord'
+                    ),
+                    array(
+                        'url'   =>  '#!/studies',
+                        'title' =>  'Dossier scolaire'
+                    ),
+                    array(
+                        'url'   =>  '#!/studies/report',
+                        'title' =>  'Relevé de notes'
+                    )
                 ),
-                array(
-                    'url'   =>  '#!/studies',
-                    'title' =>  'Dossier scolaire'
+                'buttons'       =>  array(
+                    array(
+                        'action'=>  "app.cache.reloadData({name: 'studies-report', auto: 0});",
+                        'type'  =>  'refresh'
+                    ),
+                    array(
+                        'action'=>  "window.print();",
+                        'type'  =>  'print'
+                    )
+                )
+            ));
+        } else {
+            // Aucune données n'existe pour cette page
+            respond(array(
+                'title'         =>  'Relevé de notes',
+                'content'       =>  $this->load->view('errors/no-data', $data, true),
+                'timestamp'     =>  time_ago($last_request['timestamp']),
+                'breadcrumb'    =>  array(
+                    array(
+                        'url'   =>  '#!/dashboard',
+                        'title' =>  'Tableau de bord'
+                    ),
+                    array(
+                        'url'   =>  '#!/studies',
+                        'title' =>  'Dossier scolaire'
+                    ),
+                    array(
+                        'url'   =>  '#!/studies/report',
+                        'title' =>  'Relevé de notes'
+                    )
                 ),
-                array(
-                    'url'   =>  '#!/studies/report',
-                    'title' =>  'Relevé de notes'
+                'buttons'       =>  array(
+                    array(
+                        'action'=>  "app.cache.reloadData({name: 'studies-report', auto: 0});",
+                        'type'  =>  'refresh'
+                    )
                 )
-            ),
-            'buttons'       =>  array(
-                array(
-                    'action'=>  "app.cache.reloadData({name: 'studies-report', auto: 0});",
-                    'type'  =>  'refresh'
-                )
-            )
-        ));
+            ));
+
+            return (true);
+        }
     }
 }
 

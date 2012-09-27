@@ -116,12 +116,27 @@
                 </div>
             </div>
         </div>
+        <div class="row-fluid" style="display: none;">
+            <div class="span12">
+                <div class="widget-box" style="margin-bottom: 0px;">
+                    <div class="widget-title">
+                                    <span class="icon">
+                                        <strong>7</strong>
+                                    </span>
+                        <h5><a name="faq7">Comment fonctionne le partage d'horaire ?</a></h5>
+                    </div>
+                    <div class="widget-content">
+                        <p>La fonction Partage d'horaire permet de partager son horaire de cours avec d'autres personnes. Pour ce faire, Pilule crée une adresse URL de partage unique qui permet aux personnes externes d'accéder à l'horaire de la session partagée.<br />Cette fonction peut être désactivée à tout moment, ce qui invalide automatiquement tout lien de partage.<br />Note : une adresse URL de partage ne donne accès qu'à la page sur laquelle elle est affichée et ne permet pas à une autre personne d'accéder aux horaires des autres sessions ou aux informations confidentielles de l'utilisateur (dossier scolaire, frais de scolarité, etc).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="row-fluid">
             <div class="span12">
                 <div class="widget-box" style="margin-bottom: 0px;">
                     <div class="widget-title">
                                         <span class="icon">
-                                            <strong>7</strong>
+                                            <strong>8</strong>
                                         </span>
                         <h5>Quel est le lien entre l'Université Laval, Capsule et le site Web Pilule ?</h5>
                     </div>

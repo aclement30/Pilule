@@ -2,7 +2,7 @@ body {
     margin: 0px;
 }
 
-#header, #user-nav, #sidebar, .footer, #breadcrumb, .btn-group.action-buttons .buttons, .no-print {
+#header, #user-nav, #sidebar, .footer, #breadcrumb, .btn-group.action-buttons .buttons, .no-print, .widget-box .widget-title .icon {
     display: none!important;
 }
 
@@ -23,4 +23,8 @@ th.course-code {
 
 .widget-content .panel-left {
     width: 100%;
+}
+
+.request-description {
+    display: block;
 }

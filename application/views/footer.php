@@ -17,28 +17,38 @@
     </div>
 </div>
     <script type='text/javascript' src="<?php echo site_url(); ?>js/bootstrap.min.js"></script>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/users.js"></script>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/studies.js"></script>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/tuitions.js"></script>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/settings.js"></script>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/schedule.js"></script>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/cache.js"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/bootstrap-tooltip.js"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/pilule.js?ver=2.0.1"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/users.js?ver=2.0.1"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/studies.js?ver=2.0.1"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/tuitions.js?ver=2.0.1"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/settings.js?ver=2.0.1"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/dashboard.js?ver=2.0.1"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/schedule.js?ver=2.0.1"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/cache.js?ver=2.0.1"></script>
     <?php if (!isset($user)) { ?>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/login.js"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/login.js?ver=2.0.1"></script>
     <?php } ?>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/main.js"></script>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/ajax.js"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/main.js?ver=2.0.1"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/ajax.js?ver=2.0.1"></script>
     <script type='text/javascript' src="<?php echo site_url(); ?>js/path.min.js"></script>
     <script type='text/javascript' src="<?php echo site_url(); ?>js/fullcalendar.min.js"></script>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/gcal.js"></script>
     <script type='text/javascript' src="<?php echo site_url(); ?>js/jquery.flot.min.js"></script>
     <script type='text/javascript' src="<?php echo site_url(); ?>js/jquery.flot.pie.min.js"></script>
     <script type='text/javascript' src="<?php echo site_url(); ?>js/jquery.flot.resize.min.js"></script>
 	<script language="javascript">
 	$(document).ready(function() {
+        // Définition du statut connecté de l'utilisateur
         app.user.isAuthenticated = true;
-		//$('<iframe id="report-frame" name="report-frame" frameborder="0" src="blank.html" style="width: 0px; height: 0px;">').appendTo('body');
-	});
+
+        // Définition de la disponibilité de Capsule
+        app.isCapsuleOffline = <?php echo $capsule_offline; ?>;
+
+        // Création d'un iframe invisible pour ouvrir des pages en arrière-plan
+        $('<iframe id="frame" name="frame" frameborder="0" src="blank.html" style="width: 0px; height: 0px;">').appendTo('#sidebar');
+        $('<iframe id="external-frame" name="external-frame" frameborder="0" src="blank.html" style="width: 0px; height: 0px;">').appendTo('body');
+        app.resizeExternalFrame();
+    });
 	</script>
 </body>
 </html>

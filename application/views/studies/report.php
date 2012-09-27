@@ -1,4 +1,7 @@
 <div class="row-fluid">
+    <div class="request-description">Données extraites du système de gestion des études de l'Université Laval, le <?php echo date('d/m/Y, à H:i', $last_request['timestamp']); ?>.</div>
+</div>
+<div class="row-fluid">
 
 <div class="span6">
     <div class="widget-box" style="margin-bottom: 0px;">

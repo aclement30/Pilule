@@ -151,21 +151,23 @@ class Cache extends CI_Controller {
                         $this->mStudies->deleteProgramSections($program['id']);
                         $this->mStudies->deleteProgramCourses($program['id']);
 
-                        foreach ($program['sections'] as $section) {
-                            $courses = $section['courses'];
-                            unset($section['courses']);
-                            $section['number'] = $section_number;
-                            $section['program_id'] = $program['id'];
+                        if (isset($program['sections'])) {
+                            foreach ($program['sections'] as $section) {
+                                $courses = $section['courses'];
+                                unset($section['courses']);
+                                $section['number'] = $section_number;
+                                $section['program_id'] = $program['id'];
 
-                            // Enregistrement de la section
-                            $section_id = $this->mStudies->addProgramSection($section);
-                            foreach ($courses as $course) {
-                                $course['program_id'] = $program['id'];
-                                $course['section_id'] = $section_id;
-                                $this->mStudies->addProgramCourse($course);
+                                // Enregistrement de la section
+                                $section_id = $this->mStudies->addProgramSection($section);
+                                foreach ($courses as $course) {
+                                    $course['program_id'] = $program['id'];
+                                    $course['section_id'] = $section_id;
+                                    $this->mStudies->addProgramCourse($course);
+                                }
+
+                                $section_number++;
                             }
-
-                            $section_number++;
                         }
 
                         unset($program['sections']);
@@ -273,7 +275,6 @@ class Cache extends CI_Controller {
                             foreach($classes as $class) {
                                 $class['semester'] = $semester;
                                 $class['nrc'] = $course['nrc'];
-                                error_log(print_r($class, true));
                                 $this->mSchedule->addClass($class);
                             }
                         }

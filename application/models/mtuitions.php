@@ -8,7 +8,7 @@ class mTuitions extends CI_Model {
     // Ajout d'un semestre à l'utilisateur
     function addSemester ($semester) {
         if (!array_key_exists('idul', $semester)) $semester['idul'] = $this->session->userdata('pilule_user');
-        if (is_array($semester['fees'])) $semester['fees'] = serialize($semester['fees']);
+        if (array_key_exists('fees', $semester) and is_array($semester['fees'])) $semester['fees'] = serialize($semester['fees']);
         if ($this->db->insert('stu_tuitions_semesters', $semester)) {
             return ($this->db->insert_id());
         } else {

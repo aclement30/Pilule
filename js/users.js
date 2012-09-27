@@ -96,13 +96,6 @@ var user = {
     }
 }
 
-function addChild(ob, childName, childOb) {
-    ob[childName] = childOb;
-    childOb.parent = ob;
-}
-
-var app = {};
-
 addChild(app, 'users', users);
 addChild(app, 'user', user);
 

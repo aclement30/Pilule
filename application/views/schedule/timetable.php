@@ -1,4 +1,16 @@
-<div class="alert alert-info" style="display: none; margin-top: 20px; margin-bottom: 0px;">Nous avons actuellement quelques soucis avec l'affichage de l'horaire et nous sommes en train de travailler à résoudre le problème.<br />Si vous avez un problème avec votre horaire, merci de nous envoyer une capture d'écran et votre IDUL à l'adresse <a href="mailto:pilule@alexandreclement.com" style="font-weight: bold;">pilule@alexandreclement.com</a>.</div>
+<div class="row-fluid">
+    <div class="request-description">Données extraites du système de gestion des études de l'Université Laval, le <?php echo date('d/m/Y, à H:i', $last_request['timestamp']); ?>.</div>
+</div>
+<?php
+/*
+?>
+<div class="alert alert-info sharing-notice">
+    <div style="float: left;">L'horaire de cette session est disponible à l'adresse suivante :
+    <input type="text" value="<?php echo site_url(); ?>public/t/3472n28h26G362HSG26U" /></div>
+    <div style="float: right;"><a href="javascript:app.schedule.share('<?php echo $semester_date; ?>',false);" class="btn btn-danger"><i class="icon-remove icon-white"></i> Annuler</a> <a href="<?php echo site_url(); ?>support/faq/#faq7" class="btn"><i class="icon-info-sign"></i> Aide</a></div>
+    <div style="clear: both;"></div>
+</div>
+<?php */ ?>
 <div class="row-fluid" style="margin-top: 5px;">
     <div class="span12">
         <div class="widget-box">

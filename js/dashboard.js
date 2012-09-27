@@ -1,4 +1,6 @@
 var dashboard = {
+    controllerURL:  './welcome/',
+
     goTo: function (moduleName) {
         document.location.hash = $('#module-'+moduleName+'-action').val();
     },
@@ -10,81 +12,68 @@ var dashboard = {
     edit: function () {
         loading();
 
-        !sendData('GET','./welcome/s_getAvailableModules', '');
+        // Notification à Google Analytics d'une modification du Tableau de bord
+        _gaq.push(['_trackEvent', 'Dashboard', 'Edit', 'Modification du Tableau de bord']);
+
+        $('.action-buttons .buttons a').tooltip('hide');
+
+        // Affichage de la page de modification du tableau de bord
+        document.location.hash = '#!/dashboard/edit';
     },
-    saveModules: function () {
-        var modules_list = '';
+    save: function () {
+        loading();
 
-        // Enregistrement de la liste des modules
-        var modules = $('#modules').find('li');
+        // Affichage d'un message de notification quand la page est rechargée
+        loadContentCallback = function () { resultMessage('Les modifications au tableau de bord ont été enregistrées.'); }
 
-        $.each(modules, function(key, value) {
-            modules_list += ','+$(value).attr('id');
-        });
+        $('.action-buttons .buttons a').tooltip('hide');
 
-        !sendData('POST','./welcome/s_saveDashboard', 'modules='+encodeURIComponent(modules_list));
+        // Affichage du tableau de bord normal
+        document.location.hash = '#!/dashboard';
     },
-    unlockModules: function () {
-        // Ajout de modules
-        //$("#available-modules ul .module").draggable({ containment: $('.entry-content'), helper: 'clone', scope: 'modules', revert: 'invalid', connectToSortable: '.modules-list', opacity: 0.35});
-
-        $(".modules-list").sortable({
-            cursor: 'move',
-            containment: $('.entry-content'),
-            scope: 'modules',
-            revert: 'invalid',
-            connectToSortable: '.modules-list',
-            opacity: 0.35,
-            connectWith: '.modules-list',
-            placeholder: 'ui-state-highlight',
-            tolerance: 'pointer',
-            forcePlaceholderSize: true,
-            stop: function(e, ui) {
-                if (ui.item.parent().attr('id') == 'modules') {
-                    ui.item.removeClass('available');
-                    ui.item.css('backgroundColor', '#efefef');
-
-                    dashboardObj.saveModules();
-                } else {
-                    ui.item.addClass('available');
-                    ui.item.css('backgroundColor', '#fff');
+    toggleModule: function ( id ) {
+        // Si le module est déjà activé, une demande de désactivation est envoyée via AJAX
+        if ( $('#module-'+id).hasClass( 'enabled' ) ) {
+            ajax.request({
+                type:           'POST',
+                controller:     this.controllerURL,
+                method:         'ajax_toggleModule',
+                data:           {
+                    id:         id,
+                    isEnabled:  0
+                },
+                callback:       function ( response ) {
+                    if ( response.status ) {
+                        // Le module a été désactivé
+                        $('#module-'+response.id).removeClass('enabled').addClass('disabled');
+                    }
                 }
-            }
-        });
-
-        // Suppression de modules
-        //$("#modules .module").draggable({ containment: $('.entry-content'), helper: 'clone', scope: 'modules', revert: 'invalid', connectToSortable: '.modules-list'});
-
-        $( ".modules-list" ).disableSelection();
-        $( ".modules-list li" ).disableSelection();
-
-        $(".modules-list li a").css('cursor', 'move');
-        $(".modules-list li a").bind('click', function() {
-            return false;
-        });
-
-        this.editMode = 1;
+            });
+        } else {
+            ajax.request({
+                type:           'POST',
+                controller:     this.controllerURL,
+                method:         'ajax_toggleModule',
+                data:           {
+                    id:         id,
+                    isEnabled:  1
+                },
+                callback:       function ( response ) {
+                    if ( response.status ) {
+                        // Le module a été désactivé
+                        $('#module-'+response.id).removeClass('disabled').addClass('enabled');
+                    }
+                }
+            });
+        }
     },
-    lockModules: function () {
-        this.saveModules();
-
-        $('#available-modules').slideUp();
-
-        $(".modules-list").sortable( "destroy" );
-
-        $( ".modules-list" ).enableSelection();
-        $( ".modules-list li" ).enableSelection();
-
-        $(".modules-list li a").css('cursor', 'pointer');
-
-        $(".modules-list li a").unbind('click');
-
-        $('#edit-dashboard-link').show();
-
-        processLinks();
-        this.editMode = 0;
-        document.location.hash = '#!/dashboard/';
-        hash = '#!/dashboard/';
+    openExternalWebsite: function ( url )
+        {$('#header h1').addClass('small');
+        $('#sidebar').hide();
+        $('#external-frame').attr('src', url);
+        $('#user-nav .nav').hide();
+        $('#user-nav .nav.external-frame').fadeIn();
+        $('#external-frame').fadeIn();
     }
 }
 
@@ -276,3 +265,5 @@ var dashboardObj = {
 		hash = '#!/dashboard/';
 	}
 };
+
+addChild(app, 'dashboard', dashboard);

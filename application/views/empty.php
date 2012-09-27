@@ -3,7 +3,7 @@
         <h1></h1>
         <div class="btn-group action-buttons">
             <div class="buttons"></div>
-            <div class="timestamp"></div>
+            <div class="timestamp no-print"></div>
             <div class="loading-status"></div>
         </div>
     </div>

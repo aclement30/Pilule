@@ -18,6 +18,7 @@ class Welcome extends CI_Controller {
 		
 		// Chargement des modèles
 		$this->load->model('mCourses');
+        $this->load->model('mModules');
 		$this->load->model('mUser');
 		$this->load->model('mUsers');
 		
@@ -31,87 +32,86 @@ class Welcome extends CI_Controller {
 		$this->mobile = $this->lmobile->isMobile();
 	}
 
-	function s_getAvailableModules () {
-		$data['user'] = $this->user;
-		
-		// Sélection des données des études
-		$data['studies'] = $this->mUser->getStudies();
-		
-		$modules = $this->mUser->getModules();
-		if ($modules == array()) {
-			// Chargement des modules par défaut
-			$data['modules'] = $this->mUsers->getDashboardModules();
-		} else {
-			$data['modules'] = array();
-			foreach ($modules as $module) {
-				$module2 = $this->mUsers->getDashboardModule($module['module']);
-				
-				unset($module['order']);
-				unset($module['idul']);
-				
-				$data['modules'][] = array_merge($module, $module2);
-			}
-		}
-		
-		$data['dashboard_modules'] = $this->mUsers->getDashboardModules(false);
-		
-		$content = str_replace("\n", "", str_replace("\r", "", $this->load->view('welcome/available-modules', $data, true)));
-		
-		?>$('#available-modules').html("<?php echo addslashes($content); ?>");$('#available-modules').slideDown();dashboardObj.unlockModules();stopLoading();$('#edit-dashboard-link').hide();<?php
-	}
-	
-	function s_saveDashboard() {
-		$modules = explode(',', substr(urldecode($this->input->post('modules')), 1));
-		
-		$this->mUser->updateModules($modules);
-	}
-	
-	function s_addRegistrationModule() {
-		$user = $this->user;
-		if ($user['registration'] == 1) {
-			$modules = $this->mUser->getModules();
-			
-			$modules_list = array();
-			$found = 0;
-			foreach ($modules as $module) {
-				$modules_list[] = 'box-'.$module['module'];
-				if ($module['module'] == 'registration') {
-					$found = 1;
-				}
-			}
-			
-			if ($found == 0) $modules_list[] = 'box-registration';
-			
-			$this->mUser->updateModules($modules_list);
-			
-			ob_start();
-			
-			$module = $this->mUsers->getDashboardModule('registration');
-			
-			?><li id="box-<?php echo $module['id']; ?>" class="module" style="display: none;" onMouseOver="javascript:mouseOver('<?php echo $module['id']; ?>', 1);" onMouseOut="javascript:mouseOver('<?php echo $module['id']; ?>', 2);">
-<a href="<?php echo $module['url']; ?>"<?php if (isset($module['target'])) echo ' target="'.$module['target'].'"'; ?> class="img-link"><img src="<?php echo site_url(); ?>images/<?php echo $module['icon']; ?>" /></a>
-<div class="title"><a href='<?php if (substr($module['url'], 0, 4)!='http') echo site_url(); echo $module['url']; ?>'><?php echo $module['description']; ?></a></div></li><?php
+	function dashboard_edit () {
+        $data = array(
+            'user'              =>  $this->mUser->info(),
+            'mobile_browser'    =>  $this->mobile,
+            'capsule_offline'   =>  ($this->session->userdata('capsule_offline') == 'yes') ? true: false
+        );
 
-			$content = str_replace("\n", "", str_replace("\r", "", ob_get_clean()));
-			
-			?>$('#modules').append('<?php echo addslashes($content); ?>');stopLoading();$('#box-registration').fadeIn();<?php
-		}
+        // Recherche des modules de l'utilisateur
+        $user_modules = $this->mModules->getUserModules();
+
+        // Extraction de la liste des ID des modules déjà activés
+        $data[ 'user_modules' ] = array();
+        foreach ( $user_modules as $module ) {
+            $data[ 'user_modules' ][] = $module['id'];
+        }
+
+        $data[ 'modules' ] = $this->mModules->get();
+
+        respond(array(
+            'title'     =>  'Tableau de bord',
+            'content'      =>  $this->load->view('welcome/dashboard-edit', $data, true),
+            'breadcrumb'=>  array(
+                array(
+                    'url'   =>  '#!/dashboard',
+                    'title' =>  'Tableau de bord'
+                )
+            ),
+            'buttons'       =>  array(
+                array(
+                    'action'=>  "app.dashboard.save();",
+                    'type'  =>  'save',
+                    'tip'   =>  'Enregistrer le tableau de bord'
+                )
+            )
+        ));
 	}
-	
-	
+
+    function ajax_toggleModule () {
+        $params = $this->input->post();
+
+        if ( $params[ 'isEnabled' ] == 1 ) {
+            // Ajout du module du tableau de bord
+            if ( $this->mModules->addUserModule( $params[ 'id' ] ) ) {
+                respond( array(
+                    'status'    =>  true,
+                    'id'        =>  $params[ 'id' ]
+                ));
+            } else {
+                respond( array(
+                    'status'    =>  false,
+                    'id'        =>  $params[ 'id' ]
+                ));
+            }
+        } else {
+            // Suppression du module du tableau de bord
+            if ( $this->mModules->removeUserModule( $params[ 'id' ] ) ) {
+                respond( array(
+                    'status'    =>  true,
+                    'id'        =>  $params[ 'id' ]
+                ));
+            } else {
+                respond( array(
+                    'status'    =>  false,
+                    'id'        =>  $params[ 'id' ]
+                ));
+            }
+        }
+    }
+
 	function index() {
 		$data = array(
-            'section'       =>  'welcome',
-            'user'          =>  $this->mUser->info(),
-            'mobile_browser'=>  $this->mobile
+            'section'           =>  'welcome',
+            'user'              =>  $this->mUser->info(),
+            'mobile_browser'    =>  $this->mobile,
+            'programs'          =>  $this->mStudies->getPrograms(),
+            'capsule_offline'   =>  ($this->session->userdata('capsule_offline') == 'yes') ? 'true': 'false',
         );
 
 		// Chargement de l'entête
 		if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
-
-		if ($this->session->userdata('capsule_offline') == 'yes') {
-			$data['capsule_offline'] = 1;
-		}
 
 		// Chargement de la page
 		$this->load->view('empty', $data);
@@ -123,49 +123,36 @@ class Welcome extends CI_Controller {
 	function dashboard () {
         $data = array(
             'section'           =>  'welcome',
-            'user'              =>  $this->user,
+            'user'              =>  $this->mUser->info(),
             'mobile_browser'    =>  $this->mobile,
+            'programs'          =>  $this->mStudies->getPrograms(),
             'capsule_offline'   =>  ($this->session->userdata('capsule_offline') == 'yes') ? true: false
         );
 
-		$modules = $this->mUser->getModules();
-		if ($modules == array()) {
+        // Recherche des modules de l'utilisateur
+        $data[ 'modules' ] = $this->mModules->getUserModules();
+		if ( empty( $data[ 'modules' ] ) ) {
 			// Chargement des modules par défaut
-			$data['modules'] = $this->mUsers->getDashboardModules();
-		} else {
-			// Chargement des modules de l'utilisateur
-			$data['modules'] = array();
-			foreach ($modules as $module) {
-				
-				$module2 = $this->mUsers->getDashboardModule($module['module']);
-				
-				unset($module['order']);
-				unset($module['idul']);
-				
-				$data['modules'][] = array_merge($module, $module2);
-			}
-			
-			$data['custom_dashboard'] = 1;
+			$data[ 'modules' ] = $this->mModules->get( array( 'default' => true ) );
 		}
 
 		// Affichage de la page
-        respond(array(
+        respond( array(
             'title'     =>  'Tableau de bord',
-            'content'   =>  $this->load->view('welcome/dashboard', $data, true),
+            'content'   =>  $this->load->view( 'welcome/dashboard', $data, true ),
             'breadcrumb'=>  array(
                 array(
                     'url'   =>  '#!/dashboard',
                     'title' =>  'Tableau de bord'
                 )
             ),
-            /*'buttons'       =>  array(
+            'buttons'       =>  array(
                 array(
-                    'action'=>  "app.dashboard.unlockModules();",
+                    'action'=>  "app.dashboard.edit();",
                     'type'  =>  'edit',
-                    'title' =>  '<i class="icon-pencil"></i>',
                     'tip'   =>  'Modifier le tableau de bord'
                 )
-            )*/
+            )
         ));
 	}
 

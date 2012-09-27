@@ -61,10 +61,39 @@ body {
     height: 90px;
     display: block;
     margin: 0 auto 20px;
+    border-style: dashed;
+}
+
+.quick-actions.dashboard li.disabled {
+    background-image: -webkit-gradient(linear, 0 0%, 0 100%, from(#F2DEDE), to(#EED3D7));
+    background-image: -webkit-linear-gradient(top, #F2DEDE 0%, #EED3D7 100%);
+    background-image: -moz-linear-gradient(top, #F2DEDE 0%, #EED3D7 100%);
+    background-image: -ms-linear-gradient(top, #F2DEDE 0%, #EED3D7 100%);
+    background-image: -o-linear-gradient(top, #F2DEDE 0%, #EED3D7 100%);
+    background-image: linear-gradient(top, #F2DEDE 0%, #EED3D7 100%);
+
+}
+
+.quick-actions.dashboard li.enabled {
+    background-image: -webkit-gradient(linear, 0 0%, 0 100%, from(#DFF0D8), to(#D6E9C6));
+    background-image: -webkit-linear-gradient(top, #DFF0D8 0%, #D6E9C6 100%);
+    background-image: -moz-linear-gradient(top, #DFF0D8 0%, #D6E9C6 100%);
+    background-image: -ms-linear-gradient(top, #DFF0D8 0%, #D6E9C6 100%);
+    background-image: -o-linear-gradient(top, #DFF0D8 0%, #D6E9C6 100%);
+    background-image: linear-gradient(top, #DFF0D8 0%, #D6E9C6 100%);
+}
+
+.quick-actions.dashboard li.disabled img {
+    opacity: 0.5;
+    -moz-opacity: 0.5;
 }
 
 .action-buttons .btn-refresh img {
     display: none;
+}
+
+.action-buttons a.btn {
+    margin-left: 10px;
 }
 
 #user-nav ul li a {
@@ -173,5 +202,72 @@ font-weight: bold;
 }
 
 .loading-status {
+    padding-right: 10px;
+}
+
+.request-description {
+    font-size: 7pt;
+    color: silver;
+    line-height: 12pt;
+    border: 1px dotted silver;
+    padding: 5px;
+    margin-top: 0.5cm;
+    margin-bottom: 0.3cm;
+    display: none;
+}
+
+.sharing-notice {
+    margin-bottom: 0px; margin-top: 20px;
+    padding-right: 8px;
+    padding-bottom: 5px;
+}
+
+.sharing-notice input {
+    padding: 2px 3px 0px;
+    width: 380px;
+    border: 0px;
+    margin-top: 4px;
+}
+
+.capsule-offline {
+    margin: 30px 10px 0px;
+    display: none;
+}
+
+.capsule-offline.offline {
+    display: block;
+}
+
+#external-frame {
+    background: #fff;
+    position: absolute;
+    top: 40px;
+    display: none;
+    border-top: 2px solid #444;
+}
+
+#header h1.small {
+    background-image: url(../img/logo-h1-small.png);
+    height: 40px;
+    top: 1px;
+}
+
+#user-nav {
+    right: 10px;
+}
+
+#user-nav .nav.external-frame {
+    display: none;
+}
+
+#notifications {
+    margin: 0px 10px 0;
+    border-bottom: 0px;
+}
+
+#notifications .alert h4 {
+    margin-bottom: 5px;
+}
+#notifications .alert {
     padding-right: 10px;
 }

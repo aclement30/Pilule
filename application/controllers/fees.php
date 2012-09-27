@@ -60,6 +60,10 @@ class Fees extends CI_Controller {
                     array(
                         'action'=>  "app.cache.reloadData({name: 'fees', auto: 0});",
                         'type'  =>  'refresh'
+                    ),
+                    array(
+                        'action'=>  "window.print();",
+                        'type'  =>  'print'
                     )
                 )
             ));
@@ -77,6 +81,9 @@ class Fees extends CI_Controller {
         }
 
         if (!empty($semesters)) {
+            // Ajout des données de la dernière requête Capsule
+            $data['last_request'] = $last_request;
+
             $data['summary'] = $semesters[0];
             $chart_data = array();
 
@@ -143,6 +150,10 @@ EOD;
                     array(
                         'action'=>  "app.cache.reloadData({name: 'fees', auto: 0});",
                         'type'  =>  'refresh'
+                    ),
+                    array(
+                        'action'=>  "window.print();",
+                        'type'  =>  'print'
                     )
                 )
             ));
@@ -222,6 +233,8 @@ EOD;
         $semesters = $this->mTuitions->getSemesters(array('semester' => $data['semester_date']));
 
         if (!empty($semesters)) $data['semester'] = $semesters[0];
+        // Ajout des données de la dernière requête Capsule
+        $data['last_request'] = $last_request;
 
         // Chargement de la page
         respond(array(
@@ -247,6 +260,10 @@ EOD;
                 array(
                     'action'=>  "app.cache.reloadData({name: 'fees', auto: 0});",
                     'type'  =>  'refresh'
+                ),
+                array(
+                    'action'=>  "window.print();",
+                    'type'  =>  'print'
                 )
             )
         ));
