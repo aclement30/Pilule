@@ -271,3 +271,7 @@ font-weight: bold;
 #notifications .alert {
     padding-right: 10px;
 }
+
+.semester-select {
+	margin-top: 20px;
+}

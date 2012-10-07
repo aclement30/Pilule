@@ -73,7 +73,13 @@ $(document).ready(function(){
             ul.slideDown(250);
         }
     });
-
+    
+    $( '.navbar.menu .dropdown-menu li a' ).click( function ( e ) {
+    	$('html, body').animate({scrollTop:0}, 'fast');
+	    $( '.navbar.menu .dropdown.open' ).removeClass('open');
+	    //$( '.navbar.menu .dropdown-menu' ).hide();
+    });
+    
     // === Resize window related === //
     $(window).resize(function()
     {
@@ -402,6 +408,7 @@ function displayActionButtons ( items ) {
 }
 
 function displayBreadcrumb ( pages ) {
+	if ( isMobile == 1 ) return true;
     var breadcrumb = '';
 
     $.each(pages, function(index, value) {
@@ -418,21 +425,25 @@ function displayBreadcrumb ( pages ) {
     $('#breadcrumb').show();
 }
 
-function fixLayout (){
-    if ($('#content').height() < $(window).height()) {
-        $('#content').css('minHeight', ($(window).height()-170));
+function fixLayout () {
+    if ( $( '#content' ).height() < $( window ).height() ) {
+        if ( isMobile != 1 ) {
+        	$('#content').css('minHeight', ( $( window ).height() - 170 ) );
+        } else {
+	        $('#content').css('minHeight', ( $( window ).height() - 150 ) );
+        }
     } else {
-        $('#content').css('minHeight', 'auto');
+        $( '#content' ).css( 'minHeight', 'auto' );
     }
     //$('#content').css('height',getDocHeight()-170+'px');
     //$('#sideBar').css('height',getDocHeight()-170+'px');
 }
 
-var isMobile = 0;
+var isMobile = 1;
 var pageRefresh = false;
 var loadContentCallback = null;
 
-function loadContent(url, pageRefreshEffect) {
+function loadContent( url, pageRefreshEffect ) {
     if (pageRefreshEffect) pageRefresh = true;
 
     switch (url) {

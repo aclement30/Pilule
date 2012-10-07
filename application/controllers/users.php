@@ -39,7 +39,7 @@ class Users extends CI_Controller {
         );
 
         // Chargement de la page
-        if ($this->mobile!=1) $this->load->view('welcome/login', $data); else $this->load->view('welcome/m-login', $data);
+        if ($this->mobile!=1) $this->load->view('welcome/login', $data); else $this->load->view('mobile/welcome/login', $data);
     }
 
     function ajax_login () {

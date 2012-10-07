@@ -3,8 +3,10 @@
 <meta charset='utf-8'>
 <head>
     <base href="<?php echo site_url(); ?>" />
+    
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="description" content="Pilule est un système de gestion des études pour les étudiants de l'Université Laval, conçu pour être simple et ergonomique. Vous pouvez l'utiliser pour consulter votre cheminement scolaire, votre relevé de notes, votre horaire de cours, votre boîte Exchange et vos frais de scolarité." />
+    
     <meta property="og:image" content="<?php echo site_url(); ?>images/thumbnail.jpg"/>
     <meta property="og:title" content="Pilule - Gestion des études"/>
     <meta property="og:description" content="Pilule est un système de gestion des études pour les étudiants de l'Université Laval, conçu pour être simple et ergonomique. Vous pouvez l'utiliser pour consulter votre cheminement scolaire, votre relevé de notes, votre horaire de cours, votre boîte Exchange et vos frais de scolarité."/>
@@ -12,16 +14,31 @@
     <meta property="og:type" content="website"/>
     <meta property="og:site_name" content="Pilule - Gestion des études"/>
     <meta property="fb:app_id" content="102086416558659"/>
+    
+    <?php if ($mobile_browser) { ?>
+	<meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0;" />
+	<meta name="format-detection" content="telephone=no">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<link rel="apple-touch-startup-image" href="<?php echo site_url(); ?>images/startup.png">
+	<?php } ?>
+	
     <title>Pilule - Gestion des études</title>
 
     <link rel="stylesheet" href="./css/bootstrap.min.css" />
     <link rel="stylesheet" href="./css/bootstrap-responsive.min.css" />
     <link rel="stylesheet" href="./css/fullcalendar.css" />
+    <?php if ($mobile_browser) { ?>
+    <link rel="stylesheet" href="./css/mobile.css?v=2.0.1" />
+    <?php } else { ?>
     <link rel="stylesheet" href="./css/unicorn.main.css" />
     <link rel="stylesheet" href="./css/unicorn.grey.css" class="skin-color" />
     <link rel="stylesheet" href="./css/fullcalendar.print.css" media="print" />
-    <link rel="stylesheet" href="./css/pilule.css?v=2.01" />
+    <link rel="stylesheet" href="./css/pilule.css?v=2.0.1" />
+    <?php } ?>
     <link rel="stylesheet" href="./css/print.css" media="print" />
+    
     <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
     <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
     <script type="text/javascript">
@@ -46,6 +63,19 @@
 <div style="padding: 20px; color: #fff; font-size: 11pt;"><strong>Votre navigateur (Internet Explorer 6) n'est pas supporté par Pilule.</strong> Veuillez mettre à jour votre navigateur ou utiliser un autre navigateur compatible (Firefox 3.5+, Safari 3+, Chrome, etc).</div>
 </div>
 <![endif]-->
+
+<?php if ( $mobile_browser ) { ?>
+
+<!-- Entête navigateur mobile -->
+
+<div id="header">
+	<div class="home"><a href="<?php echo site_url(); ?>#!/dashboard"><img src="<?php echo site_url(); ?>img/mobile/retina/home.png" alt="Tableau de bord"></a></div>
+	<div class="logout"><a href="<?php echo site_url(); ?>logout"><img src="<?php echo site_url(); ?>img/mobile/retina/logout.png" alt="Déconnexion"></a></div>
+</div>
+
+<!-- Fin de l'entête mobile -->
+
+<?php } else { ?>
 
 <div id="header">
     <h1><a href="<?php echo site_url(); ?>#!/dashboard">Pilule</a></h1>
@@ -88,7 +118,10 @@ if (!empty($user)) { ?>
         <li style="height: 10px;">&nbsp;</li>
         <li id="notifications"><div class="alert alert-warning">
             <h4>Frais de scolarité</h4>
-            L’Université Laval attend les instructions du ministère de l’Éducation concernant la tarification des droits de scolarité pour la session d’automne 2012. L’émission des factures ainsi que la date limite de paiement sont retardées pour le moment.
+            <strong>Session Sept-Déc. 2012</strong><br />
+            <div style="margin-bottom: 5px;">La facture sera expédiée vers le 9 octobre. Date limite de paiement : 26 octobre 2012.</div>
+            <strong>Session Oct-Janv. 2012</strong><br />
+            La facture sera expédiée vers le 19 octobre. Date limite de paiement : 12 novembre 2012.
         </div></li>
     </ul>
 </div>
@@ -111,4 +144,5 @@ if (!empty($user)) { ?>
     </ul>
 </div>
 
+<?php } ?>
 <?php } ?>

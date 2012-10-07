@@ -11,15 +11,17 @@
     <div style="clear: both;"></div>
 </div>
 <?php */ ?>
+
+<?php if ( !empty( $classes ) ) { ?>
 <div class="row-fluid" style="margin-top: 5px;">
     <div class="span12">
         <div class="widget-box">
             <div class="widget-title">
                 <span class="icon"><i class="icon-calendar"></i></span>
                 <h5>Cours en classe</h5>
-                <div class="buttons">
+                <div class="buttons semester-select">
                     <div class="btn-group" style="float: right;">
-                        <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+                        <a class="btn<?php if ( $mobile_browser != 1 ) echo ' btn-mini'; ?> dropdown-toggle" data-toggle="dropdown" href="#">
                             <?php echo convertSemester($semester_date); ?>
                             <span class="caret"></span>
                         </a>
@@ -29,7 +31,7 @@
                         } ?>
                         </ul>
                     </div>
-                    <div style="float: right; font-size: 8pt; color: grey; margin-right: 5px; margin-top: 1px;">Session affichée : </div>
+                    <div style="float: right;<?php if ( $mobile_browser != 1 ) echo ' font-size: 8pt; margin-top: 1px;'; else echo ' margin-top: 5px;'; ?> color: grey; margin-right: 5px;">Session affichée : </div>
                     <div style="clear: both;"></div>
                 </div>
             </div>
@@ -81,3 +83,48 @@
         </div>
     </div>
 </div>
+<?php } else {
+?>
+<div class="row-fluid" style="margin-top: 5px;">
+    <div class="span12">
+        <div class="widget-box">
+            <div class="widget-title">
+                <span class="icon"><i class="icon-calendar"></i></span>
+                <h5>Cours en classe</h5>
+                <div class="buttons semester-select">
+                    <div class="btn-group" style="float: right;">
+                        <a class="btn<?php if ( $mobile_browser != 1 ) echo ' btn-mini'; ?> dropdown-toggle" data-toggle="dropdown" href="#">
+                            <?php echo convertSemester($semester_date); ?>
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu pull-right">
+                            <?php foreach ($semesters as $semester) {
+                            ?><li><a href="javascript:app.schedule.displaySemester(<?php echo $semester['semester']; ?>);"<?php if ($semester['semester'] == $semester_date) echo ' style="font-weight: bold;"'; ?>><?php echo convertSemester($semester['semester']); ?></a></li><?php
+                        } ?>
+                        </ul>
+                    </div>
+                    <div style="float: right;<?php if ( $mobile_browser != 1 ) echo ' font-size: 8pt; margin-top: 1px;'; else echo ' margin-top: 5px;'; ?> color: grey; margin-right: 5px;">Session affichée : </div>
+                    <div style="clear: both;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row-fluid" style="padding-top: 15px;">
+
+    <div class="hero-unit no-data span12">
+        <div class="span1">&nbsp;</div>
+        <div class="span3" style="text-align: right; padding-right: 15px;">
+            <img src="./img/lego-man.png" alt="Lego Man" />
+        </div>
+        <div class="span7" style="padding-top: 40px;">
+            <p class="lead">Aucune donnée enregistrée</p>
+            Votre dossier Capsule ne contient aucune donnée pour cette page.
+        </div>
+        <div class="span1">&nbsp;</div>
+        <div style="clear: both;"></div>
+    </div>
+</div>
+<?php
+}
+?>

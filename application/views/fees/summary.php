@@ -51,7 +51,7 @@ if (substr(CURRENT_SEMESTER, 4, 2) == '01') {
                     <tbody>
                     <tr>
                         <th style="font-weight: bold; text-align: left;">Description</th>
-                        <th style="font-weight: bold; text-align: center; width: 20%;">Frais ($)</th>
+                        <th style="font-weight: bold; text-align: center; width: 25%;">Frais ($)</th>
                     </tr>
                     <?php
                     foreach ($summary['fees'] as $fee) {

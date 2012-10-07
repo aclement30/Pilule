@@ -244,7 +244,7 @@ foreach ($programs as $program) {
                     <td style="<?php if ($course['note']=='') echo 'color: #d05519;'; ?>"><?php echo $course['code']; ?></td>
                     <td style="<?php if ($course['note']=='') echo 'color: #d05519;'; ?>"><?php echo $course['title']; ?></td>
                     <?php } else { ?>
-                    <td style="<?php if ($course['note']=='') echo 'color: #d05519;'; ?>; font-size: 10pt;"><strong><?php echo $course['idcourse']; ?></strong><br /><span style="font-size: 8pt;"><?php echo $course['title']; ?></span></td>
+                    <td style="<?php if ($course['note']=='') echo 'color: #d05519;'; ?>; font-size: 10pt;"><strong><?php echo $course['code']; ?></strong><br /><span style="font-size: 8pt;"><?php echo $course['title']; ?></span></td>
                     <?php } ?>
                     <td style="text-align: center;<?php if ($course['note']=='') echo 'color: #d05519;'; ?>"><?php
                     switch (substr($course['semester'], 5, 2)) {

@@ -129,7 +129,7 @@ class Schedule extends CI_Controller {
                 'reading-week'  =>  array(mktime(0, 0, 0, 10, 29, 2012), mktime(23, 59, 0, 11, 03, 2012)),
                 'noel'          =>  array(mktime(0, 0, 0, 12, 22, 2012), mktime(23, 59, 0, 1, 2, 2013))
             );
-
+            
             foreach($data['classes'] as $class) {
                 if (empty($class['day'])) {
                     $other_courses++;
@@ -212,7 +212,15 @@ class Schedule extends CI_Controller {
             }
 
             $events = ob_get_clean();
-
+            
+            if ( $this->mobile == 1 ) {
+	            $defaultView = 'agendaDay';
+	           // $titleFormat = <<<EOT
+//EOT;
+            } else {
+	            $defaultView = 'agendaWeek';
+            }
+            
             $code = <<<EOT
         var displayCalendar = function () {
             $('#calendar').fullCalendar({
@@ -222,7 +230,7 @@ class Schedule extends CI_Controller {
                     right: ''
                 },
                 firstDay:   1,
-                defaultView :   'agendaWeek',
+                defaultView :   '{$defaultView}',
                 allDaySlot:     false,
                 firstHour:      8,
                 minTime:        8,
@@ -239,7 +247,7 @@ class Schedule extends CI_Controller {
                 titleFormat:    {
                     month:  'MMMM yyyy',
                     week: "d[ MMM][ yyyy]{ '&#8212;' d MMM. yyyy}",
-                    day: 'dddd, MMM d, yyyy'
+                    day: 'dddd, d MMM. yyyy'
                 },
                 eventRender: function(event, element) {
                     element.find(".fc-event-time").append(" " + event.code);
@@ -247,10 +255,11 @@ class Schedule extends CI_Controller {
                 },
                 monthNamesShort:    ['janv', 'fév', 'mars', 'avril', 'mai', 'juin', 'juil', 'août', 'sept', 'oct', 'nov', 'déc'],
                 dayNamesShort:      ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'],
+                dayNames:      		['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
                 columnFormat:       {
                     month: 'ddd',    // Mon
                     week: 'ddd. d', // Mon 9/7
-                    day: 'dddd M/d'  // Monday 9/7
+                    day: ''  // Nothing
                 },
                 height: 650,
                 events: [

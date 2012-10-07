@@ -8,11 +8,11 @@
         </div>
     </div>
     <div id="breadcrumb"></div>
-        <div class="container-fluid" id="content-layer">
-                <div class="alert alert-success"></div>
-                <div class="alert alert-error"></div>
-            <div class="content-inside">
-
-            </div>
+    <div class="container-fluid" id="content-layer">
+            <div class="alert alert-success"></div>
+            <div class="alert alert-error"></div>
+        <div class="content-inside">
+	        
         </div>
+    </div>
 </div>

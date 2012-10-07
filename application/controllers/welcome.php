@@ -29,7 +29,8 @@ class Welcome extends CI_Controller {
 		}
 
 		// Détection des navigateurs mobiles
-		$this->mobile = $this->lmobile->isMobile();
+		//$this->mobile = $this->lmobile->isMobile();
+		$this->mobile = 1;
 	}
 
 	function dashboard_edit () {
@@ -111,13 +112,13 @@ class Welcome extends CI_Controller {
         );
 
 		// Chargement de l'entête
-		if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
+		$this->load->view('header', $data);
 
 		// Chargement de la page
 		$this->load->view('empty', $data);
 
 		// Chargement du bas de page
-		if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
+		$this->load->view('footer', $data);
 	}
 	
 	function dashboard () {

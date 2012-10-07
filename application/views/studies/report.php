@@ -168,8 +168,10 @@ foreach ($semesters as $semester) {
                 <thead>
                     <tr>
                         <th style="font-weight: bold; width: 10%; text-align: left;" class="course-code">Cours</th>
+                        <?php if ( $mobile != 1 ) { ?>
                         <th style="font-weight: bold; text-align: left;">Titre</th>
                         <th style="font-weight: bold; text-align: center; width: 12%;">Reprise</th>
+                        <?php } ?>
                         <th style="font-weight: bold; text-align: center; width: 12%;">Crédits</th>
                         <th style="font-weight: bold; text-align: center; width: 12%;">Note</th>
                         <th style="font-weight: bold; text-align: center; width: 12%;">Points</th>
@@ -262,8 +264,10 @@ foreach ($admitted_sections as $section) {
                         <thead>
                         <tr>
                             <th style="font-weight: bold; width: 10%; text-align: left;" class="course-code">Cours</th>
+                            <?php if ( $mobile != 1 ) { ?>
                             <th style="font-weight: bold; text-align: left;">Titre</th>
                             <th style="font-weight: bold; text-align: center; width: 12%;">Reprise</th>
+                            <?php } ?>
                             <th style="font-weight: bold; text-align: center; width: 12%;">Crédits</th>
                             <th style="font-weight: bold; text-align: center; width: 12%;">Note</th>
                             <th style="font-weight: bold; text-align: center; width: 12%;">Points</th>

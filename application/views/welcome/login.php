@@ -96,6 +96,7 @@
 <script src="<?php echo site_url(); ?>js/path.min.js"></script>
 <script src="<?php echo site_url(); ?>js/main.js"></script>
 <script src="<?php echo site_url(); ?>js/ajax.js"></script>
+<script src="<?php echo site_url(); ?>js/modernizr.custom.41742.js"></script>
 <script type='text/javascript' src="<?php echo site_url(); ?>js/bootstrap.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {

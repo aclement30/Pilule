@@ -63,7 +63,7 @@ class lMobile {
 			}
 		}
 		
-		$this->mobile = 0;
+		//$this->mobile = 1;
 		//$this->mobile_browser = 1;
 	}
 	

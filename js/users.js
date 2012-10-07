@@ -4,13 +4,32 @@ var users = {
     controllerURL: './users/',
     object:        'users',
 
-    login: function () {
+    login: function ( askAutoLogon ) {
         $('#login-form .alert-error').hide();
 
         $('#login-form').fadeOut('fast', function () {
             $('#loading-panel').fadeIn();
         });
-
+        
+        var autoLogon = 0;
+        
+        if (isMobile == 1) {
+        	// Si le visiteur accède au site depuis un navigateur mobile et que le stockage local est disponible,
+        	// l'option de mémoriser son mot de passe lui est offerte
+        	
+	        if (Modernizr.localstorage && askAutoLogon != 1) {
+				if (localStorage.getItem('pilule-ask-autologon-'+idul) == null) {
+					if (confirm("Voulez-vous que Pilule vous connecte automatiquement lors de votre prochaine visite depuis cet appareil ?")) {
+						autoLogon = 1;
+					} else {
+						// Mémorisation de la réponse
+						localStorage.setItem('pilule-ask-autologon-'+idul, 'no');
+						autoLogon = 0;
+					}
+				}
+			}
+		}
+		
         // Send login request
         ajax.request({
             controller:     this.controllerURL,
@@ -21,7 +40,19 @@ var users = {
             },
             callback:       function ( response ) {
                 if (response.status) {
-
+	                if (isMobile == 1) {
+	                	// Si l'utilisateur a choisi de mémoriser son mot de passe, l'IDUL et le mot de passe sont mémorisés sur l'appareil
+		                if (autoLogon == 1) {
+							if (Modernizr.localstorage) {
+								var idul = $('#idul').val();
+								var password = $('#password').val();
+								
+								localStorage.setItem('pilule-autologon-idul', idul);
+								localStorage.setItem('pilule-autologon-password', password);
+							}
+						}
+	                }
+	                
                     if (response.loading) {
                         $('#loading-panel .loading-message').html('Chargement de vos données');
                         $('#loading-panel .waiting-notice').fadeIn();

@@ -2,7 +2,7 @@
     <div class="request-description">Données extraites du système de gestion des études de l'Université Laval, le <?php echo date('d/m/Y, à H:i', $last_request['timestamp']); ?>.</div>
 </div>
 
-<div class="row-fluid" style="margin-top: 20px;">
+<div class="row-fluid" class="semester-select">
     <div class="btn-group" style="float: right;">
         <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
             <?php echo convertSemester($semester_date); ?>
@@ -14,7 +14,7 @@
         } ?>
         </ul>
     </div>
-    <div style="float: right; font-size: 8pt; color: grey; margin-right: 5px; margin-top: 5px;">Session affichée : </div>
+    <div style="float: right;<?php if ( $mobile_browser != 1 ) echo ' font-size: 8pt; margin-top: 1px;'; else echo ' margin-top: 5px;'; ?> color: grey; margin-right: 5px;">Session affichée : </div>
     <div style="clear: both;"></div>
 </div><!-- End of row-fluid -->
 
@@ -33,7 +33,7 @@
                     <tbody>
                     <tr>
                         <th style="font-weight: bold; text-align: left;">Description</th>
-                        <th style="font-weight: bold; text-align: center; width: 20%;">Frais ($)</th>
+                        <th style="font-weight: bold; text-align: center; width: 25%;">Frais ($)</th>
                     </tr>
                     <?php
                     foreach ($semester['fees'] as $fee) {
