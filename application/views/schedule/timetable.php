@@ -85,31 +85,22 @@
 </div>
 <?php } else {
 ?>
-<div class="row-fluid" style="margin-top: 5px;">
-    <div class="span12">
-        <div class="widget-box">
-            <div class="widget-title">
-                <span class="icon"><i class="icon-calendar"></i></span>
-                <h5>Cours en classe</h5>
-                <div class="buttons semester-select">
-                    <div class="btn-group" style="float: right;">
-                        <a class="btn<?php if ( $mobile_browser != 1 ) echo ' btn-mini'; ?> dropdown-toggle" data-toggle="dropdown" href="#">
-                            <?php echo convertSemester($semester_date); ?>
-                            <span class="caret"></span>
-                        </a>
-                        <ul class="dropdown-menu pull-right">
-                            <?php foreach ($semesters as $semester) {
-                            ?><li><a href="javascript:app.schedule.displaySemester(<?php echo $semester['semester']; ?>);"<?php if ($semester['semester'] == $semester_date) echo ' style="font-weight: bold;"'; ?>><?php echo convertSemester($semester['semester']); ?></a></li><?php
-                        } ?>
-                        </ul>
-                    </div>
-                    <div style="float: right;<?php if ( $mobile_browser != 1 ) echo ' font-size: 8pt; margin-top: 1px;'; else echo ' margin-top: 5px;'; ?> color: grey; margin-right: 5px;">Session affichée : </div>
-                    <div style="clear: both;"></div>
-                </div>
-            </div>
-        </div>
+<div class="buttons semester-select">
+    <div class="btn-group" style="float: right;">
+        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+            <?php echo convertSemester($semester_date); ?>
+            <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu pull-right">
+            <?php foreach ($semesters as $semester) {
+            ?><li><a href="javascript:app.schedule.displaySemester(<?php echo $semester['semester']; ?>);"<?php if ($semester['semester'] == $semester_date) echo ' style="font-weight: bold;"'; ?>><?php echo convertSemester($semester['semester']); ?></a></li><?php
+        } ?>
+        </ul>
     </div>
+    <div style="float: right; margin-top: 5px; color: grey; margin-right: 5px;">Session affichée : </div>
+    <div style="clear: both;"></div>
 </div>
+
 <div class="row-fluid" style="padding-top: 15px;">
 
     <div class="hero-unit no-data span12">

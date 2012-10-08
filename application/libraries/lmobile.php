@@ -63,8 +63,8 @@ class lMobile {
 			}
 		}
 		
-		//$this->mobile = 1;
-		//$this->mobile_browser = 1;
+		$this->mobile = 0;
+		$this->mobile_browser = 0;
 	}
 	
 	function isMobile() {

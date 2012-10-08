@@ -281,7 +281,7 @@ END:VCALENDAR';
 		// Sélection des données
 		$this->db->where(array('idul'=>$idul));
 		$this->db->order_by('order asc');
-		$result = $this->db->get('users_modules');
+		$result = $this->db->get('users_modules_map');
 		
 		$modules = $result->result_array();
 
@@ -301,7 +301,7 @@ END:VCALENDAR';
 		
 		$num = 1;
 		foreach ($modules as $module) {
-			$this->db->insert('users_modules', array(
+			$this->db->insert('users_modules_map', array(
 													 'idul'		=>	$idul,
 													 'module'	=>	substr($module, 4),
 													 'order'	=>	$num
@@ -317,7 +317,7 @@ END:VCALENDAR';
 		
 		if ($idul == 'demo') return (true);
 		
-		if ($this->db->delete('users_modules', array('idul'=>$idul))) {
+		if ($this->db->delete('users_modules_map', array('idul'=>$idul))) {
 			return (true);
 		} else {
 			return (false);

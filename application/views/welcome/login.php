@@ -64,6 +64,21 @@
             <img src="./img/loading-login.gif" /></div>
             <div class="waiting-notice" style="text-align: center; opacity: 0.5; -moz-opacity: 0.5; display: none; margin-top: 80px; color: #fff; font-size: 8pt;">Cette étape peut prendre jusqu'à une minute.<br />Merci de patienter.</div>
     </div>
+    <div id="loading-error">
+        <div class="alert-error alert" style="display: block; margin-top: 10px;">Une erreur est survenue durant le chargement de vos données depuis Capsule. Vous pouvez :
+        <ol style="margin-top: 5px;">
+        	<li>Continuer sans charger les données.</li>
+        	<li>Réessayer de vous connecter.</li>
+        </ol>
+        Note : certaines fonctions peuvent ne pas être disponibles si les données ne sont pas chargées.</div>
+            <div style="margin-top: 15%; text-align: center;">
+            	<div class="btn-group" style="text-align: center; margin-bottom: 20px;">
+	            	<a class="btn btn-danger" href="javascript:app.users.redirectToDashboard();" style="float: none;"><i class="icon-warning-sign icon-white"></i>&nbsp;Continuer sans chargement</a>
+            	</div><div class="btn-group" style="margin-left: 0px;">
+	            	<a class="btn btn-success" href="javascript:app.users.retryLogin();" style="float: none;"><i class="icon-repeat icon-white"></i>&nbsp;Réessayer la connexion</a>
+            	</div>
+            </div>
+    </div>
 </div>
 
 <footer>
@@ -89,13 +104,13 @@
 <!-- JavaScript includes -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script src="<?php echo site_url(); ?>js/jquery-ui-1.8.23.custom.min.js"></script>
-<script src="<?php echo site_url(); ?>js/pilule.js"></script>
-<script src="<?php echo site_url(); ?>js/users.js"></script>
-<script src="<?php echo site_url(); ?>js/cache.js"></script>
-<script src="<?php echo site_url(); ?>js/login.js"></script>
+<script src="<?php echo site_url(); ?>js/pilule.js?ver=2.0.2"></script>
+<script src="<?php echo site_url(); ?>js/users.js?ver=2.0.2"></script>
+<script src="<?php echo site_url(); ?>js/cache.js?ver=2.0.2"></script>
+<script src="<?php echo site_url(); ?>js/login.js?ver=2.0.2"></script>
 <script src="<?php echo site_url(); ?>js/path.min.js"></script>
-<script src="<?php echo site_url(); ?>js/main.js"></script>
-<script src="<?php echo site_url(); ?>js/ajax.js"></script>
+<script src="<?php echo site_url(); ?>js/main.js?ver=2.0.2"></script>
+<script src="<?php echo site_url(); ?>js/ajax.js?ver=2.0.2"></script>
 <script src="<?php echo site_url(); ?>js/modernizr.custom.41742.js"></script>
 <script type='text/javascript' src="<?php echo site_url(); ?>js/bootstrap.min.js"></script>
 <script type="text/javascript">

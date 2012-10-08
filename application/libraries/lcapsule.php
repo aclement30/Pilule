@@ -4,8 +4,8 @@ class lCapsule {
 	public $CI;
 	private $debug = 0;
 	public $forceReload = false;
-    //private $host = "132.203.189.178";
-    private $host = "capsuleweb.ulaval.ca";
+    private $host = "132.203.189.178";
+    //private $host = "capsuleweb.ulaval.ca";
     
 	function __construct() {
 		$this->CI =& get_instance();

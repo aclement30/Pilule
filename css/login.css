@@ -68,8 +68,18 @@ h1 img {
     padding: 20px 40px;
 }
 
+#loading-error {
+    min-height: 320px;
+    display: none;
+    padding: 20px 30px;
+}
+
 #login-form label {
     color: #c4e2ff;
+}
+
+#login-form input:focus {
+	outline: none;
 }
 
 /*----------------------------

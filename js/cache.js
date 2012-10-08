@@ -44,40 +44,62 @@ var cache = {
                 name:       this.loadingQueue[0].name,
                 auto:       this.loadingQueue[0].auto
             },
-            callback:       function (response) {
-                if (response.status) {
-                    app.cache.loadingQueue.shift();
-                    if (app.cache.loadingQueue.length == 0) app.cache.isLoading = false;
-
-                    // Exécution du callback
-                    if (app.cache.reloadCallback != null && app.cache.reloadCallback != undefined) {
-                        (app.cache.reloadCallback)();
-                        app.cache.reloadCallback = null;
-                    } else {
-                        if (response.auto == 1) {
-                            refreshPage(false);
-                        } else {
-                            refreshPage(true);
-                        }
-                    }
-
-                    if (app.cache.loadingQueue.length == 0) {
-                        $('#content-header .loading-status').hide();
-                        $('.action-buttons .btn-refresh img').hide();
-                        $('.action-buttons .btn-refresh i').fadeIn();
-                        $('.action-buttons .btn-refresh').parent().attr('title', 'Actualiser les données');
-                    } else {
-                        // Chargement de l'élément suivant
-                        app.cache.loadData();
-                    }
-                } else {
-                    $('#content-header .loading-status').addClass('error');
-                    if (response.error) {
-                        errorMessage(response.error, $('#content-header .loading-status'), false);
-                    } else {
-                        errorMessage('Erreur lors de l\'actualisation des données.', $('#content-header .loading-status'), false);
-                    }
-                }
+            error:			function ( xhr, ajaxOptions, thrownError ) {
+	            alert(thrownError);
+            },
+            callback:       function ( response ) {
+            	if ( typeof( response ) === 'undefined' || response == null ) {
+            		app.cache.isLoading = false;
+            		
+	            	if ( login ) {
+	            		$('#loading-panel').fadeOut('fast', function () {
+	                        $('#loading-error').fadeIn();
+	                    });
+	            	} else {
+		            	$('#content-header .loading-status').addClass('error');
+		            	$('.action-buttons .btn-refresh img').hide();
+	                    $('.action-buttons .btn-refresh i').fadeIn();
+	                    if (response.error) {
+	                        errorMessage(response.error, $('#content-header .loading-status'), false);
+	                    } else {
+	                        errorMessage('Erreur lors de l\'actualisation des données.', $('#content-header .loading-status'), false);
+	                    }
+	            	}
+            	} else {
+                    if (response.status) {
+	                    app.cache.loadingQueue.shift();
+	                    if (app.cache.loadingQueue.length == 0) app.cache.isLoading = false;
+	
+	                    // Exécution du callback
+	                    if (app.cache.reloadCallback != null && app.cache.reloadCallback != undefined) {
+	                        (app.cache.reloadCallback)();
+	                        app.cache.reloadCallback = null;
+	                    } else {
+	                        if (response.auto == 1) {
+	                            refreshPage(false);
+	                        } else {
+	                            refreshPage(true);
+	                        }
+	                    }
+	
+	                    if (app.cache.loadingQueue.length == 0) {
+	                        $('#content-header .loading-status').hide();
+	                        $('.action-buttons .btn-refresh img').hide();
+	                        $('.action-buttons .btn-refresh i').fadeIn();
+	                        $('.action-buttons .btn-refresh').parent().attr('title', 'Actualiser les données');
+	                    } else {
+	                        // Chargement de l'élément suivant
+	                        app.cache.loadData();
+	                    }
+	                } else {
+	                    $('#content-header .loading-status').addClass('error');
+	                    if (response.error) {
+	                        errorMessage(response.error, $('#content-header .loading-status'), false);
+	                    } else {
+	                        errorMessage('Erreur lors de l\'actualisation des données.', $('#content-header .loading-status'), false);
+	                    }
+	                }
+	            }
             }
         });
     }

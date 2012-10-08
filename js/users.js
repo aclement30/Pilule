@@ -93,7 +93,7 @@ var users = {
     },
 
     redirectToDashboard: function () {
-        if (!app.cache.isLoading) {
+        if ( !app.cache.isLoading ) {
             var redirectURL = $('#redirect_url').val();
 
             $('#formContainer').fadeOut();
@@ -105,6 +105,12 @@ var users = {
                 setTimeout("document.location = './#!/dashboard';", 100);
             }
         }
+    },
+    
+    retryLogin: function () {
+	    $('#loading-error').fadeOut('fast', function () {
+            $('#login-form').fadeIn();
+        });
     }
 }
 

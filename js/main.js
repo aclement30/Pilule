@@ -439,7 +439,7 @@ function fixLayout () {
     //$('#sideBar').css('height',getDocHeight()-170+'px');
 }
 
-var isMobile = 1;
+var isMobile = 0;
 var pageRefresh = false;
 var loadContentCallback = null;
 

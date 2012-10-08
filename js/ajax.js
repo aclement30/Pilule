@@ -62,7 +62,17 @@ var ajax = {
 					errorMessage("Erreur interne : impossible d'afficher la page :<br /><blockquote>"+error+"</blockquote>");
 				} else {
 					if (p.callback != null && data.search('PageContent')<=0) {
-						p.callback(jQuery.parseJSON(data));
+						// Try to parse JSON data
+						var response;
+						
+						try {
+							response = jQuery.parseJSON(data);
+						}
+						catch(err) {
+							p.callback( { status: false, error: 'Erreur : réponse invalide du serveur.' } );
+						}
+						
+						p.callback( response );
 					} else {
 						eval(data);
 					}

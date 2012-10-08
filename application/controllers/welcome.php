@@ -29,8 +29,8 @@ class Welcome extends CI_Controller {
 		}
 
 		// Détection des navigateurs mobiles
-		//$this->mobile = $this->lmobile->isMobile();
-		$this->mobile = 1;
+		$this->mobile = $this->lmobile->isMobile();
+		//$this->mobile = 1;
 	}
 
 	function dashboard_edit () {

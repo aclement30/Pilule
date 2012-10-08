@@ -46,19 +46,19 @@
 	
     <script type='text/javascript' src="<?php echo site_url(); ?>js/bootstrap.min.js"></script>
     <script type='text/javascript' src="<?php echo site_url(); ?>js/bootstrap-tooltip.js"></script>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/pilule.js?ver=2.0.1"></script>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/users.js?ver=2.0.1"></script>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/studies.js?ver=2.0.1"></script>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/tuitions.js?ver=2.0.1"></script>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/settings.js?ver=2.0.1"></script>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/dashboard.js?ver=2.0.1"></script>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/schedule.js?ver=2.0.1"></script>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/cache.js?ver=2.0.1"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/pilule.js?ver=2.0.2"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/users.js?ver=2.0.2"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/studies.js?ver=2.0.2"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/tuitions.js?ver=2.0.2"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/settings.js?ver=2.0.2"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/dashboard.js?ver=2.0.2"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/schedule.js?ver=2.0.2"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/cache.js?ver=2.0.2"></script>
     <?php if (!isset($user)) { ?>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/login.js?ver=2.0.1"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/login.js?ver=2.0.2"></script>
     <?php } ?>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/main.js?ver=2.0.1"></script>
-    <script type='text/javascript' src="<?php echo site_url(); ?>js/ajax.js?ver=2.0.1"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/main.js?ver=2.0.2"></script>
+    <script type='text/javascript' src="<?php echo site_url(); ?>js/ajax.js?ver=2.0.2"></script>
     <script type='text/javascript' src="<?php echo site_url(); ?>js/path.min.js"></script>
     <script type='text/javascript' src="<?php echo site_url(); ?>js/fullcalendar.min.js"></script>
     <script type='text/javascript' src="<?php echo site_url(); ?>js/jquery.flot.min.js"></script>
