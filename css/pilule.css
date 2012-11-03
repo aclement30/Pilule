@@ -275,3 +275,7 @@ font-weight: bold;
 .semester-select {
 	margin-top: 20px;
 }
+
+#breadcrumb {
+    display: block;;
+}

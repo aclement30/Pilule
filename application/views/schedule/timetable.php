@@ -20,6 +20,7 @@
                 <span class="icon"><i class="icon-calendar"></i></span>
                 <h5>Cours en classe</h5>
                 <div class="buttons semester-select">
+                    <?php if ( $mobile_browser != 1 ) { ?>
                     <div class="btn-group" style="float: right;">
                         <a class="btn<?php if ( $mobile_browser != 1 ) echo ' btn-mini'; ?> dropdown-toggle" data-toggle="dropdown" href="#">
                             <?php echo convertSemester($semester_date); ?>
@@ -32,6 +33,14 @@
                         </ul>
                     </div>
                     <div style="float: right;<?php if ( $mobile_browser != 1 ) echo ' font-size: 8pt; margin-top: 1px;'; else echo ' margin-top: 5px;'; ?> color: grey; margin-right: 5px;">Session affichée : </div>
+                    <?php } else { ?>
+                    <select class="input-medium">
+                    <?php foreach ($semesters as $semester) {
+                            ?><option value="<?php echo $semester['semester']; ?>"> <?php echo convertSemester($semester['semester']); ?></option><?php
+                        } ?>
+                    </select>
+                    <div style="float: right;<?php if ( $mobile_browser != 1 ) echo ' font-size: 8pt; margin-top: 1px;'; else echo ' margin-top: 5px;'; ?> color: grey; margin-right: 5px;">Session affichée : </div>
+                    <?php } ?>
                     <div style="clear: both;"></div>
                 </div>
             </div>
@@ -86,6 +95,7 @@
 <?php } else {
 ?>
 <div class="buttons semester-select">
+    <?php if ( $mobile_browser != 1 ) { ?>
     <div class="btn-group" style="float: right;">
         <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
             <?php echo convertSemester($semester_date); ?>
@@ -98,6 +108,16 @@
         </ul>
     </div>
     <div style="float: right; margin-top: 5px; color: grey; margin-right: 5px;">Session affichée : </div>
+    <?php } else {
+        ?>
+        <select class="input-medium">
+        <?php foreach ($semesters as $semester) {
+                ?><option value="<?php echo $semester['semester']; ?>"> <?php echo convertSemester($semester['semester']); ?></option><?php
+            } ?>
+        </select>
+        <div style="float: right; margin-top: 5px; color: grey; margin-right: 5px;">Session affichée : </div>
+        <?php
+    } ?>
     <div style="clear: both;"></div>
 </div>
 

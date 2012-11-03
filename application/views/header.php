@@ -21,7 +21,15 @@
 	<meta name="format-detection" content="telephone=no">
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
 	<link rel="apple-touch-startup-image" href="<?php echo site_url(); ?>images/startup.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/img/icons/apple-touch-icon-144x144-precomposed.png" />    
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/img/icons/apple-touch-icon-114x114-precomposed.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/img/icons/apple-touch-icon-72x72-precomposed.png" />
+    <link rel="apple-touch-icon-precomposed" href="/img/icons/apple-touch-icon-precomposed.png" />
+    <link rel="shortcut icon" href="/img/icons/apple-touch-icon-precomposed.png" />
+    
 	<?php } ?>
 	
     <title>Pilule - Gestion des études</title>

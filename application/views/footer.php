@@ -79,6 +79,8 @@
         	$('<iframe id="external-frame" name="external-frame" frameborder="0" src="blank.html" style="width: 0px; height: 0px;">').appendTo('body');
         	app.resizeExternalFrame();
         }
+
+        $( '.buttons.semester-select select' ).live( 'click', function (e) { app.schedule.displaySemester( $( e.currentTarget ).val() ); } );
     });
 	</script>
 </body>

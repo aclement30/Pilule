@@ -430,7 +430,7 @@ function fixLayout () {
         if ( isMobile != 1 ) {
         	$('#content').css('minHeight', ( $( window ).height() - 170 ) );
         } else {
-	        $('#content').css('minHeight', ( $( window ).height() - 150 ) );
+	        //$('#content').css('minHeight', ( $( window ).height() - 150 ) );
         }
     } else {
         $( '#content' ).css( 'minHeight', 'auto' );
@@ -439,28 +439,41 @@ function fixLayout () {
     //$('#sideBar').css('height',getDocHeight()-170+'px');
 }
 
-var isMobile = 0;
+var isMobile = 1;
 var pageRefresh = false;
 var loadContentCallback = null;
+var isDashboard = false;
 
 function loadContent( url, pageRefreshEffect ) {
     if (pageRefreshEffect) pageRefresh = true;
+    $( '.navbar.menu' ).show();
 
     switch (url) {
+        case '/welcome/dashboard':
+            $( '#content' ).addClass( 'dashboard' );
+            $( '.navbar.menu' ).hide();
+            break;
         case '/studies':
         case '/studies/details':
         case '/studies/report':
             $('#sidebar li.submenu ul').not('.link-studies ul').slideUp();
             $('#sidebar li.submenu').not('.link-studies').removeClass('open');
+
+            $( '#content').removeClass( 'dashboard' );
             break;
         case '/fees':
         case '/fees/details':
             $('#sidebar li.submenu ul').not('.link-tuitions ul').slideUp();
             $('#sidebar li.submenu').not('.link-tuitions').removeClass('open');
+
+            $( '#content').removeClass( 'dashboard' );
             break;
         default:
+
             $('#sidebar li.submenu ul').slideUp();
             $('#sidebar li.submenu').removeClass('open');
+
+            $( '#content').removeClass( 'dashboard' );
             break;
     }
 

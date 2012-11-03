@@ -16,6 +16,7 @@ body {
 	margin: 0px;
 	width: 100%!important;
 	padding: 0px;
+    background-color: #282a2b;
 }
 
 #header {
@@ -28,6 +29,7 @@ body {
 	background-position: center;
 	-webkit-background-size: 320px 70px;
 	background-repeat: none;
+
 }
 
 #header .home {
@@ -35,7 +37,7 @@ body {
 }
 
 #header .home img, #header .logout img {
-	width: 50%;
+	width: 33px;
 	padding: 18px 20px;
 }
 #header .logout {
@@ -66,14 +68,16 @@ h1 {
 	color: #14436f;
 	text-align: left;
 	padding: 10px;
-	padding-top: 10px;
-	font-weight: normal;
-	font-size: 18pt;
+	padding-top: 8px;
+	font-size: 16pt;
 }
 
 #content-layer {
+    height: 100%;
 	padding: 10px;
 	padding-top: 0px;
+    -webkit-box-shadow: inset 0px 1px 3px 1px rgba(21, 27, 32, 0.3);
+    box-shadow: inset 0px 1px 3px 1px rgba(21, 27, 32, 0.3);
 }
 
 .content-inside {
@@ -119,16 +123,6 @@ h1 {
 	width: 100%;
 }
 .stat-boxes li, .quick-actions li, .quick-actions-horizontal li {
-    background-color: #F6F6F6;
-	background-image: -webkit-gradient(linear, 0 0%, 0 100%, from(#F9F9F9), to(#EDEDED));
-	background-image: -webkit-linear-gradient(top, #F9F9F9 0%, #EDEDED 100%);
-    background-image: -moz-linear-gradient(top, #F9F9F9 0%, #EDEDED 100%);
-    background-image: -ms-linear-gradient(top, #F9F9F9 0%, #EDEDED 100%);
-    background-image: -o-linear-gradient(top, #F9F9F9 0%, #EDEDED 100%);
-    background-image: linear-gradient(top, #F9F9F9 0%, #EDEDED 100%);
-    border: 1px solid #d5d5d5;
-    border-radius: 4px 4px 4px 4px;
-    box-shadow: 0 1px 0 0 #FFFFFF inset, 0 1px 0 rgba(255,255,255,0.4);
     display: inline-block;
     line-height: 18px;
     margin: 0 10px 10px;
@@ -144,7 +138,7 @@ h1 {
 	margin: 0 10px 20px;
 }
 .quick-actions li a {
-	padding: 10px 10px;
+	padding: 5px 5px;
 }
 .stats-plain li h4 {
 	font-size: 40px;
@@ -152,225 +146,15 @@ h1 {
 }
 .stats-plain li span {
 	font-size: 14px;
-	color: #555555;
 }
 .quick-actions-horizontal li a span {
-	padding: 10px 12px 10px 10px;
+    padding: 0px;
 	display: inline-block;
 }
 .quick-actions li a, .quick-actions-horizontal li a {
 	text-align: center !important;
 	display: block;
-	color: #666666;
-	text-shadow: 0 1px 0 #ffffff;
-}
-.quick-actions li a i[class^="icon-"], .quick-actions li a i[class*=" icon-"] {
-	background-repeat: no-repeat;
-	background-attachment: scroll;
-	background-position: 0 0;
-	background-color: transparent;
-	width: 32px;
-	height: 32px;
-	display: block;
-	margin: 0 auto 5px;
-}
-.quick-actions-horizontal li a i[class^="icon-"], .quick-actions-horizontal li a i[class*=" icon-"] {
-	background-repeat: no-repeat;
-	background-attachment: scroll;
-	background-position: center;
-	background-color: transparent;
-	width: 16px;
-	height: 16px;
-	display: inline-block;
-	margin: -2px 0 0 !important; 
-	border-right: 1px solid #dddddd;
-	margin-right: 10px;
-	padding: 10px;
-	vertical-align: middle;
-}
-
-.quick-actions i.icon-book {
-	background-image: url('../img/icons/32/book.png');
-}
-.quick-actions i.icon-cabinet {
-	background-image: url('../img/icons/32/cabinet.png');
-}
-.quick-actions i.icon-calendar {
-	background-image: url('../img/icons/32/calendar.png');
-}
-.quick-actions i.icon-client {
-	background-image: url('../img/icons/32/client.png');
-}
-.quick-actions i.icon-database {
-	background-image: url('../img/icons/32/database.png');
-}
-.quick-actions i.icon-download {
-	background-image: url('../img/icons/32/download.png');
-}
-.quick-actions i.icon-graph {
-	background-image: url('../img/icons/32/graph.png');
-}
-.quick-actions i.icon-home {
-	background-image: url('../img/icons/32/home.png');
-}
-.quick-actions i.icon-lock {
-	background-image: url('../img/icons/32/lock.png');
-}
-.quick-actions i.icon-mail {
-	background-image: url('../img/icons/32/mail.png');
-}
-.quick-actions i.icon-pdf {
-	background-image: url('../img/icons/32/pdf.png');
-}
-.quick-actions i.icon-people {
-	background-image: url('../img/icons/32/people.png');
-}
-.quick-actions i.icon-piechart {
-	background-image: url('../img/icons/32/piechart.png');
-}
-.quick-actions i.icon-search {
-	background-image: url('../img/icons/32/search.png');
-}
-.quick-actions i.icon-shopping-bag {
-	background-image: url('../img/icons/32/shopping-bag.png');
-}
-.quick-actions i.icon-survey {
-	background-image: url('../img/icons/32/survey.png');
-}
-.quick-actions i.icon-tag {
-	background-image: url('../img/icons/32/tag.png');
-}
-.quick-actions i.icon-user {
-	background-image: url('../img/icons/32/user.png');
-}
-.quick-actions i.icon-wallet {
-	background-image: url('../img/icons/32/wallet.png');
-}
-.quick-actions i.icon-web {
-	background-image: url('../img/icons/32/web.png');
-}
-
-.quick-actions-horizontal i.icon-book {
-	background-image: url('../img/icons/16/book.png');
-}
-.quick-actions-horizontal i.icon-cabinet {
-	background-image: url('../img/icons/16/cabinet.png');
-}
-.quick-actions-horizontal i.icon-calendar {
-	background-image: url('../img/icons/16/calendar.png');
-}
-.quick-actions-horizontal i.icon-client {
-	background-image: url('../img/icons/16/client.png');
-}
-.quick-actions-horizontal i.icon-database {
-	background-image: url('../img/icons/16/database.png');
-}
-.quick-actions-horizontal i.icon-download {
-	background-image: url('../img/icons/16/download.png');
-}
-.quick-actions-horizontal i.icon-graph {
-	background-image: url('../img/icons/16/graph.png');
-}
-.quick-actions-horizontal i.icon-home {
-	background-image: url('../img/icons/16/home.png');
-}
-.quick-actions-horizontal i.icon-lock {
-	background-image: url('../img/icons/16/lock.png');
-}
-.quick-actions-horizontal i.icon-mail {
-	background-image: url('../img/icons/16/mail.png');
-}
-.quick-actions-horizontal i.icon-pdf {
-	background-image: url('../img/icons/16/pdf.png');
-}
-.quick-actions-horizontal i.icon-people {
-	background-image: url('../img/icons/16/people.png');
-}
-.quick-actions-horizontal i.icon-piechart {
-	background-image: url('../img/icons/16/piechart.png');
-}
-.quick-actions-horizontal i.icon-search {
-	background-image: url('../img/icons/16/search.png');
-}
-.quick-actions-horizontal i.icon-shopping-bag {
-	background-image: url('../img/icons/16/shopping-bag.png');
-}
-.quick-actions-horizontal i.icon-survey {
-	background-image: url('../img/icons/16/survey.png');
-}
-.quick-actions-horizontal i.icon-tag {
-	background-image: url('../img/icons/16/tag.png');
-}
-.quick-actions-horizontal i.icon-user {
-	background-image: url('../img/icons/16/user.png');
-}
-.quick-actions-horizontal i.icon-wallet {
-	background-image: url('../img/icons/16/wallet.png');
-}
-.quick-actions-horizontal i.icon-web {
-	background-image: url('../img/icons/16/web.png');
-}
-
-.stat-boxes li:hover, .quick-actions li:hover, .quick-actions-horizontal li:hover  {
-    background-color: #fcfcfc;
-	background-image: -webkit-gradient(linear, 0 0%, 0 100%, from(#FCFCFC), to(#F1F1F1));
-	background-image: -webkit-linear-gradient(top, #FCFCFC 0%, #F1F1F1 100%);
-    background-image: -moz-linear-gradient(top, #FCFCFC 0%, #F1F1F1 100%);
-    background-image: -ms-linear-gradient(top, #FCFCFC 0%, #F1F1F1 100%);
-    background-image: -o-linear-gradient(top, #FCFCFC 0%, #F1F1F1 100%);
-    background-image: linear-gradient(top, #FCFCFC 0%, #F1F1F1 100%);
-}
-.quick-actions li:active, .quick-actions-horizontal li:active  {
-	background-image: -webkit-gradient(linear, 0 0%, 0 100%, from(#EEEEEE), to(#F4F4F4));
-	background-image: -webkit-linear-gradient(top, #EEEEEE 0%, #F4F4F4 100%);
-    background-image: -moz-linear-gradient(top, #EEEEEE 0%, #F4F4F4 100%);
-    background-image: -ms-linear-gradient(top, #EEEEEE 0%, #F4F4F4 100%);
-    background-image: -o-linear-gradient(top, #EEEEEE 0%, #F4F4F4 100%);
-    background-image: linear-gradient(top, #EEEEEE 0%, #F4F4F4 100%);
-    box-shadow: 0 1px 4px 0 rgba(0,0,0,0.2) inset, 0 1px 0 rgba(255,255,255,0.4);
-}
-
-
-.stat-boxes .left, .stat-boxes .right {
-	text-shadow: 0 1px 0 #ffffff;
-    float: left;
-}
-.stat-boxes .left {
-    border-right: 1px solid #DCDCDC;
-    box-shadow: 1px 0 0 0 #FFFFFF;
-    margin-right: 12px;
-    padding: 10px 14px 6px 4px;
-    font-size: 10px;
-    font-weight: bold;
-}
-
-.stat-boxes .right {
-    font-size: 12px;
-    padding: 9px 10px 7px 0;
-    text-align: center;
-    width: 70px;
-    color: #666666;
-}
-.stat-boxes .left span, .stat-boxes .right strong {
-	display: block;
-}
-.stat-boxes .right strong {
-	font-size: 26px;
-	margin-bottom: 3px;
-	margin-top: 6px;
-}
-.stat-boxes .peity_bar_good, .stat-boxes .peity_line_good  {
-	color: #459D1C;
-}
-.stat-boxes .peity_bar_neutral, .stat-boxes .peity_line_neutral  {
-	color: #757575;
-}
-.stat-boxes .peity_bar_bad, .stat-boxes .peity_line_bad  {
-	color: #BA1E20;
-}
-
-.stats-plain {
-
+	color: #999;
 }
 
 .quick-actions.dashboard {
@@ -378,24 +162,34 @@ h1 {
     margin: 0px;
 }
 .quick-actions.dashboard li {
-	margin: 0px;
-    margin-bottom:  5px;
-    width: 110px;
+	margin: 3px;
+    margin-bottom: 7px;
+    width: 90px;
+    height: 90px;
+    vertical-align: top;
+    border-radius: 10px;
+}
+
+.quick-actions.dashboard li:hover, .quick-actions.dashboard li:focus {
+    outline: none;
+    background-color: #151b20;
 }
 
 .quick-actions.dashboard li a {
-    padding: 10px;
-    width: 90px;
+    padding: 5px;
+    width: 80px;
+    line-height: 14px;
+    text-decoration: none;
 }
 
 .quick-actions.dashboard li a .title {
-    font-size: 8pt;
+    font-size: 7pt;
 }
 
 .quick-actions.dashboard li a img {
-    height: 60px;
+    height: 45px;
     display: block;
-    margin: 0 auto 10px;
+    margin: 5px auto 10px;
     border-style: dashed;
 }
 
@@ -424,9 +218,8 @@ h1 {
 	bottom: 0px;
 	width: 100%;
 	margin: 0px;
-	-webkit-box-shadow: 0px -1px 3px rgba(50, 50, 50, 0.5);
-	-moz-box-shadow:    0px -1px 3px rgba(50, 50, 50, 0.5);
-	box-shadow:         0px -1px 3px rgba(50, 50, 50, 0.5);
+    -webkit-box-shadow: 0px 0px 3px 1px rgba(21, 27, 32, 0.3);
+    box-shadow: 0px 0px 3px 1px rgba(21, 27, 32, 0.3);
 }
 
 .navbar.menu .navbar-inner {
@@ -582,4 +375,30 @@ font-weight: bold;
 	background-color: #fff;
 	padding-top: 0px;
 	padding-bottom: 20px;
+}
+
+#content.dashboard {
+    background-color: #282a2b;
+}
+
+#content.dashboard h1, #content.dashboard #content-header {
+    display: none;
+}
+
+#content.dashboard #content-layer {
+    box-shadow: 1px inset #151b20;
+}
+
+.buttons.semester-select {
+	margin-top: 20px;
+	margin-bottom: 0px;
+}
+
+.buttons.semester-select select {
+	display: block;
+	float: right;
+}
+
+.hero-unit.no-data .span3 {
+	display: none;
 }
