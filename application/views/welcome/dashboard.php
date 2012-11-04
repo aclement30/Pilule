@@ -1,62 +1,46 @@
-<h2 class="title">Tableau de bord<?php if ($_SESSION['cap_datacheck'] == 2) { } else { ?><a id="edit-dashboard-link" href="javascript:dashboardObj.edit();" class="link" style="margin-right: 15px; font-size: 9pt;"><img src="<?php echo site_url(); ?>images/pencil.png" align="absmiddle" />&nbsp;&nbsp;Modifier</a><div class="clear"></div><?php } ?></h2>	
-<div class="clear"></div>
-<div class="page-separator"></div>
-<div id="available-modules" style="display: none;"></div>
+<div class="alert alert-block capsule-offline<?php if ( $capsule_offline ) echo ' offline'; ?>">
+    <h4>Important !</h4> Le serveur de Capsule est actuellement indisponible. Les données affichées seront actualisées lorsque Capsule sera de nouveau opérationnel. Notez que certaines fonctions peuvent ne pas être disponibles.
+</div>
 
-<div class="post-content">
+<div class="row-fluid" style="margin-top: 10px;">
 
-<ul id="modules" class="modules-list">
-
+    <div class="span12 center" style="text-align: left;">
+        <ul class="quick-actions dashboard">
 <?php
 // Sélection des modules de l'utilisateur
 $number = 1;
 
-foreach ($modules as $module) {
+foreach ( $modules as $module ) {
 	$allowed = true;
 	
-	switch ($module['id']) {
+	switch ( $module[ 'alias' ] ) {
 		case 'registration':
-			if ($user['registration'] != true) $allowed = false;
-			if (time() >= '1319832000' and time() <= '1319832000') {
-				$allowed = false;
-			}
+			if ( !$user[ 'registration' ] ) $allowed = false;
 		break;
-		case'admin':
-			if ($user['idul']!='alcle8') $allowed = false;
-		break;
-		/* Maintence de Capsule - 28-29 oct. 2011 */
-		case 'studies':
-		case 'fees':
-		case 'schedule':
-		case 'capsule':
-		case 'registration':
-			if (time() >= '1319832000' and time() <= '1319832000') {
-				$allowed = false;
-			}
+		case 'admin':
+			if ( !$user[ 'admin' ] ) $allowed = false;
 		break;
 		default:
 			$allowed = true;
 		break;
 	}
-	
-	if ($_SESSION['cap_datacheck'] == 2 and isset($module['data']) and $module['data'] != '') {
-		$allowed = false;
-	}
-	/*
-	if ($_SESSION['cap_datacheck'] == 2 and ($module['data'] != '' or $module['id'] == 'registration')) {
-		$allowed = false;
-	}
-	*/
-	if ($allowed) {
+
+	if ( $allowed and $module['active'] ) {
 	?>
-<li id="box-<?php echo $module['id']; ?>" class="module" onMouseOver="javascript:dashboardObj.mouseOver('<?php echo $module['id']; ?>', 1);" onMouseOut="javascript:dashboardObj.mouseOver('<?php echo $module['id']; ?>', 2);">
-<a href="<?php if (strpos($module['url'], "s_connect")>0) echo "javascript:dashboardObj.connectTo('".$module['url']."');"; else echo $module['url']; ?>"<?php if (isset($module['target'])) echo ' target="'.$module['target'].'"'; ?> class="img-link"><img src="<?php echo site_url(); ?>images/<?php echo $module['icon']; ?>" /></a>
-<div class="title"><a href='<?php if (strpos($module['url'], "s_connect")>0) { echo "javascript:dashboardObj.connectTo('".$module['url']."');"; } else { if (substr($module['url'], 0, 4)!='http') echo site_url(); echo $module['url']; } ?>'><?php echo $module['title']; ?></a></div></li>
+    <li>
+        <a href="<?php if (strpos($module['url'], "s_connect")>0) echo "javascript:app.dashboard.connectTo('".$module['url']."');"; elseif ($module['external']) echo "javascript:app.dashboard.openExternalWebsite('".$module['url']."');"; else echo $module['url']; ?>"<?php if (isset($module['target'])) echo ' target="'.$module['target'].'"'; ?>>
+            <img src="<?php echo site_url(); ?>img/modules/<?php echo $module['icon']; ?>" />
+            <div class="title"><?php echo $module['name']; ?></div>
+        </a>
+    </li>
 	<?php
 		$number++;
 	}
 }
 ?>
 
-</ul>
-<div class="clear"></div></div>
+        </ul>
+    </div>
+</div>
+
+</div><!-- End of row-fluid -->

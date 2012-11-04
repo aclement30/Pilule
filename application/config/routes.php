@@ -40,7 +40,8 @@
 
 $route['default_controller'] = "welcome";
 $route['404_override'] = '';
-$route['login'] = "welcome/login";
+$route['login'] = "users/login";
+$route['logout'] = "users/logout";
 $route['dashboard'] = "welcome/dashboard";
 $route['webct'] = "services/webct";
 $route['portailcours'] = "services/portailcours";
@@ -48,6 +49,8 @@ $route['exchange'] = "services/exchange";
 $route['pixel'] = "services/pixel";
 $route['joinfb/(:any)'] = "welcome/";
 $route['admin/getMenu'] = "admin/dashboard/getMenu";
+
+$route['schedule/(:num)'] = "schedule/index/$1";
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

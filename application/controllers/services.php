@@ -2,15 +2,13 @@
 class Services extends CI_Controller {
 	var $mobile = 0;
 	var $user;
-	var $capsuleOffline = 0;
-	var $usebots = 0;
-	var $encryption_key = "?!&#!@(?#&H#!@?&*#H!@&#*!@G?BGDAJBFSFD?!?%#%!&HG1yt2632512bFI?&12SF%b2fs5mhqs5f23sb!8-nh|IM";
-	
+    var $_source;
+
 	function Services() {
 		parent::__construct();
-		
-		// Ouverture de la session
-		if (!isset($_SESSION)) session_start();
+
+        // Détection de l'origine de la requête (HTML, AJAX, iframe...)
+        getRequestSource();
 		
 		// Chargement des modèles
 		$this->load->model('mUser');
@@ -20,8 +18,12 @@ class Services extends CI_Controller {
 		$this->load->library('lcapsule');
 		$this->load->library('lcrypt');
 		$this->load->library('lfetch');
-		
-		$_SESSION['usebots'] = 0;
+
+        // Vérification de la connexion
+        if ((!$this->mUser->isAuthenticated())) {
+            $_SESSION['login_redirect'] = $this->uri->uri_string();
+            redirect('login');
+        }
 		
 		// Auto-connexion, si spécifié dans l'URL
 		$params = $this->uri->ruri_to_assoc(3);
@@ -40,23 +42,13 @@ class Services extends CI_Controller {
 			
 			if ($response=='success') {
 				// Enregistrement de l'IDUL/mot de passe de l'utilisateur dans la session
-				$_SESSION['cap_iduser'] = $idul;
-				$_SESSION['cap_password'] = $password;
+				$this->session->set_userdata(array('pilule_user' => $idul, 'pilule_password' => $password));
 			}
 		}
-		
-		// Vérification de la connexion
-		if (!isset($_SESSION['cap_iduser']) and $this->uri->segment(1)!='login' and $this->uri->segment(2)!='s_login') {
-			$_SESSION['login_redirect'] = $this->uri->uri_string();
-			redirect('login');
-		}
-		
-		// Sélection des données de l'utilisateur
-		if (isset($_SESSION['cap_iduser'])) {
-			$this->user = $this->mUser->info();
-			$this->user['password'] = $_SESSION['cap_password'];
-		}
-		
+
+        $this->user = $this->mUser->info();
+        $this->user['password'] = $this->session->userdata('pilule_password');
+        
 		// Détection des navigateurs mobiles
 		$this->mobile = $this->lmobile->isMobile();
 	}
@@ -76,56 +68,56 @@ class Services extends CI_Controller {
 	}
 	
 	function webct () {
-		$data['user'] = $this->user;
-		
-		$this->mHistory->save('redirect-webct');
+        $data['user'] = $this->user;
+
+        $this->mHistory->save('redirect-webct');
 		
 		$this->load->view('services/webct', $data);
 	}
 	
 	function portailcours () {
-		$data['user'] = $this->user;
-		
-		$this->mHistory->save('redirect-portailcours');
+        $data['user'] = $this->user;
+
+        $this->mHistory->save('redirect-portailcours');
 		
 		$this->load->view('services/portailcours', $data);
 	}
 	
 	function pixel () {
-		$data['user'] = $this->user;
-		
-		$this->mHistory->save('redirect-pixel');
+        $data['user'] = $this->user;
+
+        $this->mHistory->save('redirect-pixel');
 		
 		$this->load->view('services/pixel', $data);
 	}
 	
 	function elluminate () {
-		$data['user'] = $this->user;
-		
-		$this->mHistory->save('redirect-elluminate');
+        $data['user'] = $this->user;
+
+        $this->mHistory->save('redirect-elluminate');
 		
 		$this->load->view('services/elluminate', $data);
 	}
 	
 	function exchange () {
-		$data['user'] = $this->user;
-		
-		$this->mHistory->save('redirect-exchange');
+        $data['user'] = $this->user;
+
+        $this->mHistory->save('redirect-exchange');
 		
 		$this->load->view('services/exchange', $data);
 	}
 	
 	function capsule () {
-		$data['user'] = $this->user;
-		
-		$this->mHistory->save('redirect-capsule');
+        $data['user'] = $this->user;
+
+        $this->mHistory->save('redirect-capsule');
 		
 		$this->load->view('services/capsule', $data);
 	}
 	
 	function fse_intranet () {
-		$data['user'] = $this->user;
-		$autologon = $this->mUser->getParam('fse-intranet-autologon');
+        $data['user'] = $this->user;
+        $autologon = $this->mUser->getParam('fse-intranet-autologon');
 		$data['autologon'] = $autologon;
 		$data['credentials'] = array();
 		
@@ -149,8 +141,8 @@ class Services extends CI_Controller {
 	}
 	
 	function alfresco () {
-		$data['user'] = $this->user;
-		$autologon = $this->mUser->getParam('alfresco-autologon');
+        $data['user'] = $this->user;
+        $autologon = $this->mUser->getParam('alfresco-autologon');
 		$data['autologon'] = $autologon;
 		$data['credentials'] = array();
 		
@@ -174,8 +166,8 @@ class Services extends CI_Controller {
 	}
 	
 	function med_intranet () {
-		$data['user'] = $this->user;
-		$autologon = $this->mUser->getParam('med-intranet-autologon');
+        $data['user'] = $this->user;
+        $autologon = $this->mUser->getParam('med-intranet-autologon');
 		$data['autologon'] = $autologon;
 		$data['credentials'] = array();
 		

@@ -60,7 +60,7 @@ class lFetch
 	var $response_message="";
 	var $file_buffer_length=8000;
 	var $force_multipart_form_post=0;
-	var $prefer_curl = 0;
+	var $prefer_curl = 1;
 
 	/* private variables - DO NOT ACCESS */
 
@@ -93,6 +93,13 @@ class lFetch
 	var $session='';
 	var $connection_close=0;
 
+    public function set ($params) {
+        if (isset($params['cookies'])) $this->cookies = $params['cookies'];
+        if (isset($params['debug'])) $this->debug = $params['debug'];
+        if (isset($params['referer'])) $this->referer = $params['referer'];
+        if (isset($params['protocol'])) $this->protocol = $params['protocol'];
+        if (isset($params['request_method'])) $this->request_method = $params['request_method'];
+    }
 	/* Private methods - DO NOT CALL */
 
 	Function Tokenize($string,$separator="")

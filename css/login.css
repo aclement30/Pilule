@@ -1,0 +1,122 @@
+/*-------------------------
+	Simple reset
+--------------------------*/
+
+
+*{
+    margin:0;
+    padding:0;
+}
+
+
+/*-------------------------
+	General Styles
+--------------------------*/
+
+body{
+    background:url('../img/background/bg-1.jpg') no-repeat center center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    min-height: 600px;
+    background-attachment: fixed;
+    margin: 0px;
+}
+
+
+h1 {
+    margin-top: 50px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+h1 img {
+    width: 150px;
+}
+
+/*----------------------------
+	Styling the forms
+-----------------------------*/
+
+
+#formContainer{
+    width: 330px;
+    margin: 0 auto;
+    border-radius: 5px;
+    background:url('../img/login-form-bg.gif') no-repeat;
+    background-position: center;
+    box-shadow: 0px 0px 5px 1px rgba(15, 50, 100, 0.5);
+    padding-bottom: 20px;
+}
+
+#login-form {
+    padding: 0px 40px;
+    padding-top: 10px;
+    margin: 0px;
+}
+
+#formContainer .alert-error {
+    display: none;
+    font-size: 10pt;
+    padding: 8px 10px;
+}
+
+#loading-panel {
+    min-height: 320px;
+    display: none;
+    padding: 20px 40px;
+}
+
+#loading-error {
+    min-height: 320px;
+    display: none;
+    padding: 20px 30px;
+}
+
+#login-form label {
+    color: #c4e2ff;
+}
+
+#login-form input:focus {
+	outline: none;
+}
+
+/*----------------------------
+	The Footer
+-----------------------------*/
+
+
+footer {
+    position: fixed;
+    bottom: 0px;
+    background-image: url('../img/footer-bg.png');
+    width: 100%;
+    margin: 0px;
+}
+
+footer p.inside {
+    padding: 10px 30px;
+    color: #aaa;
+    font-size: 8pt;
+}
+
+
+footer .navbar, footer .navbar-inner {
+    background: none;
+    border: 0px;
+    box-shadow: none;
+    color: #fff;
+}
+
+footer .navbar .navbar-inner li a, footer .nav p {
+    color: #fff;
+    text-shadow: black 0.1em 0.1em 0.2em
+}
+
+footer .navbar .navbar-inner li a:hover {
+    color: #99c1e8;
+}
+footer {
+    background: none;
+}

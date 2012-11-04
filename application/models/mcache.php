@@ -5,10 +5,10 @@ class mCache extends CI_Model {
 		parent::__construct();
 	}
 	
-	// Suppression des données en cache depuis plus de 24h
+	// Suppression des donnÃ©es en cache depuis plus de 24h
 	function cleanCache () {
 		/*
-		// Sélection des données
+		// SÃ©lection des donnÃ©es
 		$this->db->where(array('timestamp <'=>(time()-3600*36), 'protected'=>'0'));
 		
 		if ($this->db->delete('cache')) {
@@ -19,10 +19,10 @@ class mCache extends CI_Model {
 		*/
 	}
 	
-	// Sélection des données en cache
+	// Sï¿½lection des donnï¿½es en cache
 	function getCache ($name) {
-		// Sélection des données
-		$this->db->where(array('idul'=>$_SESSION['cap_iduser'], 'name'=>$name));
+		// Sï¿½lection des donnï¿½es
+		$this->db->where(array('idul'=>$this->session->userdata('pilule_user'), 'name'=>$name));
 		$result = $this->db->get('cache');
 		
 		$cache = $result->row_array();
@@ -34,10 +34,10 @@ class mCache extends CI_Model {
 		}
 	}
 	
-	// Mise en cache de données
+	// Mise en cache de donnï¿½es
 	function addCache ($name, $value, $protected = '0') {
-		// Sélection des données
-		$this->db->where(array('idul'=>$_SESSION['cap_iduser'], 'name'=>$name));
+		// Sï¿½lection des donnï¿½es
+		$this->db->where(array('idul'=>$this->session->userdata('pilule_user'), 'name'=>$name));
 		$result = $this->db->get('cache');
 		
 		$cache = $result->row_array();
@@ -49,7 +49,7 @@ class mCache extends CI_Model {
 		} else {
 			//if (isset($_SESSION['data-storage']) and $_SESSION['data-storage'] == 'yes') $protected = '1';
 			
-			if ($this->db->insert('cache', array('idul'=>$_SESSION['cap_iduser'], 'name'=>$name, 'value'=>$value, 'date'=>date('Ymd'), 'time'=>date('H:i'), 'timestamp'=>time(), 'protected'=>$protected))) {
+			if ($this->db->insert('cache', array('idul'=>$this->session->userdata('pilule_user'), 'name'=>$name, 'value'=>$value, 'date'=>date('Ymd'), 'time'=>date('H:i'), 'timestamp'=>time(), 'protected'=>$protected))) {
 				return (true);
 			} else {
 				return (false);
@@ -58,8 +58,8 @@ class mCache extends CI_Model {
 	}
 	
 	function lockUserCache () {
-		// Sélection des données
-		$this->db->where(array('idul'=>$_SESSION['cap_iduser']));
+		// Sï¿½lection des donnï¿½es
+		$this->db->where(array('idul'=>$this->session->userdata('pilule_user')));
 	
 		if ($this->db->update('cache', array('protected'=>'1'))) {
 			return (true);
@@ -71,8 +71,8 @@ class mCache extends CI_Model {
 	function unlockUserCache ($name) {
 		if ($idul == 'demo') return (true);
 		
-		// Sélection des données
-		$this->db->where(array('idul'=>$_SESSION['cap_iduser']));
+		// Sï¿½lection des donnï¿½es
+		$this->db->where(array('idul'=>$this->session->userdata('pilule_user')));
 	
 		if ($this->db->update('cache', array('protected'=>'0'))) {
 			return (true);
@@ -81,14 +81,14 @@ class mCache extends CI_Model {
 		}
 	}
 	
-	// Actualisation d'une donnée dans le cache
+	// Actualisation d'une donnï¿½e dans le cache
 	function updateCache ($name, $value, $protected = '0') {
-		// Vérification de l'existence du cache
+		// Vï¿½rification de l'existence du cache
 		if ($this->getCache($name) == array()) {
 			return ($this->addCache($name, $value, $protected));
 		} else {
-			// Sélection des données
-			$this->db->where(array('idul'=>$_SESSION['cap_iduser'], 'name'=>$name));
+			// Sï¿½lection des donnï¿½es
+			$this->db->where(array('idul'=>$this->session->userdata('pilule_user'), 'name'=>$name));
 			
 			//if (isset($_SESSION['data-storage']) and $_SESSION['data-storage'] == 'yes') $protected = '1';
 			
@@ -100,12 +100,12 @@ class mCache extends CI_Model {
 		}
 	}
 	
-	// Suppression de données dans le cache
+	// Suppression de donnï¿½es dans le cache
 	function deleteCache ($name, $forceDelete = 0) {
 		if ($forceDelete == 1) {
-			$param = array('idul'=>$_SESSION['cap_iduser'], 'name'=>$name);
+			$param = array('idul'=>$this->session->userdata('pilule_user'), 'name'=>$name);
 		} else {
-			$param = array('idul'=>$_SESSION['cap_iduser'], 'name'=>$name, 'protected'=>'0');
+			$param = array('idul'=>$this->session->userdata('pilule_user'), 'name'=>$name, 'protected'=>'0');
 		}
 		
 		if ($this->db->delete('cache', $param)) {
@@ -115,7 +115,7 @@ class mCache extends CI_Model {
 		}
 	}
 	
-	// Suppression des données en cache de l'utilisateur
+	// Suppression des donnï¿½es en cache de l'utilisateur
 	function deleteUserCache ($idul) {
 		if ($idul == 'demo') return (true);
 		if ($this->db->delete('cache', array('idul'=>$idul, 'protected'=>'0'))) {
@@ -124,4 +124,88 @@ class mCache extends CI_Model {
 			return (false);
 		}
 	}
+
+    // Ajout d'une requÃªte Capsule
+    function addRequest ($name, $md5 = '') {
+        // Recherche d'une requÃªte similaire
+        $this->db->where(array('idul' => $this->session->userdata('pilule_user'), 'name' => $name));
+        $result = $this->db->get('capsule_requests');
+
+        $cache = $result->row_array();
+
+        if ($cache!=array()) {
+            // Actualisation de la requÃªte
+            $this->db->where(array('idul' => $this->session->userdata('pilule_user'), 'name' => $name));
+
+            $this->db->update('capsule_requests', array('timestamp' => time(), 'md5' => $md5));
+        } else {
+            if ($this->db->insert('capsule_requests', array('idul'=>$this->session->userdata('pilule_user'), 'name'=>$name, 'md5'=>$md5, 'timestamp'=>time()))) {
+                return (true);
+            } else {
+                return (false);
+            }
+        }
+    }
+
+    function requestExists ($name, $md5 = '') {
+        // Recherche d'une requÃªte similaire
+        $this->db->where(array('idul' => $this->session->userdata('pilule_user'), 'name' => $name));
+        $result = $this->db->get('capsule_requests');
+
+        $request = $result->row_array();
+
+        if (empty($request)) {
+            return (false);
+        }
+
+        if (!empty($md5)) {
+            if ($request['md5'] == $md5) {
+                return (true);
+            } else {
+                return (false);
+            }
+        }
+    }
+
+    function isOutdated ($name, $min_timestamp) {
+        // Recherche d'une requÃªte similaire
+        $this->db->where(array('idul' => $this->session->userdata('pilule_user'), 'name' => $name, 'timestamp >=' => $min_timestamp));
+        $result = $this->db->get('capsule_requests');
+
+        $request = $result->row_array();
+
+        if (empty($request)) {
+            return (true);
+        } else {
+            return (false);
+        }
+    }
+
+    function getLastRequest ($name) {
+        // Recherche d'une requÃªte similaire
+        $this->db->where(array('idul' => $this->session->userdata('pilule_user'), 'name' => $name));
+        $result = $this->db->get('capsule_requests');
+
+        $request = $result->row_array();
+
+        if (empty($request)) {
+            return (array());
+        } else {
+            return ($request);
+        }
+    }
+
+    // Suppression des relevÃ©s de notes de l'Ã©tudiant
+    function deleteRequests ($idul = '') {
+        if ($idul=='') $idul = $this->session->userdata('pilule_user');
+
+        // Si le compte demo est activÃ©, ne pas supprimer les donnÃ©es
+        if ($idul == 'demo') return (true);
+
+        if ($this->db->delete('capsule_requests', array('idul'=>$idul))) {
+            return (true);
+        } else {
+            return (false);
+        }
+    }
 }

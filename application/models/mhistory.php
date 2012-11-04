@@ -8,7 +8,7 @@ class mHistory extends CI_Model {
 	
 	function getCache ($name) {
 		// Sélection des données
-		$this->db->where(array('idul'=>$_SESSION['cap_iduser'], 'name'=>$name));
+		$this->db->where(array('idul'=>$this->session->userdata('pilule_user'), 'name'=>$name));
 		$result = $this->db->get('cache');
 		
 		$cache = $result->row_array();
@@ -28,8 +28,8 @@ class mHistory extends CI_Model {
 					  'time'		=>	date('H:i')
 					  );
 		
-		if (isset($_SESSION['cap_iduser'])) {
-			$item['idul'] = $_SESSION['cap_iduser'];
+		if ($this->session->userdata('pilule_user') != '') {
+			$item['idul'] = $this->session->userdata('pilule_user');
 		} elseif (isset($_SESSION['temp_iduser'])) {
 			$item['idul'] = $_SESSION['temp_iduser'];
 		} else {
@@ -101,4 +101,34 @@ class mHistory extends CI_Model {
 		
 		return (array($step1, $step2_register, $step2_remove, $step3));
 	}
+
+    function saveRequestData ($idul, $name, $data, $info = '') {
+        $request = array(
+            'idul'      =>  $idul,
+            'name'      =>  $name,
+            'content'   =>  $data,
+            'info'      =>  $info,
+            'date'      =>  date('d-m-Y H:i:s'),
+            'timestamp' =>  microtime(true),
+        );
+
+        if ($this->db->insert('requests_data', $request)) {
+            return (true);
+        } else {
+            return (false);
+        }
+    }
+
+    function getRequestData ($id) {
+        // Sélection des données
+        $this->db->where(array('id' => $id));
+        $result = $this->db->get('requests_data');
+        $data = $result->result_array();
+
+        if ($data!=array()) {
+            return ($data[0]['content']);
+        } else {
+            return (array());
+        }
+    }
 }

@@ -3,85 +3,79 @@
 class Support extends CI_Controller {
 	var $mobile = 0;
 	var $user;
+    var $_source;
 	
 	function Support() {
 		parent::__construct();
-		
-		// Ouverture de la session
-		if (!isset($_SESSION)) session_start();
+
+        // Détection de l'origine de la requête (HTML, AJAX, iframe...)
+        getRequestSource();
 		
 		// Chargement des modèles
 		$this->load->model('mUser');
 		
 		// Chargement des librairies
 		$this->load->library('lfetch');
-
-		// Sélection des données de l'utilisateur
-		if (isset($_SESSION['cap_iduser'])) {
-			$this->user = $this->mUser->info();
-			$this->user['password'] = $_SESSION['cap_password'];
-		}
 		
 		// Détection des navigateurs mobiles
 		$this->mobile = $this->lmobile->isMobile();
 	}
 
-	function getMenu() {
-		$data['mobile'] = $this->mobile;
-		
-		$content = str_replace("\r", '', str_replace("\n", '', $this->load->view('support/m-menu', $data, true)));
-		echo "$('#rcolumn').html(\"".addslashes($content)."\");updateMenu();";
-	}
-	
 	function terms () {
-		$data = array('page' => 'support/terms');
-		if (isset($_SESSION['cap_iduser'])) $data['user'] = $this->user;
-		
-		// Chargement de l'entête
-		if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
-		
-		// Affichage de la page
-		$this->load->view('support/terms', $data);
-		
-		// Chargement du menu
-		if ($this->mobile!=1) $this->load->view('support/m-menu', $data);
-		
-		// Chargement du bas de page
-		if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
+        $data = array(
+            'section'           =>  'support',
+            'user'              =>  $this->user,
+            'mobile_browser'    =>  $this->mobile,
+            'capsule_offline'   =>  ($this->session->userdata('capsule_offline') == 'yes') ? true: false,
+            // Set page specific data
+        );
+
+        // Chargement de l'entête
+        if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
+
+        // Chargement de la page
+        $this->load->view('support/terms', $data);
+
+        // Chargement du bas de page
+        if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
 	}
 		
 	function privacy () {
-		$data = array('page' => 'support/privacy');
-		if (isset($_SESSION['cap_iduser'])) $data['user'] = $this->user;
-		
-		// Chargement de l'entête
-		if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
-		
-		// Affichage de la page
-		$this->load->view('support/privacy', $data);
-		
-		// Chargement du menu
-		if ($this->mobile!=1) $this->load->view('support/m-menu', $data);
-		
-		// Chargement du bas de page
-		if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
+        $data = array(
+            'section'           =>  'support',
+            'user'              =>  $this->user,
+            'mobile_browser'    =>  $this->mobile,
+            'capsule_offline'   =>  ($this->session->userdata('capsule_offline') == 'yes') ? true: false,
+            // Set page specific data
+        );
+
+        // Chargement de l'entête
+        if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
+
+        // Chargement de la page
+        $this->load->view('support/privacy', $data);
+
+        // Chargement du bas de page
+        if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
 	}
 	
 	function faq () {
-		$data = array('page' => 'support/faq');
-		if (isset($_SESSION['cap_iduser'])) $data['user'] = $this->user;
-		
-		// Chargement de l'entête
-		if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
-		
-		// Affichage de la page
-		$this->load->view('support/faq', $data);
-		
-		// Chargement du menu
-		if ($this->mobile!=1) $this->load->view('support/m-menu', $data);
-		
-		// Chargement du bas de page
-		if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
+        $data = array(
+            'section'           =>  'support',
+            'user'              =>  $this->user,
+            'mobile_browser'    =>  $this->mobile,
+            'capsule_offline'   =>  ($this->session->userdata('capsule_offline') == 'yes') ? true: false,
+            // Set page specific data
+        );
+
+        // Chargement de l'entête
+        if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
+
+        // Chargement de la page
+        $this->load->view('support/faq', $data);
+
+        // Chargement du bas de page
+        if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
 	}
 	
 	function phishingEmail () {
@@ -89,20 +83,22 @@ class Support extends CI_Controller {
 	}
 	
 	function contact () {
-		$data = array('page' => 'support/contact');
-		if (isset($_SESSION['cap_iduser'])) $data['user'] = $this->user;
-		
-		// Chargement de l'entête
-		if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
-		
-		// Affichage de la page
-		$this->load->view('support/contact', $data);
-		
-		// Chargement du menu
-		if ($this->mobile!=1) $this->load->view('support/m-menu', $data);
-		
-		// Chargement du bas de page
-		if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
+        $data = array(
+            'section'           =>  'support',
+            'user'              =>  $this->user,
+            'mobile_browser'    =>  $this->mobile,
+            'capsule_offline'   =>  ($this->session->userdata('capsule_offline') == 'yes') ? true: false,
+            // Set page specific data
+        );
+
+        // Chargement de l'entête
+        if ($this->mobile!=1) $this->load->view('header', $data); else $this->load->view('m-header', $data);
+
+        // Chargement de la page
+        $this->load->view('support/contact', $data);
+
+        // Chargement du bas de page
+        if ($this->mobile!=1) $this->load->view('footer', $data); else $this->load->view('m-footer', $data);
 	}
 	
 	function w_reportBug () {

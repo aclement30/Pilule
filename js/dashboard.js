@@ -1,3 +1,84 @@
+var dashboard = {
+    controllerURL:  './welcome/',
+
+    goTo: function (moduleName) {
+        document.location.hash = $('#module-'+moduleName+'-action').val();
+    },
+    connectTo: function (url) {
+        loading('Ouverture de la page...');
+
+        !sendData('GET',url, '');
+    },
+    edit: function () {
+        loading();
+
+        // Notification à Google Analytics d'une modification du Tableau de bord
+        _gaq.push(['_trackEvent', 'Dashboard', 'Edit', 'Modification du Tableau de bord']);
+
+        $('.action-buttons .buttons a').tooltip('hide');
+
+        // Affichage de la page de modification du tableau de bord
+        document.location.hash = '#!/dashboard/edit';
+    },
+    save: function () {
+        loading();
+
+        // Affichage d'un message de notification quand la page est rechargée
+        loadContentCallback = function () { resultMessage('Les modifications au tableau de bord ont été enregistrées.'); }
+
+        $('.action-buttons .buttons a').tooltip('hide');
+
+        // Affichage du tableau de bord normal
+        document.location.hash = '#!/dashboard';
+    },
+    toggleModule: function ( id ) {
+        // Si le module est déjà activé, une demande de désactivation est envoyée via AJAX
+        if ( $('#module-'+id).hasClass( 'enabled' ) ) {
+            ajax.request({
+                type:           'POST',
+                controller:     this.controllerURL,
+                method:         'ajax_toggleModule',
+                data:           {
+                    id:         id,
+                    isEnabled:  0
+                },
+                callback:       function ( response ) {
+                    if ( response.status ) {
+                        // Le module a été désactivé
+                        $('#module-'+response.id).removeClass('enabled').addClass('disabled');
+                    }
+                }
+            });
+        } else {
+            ajax.request({
+                type:           'POST',
+                controller:     this.controllerURL,
+                method:         'ajax_toggleModule',
+                data:           {
+                    id:         id,
+                    isEnabled:  1
+                },
+                callback:       function ( response ) {
+                    if ( response.status ) {
+                        // Le module a été désactivé
+                        $('#module-'+response.id).removeClass('disabled').addClass('enabled');
+                    }
+                }
+            });
+        }
+    },
+    openExternalWebsite: function ( url )
+        {$('#header h1').addClass('small');
+        $('#sidebar').hide();
+        $('#external-frame').attr('src', url);
+        $('#user-nav .nav').hide();
+        $('#user-nav .nav.external-frame').fadeIn();
+        $('#external-frame').fadeIn();
+    }
+}
+
+addChild(app, 'dashboard', dashboard);
+
 // JavaScript Document
 var dashboardObj = {
 	dataList: new Array(),
@@ -184,3 +265,5 @@ var dashboardObj = {
 		hash = '#!/dashboard/';
 	}
 };
+
+addChild(app, 'dashboard', dashboard);

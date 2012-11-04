@@ -1,88 +1,88 @@
-<h2 class="title">Relevé par session<?php if ($user['idul'] != 'demo' and ((!isset($cap_offline)) or $cap_offline != 1)) { ?><a href="javascript:reloadData('data|fees');" class="link" style="margin-right: 15px;"><img src="<?php echo site_url(); ?>images/arrow_refresh.png" align="absmiddle" />&nbsp;Actualiser les données</a><?php } ?><div class="clear"></div></h2>	
-<div class="clear"></div>
-<div class="page-separator"></div>
-<div class="post-content">
+<div class="row-fluid">
+    <div class="request-description">Données extraites du système de gestion des études de l'Université Laval, le <?php echo date('d/m/Y, à H:i', $last_request['timestamp']); ?>.</div>
+</div>
 
-<div id="notice" style="margin-bottom: 20px;<?php if (isset($cap_offline) and $cap_offline == 1) echo 'display: block;'; ?>">Ces données sont extraites du système Capsule de l'Université Laval, en date du <?php echo currentDate($cache_date, 'd F Y'); ?> à <?php echo str_replace(":", "h", $cache_time); ?>.</div>
-<div style="float: left;" class="semester-field">Session : <select name="semester" id="semester" onchange="javascript:feesObj.selectSemester(this.options[this.selectedIndex].value);">
-	<?php
-	foreach ($semesters as $semester => $name) {
-		?><option value="<?php echo $semester; ?>"<?php if ($_SESSION['fees_current_semester']==$semester) echo ' selected="selected"'; ?>> <?php echo $name; ?></option><?php
-	}
-	?>
-</select></div>
-<div style="clear: both;"></div><br />
-<?php
-$semester = $fees;
+<div class="row-fluid" class="semester-select">
+    <div class="btn-group" style="float: right;">
+        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+            <?php echo convertSemester($semester_date); ?>
+            <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu pull-right">
+            <?php foreach ($semesters as $semester2) {
+            ?><li><a href="javascript:app.tuitions.displaySemester(<?php echo $semester2['semester']; ?>);"<?php if ($semester2['semester'] == $semester_date) echo ' style="font-weight: bold;"'; ?>><?php echo convertSemester($semester2['semester']); ?></a></li><?php
+        } ?>
+        </ul>
+    </div>
+    <div style="float: right;<?php if ( $mobile_browser != 1 ) echo ' font-size: 8pt; margin-top: 1px;'; else echo ' margin-top: 5px;'; ?> color: grey; margin-right: 5px;">Session affichée : </div>
+    <div style="clear: both;"></div>
+</div><!-- End of row-fluid -->
+
+<?php if (!empty($semester)) { ?>
+<div class="row-fluid">
+    <div class="span12">
+        <div class="widget-box">
+            <div class="widget-title">
+								<span class="icon">
+									<i class="icon-list"></i>
+								</span>
+                <h5>Frais de scolarité - <?php echo convertSemester($semester['semester']); ?></h5>
+            </div>
+            <div class="widget-content nopadding">
+                <table class="table table-bordered table-striped">
+                    <tbody>
+                    <tr>
+                        <th style="font-weight: bold; text-align: left;">Description</th>
+                        <th style="font-weight: bold; text-align: center; width: 25%;">Frais ($)</th>
+                    </tr>
+                    <?php
+                    foreach ($semester['fees'] as $fee) {
+                        ?>
+                    <tr>
+                        <td><?php echo $fee['name']; ?></td>
+                        <td style="text-align: right;"><?php echo number_format($fee['amount'], 2); ?></td>
+                    </tr>
+                        <?php
+                    }
+                    ?>
+                    <tr>
+                        <td style="font-weight: bold; text-align: right;">Total</td>
+                        <td style="text-align: right; font-weight: bold;"><?php echo number_format($semester['total'], 2); ?> $</td>
+                    </tr>
+                    <?php
+                    if ($semester['payments']!='0.00') { ?>
+                    <tr>
+                        <td style="font-weight: bold; text-align: right;">Paiements / crédits</td>
+                        <td style="text-align: right; font-weight: bold;"><?php echo number_format($semester['payments'], 2); ?> $</td>
+                    </tr>
+                        <?php } ?>
+                    <tr>
+                        <td style="font-weight: bold; text-align: right;<?php if ($semester['balance']=='0.00') echo ' color: green;'; else echo ' color: red;'; ?>">Solde à payer</td>
+                        <td style="text-align: right; font-weight: bold;<?php if ($semester['balance']=='0.00') echo ' color: green;'; else echo ' color: red;'; ?>"><?php echo number_format($semester['balance'], 2)." $"; ?></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div><!-- End of row-fluid -->
+<?php } else {
 ?>
-<table>
-	<tbody>
-		<tr>
-		<th style="font-weight: bold; text-align: left; width: <?php if ($mobile!=1) echo 80; else echo 73; ?>%">Description</th>
-		<th style="font-weight: bold; text-align: right; width: 50px;">Frais ($)</th>
-	</tr>
-	<?php
-	foreach ($semester['fees'] as $fee) {
-		if ($fee['type']=='fee') {
-		?>
-		<tr>
-			<td><?php echo $fee['name']; ?></td>
-			<td style="text-align: right;"><?php echo $fee['amount']; ?></td>
-		</tr>
-		<?php
-		}
-	}
-	?>
-	<tr>
-		<td style="font-weight: bold; text-align: right;">Total</td>
-		<td style="text-align: right; font-weight: bold;"><?php echo $semester['total_fees']; ?> $</td>
-	</tr>
-	<?php
-	if ($semester['total_payments']!='0,00') { ?>
-	<tr>
-		<td style="font-weight: bold; text-align: right;">Paiements / crédits</td>
-		<td style="text-align: right; font-weight: bold;"><?php echo $semester['total_payments']; ?> $</td>
-	</tr>
-	<?php } ?>
-	<tr>
-		<td style="font-weight: bold; text-align: right;<?php if ($semester['balance']=='0,00') echo ' color: green;'; else echo ' color: red;'; ?>">Solde à payer</td>
-		<td style="text-align: right; font-weight: bold;<?php if ($semester['balance']=='0,00') echo ' color: green;'; else echo ' color: red;'; ?>"><?php echo $semester['balance']." $"; ?></td>
-	</tr>
-	</tbody>
-</table>
-<style type="text/css">
-.post-content table {
-	width: 100%;
-	font-size: 10pt;
-	padding: 0px;
-}
+<div class="row-fluid" style="padding-top: 15px;">
 
-.post-content table th {
-	width: 170px;
-	font-weight: bold;
-	text-align: right;
-	padding-right: 20px;
-	vertical-align: top;
-	font-size: 11pt;
+    <div class="hero-unit no-data span12">
+        <div class="span1">&nbsp;</div>
+        <div class="span3" style="text-align: right; padding-right: 15px;">
+            <img src="./img/lego-man.png" alt="Lego Man" />
+        </div>
+        <div class="span7" style="padding-top: 40px;">
+            <p class="lead">Aucune donnée enregistrée</p>
+            Votre dossier Capsule ne contient aucune donnée pour cette page.
+        </div>
+        <div class="span1">&nbsp;</div>
+        <div style="clear: both;"></div>
+    </div>
+</div>
+<?php
 }
-
-.post-content table th, .post-content table td {
-	padding: 10px;
-}
-
-<?php if ($mobile==1) { ?>
-.post-content table th {
-	width: 100px;
-	font-size: 9pt;
-}
-
-br.space {
-	display: none;
-}
-
-.semester-field {
-	font-size: 10pt;
-}
-<?php } ?>
-</style>
-<div class="clear"></div></div>
+?>
