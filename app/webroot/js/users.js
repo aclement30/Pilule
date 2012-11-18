@@ -1,22 +1,27 @@
 var login = false;
 
-var app.Users = {
+if ( !app ) {
+    var app = {};
+}
+
+app.Users = {
     controllerURL: '/users/'
 };
 
-var app.Users.login = function ( askAutoLogon ) {
+app.Users.login = function ( askAutoLogon ) {
     var idul = $( '#login-form .idul' ).val();
     var password = $( '#login-form .password' ).val();
 
+    // Hide error message
     $( '#login-form .alert-error' ).hide();
 
     $( '#login-form' ).fadeOut( 'fast', function () {
-        $( '#loading-panel' .fadeIn();
+        $( '#loading-panel' ).fadeIn();
     });
     
     var autoLogon = 0;
     
-    if ( isMobile == 1 ) {
+    if ( app.isMobile ) {
         // Si le visiteur accède au site depuis un navigateur mobile et que le stockage local est disponible,
         // l'option de mémoriser son mot de passe lui est offerte
         
@@ -35,7 +40,7 @@ var app.Users.login = function ( askAutoLogon ) {
     
     // Send login request
     ajax.request({
-        url:            app.Users.controllerURL,
+        controller:     app.Users.controllerURL,
         method:         'login',
         data:           {
             idul:       idul,
@@ -43,7 +48,7 @@ var app.Users.login = function ( askAutoLogon ) {
         },
         callback:       function ( response ) {
             if ( response.status ) {
-                if ( isMobile == 1 ) {
+                if ( app.isMobile == 1 ) {
                     // Si l'utilisateur a choisi de mémoriser son mot de passe, l'IDUL et le mot de passe sont mémorisés sur l'appareil
                     if ( autoLogon == 1 ) {
                         if ( Modernizr.localstorage ) {
@@ -64,14 +69,14 @@ var app.Users.login = function ( askAutoLogon ) {
                     $.each( response.reloadList, function( key, value ) {
                         // Ajout d'un élément à la liste
                         reloadItems.push( { name: value, auto: 1, callback: function() {
-                            if ( app.cache.loadingQueue.length == 0 && ( !app.cache.isLoading ) ) {
-                                app.users.redirectToDashboard();
+                            if ( app.Cache.loadingQueue.length == 0 && ( !app.Cache.isLoading ) ) {
+                                app.Users.redirectToDashboard();
                             }
                         }});
                     });
 
                     // Actualisation de la liste d'éléments
-                    app.cache.reloadData( reloadItems );
+                    app.Cache.reloadData( reloadItems );
                 } else {
                     var redirectURL = $( '#redirect_url' ).val();
 
@@ -85,15 +90,17 @@ var app.Users.login = function ( askAutoLogon ) {
                     }
                 }
             } else {
-                errorMessage( response.error, $( '#login-form .alert-error' ), false );
-
                 $( '#loading-panel' ).fadeOut( 'fast', function () {
                     $( '#login-form' ).fadeIn();
                 });
+
+                errorMessage( response.error, $( '#login-form .alert-error' ), false );
             }
         }
     });
-}
+};
+
+/*
 var users = {
     controller: '/users/',
 
@@ -253,3 +260,4 @@ function supportsCSS3D() {
 
     return false;
 }
+*/

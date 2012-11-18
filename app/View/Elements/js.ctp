@@ -1,24 +1,29 @@
-<script type='text/javascript' src="/js/bootstrap.min.js"></script>
-<script type='text/javascript' src="/js/bootstrap-tooltip.js"></script>
-<script type='text/javascript' src="/js/pilule.js?ver=2.0.2"></script>
-<script type='text/javascript' src="/js/users.js?ver=2.0.2"></script>
-<script type='text/javascript' src="/js/studies.js?ver=2.0.2"></script>
-<script type='text/javascript' src="/js/tuitions.js?ver=2.0.2"></script>
-<script type='text/javascript' src="/js/settings.js?ver=2.0.2"></script>
-<script type='text/javascript' src="/js/dashboard.js?ver=2.0.2"></script>
-<script type='text/javascript' src="/js/schedule.js?ver=2.0.2"></script>
-<script type='text/javascript' src="/js/cache.js?ver=2.0.2"></script>
+<!-- Load external libraries -->
+<script type='text/javascript' src="/js/libs/bootstrap.min.js"></script>
+<script type='text/javascript' src="/js/libs/fullcalendar.min.js"></script>
+<script type='text/javascript' src="/js/libs/modernizr.custom.41742.js"></script>
+<script type='text/javascript' src="/js/ajax.js"></script>
+
+<!-- Load Pilule-specific JS files -->
+<script type='text/javascript' src="/js/pilule.js?ver=2.1"></script>
+<script type='text/javascript' src="/js/users.js?ver=2.1"></script>
+<script type='text/javascript' src="/js/studies.js?ver=2.1"></script>
+<script type='text/javascript' src="/js/tuitions.js?ver=2.1"></script>
+<script type='text/javascript' src="/js/settings.js?ver=2.1"></script>
+<script type='text/javascript' src="/js/dashboard.js?ver=2.1"></script>
+<script type='text/javascript' src="/js/schedule.js?ver=2.1"></script>
+<script type='text/javascript' src="/js/cache.js?ver=2.1"></script>
+
+<!--
 <?php if ( !isset( $user ) ): ?>
     <script type='text/javascript' src="/js/login.js?ver=2.0.2"></script>
 <?php endif; ?>
 <script type='text/javascript' src="/js/main.js?ver=2.0.2"></script>
 <script type='text/javascript' src="/js/ajax.js?ver=2.0.2"></script>
 <script type='text/javascript' src="/js/path.min.js"></script>
-<script type='text/javascript' src="/js/fullcalendar.min.js"></script>
 <script type='text/javascript' src="/js/jquery.flot.min.js"></script>
 <script type='text/javascript' src="/js/jquery.flot.pie.min.js"></script>
 <script type='text/javascript' src="/js/jquery.flot.resize.min.js"></script>
-<script type='text/javascript' src="/js/modernizr.custom.41742.js"></script>
 
 <script language="javascript">
 $( document ).ready( function() {
@@ -38,3 +43,4 @@ $( document ).ready( function() {
     $( '.buttons.semester-select select' ).live( 'click', function (e) { app.schedule.displaySemester( $( e.currentTarget ).val() ); } );
 });
 </script>
+-->

@@ -1,10 +1,12 @@
-var tuitions = {
-    controllerURL: './fees/',
-    object:        'fees',
-
-    displaySemester: function (semester) {
-        document.location.hash = '#!/fees/details/'+semester;
-    }
+if ( !app ) {
+    var app = {};
 }
 
-addChild(app, 'tuitions', tuitions);
+app.Tuitions = {
+    controllerURL: './fees/',
+    object:        'fees'
+};
+
+app.Tuitions.displaySemester = function ( semester ) {
+    document.location.hash = '#!/fees/details/' + semester;
+};

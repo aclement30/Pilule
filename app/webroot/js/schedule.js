@@ -1,26 +1,27 @@
-var schedule = {
-    controllerURL: './schedule/',
-    object:        'schedule',
-
-    // Affichage de l'horaire de cours pour un semestre
-    displaySemester: function (semester) {
-        document.location.hash = '#!/schedule/'+semester;
-    },
-
-    // Téléchargement de l'horaire au format iCal
-    download: function (semester) {
-        // Notification à Google Analytics d'un téléchargement de l'horaire
-        _gaq.push(['_trackEvent', 'Schedule', 'Download', 'Téléchargement de l\'horaire']);
-
-        $('#frame').attr('src', './schedule/ical_download/'+semester);
-        $('#frame').load(function() {
-            //alert('calendar loaded');
-        });
-    }
+if ( !app ) {
+    var app = {};
 }
 
-addChild(app, 'schedule', schedule);
+app.Schedule = {
+    controllerURL: './schedule/',
+    object:        'schedule'
+};
 
+// Display semester schedule
+app.Schedule.displaySemester = function ( semester ) {
+    document.location.hash = '#!/schedule/' + semester;
+};
+
+// Download schedule in iCal format
+app.Schedule.download = function ( semester ) {
+    // Notify Google Analytics of Schedule-download action
+    _gaq.push(['_trackEvent', 'Schedule', 'Download', 'Téléchargement de l\'horaire']);
+
+    // Download schedule iCal file
+    $( '#frame' ).attr( 'src', app.Schedule.controllerURL + 'ical_download/' + semester );
+};
+
+/*
 // JavaScript Document
 var scheduleObj = {
 	currentPeriod: '',
@@ -69,4 +70,4 @@ var scheduleObj = {
 	selectFriendlist: function (id) {
 		$('#friendlist-'+id).toggleClass('selected');
 	}
-};
+};*/

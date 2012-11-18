@@ -1,84 +1,101 @@
-var dashboard = {
-    controllerURL:  './welcome/',
-
-    goTo: function (moduleName) {
-        document.location.hash = $('#module-'+moduleName+'-action').val();
-    },
-    connectTo: function (url) {
-        loading('Ouverture de la page...');
-
-        !sendData('GET',url, '');
-    },
-    edit: function () {
-        loading();
-
-        // Notification à Google Analytics d'une modification du Tableau de bord
-        _gaq.push(['_trackEvent', 'Dashboard', 'Edit', 'Modification du Tableau de bord']);
-
-        $('.action-buttons .buttons a').tooltip('hide');
-
-        // Affichage de la page de modification du tableau de bord
-        document.location.hash = '#!/dashboard/edit';
-    },
-    save: function () {
-        loading();
-
-        // Affichage d'un message de notification quand la page est rechargée
-        loadContentCallback = function () { resultMessage('Les modifications au tableau de bord ont été enregistrées.'); }
-
-        $('.action-buttons .buttons a').tooltip('hide');
-
-        // Affichage du tableau de bord normal
-        document.location.hash = '#!/dashboard';
-    },
-    toggleModule: function ( id ) {
-        // Si le module est déjà activé, une demande de désactivation est envoyée via AJAX
-        if ( $('#module-'+id).hasClass( 'enabled' ) ) {
-            ajax.request({
-                type:           'POST',
-                controller:     this.controllerURL,
-                method:         'ajax_toggleModule',
-                data:           {
-                    id:         id,
-                    isEnabled:  0
-                },
-                callback:       function ( response ) {
-                    if ( response.status ) {
-                        // Le module a été désactivé
-                        $('#module-'+response.id).removeClass('enabled').addClass('disabled');
-                    }
-                }
-            });
-        } else {
-            ajax.request({
-                type:           'POST',
-                controller:     this.controllerURL,
-                method:         'ajax_toggleModule',
-                data:           {
-                    id:         id,
-                    isEnabled:  1
-                },
-                callback:       function ( response ) {
-                    if ( response.status ) {
-                        // Le module a été désactivé
-                        $('#module-'+response.id).removeClass('disabled').addClass('enabled');
-                    }
-                }
-            });
-        }
-    },
-    openExternalWebsite: function ( url )
-        {$('#header h1').addClass('small');
-        $('#sidebar').hide();
-        $('#external-frame').attr('src', url);
-        $('#user-nav .nav').hide();
-        $('#user-nav .nav.external-frame').fadeIn();
-        $('#external-frame').fadeIn();
-    }
+if ( !app ) {
+    var app = {};
 }
 
-addChild(app, 'dashboard', dashboard);
+app.Dashboard = {
+    controllerURL:  './welcome/'
+};
 
+app.Dashboard.goTo = function ( moduleName ) {
+    document.location.hash = $( '#module-' + moduleName + '-action' ).val();
+};
+
+app.Dashboard.connectTo = function ( url ) {
+    loading('Ouverture de la page...');
+
+    !sendData('GET',url, '');
+};
+
+app.Dashboard.edit = function () {
+    loading();
+
+    // Notify Google Analytics of Dashboard-edit action
+    _gaq.push(['_trackEvent', 'Dashboard', 'Edit', 'Modification du Tableau de bord']);
+
+    $('.action-buttons .buttons a').tooltip('hide');
+
+    // Display dashboard edit page
+    document.location.hash = '#!/dashboard/edit';
+};
+
+app.Dashboard.save = function () {
+    loading();
+
+    // Display save notice when page is refreshed
+    loadContentCallback = function () { resultMessage( 'Les modifications au tableau de bord ont été enregistrées.' ); }
+
+    $('.action-buttons .buttons a').tooltip('hide');
+
+    // Display normal dashboard
+    document.location.hash = '#!/dashboard';
+};
+
+app.Dashboard.toggleModule = function ( id ) {
+	// If module already activated, send deactivation request via AJAX
+    if ( $( '#module-' + id ).hasClass( 'enabled' ) ) {
+        ajax.request({
+            type:           'PUT',
+            controller:     app.Dashboard.controllerURL,
+            method:         'toggleModule',
+            data:           {
+                id:         id,
+                isEnabled:  0
+            },
+            callback:       function ( response ) {
+                if ( response.status ) {
+                    // Module has been activated
+                    $( '#module-' + response.id ).removeClass( 'enabled' ).addClass( 'disabled' );
+                }
+            }
+        });
+    } else {
+        ajax.request({
+            type:           'PUT',
+            controller:     app.Dashboard.controllerURL,
+            method:         'toggleModule',
+            data:           {
+                id:         id,
+                isEnabled:  1
+            },
+            callback:       function ( response ) {
+                if ( response.status ) {
+                    // Module has been deactivated
+                    $( '#module-' + response.id ).removeClass( 'disabled' ).addClass( 'enabled' );
+                }
+            }
+        });
+    }
+};
+
+// Open external website in external view frame
+app.Dashboard.openExternalWebsite = function ( url ) {
+	// Display small logo
+    $('#header h1').addClass('small');
+
+    // Hide sidebar
+    $('#sidebar').hide();
+
+    // Display external view frame
+    $('#external-frame').attr('src', url);
+    $('#external-frame').fadeIn();
+
+    // Hide normal navigation menu
+    $('#user-nav .nav').hide();
+    $('#user-nav .nav.external-frame').fadeIn();
+};
+
+
+/*
 // JavaScript Document
 var dashboardObj = {
 	dataList: new Array(),
@@ -266,4 +283,4 @@ var dashboardObj = {
 	}
 };
 
-addChild(app, 'dashboard', dashboard);
+addChild(app, 'dashboard', dashboard);*/

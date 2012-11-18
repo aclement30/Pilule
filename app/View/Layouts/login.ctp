@@ -67,7 +67,7 @@
     <script type="text/javascript">
     $(document).ready(function() {
         // Mettre le focus sur le champ IDUL
-        setTimeout("$('#idul').focus()", 500);
+        //setTimeout( "$('#idul').focus()", 500 );
 
         // Quand la touche Enter est pressée dans le champ Password, valider le formulaire
         $('#password').keypress(function(e){
@@ -77,11 +77,11 @@
         });
 
         // Positionner la boîte de connexion verticalement
-        $('#formContainer').css('marginTop', ($(window).height()/2)-200);
+        $( '#formContainer' ).css( 'marginTop', ( $( window ).height() / 2 ) - 200 );
 
-        $(window).resize(function() {
-            $('#formContainer').css('marginTop', ($(window).height()/2)-200);
-        });
+        $( window ).resize( function() {
+            $( '#formContainer' ).css( 'marginTop', ( $(window).height()/2)-200);
+        } );
     });
 </script>
 </body>

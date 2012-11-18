@@ -1,17 +1,59 @@
 <?php
-
-App::uses( 'AppController', 'Controller' );
-App::import( 'Lib', 'Fetch' );
-App::import( 'Lib', 'Capsule' );
-
 class UsersController extends AppController {
 
+	public function beforeFilter() {
+		parent::beforeFilter();
+
+		$this->CapsuleAuth->allow( 'login' );
+	}
+
 	public function login () {
-		if ( $this->request->is( 'post' ) ) {
-			if ($this->Auth->login()) {
-	            return $this->redirect( $this->Auth->redirect() );
+		if ( $this->request->is( 'ajax' ) ) {
+			// Attempt to authenticate the user
+			if ( $this->CapsuleAuth->login( strtolower( $this->request->data[ 'idul' ] ), $this->request->data[ 'password' ] ) ) {
+				// Check is user's data already exist in DB
+	            $dataLoaded = true;
+	            $reloadList = array();
+	            $dataRequests = array( 'studies-summary', 'studies-details', 'studies-report', 'schedule', 'fees' );
+
+	            foreach ($dataRequests as $requestName) {
+	                //$lastRequest = $this->mCache->getLastRequest($requestName);
+
+	                // If no data found, add element to loading list
+	                if ( empty( $lastRequest ) ) {
+	                    $reloadList[] = $requestName;
+	                    $dataLoaded = false;
+	                }
+	            }
+
+	            return new CakeResponse( array(
+	            	'body' => json_encode( array(
+	            		'status'    =>  true,
+		                'loading'   =>  ( !$dataLoaded ) ? true: false,
+		                'reloadList'=>  $reloadList
+	            	) )
+	            ) );
 	        } else {
-	            $this->Session->setFlash(__('Username or password is incorrect'), 'default', array(), 'auth');
+	        	$authError = '';
+
+	            switch ( $this->CapsuleAuth->authResponse ) {
+	                case 'credentials':
+	                	$authError = 'Erreur : IDUL ou mot de passe erroné.';
+	                break;
+	                case 'server-connection':
+	                	$authError = 'Erreur : serveur de Capsule indisponible.';
+	                break;
+	                default:
+	                	$authError = 'Erreur interne lors de l\'authentification.';
+	                break;
+	            }
+
+	            return new CakeResponse( array(
+	            	'body' => json_encode( array(
+	            		'status'    =>  false,
+		                'error'		=>  $authError
+	            	) )
+	            ) );
 	        }
 		}
 
@@ -19,5 +61,9 @@ class UsersController extends AppController {
 		$this->layout = 'login';
 
 		$this->set( 'url', '' );
+	}
+
+	public function logout() {
+	    $this->redirect( $this->Auth->logout() );
 	}
 }

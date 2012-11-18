@@ -10,7 +10,7 @@ var ajax = {
 		// Define default parameters
 		var defaults = {
             async:          true,
-			type: 			'GET',
+			type: 			'PUT',
 			data: 			{},
 			controller:		null,
 			object: 		null,
@@ -20,11 +20,11 @@ var ajax = {
 		}
 		
 		// Replace default parameters with function parameters
-		var p =  $.extend(defaults, params);
+		var p =  $.extend( defaults, params );
 		
-		if (p.url == null) {
+		if ( p.url == null ) {
 			// Define AJAX URL
-			p.url = p.controller + p.method;
+			p.url = p.controller + p.method + '.json';
 		}
 
         if (p.data != null) {

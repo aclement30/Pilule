@@ -1,152 +1,134 @@
 <?php
 
-class capsule {
+class Capsule {
 	private $debug = 0;
+    private $fetcher;
+    private $domparser;
 	public $forceReload = false;
-    private $host = "132.203.189.178";
-    //private $host = "capsuleweb.ulaval.ca";
+    //private $host = "132.203.189.178";
+    private $host = "capsuleweb.ulaval.ca";
     
-	function __construct() {
-		$this->CI =& get_instance();
-	}
+    public $cookies;
+    public $referer;
+    public $userName;
+
+	public function __construct( $fetcher, $domparser ) {
+        $this->fetcher = $fetcher;
+        $this->domparser = $domparser;
+    }
 	
-	// Connexion à Capsule
-	public function login ($idul, $password) {
-        $this->CI->lfetch->debug = $this->debug;
+	// Login to Capsule
+	public function login ( $idul, $password ) {
+        // Define request parameters
+        $this->fetcher->set( array(
+            'debug'         =>  $this->debug,
+            'protocol'      =>  'https',
+            'request_method'=>  'GET'
+        ));
 
-        $this->CI->session->set_userdata('referer', '');
+        // Define request arguments
+        $arguments = array(
+            'HostName'      =>  $this->host,
+            'RequestURI'    =>  "/pls/etprod7/twbkwbis.P_WWWLogin"
+        );
 
-        $url="/pls/etprod7/twbkwbis.P_WWWLogin";
-        $this->CI->lfetch->protocol="https";
-
-        $arguments['HostName'] = $this->host;
-        $arguments["RequestURI"] = $url;
-
-        $error=$this->CI->lfetch->Open($arguments);
-        if ($error!="") {
-            if ($error=='0 could not connect to the host "capsuleweb.ulaval.ca"') {
+        // Open connection to remote server
+        $error = $this->fetcher->Open( $arguments );
+        if ( !empty( $error ) ) {
+            if ( $error == '0 could not connect to the host "' . $this->host . '"') {
                 sleep(1);
 
-                // Deuxième essai
-                $error=$this->CI->lfetch->Open($arguments);
-                if ($error!="") {
-                    if ($error=='0 could not connect to the host "capsuleweb.ulaval.ca"') {
-                        return ('server-connection');
-                    }
+                // Second attempt to connect
+                $error = $this->fetcher->Open( $arguments );
+                if ( !empty( $error ) ) {
+                    if ( $error == '0 could not connect to the host "' . $this->host . '"' )
+                        return ( 'server-connection' );
                 }
             }
         }
 
-        $error=$this->CI->lfetch->SendRequest($arguments);
-        if ($error!="") {
-            error_log(__FILE__." : ligne ".__LINE__." | ".$error);
-            $this->CI->lfetch->Close();
-            return ('server-connection');
-        }
+        // Send request data to remote server
+        $error = $this->fetcher->SendRequest( $arguments );
+        if ( !empty( $error ) ) return false;
 
-        $headers=array();
-        $error=$this->CI->lfetch->ReadReplyHeaders($headers);
-        if ($error!="") {
-            error_log(__FILE__." : ligne ".__LINE__." | ".$error);
-            $this->CI->lfetch->Close();
-            return ('server-connection');
-        }
+        // Read response content from remote server
+        $this->fetcher->ReadWholeReplyBody( $response );
+        $response = utf8_encode( html_entity_decode( $response ) );
 
-        $error = $this->CI->lfetch->ReadWholeReplyBody($body);
-        $response = utf8_encode(html_entity_decode($body));
+        // Close remote connection
+        $this->fetcher->Close();
 
-        // Vérification de la disponibilité du formulaire de connexion
-        if (strpos($response, '<INPUT TYPE="text" NAME="sid" SIZE="10" MAXLENGTH="8" ID="UserID" >')<1) {
-            $this->CI->lfetch->Close();
+        // Check if login form is available
+        if ( strpos( $response, '<INPUT TYPE="text" NAME="sid" SIZE="10" MAXLENGTH="8" ID="UserID" >' ) < 1 )
             return('server-unavailable');
-        }
 
-        $this->CI->lfetch->Close();
+        // Change request method to POST
+        $this->fetcher->request_method = 'POST';
 
-        $this->CI->lfetch->request_method="POST";
-        $this->CI->lfetch->Open($arguments);
+        // Define request arguments
+        $arguments = array(
+            'HostName'      =>  $this->host,
+            'RequestURI'    =>  '/pls/etprod7/twbkwbis.P_ValLogin',
+            'PostValues'    =>  array(
+                'sid' =>  $idul,
+                'PIN' =>  $password
+            )
+        );
 
-        // Envoi du formulaire
-        $arguments["PostValues"] = array(
-              'sid'	=>	$idul,
-              'PIN'	=>	$password
-              );
-        $arguments["RequestURI"] = "/pls/etprod7/twbkwbis.P_ValLogin";
+        // Open connection to remote server
+        $this->fetcher->Open( $arguments );
 
-        $error=$this->CI->lfetch->SendRequest($arguments);
-        if ($error!="") {
-            $this->CI->lfetch->Close();
+        // Send request data to remote server
+        $error = $this->fetcher->SendRequest( $arguments );
+        if ( !empty( $error ) ) return false;
 
-            return ('server-connection');
-        }
+        // Read response content from remote server
+        $this->fetcher->ReadWholeReplyBody( $response );
+        $response = utf8_encode( html_entity_decode( $response ) );
 
-        $headers=array();
-        $error=$this->CI->lfetch->ReadReplyHeaders($headers);
-        if ($error!="") {
-            $this->CI->lfetch->Close();
+        // Close remote connection
+        $this->fetcher->Close();
 
-            return ('server-connection');
-        }
+        // Check if provided credentials are accepted by Capsule
+        if ( preg_match( '/IDUL ou le NIP sont invalides/' , $response ) ) {
+            // Connection failed because of wrong credentials
+            return ( 'credentials' );
+        } elseif ( strpos( $response, "<meta http-equiv=\"refresh\" content=\"0;url=/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_MainMnu&amp;msg=WELCOME" ) > 1 ) {
+            $this->fetcher->SaveCookies($cookies);
+            $this->cookies = $cookies;
 
-        $error = $this->CI->lfetch->ReadWholeReplyBody($body);
-        $response = utf8_encode(html_entity_decode($body));
+            // Extract user full name from server response
+            $this->userName = substr( $response, strpos( $response, "<meta http-equiv=\"refresh\" content=\"0;url=/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_MainMnu&amp;msg=WELCOME" ) );
+            $this->userName = substr( $this->userName, strpos( $this->userName, "WELCOME+" ) + 8 );
+            $this->userName = urldecode( substr( $this->userName, 0, strpos( $this->userName, "+bienvenue" ) - 1 ) );
 
-        $this->CI->lfetch->Close();
-
-        if (preg_match('/IDUL ou le NIP sont invalides/', $response)) {
-            // Enregistrement du résultat de la requête dans la BD pour débug
-            $this->CI->mHistory->saveRequestData($idul, 'login-error-credentials', $response, __FILE__." : ligne ".__LINE__." | ".$error);
-
-            return ('credentials');
-        } elseif (strpos($body, "<meta http-equiv=\"refresh\" content=\"0;url=/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_MainMnu&amp;msg=WELCOME")>1) {
-            $this->CI->lfetch->SaveCookies($cookies);
-
-            $this->CI->session->set_userdata('capsule_cookies', $cookies);
-
-            // Vérification de l'existence de l'utilisateur
-            if ($this->CI->mUsers->userExists($idul)===false) {
-                $name = substr($body, strpos($body, "<meta http-equiv=\"refresh\" content=\"0;url=/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_MainMnu&amp;msg=WELCOME"));
-                $name = substr($name, strpos($name, "WELCOME+")+8);
-                $name = utf8_encode(urldecode(substr($name, 0, strpos($name, "+bienvenue")-1)));
-
-                // Enregistrement de l'utilisateur
-                $user = array(
-                              'idul'	=>	$idul,
-                              'name'	=>	$name
-                              );
-
-                $this->CI->mUsers->addUser($user);
-            }
-
-            return ('success');
+            // Connection to Capsule completed with success
+            return ( 'success' );
         } else {
-            // Enregistrement du résultat de la requête dans la BD pour débug
-            $this->CI->mHistory->saveRequestData($idul, 'login-error-server-connection', $response, __FILE__." : ligne ".__LINE__." | ".$error);
-
-            //error_log($response);
-            return ('server-connection');
+            // Unknown error occurred during login
+            return ( 'server-connection' );
         }
 	}
 	
 	// Vérification de l'authentification par WebCT
 	public function loginWebCT ($idul, $password) {
-		$this->CI->lfetch->debug = $this->debug;
+		$this->fetcher->debug = $this->debug;
 		
 		$_SESSION['referer'] = '';
 		
 		$url="/webct/ticket/ticketLogin?action=print_login&request_uri=/webct/homearea/homearea%3F";
-		$this->CI->lfetch->protocol="https";
+		$this->fetcher->protocol="https";
 		
 		$arguments['HostName'] = "www.webct.ulaval.ca";
 		$arguments["RequestURI"] = $url;
 		
-		$error=$this->CI->lfetch->Open($arguments);
+		$error=$this->fetcher->Open($arguments);
 		if ($error!="") {
 			if ($error=='0 could not connect to the host "webct.ulaval.ca"') {
 				sleep(1);
 
                 // Deuxième essai
-				$error=$this->CI->lfetch->Open($arguments);
+				$error=$this->fetcher->Open($arguments);
 				if ($error!="") {
 					if ($error=='0 could not connect to the host "webct.ulaval.ca"') {
 						return ('server-connection');
@@ -155,21 +137,21 @@ class capsule {
 			}
 		}
 		
-		$error=$this->CI->lfetch->SendRequest($arguments);
+		$error=$this->fetcher->SendRequest($arguments);
 		if ($error!="") {
 			return ('server-connection');
 		}
 		
 		$headers=array();
-		$error=$this->CI->lfetch->ReadReplyHeaders($headers);
+		$error=$this->fetcher->ReadReplyHeaders($headers);
 		if ($error!="") {
 			return ('server-connection');
 		}
 																				
-		$this->CI->lfetch->Close();
+		$this->fetcher->Close();
 					
-		$this->CI->lfetch->request_method="POST";
-		$this->CI->lfetch->Open($arguments);
+		$this->fetcher->request_method="POST";
+		$this->fetcher->Open($arguments);
 		
 		// Envoi du formulaire
 		$arguments["PostValues"] = array(
@@ -180,21 +162,21 @@ class capsule {
 			  );
 		$arguments["RequestURI"] = "/webct/ticket/ticketLogin";
 		
-		$error=$this->CI->lfetch->SendRequest($arguments);
+		$error=$this->fetcher->SendRequest($arguments);
 		if ($error!="") {
 			return ('server-connection');
 		}
 		
 		$headers=array();
-		$error=$this->CI->lfetch->ReadReplyHeaders($headers);
+		$error=$this->fetcher->ReadReplyHeaders($headers);
 		if ($error!="") {
 			return ('server-connection');
 		}
 		
-		$error = $this->CI->lfetch->ReadWholeReplyBody($body);
+		$error = $this->fetcher->ReadWholeReplyBody($body);
 		$response = utf8_encode(html_entity_decode($body));
 														
-		$this->CI->lfetch->Close();
+		$this->fetcher->Close();
 				
 		if (strpos($response, "Erreur: Les informations entrées sont incorrectes.")>1) {
             // Enregistrement du résultat de la requête dans la BD pour débug
@@ -203,17 +185,17 @@ class capsule {
             return ('credentials');
 		} elseif (strpos($body, "successful login")>1) {
 			$url="/webct/homearea/homearea?";
-			$this->CI->lfetch->request_method="GET";
+			$this->fetcher->request_method="GET";
 			
 			$arguments["RequestURI"] = $url;
 			
-			$error=$this->CI->lfetch->Open($arguments);
+			$error=$this->fetcher->Open($arguments);
 			if ($error!="") {
 				if ($error=='0 could not connect to the host "webct.ulaval.ca"') {
 					sleep(1);
 
                     // Deuxième essai
-					$error=$this->CI->lfetch->Open($arguments);
+					$error=$this->fetcher->Open($arguments);
 					if ($error!="") {
 						if ($error=='0 could not connect to the host "webct.ulaval.ca"') {
 							return ('server-connection');
@@ -222,22 +204,22 @@ class capsule {
 				}
 			}
 			
-			$error=$this->CI->lfetch->SendRequest($arguments);
+			$error=$this->fetcher->SendRequest($arguments);
 			if ($error!="") {
 				return ('server-connection');
 			}
 			
 			$headers=array();
-			$error=$this->CI->lfetch->ReadReplyHeaders($headers);
+			$error=$this->fetcher->ReadReplyHeaders($headers);
 			if ($error!="") {
 				return ('server-connection');
 			}
 			
-			$error = $this->CI->lfetch->ReadWholeReplyBody($body);
+			$error = $this->fetcher->ReadWholeReplyBody($body);
 			$response = utf8_encode(html_entity_decode($body));
 		
-			$this->CI->lfetch->Close();
-			$this->CI->lfetch->SaveCookies($cookies);
+			$this->fetcher->Close();
+			$this->fetcher->SaveCookies($cookies);
 			
 			$this->CI->session->set_userdata('cookies', $cookies);
 			
@@ -268,32 +250,32 @@ class capsule {
 	
 	// Test de la connexion
 	public function testConnection () {		
-        $this->CI->lfetch->cookies = $this->CI->session->userdata('capsule_cookies');
-        $this->CI->lfetch->debug = $this->debug;
+        $this->fetcher->cookies = $this->CI->session->userdata('capsule_cookies');
+        $this->fetcher->debug = $this->debug;
 
         if ($this->CI->session->userdata('capsule_referer') == '') {
-            $this->CI->lfetch->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_StuMainMnu';
+            $this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_StuMainMnu';
         } else {
-            $this->CI->lfetch->referer = $this->CI->session->userdata('capsule_referer');
+            $this->fetcher->referer = $this->CI->session->userdata('capsule_referer');
         }
 
-        $this->CI->lfetch->protocol="https";
+        $this->fetcher->protocol="https";
 
         $arguments['HostName'] = $this->host;
         $arguments["RequestURI"] = "/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_AdminMnu";
 
-        $error=$this->CI->lfetch->Open($arguments);
+        $error=$this->fetcher->Open($arguments);
         if ($error!="") {
             return (false);
         }
 
-        $error=$this->CI->lfetch->SendRequest($arguments);
+        $error=$this->fetcher->SendRequest($arguments);
         if ($error!="") {
             return (false);
         }
 
         $headers=array();
-        $error=$this->CI->lfetch->ReadReplyHeaders($headers);
+        $error=$this->fetcher->ReadReplyHeaders($headers);
         if ($error!="") {
             return (false);
         }
@@ -318,7 +300,7 @@ class capsule {
             }
         }
 
-        $this->CI->lfetch->Close();
+        $this->fetcher->Close();
 
         if ($found == 1 || $error != '') {
             // Reconnexion au serveur
@@ -328,66 +310,66 @@ class capsule {
 	
 	// Vérification des blocages
 	public function checkHolds () {
-        $this->CI->lfetch->cookies = $this->CI->session->userdata('capsule_cookies');
-        $this->CI->lfetch->debug = $this->debug;
+        $this->fetcher->cookies = $this->CI->session->userdata('capsule_cookies');
+        $this->fetcher->debug = $this->debug;
 
         if ($this->CI->session->userdata('capsule_referer')=='') {
-            $this->CI->lfetch->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_StuMainMnu';
+            $this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_StuMainMnu';
         } else {
-            $this->CI->lfetch->referer = $this->CI->session->userdata('capsule_referer');
+            $this->fetcher->referer = $this->CI->session->userdata('capsule_referer');
         }
 
-        $this->CI->lfetch->protocol="https";
+        $this->fetcher->protocol="https";
 
         $arguments['HostName'] = $this->host;
         $arguments["RequestURI"] = "/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_AdminMnu";
-        $error=$this->CI->lfetch->Open($arguments);
+        $error=$this->fetcher->Open($arguments);
         if ($error!="") {
             error_log(__FILE__." : ligne ".__LINE__." | ".$error);
             return (false);
         }
 
-        $error=$this->CI->lfetch->SendRequest($arguments);
+        $error=$this->fetcher->SendRequest($arguments);
         if ($error!="") {
             error_log(__FILE__." : ligne ".__LINE__." | ".$error);
             return (false);
         }
 
         $headers=array();
-        $error=$this->CI->lfetch->ReadReplyHeaders($headers);
+        $error=$this->fetcher->ReadReplyHeaders($headers);
         if ($error!="") {
             error_log(__FILE__." : ligne ".__LINE__." | ".$error);
             return (false);
         }
 
-        $this->CI->lfetch->Close();
+        $this->fetcher->Close();
 
-        $this->CI->lfetch->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_AdminMnu';
+        $this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_AdminMnu';
         $arguments["RequestURI"] = "/pls/etprod7/bwskoacc.P_ViewHold";
-        $error=$this->CI->lfetch->Open($arguments);
+        $error=$this->fetcher->Open($arguments);
         if ($error!="") {
             error_log(__FILE__." : ligne ".__LINE__." | ".$error);
             return (false);
         }
 
-        $error=$this->CI->lfetch->SendRequest($arguments);
+        $error=$this->fetcher->SendRequest($arguments);
         if ($error!="") {
             error_log(__FILE__." : ligne ".__LINE__." | ".$error);
             return (false);
         }
 
         $headers=array();
-        $error=$this->CI->lfetch->ReadReplyHeaders($headers);
+        $error=$this->fetcher->ReadReplyHeaders($headers);
         if ($error!="") {
             error_log(__FILE__." : ligne ".__LINE__." | ".$error);
             return (false);
         }
 
         // Extraction du code source du résultat
-        $error = $this->CI->lfetch->ReadWholeReplyBody($body);
+        $error = $this->fetcher->ReadWholeReplyBody($body);
         $data = utf8_encode(html_entity_decode($body));
 
-        $this->CI->lfetch->Close();
+        $this->fetcher->Close();
 
         if (!$this->checkPage($data)) return (false);
 
@@ -432,7 +414,7 @@ class capsule {
 	// Sommaire du dossier étudiant
     public function getStudies ($semester) {
         // Définition des paramètres de la requête
-        $this->CI->lfetch->set(array(
+        $this->fetcher->set(array(
             'cookies'       =>  $this->CI->session->userdata('capsule_cookies'),
             'debug'         =>  $this->debug,
             'protocol'      =>  'https',
@@ -448,24 +430,24 @@ class capsule {
         );
 
         // Ouverture de la connexion
-        $this->CI->lfetch->Open($arguments);
+        $this->fetcher->Open($arguments);
 
         // Envoi du formulaire
-        $error = $this->CI->lfetch->SendRequest($arguments);
+        $error = $this->fetcher->SendRequest($arguments);
         if (!empty($error)) return (false);
 
         // Lecture du contenu de la réponse
-        $this->CI->lfetch->ReadWholeReplyBody($response);
+        $this->fetcher->ReadWholeReplyBody($response);
         $response = utf8_encode(html_entity_decode($response));
 
         // Fermeture de la connexion
-        $this->CI->lfetch->Close();
+        $this->fetcher->Close();
 
         // Vérification des données
         if (!$this->checkPage($response)) return (false);
 
         // Enregistrement des cookies
-        $this->CI->lfetch->SaveCookies($cookies);
+        $this->fetcher->SaveCookies($cookies);
         $this->CI->session->set_userdata('capsule_cookies', $cookies);
 
         // Vérification que le dossier de l'étudiant n'est pas vide
@@ -482,9 +464,8 @@ class capsule {
             }
 
             // Analyse de la structure DOM de la page
-            $this->CI->load->library('domparser');
-            $this->CI->domparser->load($tidy);
-            $tables = $this->CI->domparser->find('table.datadisplaytable');
+            $this->domparser->load($tidy);
+            $tables = $this->domparser->find('table.datadisplaytable');
 
             // Vérification d'une requête similaire
             $md5 = md5(serialize($tables));
@@ -592,7 +573,7 @@ class capsule {
 	// Rapport de cheminement
 	public function getStudiesDetails ($semester, $programs) {
         // Définition des paramètres de la requête
-        $this->CI->lfetch->set(array(
+        $this->fetcher->set(array(
             'cookies'       =>  $this->CI->session->userdata('capsule_cookies'),
             'debug'         =>  $this->debug,
             'protocol'      =>  'https',
@@ -610,18 +591,18 @@ class capsule {
         );
 
         // Ouverture de la connexion
-        $this->CI->lfetch->Open($arguments);
+        $this->fetcher->Open($arguments);
 
         // Envoi du formulaire
-        $error = $this->CI->lfetch->SendRequest($arguments);
+        $error = $this->fetcher->SendRequest($arguments);
         if (!empty($error)) return (false);
 
         // Lecture du contenu de la réponse
-        $this->CI->lfetch->ReadWholeReplyBody($response);
+        $this->fetcher->ReadWholeReplyBody($response);
         $response = utf8_encode(html_entity_decode($response));
 
         // Fermeture de la connexion
-        $this->CI->lfetch->Close();
+        $this->fetcher->Close();
 
         // Vérification des données
         if (!$this->checkPage($response)) return (false);
@@ -635,9 +616,8 @@ class capsule {
         }
 
         // Analyse de la structure DOM de la page
-        $this->CI->load->library('domparser');
-        $this->CI->domparser->load($tidy);
-        $rows = $this->CI->domparser->find('table.dataentrytable tr');
+        $this->domparser->load($tidy);
+        $rows = $this->domparser->find('table.dataentrytable tr');
 
         // Recherche du lien vers le dernier rapport de cheminement pour chaque programme
         foreach ($programs as &$program) {
@@ -653,7 +633,7 @@ class capsule {
 
             if (isset($program['link']) and (!empty($program['link']))) {
                 // Définition des paramètres de la requête
-                $this->CI->lfetch->set(array('request_method' => 'POST'));
+                $this->fetcher->set(array('request_method' => 'POST'));
 
                 // Attestation de cheminement
 
@@ -665,18 +645,18 @@ class capsule {
                 );
 
                 // Ouverture de la connexion
-                $this->CI->lfetch->Open($arguments);
+                $this->fetcher->Open($arguments);
 
                 // Envoi du formulaire
-                $error = $this->CI->lfetch->SendRequest($arguments);
+                $error = $this->fetcher->SendRequest($arguments);
                 if (!empty($error)) return (false);
 
                 // Lecture du contenu de la réponse
-                $this->CI->lfetch->ReadWholeReplyBody($response);
+                $this->fetcher->ReadWholeReplyBody($response);
                 $details1 = utf8_encode(html_entity_decode($response, ENT_COMPAT, 'cp1252'));
 
                 // Fermeture de la connexion
-                $this->CI->lfetch->Close();
+                $this->fetcher->Close();
 
                 // Vérification des données
                 if (!$this->checkPage($details1)) return (false);
@@ -693,9 +673,8 @@ class capsule {
                 }
 
                 // Analyse de la structure DOM de la page
-                $this->CI->load->library('domparser');
-                $this->CI->domparser->load($tidy);
-                $tables = $this->CI->domparser->find('table.datadisplaytable');
+                $this->domparser->load($tidy);
+                $tables = $this->domparser->find('table.datadisplaytable');
 
                 // Vérification d'une requête similaire
                 $md5 = md5(serialize($tables));
@@ -852,7 +831,7 @@ class capsule {
 	// Relevé de notes
 	public function getReport () {
         // Définition des paramètres de la requête
-        $this->CI->lfetch->set(array(
+        $this->fetcher->set(array(
             'cookies'       =>  $this->CI->session->userdata('capsule_cookies'),
             'debug'         =>  $this->debug,
             'protocol'      =>  'https',
@@ -871,18 +850,18 @@ class capsule {
         );
 
         // Ouverture de la connexion
-        $this->CI->lfetch->Open($arguments);
+        $this->fetcher->Open($arguments);
 
         // Envoi du formulaire
-        $error = $this->CI->lfetch->SendRequest($arguments);
+        $error = $this->fetcher->SendRequest($arguments);
         if (!empty($error)) return (false);
 
         // Lecture du contenu de la réponse
-        $this->CI->lfetch->ReadWholeReplyBody($response);
+        $this->fetcher->ReadWholeReplyBody($response);
         $response = (html_entity_decode($response, ENT_COMPAT, 'cp1252'));
 
         // Fermeture de la connexion
-        $this->CI->lfetch->Close();
+        $this->fetcher->Close();
 
         // Vérification des données
         if (!$this->checkPage($response)) return (false);
@@ -896,9 +875,8 @@ class capsule {
         }
 
         // Analyse de la structure DOM de la page
-        $this->CI->load->library('domparser');
-        $this->CI->domparser->load($tidy);
-        $table = $this->CI->domparser->find('table.datadisplaytable');
+        $this->domparser->load($tidy);
+        $table = $this->domparser->find('table.datadisplaytable');
 
         // Vérification d'une requête similaire
         $md5 = md5(serialize($table));
@@ -1111,7 +1089,7 @@ class capsule {
 	// Horaire de cours
 	public function getSchedule ($requested_semester = '') {
         // Définition des paramètres de la requête
-        $this->CI->lfetch->set(array(
+        $this->fetcher->set(array(
             'cookies'       =>  $this->CI->session->userdata('capsule_cookies'),
             'debug'         =>  $this->debug,
             'protocol'      =>  'https',
@@ -1148,18 +1126,18 @@ class capsule {
             );
 
             // Ouverture de la connexion
-            $this->CI->lfetch->Open($arguments);
+            $this->fetcher->Open($arguments);
 
             // Envoi du formulaire
-            $error = $this->CI->lfetch->SendRequest($arguments);
+            $error = $this->fetcher->SendRequest($arguments);
             if (!empty($error)) return (false);
 
             // Lecture du contenu de la réponse
-            $this->CI->lfetch->ReadWholeReplyBody($response);
+            $this->fetcher->ReadWholeReplyBody($response);
             $response = utf8_encode(html_entity_decode($response));
 
             // Fermeture de la connexion
-            $this->CI->lfetch->Close();
+            $this->fetcher->Close();
 
             // Vérification des données
             if (!$this->checkPage($response)) return (false);
@@ -1176,9 +1154,8 @@ class capsule {
                 }
 
                 // Analyse de la structure DOM de la page
-                $this->CI->load->library('domparser');
-                $this->CI->domparser->load($tidy);
-                $tables = $this->CI->domparser->find('table.datadisplaytable');
+                $this->domparser->load($tidy);
+                $tables = $this->domparser->find('table.datadisplaytable');
 
                 // Vérification d'une requête similaire
                 $md5 = md5(serialize($tables));
@@ -1290,7 +1267,7 @@ class capsule {
 	
 	public function getFees ($requested_semester = '') {
         // Définition des paramètres de la requête
-        $this->CI->lfetch->set(array(
+        $this->fetcher->set(array(
             'cookies'       =>  $this->CI->session->userdata('capsule_cookies'),
             'debug'         =>  $this->debug,
             'protocol'      =>  'https',
@@ -1302,18 +1279,18 @@ class capsule {
         );
 
         // Ouverture de la connexion
-        $this->CI->lfetch->Open($arguments);
+        $this->fetcher->Open($arguments);
 
         // Envoi du formulaire
-        $error = $this->CI->lfetch->SendRequest($arguments);
+        $error = $this->fetcher->SendRequest($arguments);
         if (!empty($error)) return (false);
 
         // Lecture du contenu de la réponse
-        $this->CI->lfetch->ReadWholeReplyBody($response);
+        $this->fetcher->ReadWholeReplyBody($response);
         $response = utf8_encode(html_entity_decode($response));
 
         // Fermeture de la connexion
-        $this->CI->lfetch->Close();
+        $this->fetcher->Close();
 
         // Vérification des données
         if (!$this->checkPage($response)) return (false);
@@ -1327,9 +1304,8 @@ class capsule {
         }
 
         // Analyse de la structure DOM de la page
-        $this->CI->load->library('domparser');
-        $this->CI->domparser->load($tidy);
-        $tables = $this->CI->domparser->find('table.datadisplaytable');
+        $this->domparser->load($tidy);
+        $tables = $this->domparser->find('table.datadisplaytable');
 
         // Vérification d'une requête similaire
         $md5 = md5(serialize($tables));
@@ -1400,28 +1376,28 @@ class capsule {
 	}
 	
 	public function registerCourses ($nrc_array, $semester) {
-		$this->CI->lfetch->cookies = $_SESSION['cookies'];
-		$this->CI->lfetch->debug = $this->debug;
+		$this->fetcher->cookies = $_SESSION['cookies'];
+		$this->fetcher->debug = $this->debug;
 		
 		if ($_SESSION['referer']=='') {
-			$this->CI->lfetch->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_StuMainMnu';
+			$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_StuMainMnu';
 		} else {
-			$this->CI->lfetch->referer = $_SESSION['referer'];
+			$this->fetcher->referer = $_SESSION['referer'];
 		}
 		
-		$this->CI->lfetch->protocol="https";
+		$this->fetcher->protocol="https";
 		
 		$arguments['HostName'] = $this->host;
 		$arguments["RequestURI"] = "/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_RegMnu";
 		
-		$error=$this->CI->lfetch->Open($arguments);
+		$error=$this->fetcher->Open($arguments);
 	
 		if ($error!="") {
 			error_log(__LINE__);
 			return (false);
 		}
 		
-		$error = $this->CI->lfetch->SendRequest($arguments);
+		$error = $this->fetcher->SendRequest($arguments);
 	
 		if ($error!="") {
 			error_log(__LINE__);
@@ -1429,25 +1405,25 @@ class capsule {
 		}
 		
 		$headers=array();
-		$error=$this->CI->lfetch->ReadReplyHeaders($headers);
+		$error=$this->fetcher->ReadReplyHeaders($headers);
 		if ($error!="") {
 			error_log(__LINE__);
 			return (false);
 		}
 		
-		$this->CI->lfetch->Close();
+		$this->fetcher->Close();
 		
-		$this->CI->lfetch->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_RegMnu';
+		$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_RegMnu';
 		$arguments["RequestURI"] = "/pls/etprod7/bwskfreg.P_AltPin";
 		
-		$error=$this->CI->lfetch->Open($arguments);
+		$error=$this->fetcher->Open($arguments);
 	
 		if ($error!="") {
 			error_log(__LINE__);
 			return (false);
 		}
 		
-		$error = $this->CI->lfetch->SendRequest($arguments);
+		$error = $this->fetcher->SendRequest($arguments);
 	
 		if ($error!="") {
 			error_log(__LINE__);
@@ -1455,19 +1431,19 @@ class capsule {
 		}
 		
 		$headers=array();
-		$error=$this->CI->lfetch->ReadReplyHeaders($headers);
+		$error=$this->fetcher->ReadReplyHeaders($headers);
 		if ($error!="") {
 			error_log(__LINE__);
 			return (false);
 		}
 		
-		$this->CI->lfetch->Close();
+		$this->fetcher->Close();
 		
-		$this->CI->lfetch->request_method="POST";
+		$this->fetcher->request_method="POST";
 		
-		$this->CI->lfetch->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/bwskfreg.P_AltPin';
+		$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/bwskfreg.P_AltPin';
 		
-		$this->CI->lfetch->Open($arguments);
+		$this->fetcher->Open($arguments);
 		
 		// Envoi du formulaire
 		$arguments["PostValues"] = array(
@@ -1476,7 +1452,7 @@ class capsule {
 		
 		$arguments["RequestURI"] = "/pls/etprod7/bwskfreg.P_AltPin";
 		
-		$error=$this->CI->lfetch->SendRequest($arguments);
+		$error=$this->fetcher->SendRequest($arguments);
 		
 		if ($error!="") {
 			error_log(__LINE__);
@@ -1484,16 +1460,16 @@ class capsule {
 		}
 		
 		$headers=array();
-		$error=$this->CI->lfetch->ReadReplyHeaders($headers);
+		$error=$this->fetcher->ReadReplyHeaders($headers);
 		if ($error!="") {
 			error_log(__LINE__);
 			return (false);
 		}
 		
-		$error = $this->CI->lfetch->ReadWholeReplyBody($body);
+		$error = $this->fetcher->ReadWholeReplyBody($body);
 		$response = utf8_encode(html_entity_decode($body));
 		
-		$this->CI->lfetch->Close();
+		$this->fetcher->Close();
 		
 		if (!$this->checkPage($response)) return (false);
 				
@@ -1614,19 +1590,19 @@ class capsule {
 		
 		$arguments['PostString'] .= "&REG_BTN=Soumettre les modifications";
 				
-		$this->CI->lfetch->Close();
+		$this->fetcher->Close();
 		
-		$this->CI->lfetch->request_method="POST";
-		$this->CI->lfetch->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/bwskfreg.P_AltPin';
+		$this->fetcher->request_method="POST";
+		$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/bwskfreg.P_AltPin';
 		
-		$this->CI->lfetch->Open($arguments);
+		$this->fetcher->Open($arguments);
 		
 		// Envoi du formulaire
 		unset($arguments["PostValues"]);
 		
 		$arguments["RequestURI"] = "/pls/etprod7/bwckcoms.P_Regs";
 
-		$error=$this->CI->lfetch->SendRequest($arguments);
+		$error=$this->fetcher->SendRequest($arguments);
 		
 		if ($error!="") {
 			error_log(__LINE__);
@@ -1634,20 +1610,20 @@ class capsule {
 		}
 		
 		$headers=array();
-		$error=$this->CI->lfetch->ReadReplyHeaders($headers);
+		$error=$this->fetcher->ReadReplyHeaders($headers);
 		if ($error!="") {
 			error_log(__LINE__);
 			return (false);
 		}
 		
-		$error = $this->CI->lfetch->ReadWholeReplyBody($body);
+		$error = $this->fetcher->ReadWholeReplyBody($body);
 		$response = utf8_encode(html_entity_decode($body));
 		
-		$this->CI->lfetch->Close();
+		$this->fetcher->Close();
 		
 		if (!$this->checkPage($response)) return (false);
 				
-		if ($this->CI->lfetch->response_status==404) {
+		if ($this->fetcher->response_status==404) {
 			error_log(__LINE__);
 			return (false);
 		} else {
@@ -1722,28 +1698,28 @@ class capsule {
 	}
 	
 	public function removeCourse ($nrc, $semester) {
-		$this->CI->lfetch->cookies = $_SESSION['cookies'];
-		$this->CI->lfetch->debug = $this->debug;
+		$this->fetcher->cookies = $_SESSION['cookies'];
+		$this->fetcher->debug = $this->debug;
 		
 		if ($_SESSION['referer']=='') {
-			$this->CI->lfetch->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_StuMainMnu';
+			$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_StuMainMnu';
 		} else {
-			$this->CI->lfetch->referer = $_SESSION['referer'];
+			$this->fetcher->referer = $_SESSION['referer'];
 		}
 		
-		$this->CI->lfetch->protocol="https";
+		$this->fetcher->protocol="https";
 		
 		$arguments['HostName'] = $this->host;
 		$arguments["RequestURI"] = "/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_RegMnu";
 		
-		$error=$this->CI->lfetch->Open($arguments);
+		$error=$this->fetcher->Open($arguments);
 	
 		if ($error!="") {
 			error_log(__LINE__);
 			return (false);
 		}
 		
-		$error = $this->CI->lfetch->SendRequest($arguments);
+		$error = $this->fetcher->SendRequest($arguments);
 	
 		if ($error!="") {
 			error_log(__LINE__);
@@ -1751,25 +1727,25 @@ class capsule {
 		}
 		
 		$headers=array();
-		$error=$this->CI->lfetch->ReadReplyHeaders($headers);
+		$error=$this->fetcher->ReadReplyHeaders($headers);
 		if ($error!="") {
 			error_log(__LINE__);
 			return (false);
 		}
 		
-		$this->CI->lfetch->Close();
+		$this->fetcher->Close();
 		
-		$this->CI->lfetch->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_RegMnu';
+		$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_RegMnu';
 		$arguments["RequestURI"] = "/pls/etprod7/bwskfreg.P_AltPin";
 		
-		$error=$this->CI->lfetch->Open($arguments);
+		$error=$this->fetcher->Open($arguments);
 	
 		if ($error!="") {
 			error_log(__LINE__);
 			return (false);
 		}
 		
-		$error = $this->CI->lfetch->SendRequest($arguments);
+		$error = $this->fetcher->SendRequest($arguments);
 	
 		if ($error!="") {
 			error_log(__LINE__);
@@ -1777,19 +1753,19 @@ class capsule {
 		}
 		
 		$headers=array();
-		$error=$this->CI->lfetch->ReadReplyHeaders($headers);
+		$error=$this->fetcher->ReadReplyHeaders($headers);
 		if ($error!="") {
 			error_log(__LINE__);
 			return (false);
 		}
 		
-		$this->CI->lfetch->Close();
+		$this->fetcher->Close();
 		
-		$this->CI->lfetch->request_method="POST";
+		$this->fetcher->request_method="POST";
 		
-		$this->CI->lfetch->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/bwskfreg.P_AltPin';
+		$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/bwskfreg.P_AltPin';
 		
-		$this->CI->lfetch->Open($arguments);
+		$this->fetcher->Open($arguments);
 		
 		// Envoi du formulaire
 		$arguments["PostValues"] = array(
@@ -1798,7 +1774,7 @@ class capsule {
 		
 		$arguments["RequestURI"] = "/pls/etprod7/bwskfreg.P_AltPin";
 		
-		$error=$this->CI->lfetch->SendRequest($arguments);
+		$error=$this->fetcher->SendRequest($arguments);
 		
 		if ($error!="") {
 			error_log(__LINE__);
@@ -1806,16 +1782,16 @@ class capsule {
 		}
 		
 		$headers=array();
-		$error=$this->CI->lfetch->ReadReplyHeaders($headers);
+		$error=$this->fetcher->ReadReplyHeaders($headers);
 		if ($error!="") {
 			error_log(__LINE__);
 			return (false);
 		}
 		
-		$error = $this->CI->lfetch->ReadWholeReplyBody($body);
+		$error = $this->fetcher->ReadWholeReplyBody($body);
 		$response = utf8_encode(html_entity_decode($body));
 		
-		$this->CI->lfetch->Close();
+		$this->fetcher->Close();
 		
 		if (!$this->checkPage($response)) return (false);
 				
@@ -1939,20 +1915,20 @@ class capsule {
 
 		$arguments['PostString'] .= "&REG_BTN=Soumettre les modifications";
 				
-		$this->CI->lfetch->Close();
+		$this->fetcher->Close();
 		
-		$this->CI->lfetch->request_method="POST";
+		$this->fetcher->request_method="POST";
 		
-		$this->CI->lfetch->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/bwskfreg.P_AltPin';
+		$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/bwskfreg.P_AltPin';
 		
-		$this->CI->lfetch->Open($arguments);
+		$this->fetcher->Open($arguments);
 		
 		// Envoi du formulaire
 		unset($arguments["PostValues"]);
 		
 		$arguments["RequestURI"] = "/pls/etprod7/bwckcoms.P_Regs";
 
-		$error=$this->CI->lfetch->SendRequest($arguments);
+		$error=$this->fetcher->SendRequest($arguments);
 		
 		if ($error!="") {
 			error_log(__LINE__);
@@ -1960,20 +1936,20 @@ class capsule {
 		}
 		
 		$headers=array();
-		$error=$this->CI->lfetch->ReadReplyHeaders($headers);
+		$error=$this->fetcher->ReadReplyHeaders($headers);
 		if ($error!="") {
 			error_log(__LINE__);
 			return (false);
 		}
 		
-		$error = $this->CI->lfetch->ReadWholeReplyBody($body);
+		$error = $this->fetcher->ReadWholeReplyBody($body);
 		$response = utf8_encode(html_entity_decode($body));
 		
-		$this->CI->lfetch->Close();
+		$this->fetcher->Close();
 		
 		if (!$this->checkPage($response)) return (false);
 				
-		if ($this->CI->lfetch->response_status==404) {
+		if ($this->fetcher->response_status==404) {
 			error_log(__LINE__);
 			return (false);
 		} else {
@@ -2011,18 +1987,18 @@ class capsule {
 	}
 	
 	public function fetchCourse ($code, $semester) {
-		$this->CI->lfetch->cookies = $_SESSION['cookies'];
-		$this->CI->lfetch->debug = $this->debug;
+		$this->fetcher->cookies = $_SESSION['cookies'];
+		$this->fetcher->debug = $this->debug;
 		$code = explode("-", strtoupper($code));
 		
-		$this->CI->lfetch->protocol="https";
+		$this->fetcher->protocol="https";
 		
 		$arguments['HostName'] = $this->host;
 		$arguments["RequestURI"] = "/pls/etprod7/bwckctlg.p_disp_course_detail?cat_term_in=".$semester."&subj_code_in=".$code[0]."&crse_numb_in=".$code[1];
 		
 		//echo "<H2><LI>Opening connection to:</H2>\n<PRE>",HtmlEntities($arguments["HostName"]),"</PRE>\n";
 		//flush();
-		$error=$this->CI->lfetch->Open($arguments);
+		$error=$this->fetcher->Open($arguments);
 	
 		if ($error!="") {
 			error_log('Ligne '.__LINE__);
@@ -2031,7 +2007,7 @@ class capsule {
 		
 		//echo "<H2><LI>Sending request for page:</H2>\n<PRE>";
 		//echo HtmlEntities($arguments["RequestURI"]),"\n";
-		$error=$this->CI->lfetch->SendRequest($arguments);
+		$error=$this->fetcher->SendRequest($arguments);
 	
 		if ($error!="") {
 			error_log('Ligne '.__LINE__);
@@ -2039,17 +2015,17 @@ class capsule {
 		}
 			
 		$headers=array();
-		$error=$this->CI->lfetch->ReadReplyHeaders($headers);
+		$error=$this->fetcher->ReadReplyHeaders($headers);
 		if ($error!="") {
 			error_log('Ligne '.__LINE__);
 			return (false);
 		}
 
-		$error = $this->CI->lfetch->ReadWholeReplyBody($body);
+		$error = $this->fetcher->ReadWholeReplyBody($body);
 		$response = utf8_encode(html_entity_decode($body));
 		
 		//error_log($response);
-		$this->CI->lfetch->Close();
+		$this->fetcher->Close();
 		
 		if (!$this->checkPage($response)) return (false);
 				
@@ -2139,21 +2115,21 @@ class capsule {
 				}
 				
 				foreach ($links as $link) {
-					$this->CI->lfetch->referer = "https://capsuleweb.ulaval.ca/pls/etprod7/bwckctlg.p_disp_course_detail?cat_term_in=".$semester."&subj_code_in=".$code[0]."&crse_numb_in=".$code[1];
+					$this->fetcher->referer = "https://capsuleweb.ulaval.ca/pls/etprod7/bwckctlg.p_disp_course_detail?cat_term_in=".$semester."&subj_code_in=".$code[0]."&crse_numb_in=".$code[1];
 				
-					$this->CI->lfetch->protocol="https";
+					$this->fetcher->protocol="https";
 					
 					$arguments['HostName'] = $this->host;
 					$arguments["RequestURI"] = $link;
 			
-					$error=$this->CI->lfetch->Open($arguments);
+					$error=$this->fetcher->Open($arguments);
 				
 					if ($error!="") {
 						error_log('Ligne '.__LINE__);
 						return (false);
 					}
 					
-					$error=$this->CI->lfetch->SendRequest($arguments);
+					$error=$this->fetcher->SendRequest($arguments);
 				
 					if ($error!="") {
 						error_log('Ligne '.__LINE__);
@@ -2161,21 +2137,21 @@ class capsule {
 					}
 						
 					$headers=array();
-					$error=$this->CI->lfetch->ReadReplyHeaders($headers);
+					$error=$this->fetcher->ReadReplyHeaders($headers);
 					if ($error!="") {
 						error_log('Ligne '.__LINE__);
 						return (false);
 					}
 			
-					$error = $this->CI->lfetch->ReadWholeReplyBody($body);
+					$error = $this->fetcher->ReadWholeReplyBody($body);
 					$response = utf8_encode(html_entity_decode($body));
 									
-					$this->CI->lfetch->Close();
+					$this->fetcher->Close();
 					
 					if (!$this->checkPage($response)) return (false);
 					
 					unset($arguments["PostValues"]);
-					$this->CI->lfetch->request_method = "GET";
+					$this->fetcher->request_method = "GET";
 					
 					$data = substr($response, strpos($response, "<CAPTION class=\"captiontext\">Groupes trouvés</CAPTION>"));
 					$data = substr($data, strpos($data, "<TH CLASS=\"ddlabel\" scope=\"row")+20);
@@ -2266,37 +2242,37 @@ class capsule {
 	}
 	
 	public function updateClassSpots ($nrc, $semester) {
-		$this->CI->lfetch->cookies = $_SESSION['cookies'];
-		$this->CI->lfetch->debug = $this->debug;
+		$this->fetcher->cookies = $_SESSION['cookies'];
+		$this->fetcher->debug = $this->debug;
 		
-		$this->CI->lfetch->protocol="https";
+		$this->fetcher->protocol="https";
 		
 		$arguments['HostName'] = $this->host;
 		$arguments["RequestURI"] = "/pls/etprod7/bwckschd.p_disp_detail_sched?term_in=".$semester."&crn_in=".$nrc;
 
-		$error=$this->CI->lfetch->Open($arguments);
+		$error=$this->fetcher->Open($arguments);
 		if ($error!="") {
 			error_log(__FILE__ .' | Ligne '.__LINE__);
 			return (false);
 		}
 		
-		$error=$this->CI->lfetch->SendRequest($arguments);
+		$error=$this->fetcher->SendRequest($arguments);
 		if ($error!="") {
 			error_log(__FILE__ .' | Ligne '.__LINE__);
 			return (false);
 		}
 			
 		$headers=array();
-		$error=$this->CI->lfetch->ReadReplyHeaders($headers);
+		$error=$this->fetcher->ReadReplyHeaders($headers);
 		if ($error!="") {
 			error_log(__FILE__ .' | Ligne '.__LINE__);
 			return (false);
 		}
 
-		$error = $this->CI->lfetch->ReadWholeReplyBody($body);
+		$error = $this->fetcher->ReadWholeReplyBody($body);
 		$response = utf8_encode(html_entity_decode($body));
 		
-		$this->CI->lfetch->Close();
+		$this->fetcher->Close();
 		
 		if (!$this->checkPage($response)) return (false);
 		

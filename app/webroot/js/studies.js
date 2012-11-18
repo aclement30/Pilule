@@ -1,11 +1,13 @@
-var studies = {
-    controllerURL: './studies/',
-    object:        'studies',
-
-    displayProgramPanel: function ( id ) {
-        $('.program-panel').hide();
-        $('#program-'+id+'.program-panel').fadeIn();
-    }
+if ( !app ) {
+    var app = {};
 }
 
-addChild(app, 'studies', studies);
+app.Studies = {
+    controllerURL: './studies/',
+    object:        'studies'
+};
+
+app.Studies.displayProgramPanel = function ( id ) {
+    $('.program-panel').hide();
+    $('#program-'+id+'.program-panel').fadeIn();
+};
