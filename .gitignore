@@ -38,3 +38,4 @@ application/logs/*
 /nbproject/private/
 .idea/*
 nbproject/*
+app/tmp/*
