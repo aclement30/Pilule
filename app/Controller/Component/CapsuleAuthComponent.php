@@ -9,11 +9,15 @@ class CapsuleAuthComponent extends AuthComponent {
 	private $HttpFetcher;
 	private $domparser;
 	public $authResponse;
+	private $controller;
 
-	public function initialize() {
-		$this->HttpFetcher = new HttpFetcher;
-		$this->domparser = new domparser;
-		$this->Capsule = new Capsule( &$this->HttpFetcher, $this->domparser );
+	public function initialize( Controller &$controller ) {
+		$this->controller = $controller;
+
+		// Load HTTP Fetcher, DOM Parser and Capsule libraries in Controller
+		$this->controller->HttpFetcher = new HttpFetcher;
+		$this->controller->domparser = new domparser;
+		$this->controller->Capsule = new Capsule( $this->controller->HttpFetcher, $this->controller->domparser );
 	}
 
 	public function login( $idul = null, $password ) {
@@ -55,7 +59,7 @@ class CapsuleAuthComponent extends AuthComponent {
 
 		if ( $isAuthenticated ) {
 			$this->Session->renew();
-			$this->Session->write( self::$sessionKey, $idul, $this->Capsule->cookies );
+			$this->Session->write( self::$sessionKey, $idul, $this->controller->Capsule->cookies );
 		} else {
 			return false;
 		}
@@ -64,9 +68,13 @@ class CapsuleAuthComponent extends AuthComponent {
 	}
 
     public function identify ( $idul, $password, $method = 'capsule' ) {
-    	$this->authResponse = $this->Capsule->login( $idul, $password );
+    	$this->authResponse = $this->controller->Capsule->login( $idul, $password );
 
     	return true;
+    }
+
+    public function testConnection () {
+    	$this->controller->Capsule->testConnection();
     }
     
 }

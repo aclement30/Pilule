@@ -4,6 +4,7 @@ class Capsule {
 	private $debug = 0;
     private $fetcher;
     private $domparser;
+    public $Cache;
 	public $forceReload = false;
     //private $host = "132.203.189.178";
     private $host = "capsuleweb.ulaval.ca";
@@ -12,13 +13,17 @@ class Capsule {
     public $referer;
     public $userName;
 
-	public function __construct( $fetcher, $domparser ) {
+    // Private vars (used for relogin if server connection is lost)
+    private $idul = 'alcle8';
+    private $password = 'intelliweb30';
+
+	public function __construct( &$fetcher, &$domparser ) {
         $this->fetcher = $fetcher;
         $this->domparser = $domparser;
     }
 	
 	// Login to Capsule
-	public function login ( $idul, $password ) {
+	public function login ( $idul, $password ) {        
         // Define request parameters
         $this->fetcher->set( array(
             'debug'         =>  $this->debug,
@@ -53,7 +58,7 @@ class Capsule {
 
         // Read response content from remote server
         $this->fetcher->ReadWholeReplyBody( $response );
-        $response = utf8_encode( html_entity_decode( $response ) );
+        $response = utf8_encode( html_entity_decode( $response, ENT_COMPAT, 'cp1252' ) );
 
         // Close remote connection
         $this->fetcher->Close();
@@ -62,45 +67,29 @@ class Capsule {
         if ( strpos( $response, '<INPUT TYPE="text" NAME="sid" SIZE="10" MAXLENGTH="8" ID="UserID" >' ) < 1 )
             return('server-unavailable');
 
-        // Change request method to POST
-        $this->fetcher->request_method = 'POST';
-
-        // Define request arguments
-        $arguments = array(
-            'HostName'      =>  $this->host,
-            'RequestURI'    =>  '/pls/etprod7/twbkwbis.P_ValLogin',
-            'PostValues'    =>  array(
-                'sid' =>  $idul,
-                'PIN' =>  $password
-            )
-        );
-
-        // Open connection to remote server
-        $this->fetcher->Open( $arguments );
-
-        // Send request data to remote server
-        $error = $this->fetcher->SendRequest( $arguments );
-        if ( !empty( $error ) ) return false;
-
-        // Read response content from remote server
-        $this->fetcher->ReadWholeReplyBody( $response );
-        $response = utf8_encode( html_entity_decode( $response ) );
-
-        // Close remote connection
-        $this->fetcher->Close();
+        // Submit login form
+        $request = $this->_fetchPage( '/pls/etprod7/twbkwbis.P_ValLogin', 'POST', array(
+            'sid' =>  $idul,
+            'PIN' =>  $password
+        ) );
 
         // Check if provided credentials are accepted by Capsule
-        if ( preg_match( '/IDUL ou le NIP sont invalides/' , $response ) ) {
+        if ( preg_match( '/IDUL ou le NIP sont invalides/' , $request[ 'response' ] ) ) {
             // Connection failed because of wrong credentials
             return ( 'credentials' );
-        } elseif ( strpos( $response, "<meta http-equiv=\"refresh\" content=\"0;url=/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_MainMnu&amp;msg=WELCOME" ) > 1 ) {
-            $this->fetcher->SaveCookies($cookies);
+        } elseif ( strpos( $request[ 'response' ], "<meta http-equiv=\"refresh\" content=\"0;url=/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_MainMnu&amp;msg=WELCOME" ) > 1 ) {
+            // Save cookies
+            $this->fetcher->SaveCookies( $cookies );
             $this->cookies = $cookies;
 
             // Extract user full name from server response
             $this->userName = substr( $response, strpos( $response, "<meta http-equiv=\"refresh\" content=\"0;url=/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_MainMnu&amp;msg=WELCOME" ) );
             $this->userName = substr( $this->userName, strpos( $this->userName, "WELCOME+" ) + 8 );
             $this->userName = urldecode( substr( $this->userName, 0, strpos( $this->userName, "+bienvenue" ) - 1 ) );
+
+            // Save credentials in private vars (if needed for further access)
+            $this->idul = $idul;
+            $this->password = $password;
 
             // Connection to Capsule completed with success
             return ( 'success' );
@@ -110,6 +99,8 @@ class Capsule {
         }
 	}
 	
+    /* DEPRECATED : WEBCT DOESN'T EXISTS ANYMORE !
+
 	// Vérification de l'authentification par WebCT
 	public function loginWebCT ($idul, $password) {
 		$this->fetcher->debug = $this->debug;
@@ -247,70 +238,49 @@ class Capsule {
 			return ('server-connection');
 		}
 	}
-	
-	// Test de la connexion
-	public function testConnection () {		
-        $this->fetcher->cookies = $this->CI->session->userdata('capsule_cookies');
-        $this->fetcher->debug = $this->debug;
+	*/
 
-        if ($this->CI->session->userdata('capsule_referer') == '') {
-            $this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_StuMainMnu';
-        } else {
-            $this->fetcher->referer = $this->CI->session->userdata('capsule_referer');
-        }
+	// Test connection to Capsule server
+	public function testConnection () {
+        $request = $this->_fetchPage( '/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_AdminMnu' );
 
-        $this->fetcher->protocol="https";
+        // Retry user login if request fails
+        if ( !$request )
+            $this->login( $this->idul, $this->password );
 
-        $arguments['HostName'] = $this->host;
-        $arguments["RequestURI"] = "/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_AdminMnu";
+        // Check if session ID cookie from header response is empty
+        $isEmpty = false;
 
-        $error=$this->fetcher->Open($arguments);
-        if ($error!="") {
-            return (false);
-        }
+        for ( reset( $request[ 'headers'] ), $header = 0; $header < count( $request[ 'headers'] ); next( $request[ 'headers'] ), $header++ ) {
+            $header_name = key( $request[ 'headers'] );
 
-        $error=$this->fetcher->SendRequest($arguments);
-        if ($error!="") {
-            return (false);
-        }
-
-        $headers=array();
-        $error=$this->fetcher->ReadReplyHeaders($headers);
-        if ($error!="") {
-            return (false);
-        }
-
-        // Vérification de la réponse
-        $found = 0;
-        for (Reset($headers),$header=0;$header<count($headers);Next($headers),$header++)
-        {
-            $header_name=Key($headers);
-
-            if ($header_name=='set-cookie') {
-                if (is_array($headers[$header_name])) {
-                    foreach ($headers[$header_name] as $cookie) {
-                        if (preg_match("#SESSID\=;#", $cookie)) {
-                            $found = 1;
+            if ( $header_name == 'set-cookie' ) {
+                if ( is_array( $request[ 'headers'][ $header_name ] ) ) {
+                    foreach ( $request[ 'headers'][ $header_name ] as $cookie ) {
+                        if ( preg_match( "#SESSID\=;#", $cookie ) ) {
+                            $isEmpty = true;
                             break;
                         }
                     }
-                } elseif (preg_match("#SESSID\=;#", $headers[$header_name])) {
-                    $found = 1;
+                } elseif ( preg_match( "#SESSID\=;#", $request[ 'headers'][ $header_name ] ) ) {
+                    $isEmpty = true;
                 }
             }
         }
 
-        $this->fetcher->Close();
-
-        if ($found == 1 || $error != '') {
-            // Reconnexion au serveur
-            $this->login($this->CI->session->userdata('pilule_user'), $this->CI->session->userdata('pilule_password'));
+        if ( $isEmpty ) {
+            // Retry user login
+            $this->login( $this->idul, $this->password );
         }
+
+        // Connection is OK
+        return true;
 	}
 	
+    /*
 	// Vérification des blocages
 	public function checkHolds () {
-        $this->fetcher->cookies = $this->CI->session->userdata('capsule_cookies');
+        $this->fetcher->cookies = $this->cookies;
         $this->fetcher->debug = $this->debug;
 
         if ($this->CI->session->userdata('capsule_referer')=='') {
@@ -410,91 +380,52 @@ class Capsule {
             return (array());
         }
 	}
+    */
 
-	// Sommaire du dossier étudiant
-    public function getStudies ($semester) {
-        // Définition des paramètres de la requête
-        $this->fetcher->set(array(
-            'cookies'       =>  $this->CI->session->userdata('capsule_cookies'),
-            'debug'         =>  $this->debug,
-            'protocol'      =>  'https',
-            'referer'       =>  'https://capsuleweb.ulaval.ca/pls/etprod7/bwskgstu.P_StuInfo',
-            'request_method'=>  'POST'
-        ));
+	// Get studies summary
+    public function getStudies ( $md5Hash, $semester ) {
+        $request = $this->_fetchPage( '/pls/etprod7/bwskgstu.P_StuInfo', 'POST', array( 'term_in' => $semester ) );
 
-        // Définition des valeurs du formulaire
-        $arguments = array(
-            'HostName'      =>  $this->host,
-            'RequestURI'    =>  "/pls/etprod7/bwskgstu.P_StuInfo",
-            'PostValues'    =>  array('term_in'	=>	$semester)
-        );
+        // Check if student has studies info
+        if ( strpos( $request[ 'response' ], "Il n'existe pas d'informations étudiantes disponibles" ) )
+            return ( array( 'status' => false ) );
 
-        // Ouverture de la connexion
-        $this->fetcher->Open($arguments);
-
-        // Envoi du formulaire
-        $error = $this->fetcher->SendRequest($arguments);
-        if (!empty($error)) return (false);
-
-        // Lecture du contenu de la réponse
-        $this->fetcher->ReadWholeReplyBody($response);
-        $response = utf8_encode(html_entity_decode($response));
-
-        // Fermeture de la connexion
-        $this->fetcher->Close();
-
-        // Vérification des données
-        if (!$this->checkPage($response)) return (false);
-
-        // Enregistrement des cookies
-        $this->fetcher->SaveCookies($cookies);
-        $this->CI->session->set_userdata('capsule_cookies', $cookies);
-
-        // Vérification que le dossier de l'étudiant n'est pas vide
-        if (strpos($response, "Il n'existe pas d'informations étudiantes disponibles")) return ('no-info');
-
-        // Analyse des données
-        if (strpos($response, "tudes en cours")) {
-            // Nettoyage du code HTML
-            if (function_exists('tidy_repair_string')) {
-                $tidy = tidy_parse_string($response);
-                $tidy->cleanRepair();
-            } else {
-                $tidy = $response;
-            }
-
-            // Analyse de la structure DOM de la page
-            $this->domparser->load($tidy);
+        // Parse studies data
+        if ( strpos( $request[ 'response' ], "tudes en cours" ) ) {
+            // Parse DOM structure from response
+            $this->domparser->load( $request[ 'response' ] );
             $tables = $this->domparser->find('table.datadisplaytable');
 
-            // Vérification d'une requête similaire
-            $md5 = md5(serialize($tables));
-            if ($this->CI->mCache->requestExists('studies', $md5)) {
-                if (!$this->forceReload) return (true);
+            // Check if similar data already exists in DB
+            if ( md5( serialize( $tables ) ) == $md5Hash ) {
+                // Data already exists in DB, if not force to reload, quit
+                if ( !$this->forceReload ) return true;
             } else {
-                $this->CI->mCache->addRequest('studies', $md5);
+                // Update MD5 Hash
+                $md5Hash = md5( serialize( $tables ) );
             }
 
-            $studies = array( 'empty_data' => false );
+            $userInfo = array( 'empty_data' => false );
 
-            // Recherche des données de fréquentation
-            $rows = $tables[0]->find('tr');
-            foreach ($rows as $row) {
-                $name = str_replace(':', '', html_entity_decode($row->nodes[1]->text(), ENT_COMPAT, 'cp1252'));
-                if (isset($row->nodes[3])) $value = html_entity_decode($row->nodes[3]->text(), ENT_COMPAT, 'cp1252');
+            // Find university attendance info
+            $rows = $tables[ 0 ]->find( 'tr' );
+            foreach ( $rows as $row ) {
+                $name = str_replace( ':', '', $row->nodes[1]->text() );
+                if ( isset( $row->nodes[3] ) ) $value = $row->nodes[3]->text();
                 switch ($name) {
                     case 'Inscrit pour la session':
-                        $studies['registered'] = 0;
-                        if ($value == 'Oui') $studies['registered'] = 1;
+                        $userInfo[ 'registered' ] = false;
+                        if ($value == 'Oui') $userInfo[ 'registered' ] = true;
                     break;
                     case 'Statut':
-                        $studies['status'] = $value;
+                        $userInfo[ 'status' ] = $value;
                     break;
                     default:
-                        if (strpos($name, 'Première session de fréquentation') !== false) {                            $semester = explode(' ', $value);
-                            $studies['first_sem'] = convertSemester($value);
-                        } elseif (strpos($name, 'Dernière session de fréquentation') !== false) {
-                            $studies['last_sem'] = convertSemester($value);
+                        if ( strpos( $name, 'Première session de fréquentation' ) !== false ) {
+                            $semester = explode( ' ', $value );
+                            $userInfo[ 'first_sem' ] = $this->_convertSemester( $value );
+                        } elseif ( strpos( $name, 'Dernière session de fréquentation' ) !== false ) {
+                            $userInfo[ 'last_sem' ] = $this->_convertSemester( $value );
                         }
                         break;
                 }
@@ -503,15 +434,19 @@ class Capsule {
             $programs = array();
             $program = array();
 
-            // Recherche des programmes d'études
-            $rows = $tables[1]->find('tr');
-            foreach ($rows as $row) {
-                $name = trim(str_replace(':', '', html_entity_decode($row->nodes[1]->text(), ENT_COMPAT, 'cp1252')));
-                if (isset($row->nodes[3])) $value = html_entity_decode($row->nodes[3]->text(), ENT_COMPAT, 'cp1252');
+            // Find study programs
+            $rows = $tables[1]->find( 'tr' );
+            foreach ( $rows as $row ) {
+                $name = trim(str_replace(':', '', $row->nodes[1]->text()));
+                if (isset($row->nodes[3])) $value = $row->nodes[3]->text();
                 switch ($name) {
                     case 'Programme actuel':
-                        // Si nouveau programme, le programme en cours est ajouté à la liste
-                        if ($program != array()) $programs[] = $program;
+                        // If new program, current program data are added to the end of programs list
+                        if ( $program != array() ) {
+                            $program[ 'concentrations' ] = serialize( $program[ 'concentrations' ] );
+                            $program[ 'idul' ] = $this->Session->read( 'idul' );
+                            $programs[] = array( 'Program' => $program );
+                        }
                         $program = array();
                         break;
                     case 'Cycle':
@@ -523,10 +458,11 @@ class Capsule {
                         $program['name'] = $value;
                         break;
                     case 'Session d\'admission':
-                        $program['adm_semester'] = convertSemester($value);
+                        $program['adm_semester'] = $this->_convertSemester( $value );
                         break;
-                    case 'Session de répertoire':                        $semester = explode(' ', $value);
-                        $program['session_repertoire'] = convertSemester($value);
+                    case 'Session de répertoire':
+                        $semester = explode(' ', $value);
+                        $program['session_repertoire'] = $this->_convertSemester( $value );
                         break;
                     case 'Type d\'admission':
                         $program['adm_type'] = $value;
@@ -541,7 +477,7 @@ class Capsule {
                         $program['minor'] = $value;
                         break;
                     case 'Concentration de majeure':
-                        if (!array_key_exists('concentrations', $studies)) $program['concentrations'] = array();
+                        if ( !array_key_exists( 'concentrations', $program ) ) $program[ 'concentrations' ] = array();
                         $program['concentrations'][] = $value;
                         break;
                     default:
@@ -552,150 +488,81 @@ class Capsule {
                 }
             }
 
-            $programs[] = $program;
+            $program[ 'concentrations' ] = serialize( $program[ 'concentrations' ] );
+            $program[ 'idul' ] = $this->idul;
+            $programs[] = array( 'Program' => $program );
 
-            // Vérification des programmes
+            // Check program validity (Pre-Banner programs are removed)
             foreach ($programs as &$program) {
-                if ($program['name'] == 'Programme pré-Banner') {
+                if ( $program[ 'Program' ][ 'name' ] == 'Programme pré-Banner' ) {
                     $program = array();
                 }
             }
 
-            return (array('programs'=>$programs, 'studies'=>$studies));
+            return ( array( 'status' => true, 'md5Hash' => $md5Hash, 'programs' => $programs, 'userInfo' => $userInfo ) );
         } else {
             // Enregistrement du résultat de la requête dans la BD pour débug
-            $this->CI->mHistory->saveRequestData($this->CI->session->userdata('pilule_user'), 'get-studies', $response, __FILE__." : ligne ".__LINE__." | ".$error);
+            //$this->CI->mHistory->saveRequestData($this->CI->session->userdata('pilule_user'), 'get-studies', $response, __FILE__." : ligne ".__LINE__." | ".$error);
 
-            return (false);
+            return false;
         }
 	}
 	
 	// Rapport de cheminement
-	public function getStudiesDetails ($semester, $programs) {
-        // Définition des paramètres de la requête
-        $this->fetcher->set(array(
-            'cookies'       =>  $this->CI->session->userdata('capsule_cookies'),
-            'debug'         =>  $this->debug,
-            'protocol'      =>  'https',
-            'referer'       =>  'https://capsuleweb.ulaval.ca/pls/etprod7/bwskgstu.P_StuInfo',
-            'request_method'=>  'POST'
-        ));
+	public function getStudiesDetails ( $md5Hash, $semester, $programs ) {
+        $userInfo = array();
 
-        // Définition des valeurs du formulaire
-        $arguments = array(
-            'HostName'      =>  $this->host,
-            'RequestURI'    =>  "/pls/etprod7/bwcksmmt.P_DispPrevEval",
-            'PostValues'    =>  array(
-                'term_in'	=>	$semester
-            )
-        );
+        // Get list of Rapport de cheminement
+        $request = $this->_fetchPage( '/pls/etprod7/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => $semester ) );
 
-        // Ouverture de la connexion
-        $this->fetcher->Open($arguments);
+        // Parse DOM structure from response
+        $this->domparser->load( $request[ 'response' ] );
+        $rows = $this->domparser->find( 'table.dataentrytable tr' );
 
-        // Envoi du formulaire
-        $error = $this->fetcher->SendRequest($arguments);
-        if (!empty($error)) return (false);
-
-        // Lecture du contenu de la réponse
-        $this->fetcher->ReadWholeReplyBody($response);
-        $response = utf8_encode(html_entity_decode($response));
-
-        // Fermeture de la connexion
-        $this->fetcher->Close();
-
-        // Vérification des données
-        if (!$this->checkPage($response)) return (false);
-
-        // Nettoyage du code HTML
-        if (function_exists('tidy_repair_string')) {
-            $tidy = tidy_parse_string($response);
-            $tidy->cleanRepair();
-        } else {
-            $tidy = $response;
-        }
-
-        // Analyse de la structure DOM de la page
-        $this->domparser->load($tidy);
-        $rows = $this->domparser->find('table.dataentrytable tr');
-
-        // Recherche du lien vers le dernier rapport de cheminement pour chaque programme
-        foreach ($programs as &$program) {
-            foreach ($rows as $row) {
-                $name = trim(str_replace(':', '', html_entity_decode($row->nodes[1]->text(), ENT_COMPAT, 'cp1252')));
-                if ($name == $program['name']) {
-                    // Extraction du lien
-                    $links = $row->find('a');
-                    $program['link'] = $links[0]->attr['href'];
+        // Find a link to the last Rapport de cheminement for each study program
+        foreach ( $programs as &$program ) {
+            foreach ( $rows as $row ) {
+                $name = trim( str_replace( ':', '', $row->nodes[1]->text() ) );
+                if ( $name == $program[ 'Program' ][ 'name' ] ) {
+                    // Extract link
+                    $links = $row->find( 'a' );
+                    $program[ 'Program' ][ 'link' ] = $links[ 0 ]->attr[ 'href' ];
                     break;
                 }
             }
 
-            if (isset($program['link']) and (!empty($program['link']))) {
-                // Définition des paramètres de la requête
-                $this->fetcher->set(array('request_method' => 'POST'));
+            if ( isset( $program[ 'Program' ][ 'link' ] ) and ( !empty( $program[ 'Program' ][ 'link' ] ) ) ) {
+                // Fetch Attestation de cheminement
+                $request = $this->_fetchPage( '/pls/etprod7/bwckcapp.P_VerifyDispEvalViewOption', 'POST', array(
+                    'request_no'        =>  substr( $program[ 'Program' ][ 'link' ], strpos( $program[ 'Program' ][ 'link' ], "_no=" ) + 4 ),
+                    'program_summary'   =>  '1'
+                ) );
 
-                // Attestation de cheminement
+                // Parse DOM structure from response
+                $this->domparser->load( $request[ 'response' ] );
+                $tables = $this->domparser->find( 'table.datadisplaytable' );
 
-                // Définition des valeurs du formulaire
-                $arguments["RequestURI"] = "/pls/etprod7/bwckcapp.P_VerifyDispEvalViewOption";
-                $arguments["PostValues"] = array(
-                    'request_no'		=>	substr($program['link'], strpos($program['link'], "_no=")+4),
-                    'program_summary'	=>	'1'
-                );
-
-                // Ouverture de la connexion
-                $this->fetcher->Open($arguments);
-
-                // Envoi du formulaire
-                $error = $this->fetcher->SendRequest($arguments);
-                if (!empty($error)) return (false);
-
-                // Lecture du contenu de la réponse
-                $this->fetcher->ReadWholeReplyBody($response);
-                $details1 = utf8_encode(html_entity_decode($response, ENT_COMPAT, 'cp1252'));
-
-                // Fermeture de la connexion
-                $this->fetcher->Close();
-
-                // Vérification des données
-                if (!$this->checkPage($details1)) return (false);
-
-                // Rapport détaillé
-
-                // Sélection des informations dans les rapports
-                // Nettoyage du code HTML
-                if (function_exists('tidy_repair_string')) {
-                    $tidy = tidy_parse_string($details1);
-                    $tidy->cleanRepair();
+                // Check if similar data already exists in DB
+                $md5Hash = md5( serialize( $tables ) );
+                if ( $this->Cache->requestExists( 'studies-details-program-' . md5( $program[ 'Program' ][ 'name' ] ), $md5Hash ) ) {
+                    // Data already exists in DB, if not force to reload, skip the next part
+                    if ( !$this->forceReload ) continue;
                 } else {
-                    $tidy = $response;
+                    // Save Capsule data request info in DB
+                    $this->Cache->saveRequest( 'studies-details-program-' . md5( $program[ 'Program' ][ 'name' ] ), $md5Hash );
                 }
 
-                // Analyse de la structure DOM de la page
-                $this->domparser->load($tidy);
-                $tables = $this->domparser->find('table.datadisplaytable');
+                // Parse data
 
-                // Vérification d'une requête similaire
-                $md5 = md5(serialize($tables));
-                if ($this->CI->mCache->requestExists('studies-details-program-'.md5($program['name']), $md5)) {
-                    $studies = true;
-                    //$program = true;
-                    if (!$this->forceReload) continue;
-                } else {
-                    $this->CI->mCache->addRequest('studies-details-program-'.md5($program['name']), $md5);
-                }
-
-                // Tri des données
                 $studies = array();
 
-                $rows = $tables[0]->find('tr');
-                foreach ($rows as $row) {
-                    $name = trim(str_replace(':', '', html_entity_decode($row->nodes[1]->text(), ENT_COMPAT, 'cp1252')));
+                $rows = $tables[ 0 ]->find( 'tr' );
+                foreach ( $rows as $row ) {
+                    $name = trim( str_replace( ':', '', html_entity_decode( $row->nodes[1]->text(), ENT_COMPAT, 'cp1252' ) ) );
                     if (isset($row->nodes[3])) $value = html_entity_decode($row->nodes[3]->text(), ENT_COMPAT, 'cp1252');
                     switch ($name) {
                         case 'Code permanent':
-                            $studies['code_permanent'] = trim(str_replace(' ', '', $value));
+                            $userInfo[ 'code_permanent' ] = trim(str_replace(' ', '', $value));
                             break;
                     }
 
@@ -704,13 +571,13 @@ class Capsule {
                         if (isset($row->nodes[7])) $value = html_entity_decode($row->nodes[7]->text(), ENT_COMPAT, 'cp1252');
                         switch ($name) {
                             case 'Session d\'évaluation':
-                                $program['session_evaluation'] = convertSemester($value);
+                                $program[ 'Program' ][ 'session_evaluation' ] = $this->_convertSemester($value);
                                 break;
                             case 'Date d\'obtention du diplôme':
-                                $program['date_diplome'] = trim(str_replace('/', '', $value));
+                                $program[ 'Program' ][ 'date_diplome' ] = trim(str_replace('/', '', $value));
                                 break;
                             case 'Date de l\'attestation':
-                                $program['date_attestation'] = trim(str_replace('/', '', $value));
+                                $program[ 'Program' ][ 'date_attestation' ] = trim(str_replace('/', '', $value));
                                 break;
                         }
                     }
@@ -726,29 +593,29 @@ class Capsule {
                     if (isset($row->nodes[11])) $value5 = html_entity_decode($row->nodes[11]->text());
                     switch ($name) {
                         case 'Total exigé':
-                            $program['requirements'] = $value;
-                            $program['credits_program'] = (int)$value2;
-                            $program['credits_used'] = (int)$value3;
-                            $program['courses_program'] = (int)$value4;
-                            $program['courses_used'] = (int)$value5;
+                            $program[ 'Program' ]['requirements'] = $value;
+                            $program[ 'Program' ]['credits_program'] = (int)$value2;
+                            $program[ 'Program' ]['credits_used'] = (int)$value3;
+                            $program[ 'Program' ]['courses_program'] = (int)$value4;
+                            $program[ 'Program' ]['courses_used'] = (int)$value5;
                             break;
                         case 'Reconnaissance d\'acquis':
-                            $program['credits_admitted'] = (int)$value3;
-                            $program['courses_admitted'] = (int)$value5;
+                            $program[ 'Program' ]['credits_admitted'] = (int)$value3;
+                            $program[ 'Program' ]['courses_admitted'] = (int)$value5;
                             break;
                         case 'Moyenne de cheminement':
-                            $program['gpa_overall'] = str_replace(',', '.', $value3);
+                            $program[ 'Program' ]['gpa_overall'] = str_replace(',', '.', $value3);
                             break;
                         default:
                             if (isset($row->nodes[3]) and strpos(html_entity_decode($row->nodes[3]->text()), 'Moyenne de programme') !== false) {
-                                $program['gpa_program'] = str_replace(',', '.', trim(str_replace(' ', '', substr(html_entity_decode($row->nodes[3]->text(), ENT_COMPAT, 'cp1252'), strpos(html_entity_decode($row->nodes[3]->text(), ENT_COMPAT, 'cp1252'), ':')+1))));
+                                $program[ 'Program' ]['gpa_program'] = str_replace(',', '.', trim(str_replace(' ', '', substr(html_entity_decode($row->nodes[3]->text(), ENT_COMPAT, 'cp1252'), strpos(html_entity_decode($row->nodes[3]->text(), ENT_COMPAT, 'cp1252'), ':')+1))));
                             }
                     }
                 }
 
                 $sections = array();
-                $section = array();
-                $section_number = 1;
+                $sectionNumber = 1;
+                $section = array( 'number' => $sectionNumber, 'program_id' => $program[ 'Program'][ 'id' ] );
 
                 for ($i = 2; $i < count ($tables); $i++) {
                     $rows = $tables[$i]->find('tr');
@@ -759,10 +626,10 @@ class Capsule {
                             $check_courses = false;
 
                             // Ajout de la section précédente
-                            if (!empty($section)) $sections[] = $section;
+                            if (!empty($section)) $sections[] = array( 'Section' => $section );
 
                             // Add section
-                            $section = array();
+                            $section = array( 'number' => $sectionNumber, 'program_id' => $program[ 'Program'][ 'id' ] );
                             $section['title'] = html_entity_decode($row->nodes[3]->text(), ENT_COMPAT, 'cp1252');
                             $section['title'] = trim(substr($section['title'], 0, strrpos($section['title'], ' - ')));
                             $section['courses'] = array();
@@ -771,9 +638,9 @@ class Capsule {
                                 $section['credits']	= (int)substr($section['credits'], 0, strpos($section['credits'], ","));
                                 $section['title'] = trim(substr($section['title'], 0, strrpos($section['title'], " ( ")));
                             }
-                            $section['number'] = $section_number;
+                            $section['number'] = $sectionNumber;
 
-                            $section_number++;
+                            $sectionNumber++;
                         } elseif ($name == 'Cours') {
                             $courses = array();
                             $check_courses = true;
@@ -781,10 +648,10 @@ class Capsule {
                             $check_courses = false;
 
                             // Ajout de la section précédente
-                            if (!empty($section)) $sections[] = $section;
+                            if (!empty($section)) $sections[] = array( 'Section' => $section );
 
-                            $section = array('title' => 'Cours échoués', 'number' => $section_number);
-                            $section_number++;
+                            $section = array( 'number' => $sectionNumber, 'program_id' => $program[ 'Program'][ 'id' ], 'title' => 'Cours échoués' );
+                            $sectionNumber++;
                         } elseif (trim($name) != '') {
                             if ($check_courses) {
                                 $course = array(
@@ -798,15 +665,15 @@ class Capsule {
                                 if (!empty($course['semester'])) {
                                     $semester = explode(' ', $course['semester']);
                                     if (isset($semester[1])) {
-                                        $course['semester'] = convertSemester($course['semester']);
+                                        $course['semester'] = $this->_convertSemester($course['semester']);
                                     }
                                 }
 
-                                $courses[] = $course;
+                                $courses[] = array( 'Course' => $course );
                             }
                         } else {
                             if ($check_courses) {
-                                $section['courses'] = $courses;
+                                $section[ 'courses' ] = $courses;
 
                                 $courses = array();
                                 $check_courses = false;
@@ -817,81 +684,84 @@ class Capsule {
 
                 // Ajout de la section précédente
                 $section['courses'] = $courses;
-                if (!empty($section)) $sections[] = $section;
+                if ( !empty( $section ) ) $sections[] = array( 'Section' => $section );
 
                 // Enregistrement des sections de cours
-                $program['sections'] = $sections;
+                $program[ 'Program' ]['sections'] = $sections;
             }
         }
 
-        return (array('studies' => $studies, 'programs' => $programs));
+        return ( array( 'userInfo' => $userInfo, 'programs' => $programs ) );
 	}
 	
 	
-	// Relevé de notes
+	// Student report
 	public function getReport () {
-        // Définition des paramètres de la requête
+        // Define request parameters
         $this->fetcher->set(array(
-            'cookies'       =>  $this->CI->session->userdata('capsule_cookies'),
+            'cookies'       =>  $this->cookies,
             'debug'         =>  $this->debug,
             'protocol'      =>  'https',
-            'referer'       =>  'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_StuMainMnu',
+            'referer'       =>  'https://capsuleweb.ulaval.ca/pls/etprod7/bwskgstu.P_StuInfo',
             'request_method'=>  'POST'
         ));
 
-        // Définition des valeurs du formulaire
+        // Define request arguments
         $arguments = array(
             'HostName'      =>  $this->host,
             'RequestURI'    =>  "/pls/etprod7/bwskotrn.P_ViewTran",
             'PostValues'    =>  array(
-                'levl'	=>	'1',
-                'tprt'	=>	'WEB'
+                'levl'  =>  '1',
+                'tprt'  =>  'WEB'
             )
         );
 
-        // Ouverture de la connexion
-        $this->fetcher->Open($arguments);
+        // Open connection to remote server
+        $error = $this->fetcher->Open( $arguments );
+        if ( !empty( $error ) ) return false;
 
-        // Envoi du formulaire
-        $error = $this->fetcher->SendRequest($arguments);
-        if (!empty($error)) return (false);
+        // Send request data to remote server
+        $error = $this->fetcher->SendRequest( $arguments );
+        if ( !empty( $error ) ) return false;
 
-        // Lecture du contenu de la réponse
-        $this->fetcher->ReadWholeReplyBody($response);
-        $response = (html_entity_decode($response, ENT_COMPAT, 'cp1252'));
+        // Read response content from remote server
+        $this->fetcher->ReadWholeReplyBody( $response );
+        $response = utf8_encode( html_entity_decode( $response, ENT_COMPAT, 'cp1252' ) );
 
-        // Fermeture de la connexion
+        // Close remote server connection
         $this->fetcher->Close();
 
-        // Vérification des données
-        if (!$this->checkPage($response)) return (false);
+        // Check data integrity
+        if ( !$this->checkPage( $response ) ) return false;
 
-        // Nettoyage du code HTML
-        if (function_exists('tidy_repair_string')) {
-            $tidy = tidy_parse_string($response);
+        // Clean HTML code
+        if ( function_exists( 'tidy_repair_string' ) ) {
+            $tidy = tidy_parse_string( $response );
             $tidy->cleanRepair();
         } else {
             $tidy = $response;
         }
 
-        // Analyse de la structure DOM de la page
-        $this->domparser->load($tidy);
-        $table = $this->domparser->find('table.datadisplaytable');
+        // Parse DOM structure from response
+        $this->domparser->load( $tidy );
+        $table = $this->domparser->find( 'table.datadisplaytable' );
 
-        // Vérification d'une requête similaire
-        $md5 = md5(serialize($table));
-        if ($this->CI->mCache->requestExists('studies-report', $md5)) {
-            if (!$this->forceReload) return (true);
+        // Check if similar data already exists in DB
+        $md5Hash = md5( serialize( $tables ) );
+        if ( $this->Cache->requestExists( 'studies-report', $md5Hash ) ) {
+            // Data already exists in DB, if not force to reload, skip the next part
+            if ( !$this->forceReload ) continue;
         } else {
-            $this->CI->mCache->addRequest('studies-report', $md5);
+            // Save Capsule data request info in DB
+            $this->Cache->saveRequest( 'studies-report', $md5Hash );
         }
 
-        // Analyse des données
-        $student = array();
+        // Parse response data
+        $userInfo = array();
         $programs = array();
         $report = array();
         $semesters = array();
-        $admitted_sections = array();
+        $admittedSections = array();
 
         $check_programs = false;
         $check_courses = false;
@@ -908,10 +778,10 @@ class Capsule {
             if (isset($row->nodes[11])) $value5 = html_entity_decode($row->nodes[11]->text());
             switch ($name) {
                 case 'Jour de naissance':
-                    $student['birthday'] = str_replace('É', 'é', str_replace('È', 'è', str_replace('Û', 'û', utf8_encode(trim(strtolower($value))))));
+                    $userInfo[ 'birthday' ] = str_replace('É', 'é', str_replace('È', 'è', str_replace('Û', 'û', utf8_encode(trim(strtolower($value))))));
                     break;
                 case 'No de dossier':
-                    $student['da'] = trim(str_replace(' ', '', $value));
+                    $userInfo[ 'da' ] = trim(str_replace(' ', '', $value));
                     break;
                 case 'Dernier rendement universitaire':
                     break;
@@ -930,7 +800,7 @@ class Capsule {
                 case 'Cumul':
                     if ($check_courses) {
                         $semester['cumulative_gpa'] = str_replace(',', '.', trim(html_entity_decode($row->nodes[13]->text())));
-                        if (!empty($semester)) $semesters[] = $semester;
+                        if (!empty($semester)) $semesters[] = array('Semester' => $semester );
                         $semester = array();
                         $check_courses = false;
                     }
@@ -974,11 +844,11 @@ class Capsule {
                                 $check_courses = false;
                             } else {
                                 // Ajout du programme précédent
-                                if (!empty($semester)) $semesters[] = $semester;
+                                if (!empty($semester)) $semesters[] = array( 'Semester' => $semester );
 
                                 $semester = array();
 
-                                $semester['semester'] = convertSemester(trim($name));
+                                $semester['semester'] = $this->_convertSemester(trim($name));
                                 $semester['courses'] = array();
                                 $check_courses = true;
                             }
@@ -999,14 +869,14 @@ class Capsule {
                         switch($name) {
                             case 'En cheminement':
                                 // Ajout du programme précédent
-                                if (!empty($program)) $programs[] = $program;
+                                if (!empty($program)) $programs[] = array( 'Program' => $program );
 
                                 $program = array();
                                 $program['concentrations'] = array();
                                 break;
                             case 'Diplôme obtenu':
                                 // Ajout du programme précédent
-                                if (!empty($program)) $programs[] = $program;
+                                if (!empty($program)) $programs[] = array( 'Program' => $program );
 
                                 $program = array(
                                     'date_diplome'  =>  trim(str_replace('/', '', $value3)),
@@ -1035,10 +905,10 @@ class Capsule {
                                     $check_programs = false;
 
                                     // Ajout du programme précédent
-                                    if (!empty($program)) $programs[] = $program;
+                                    if ( !empty( $program ) ) $programs[] = array( 'Program' => $program );
 
                                     $check_admitted = true;
-                                    $admitted_section = array();
+                                    $admittedSection = array();
                                 }
                                 break;
                         }
@@ -1046,9 +916,9 @@ class Capsule {
                         if (($name) != 'Matière') {
                             if (count($row->nodes) < 6) {
                                 // Ajout de la section précédente
-                                if (!empty($admitted_section)) $admitted_sections[] = $admitted_section;
+                                if (!empty($admittedSection)) $admittedSections[] = $admittedSection;
 
-                                $admitted_section = array(
+                                $admittedSection = array(
                                     'period'    =>  utf8_encode($name),
                                     'title'     =>  utf8_encode(trim($value)),
                                     'courses'   =>  array()
@@ -1063,34 +933,39 @@ class Capsule {
                                     'reprise'   =>  (isset($row->nodes[13])) ? trim(str_replace('*', '', utf8_encode(html_entity_decode($row->nodes[13]->text())))): 0,
                                 );
 
-                                $admitted_section['courses'][] = $course;
+                                $admittedSection[ 'courses' ][] = array( 'Course' => $course );
                             }
                         }
                     } elseif (strlen($name) < 3 and $check_admitted) {
                         if (isset($row->nodes[3]) and trim(utf8_encode(html_entity_decode($row->nodes[3]->text()))) != 'Crédits obtenus') {
-                            $admitted_section['credits_admitted'] = (int)trim(html_entity_decode($row->nodes[3]->text(), ENT_COMPAT, 'cp1252'));
-                            $admitted_section['credits_gpa'] = (int)trim(html_entity_decode($row->nodes[5]->text(), ENT_COMPAT, 'cp1252'));
-                            $admitted_section['points'] = str_replace(',', '.', trim(html_entity_decode($row->nodes[7]->text(), ENT_COMPAT, 'cp1252')));
-                            $admitted_section['gpa'] = str_replace(',', '.', trim(html_entity_decode($row->nodes[9]->text(), ENT_COMPAT, 'cp1252')));
+                            $admittedSection['credits_admitted'] = (int)trim(html_entity_decode($row->nodes[3]->text(), ENT_COMPAT, 'cp1252'));
+                            $admittedSection['credits_gpa'] = (int)trim(html_entity_decode($row->nodes[5]->text(), ENT_COMPAT, 'cp1252'));
+                            $admittedSection['points'] = str_replace(',', '.', trim(html_entity_decode($row->nodes[7]->text(), ENT_COMPAT, 'cp1252')));
+                            $admittedSection['gpa'] = str_replace(',', '.', trim(html_entity_decode($row->nodes[9]->text(), ENT_COMPAT, 'cp1252')));
 
-                            $admitted_sections[] = $admitted_section;
-                            $admitted_section = array();
+                            $admittedSections[] = $admittedSection;
+                            $admittedSection = array();
                         }
                     }
                     break;
             }
         }
 
-        $report['programs'] = $programs;
+        $report[ 'programs' ] = serialize( $programs );
 
-        return (array('student'=>$student, 'report'=>$report, 'semesters'=>$semesters, 'admitted_sections'=>$admitted_sections));
+        return ( array(
+            'userInfo'          =>  $userInfo,
+            'report'            =>  array( 'Report' => $report ),
+            'semesters'         =>  $semesters,
+            'admittedSections'  =>  $admittedSection
+        ) );
 	}
 	
 	// Horaire de cours
 	public function getSchedule ($requested_semester = '') {
         // Définition des paramètres de la requête
         $this->fetcher->set(array(
-            'cookies'       =>  $this->CI->session->userdata('capsule_cookies'),
+            'cookies'       =>  $this->cookies,
             'debug'         =>  $this->debug,
             'protocol'      =>  'https',
             'referer'       =>  'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_StuMainMnu',
@@ -1268,7 +1143,7 @@ class Capsule {
 	public function getFees ($requested_semester = '') {
         // Définition des paramètres de la requête
         $this->fetcher->set(array(
-            'cookies'       =>  $this->CI->session->userdata('capsule_cookies'),
+            'cookies'       =>  $this->cookies,
             'debug'         =>  $this->debug,
             'protocol'      =>  'https',
             'referer'       =>  'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_StuMainMnu'
@@ -1361,7 +1236,7 @@ class Capsule {
                     break;
                 default:
                     if (strpos($name, 'Automne ') !== false || strpos($name, 'Été ') !== false || strpos($name, 'Hiver ') !== false) {
-                        $semester['semester'] = convertSemester($name);
+                        $semester['semester'] = $this->_convertSemester($name);
                     } elseif (str_replace(' ', '', $name) != '') {
                         if (str_replace(' ', '', $value) != '') {
                             $semester['fees'][] = array('name' => $name, 'amount' => (float)str_replace('$', '', $value));
@@ -2301,6 +2176,61 @@ class Capsule {
 		}
 	}
 	
+    private function _fetchPage ( $url, $method = 'GET', $postVars = array(), $checkPage = true ) {
+        // Define request parameters
+        $this->fetcher->set(array(
+            'cookies'       =>  $this->cookies,
+            'debug'         =>  $this->debug,
+            'protocol'      =>  'https',
+            'request_method'=>  $method
+        ));
+
+        // Define Host name
+        $arguments = array(
+            'HostName'      =>  $this->host,
+            'RequestURI'    =>  $url,
+        );
+
+        if ( !empty( $postVars ) )
+            $arguments[ 'PostValues' ] = $postVars;
+
+        // Open connection to remote server
+        $error = $this->fetcher->Open( $arguments );
+        if ( !empty( $error ) ) return false;
+
+        // Send request data to remote server
+        $error = $this->fetcher->SendRequest( $arguments );
+        if ( !empty( $error ) ) return false;
+
+        // Read response headers from remote server
+        $error = $this->fetcher->ReadReplyHeaders( $headers );
+        if ( !empty( $error ) ) return false;
+
+        // Read response content from remote server
+        $this->fetcher->ReadWholeReplyBody( $response );
+        $response = utf8_encode( html_entity_decode( $response, ENT_COMPAT, 'cp1252' ) );
+
+        // Close remote server connection
+        $this->fetcher->Close();
+
+        // Check data integrity
+        if ( $checkPage ) {
+            if ( strpos( $response, "<TITLE>Connexion utilisateur | Capsule | Université Laval</TITLE>" ) )
+                return false;
+        }
+
+        // Clean HTML code
+        /*if ( function_exists( 'tidy_repair_string' ) ) {
+            $tidy = tidy_parse_string( $response );
+            $tidy->cleanRepair();
+        } else {
+            $tidy = $response;
+        }*/
+
+        // Return request result
+        return ( array( 'headers' => $headers, 'response' => $response ) );
+    }
+
 	private function checkPage ($data) {
 		if (!strpos($data, "<TITLE>Connexion utilisateur | Capsule | Université Laval</TITLE>")) {
 			return (true);
@@ -2308,6 +2238,47 @@ class Capsule {
 			return (false);
 		}
 	}
+
+    private function _convertSemester( $semester, $smallFormat = false ) {
+        if ( is_numeric( $semester ) and strlen( $semester ) == 6 ) {
+            // Semester format is YYYYMM
+            switch ( substr( $semester, 5, 2 ) ) {
+                case '09';
+                    if ( $smallFormat ) {
+                        $semester = 'A-' . substr( $semester, 2, 2 );
+                    } else {
+                        $semester = 'Automne ' . substr( $semester, 0, 4 );
+                    }
+                    break;
+                case '01';
+                    if ( $smallFormat ) {
+                        $semester = 'H-' . substr( $semester, 2, 2 );
+                    } else {
+                        $semester = 'Hiver ' . substr( $semester, 0, 4 );
+                    }
+                    break;
+                case '05';
+                    if ( $smallFormat ) {
+                        $semester = 'E-' . substr( $semester, 2, 2 );
+                    } else {
+                        $semester = 'Été ' . substr( $semester, 0, 4 );
+                    }
+                    break;
+            }
+
+            return ($semester);
+        } else {
+            // Semester is in text format
+            $textSemester = '';
+            $semester = explode( ' ', $semester );
+            $textSemester = $semester[ 1 ];
+            if ( $semester[ 0 ] == 'Automne' ) $textSemester .= '09';
+            elseif ( $semester[ 0 ] == 'Hiver' ) $textSemester .= '01';
+            elseif ( $semester[ 0 ] == 'Été' ) $textSemester .= '05';
+
+            return ( $textSemester );
+        }
+    }
 }
 
 ?>
