@@ -14,7 +14,9 @@ class StudentProgramSection extends Model {
 
 	public $hasMany = array(
 		'Course'	=>	array(
-			'className'		=>	'StudentProgramCourse'
+			'className'		=>	'StudentProgramCourse',
+			'foreignKey'	=>	'section_id',
+			'dependent'		=>	true
 		)
 	);
 }

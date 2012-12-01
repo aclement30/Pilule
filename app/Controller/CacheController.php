@@ -46,7 +46,7 @@ class CacheController extends AppController {
             case 'studies-summary':
             	// Get data request from DB
             	$request = $this->CacheRequest->find( 'first', array(
-            		array( 'idul' => $this->Session->read( 'idul' ), 'name' => 'studies-summary' )
+            		'conditions' => array( 'idul' => $this->Session->read( 'idul' ), 'name' => 'studies-summary' )
             	) );
             	if ( !empty( $request )) {
             		$md5Hash = $request[ 'CacheRequest' ][ 'md5' ];
@@ -102,74 +102,36 @@ class CacheController extends AppController {
                 if ( empty( $userPrograms ) ) break;
 
                 // Get data request from DB
-            	$request = $this->CacheRequest->find( 'first', array(
-            		array( 'idul' => $this->Session->read( 'idul' ), 'name' => 'studies-details' )
+            	$requests = $this->CacheRequest->find( 'all', array(
+            		'conditions' => array( 'idul' => $this->Session->read( 'idul' ), 'name LIKE' => 'studies-details-program-%' )
             	) );
-            	if ( !empty( $request )) {
-            		$md5Hash = $request[ 'CacheRequest' ][ 'md5' ];
+            	if ( !empty( $requests )) {
+                    $md5Hash = array();
+                    foreach ( $requests as $request ) {
+                        $md5Hash[ $request[ 'CacheRequest' ][ 'name' ] ] = $request[ 'CacheRequest' ][ 'md5' ];
+                    }
             	} else {
-            		$md5Hash = null;
+            		$md5Hash = array();
             	}
 
 				// Load Rapport de cheminement
                 $result = $this->Capsule->getStudiesDetails( $md5Hash, CURRENT_SEMESTER, $userPrograms );
 
-                if ( $result === true ) {
-                    // Similar data have been found in DB (not reloaded)
-
-                    // Update last data checkup timestamp
-                    $this->CacheRequest->saveRequest( $this->Session->read( 'idul' ), 'studies-details', $md5Hash );
-                } elseif ( is_array( $result ) ) {
-                	// Save student info
-                	if ( $result[ 'userInfo' ] !== true ) {
-	                    $this->User->id = $this->Session->read( 'idul' );
-	                    $this->User->save( array( 'User' => $userInfo ) );
-	                }
-
-	                // Save programs studies data
-					$this->User->Program->saveAll( $result[ 'programs' ] );
-
-					/*
-                    // Enregistrement des sections de cours
-                    foreach ($result['programs'] as $program) {
-                        if ($program === true) continue;
-
-                        $section_number = 1;
-
-                        // Suppression des données en cache de cours de l'étudiant
-                        $this->mStudies->deleteProgramSections($program['id']);
-                        $this->mStudies->deleteProgramCourses($program['id']);
-
-                        if (isset($program['sections'])) {
-                            foreach ($program['sections'] as $section) {
-                                $courses = $section['courses'];
-                                unset($section['courses']);
-                                $section['number'] = $section_number;
-                                $section['program_id'] = $program['id'];
-
-                                // Enregistrement de la section
-                                $section_id = $this->mStudies->addProgramSection($section);
-                                foreach ($courses as $course) {
-                                    $course['program_id'] = $program['id'];
-                                    $course['section_id'] = $section_id;
-                                    $this->mStudies->addProgramCourse($course);
-                                }
-
-                                $section_number++;
-                            }
-                        }
-						
-                        unset($program['sections']);
-                        unset($program['link']);
-						
-                        // Enregistrement des données d'études
-                        $this->mStudies->editProgram($program);
+                if ( $result[ 'status' ] ) {
+                    foreach ( $result[ 'md5Hash' ] as $name => $hash ) {
+                        // Update last data checkup timestamp
+                        $this->CacheRequest->saveRequest( $this->Session->read( 'idul' ), $name, $hash );
                     }
-					*/
 
-                    // Update last data checkup timestamp
-                    $this->CacheRequest->saveRequest( 'studies-details' );
-				} else {
+                    // Save student info
+                    if ( !empty( $result[ 'userInfo' ] ) ) {
+                        $this->User->id = $this->Session->read( 'idul' );
+                        $this->User->save( array( 'User' => $result[ 'userInfo' ] ) );
+                    }
+
+                    // Save programs studies data
+                    $this->User->Program->saveAll( $result[ 'programs' ], array( 'deep' => true ) );
+                } else {
 					// Enregistrement de l'erreur
 					//$this->mErrors->addError('reload-data', 'studies-details : parsing error');
 					
@@ -177,14 +139,24 @@ class CacheController extends AppController {
 				}
 			break;
 			case 'studies-report':
+                // Get data request from DB
+                $request = $this->CacheRequest->find( 'first', array(
+                    'conditions' => array( 'idul' => $this->Session->read( 'idul' ), 'name' => 'studies-report' )
+                ) );
+                if ( !empty( $request )) {
+                    $md5Hash = $request[ 'CacheRequest' ][ 'md5' ];
+                } else {
+                    $md5Hash = null;
+                }
+
 				// Load report
-                $result = $this->capsule->getReport();
+                $result = $this->capsule->getReport( $md5Hash );
 
                 if ( $result === true ) {
                 	// Similar data have been found in DB (not reloaded)
 
                     // Update last data checkup timestamp
-                    $this->CacheRequest->saveRequest( 'studies-report' );
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'idul' ), 'studies-report', $md5Hash );
                 } elseif (is_array($result)) {
                     // Save student info
                 	if ( $result[ 'userInfo' ] !== true ) {

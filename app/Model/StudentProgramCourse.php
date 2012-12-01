@@ -8,9 +8,12 @@ class StudentProgramCourse extends Model {
 			'foreignKey'	=>	'idul'
 		),
 		'Program'	=>	array(
-			'foreignKey'	=>	'program_id'
+			'className'		=>	'StudentProgram',
+			'foreignKey'	=>	'program_id',
+			'dependent'		=>	true
 		),
 		'Section'	=>	array(
+			'className'		=>	'StudentProgramSection',
 			'foreignKey'	=>	'section_id'
 		)
 	);

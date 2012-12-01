@@ -543,23 +543,21 @@ class Capsule {
                 $tables = $this->domparser->find( 'table.datadisplaytable' );
 
                 // Check if similar data already exists in DB
-                $md5Hash = md5( serialize( $tables ) );
-                if ( $this->Cache->requestExists( 'studies-details-program-' . md5( $program[ 'Program' ][ 'name' ] ), $md5Hash ) ) {
-                    // Data already exists in DB, if not force to reload, skip the next part
-                    if ( !$this->forceReload ) continue;
+                if ( array_key_exists( 'studies-details-program-' . md5( $program[ 'Program' ][ 'name' ] ), $md5Hash ) && md5( serialize( $tables ) ) == $md5Hash[ 'studies-details-program-' . md5( $program[ 'Program' ][ 'name' ] ) ] ) {
+                    // Data already exists in DB, if not force to reload, quit
+                    if ( !$this->forceReload )
+                        continue;
                 } else {
-                    // Save Capsule data request info in DB
-                    $this->Cache->saveRequest( 'studies-details-program-' . md5( $program[ 'Program' ][ 'name' ] ), $md5Hash );
+                    // Update MD5 Hash
+                    $md5Hash[ 'studies-details-program-' . md5( $program[ 'Program' ][ 'name' ] ) ] = md5( serialize( $tables ) );
                 }
 
                 // Parse data
 
-                $studies = array();
-
                 $rows = $tables[ 0 ]->find( 'tr' );
                 foreach ( $rows as $row ) {
-                    $name = trim( str_replace( ':', '', html_entity_decode( $row->nodes[1]->text(), ENT_COMPAT, 'cp1252' ) ) );
-                    if (isset($row->nodes[3])) $value = html_entity_decode($row->nodes[3]->text(), ENT_COMPAT, 'cp1252');
+                    $name = trim( str_replace( ':', '', $row->nodes[1]->text() ) );
+                    if (isset($row->nodes[3])) $value = $row->nodes[3]->text();
                     switch ($name) {
                         case 'Code permanent':
                             $userInfo[ 'code_permanent' ] = trim(str_replace(' ', '', $value));
@@ -567,8 +565,8 @@ class Capsule {
                     }
 
                     if (count($row->nodes) > 5) {
-                        $name = trim(str_replace(':', '', html_entity_decode($row->nodes[5]->text(), ENT_COMPAT, 'cp1252')));
-                        if (isset($row->nodes[7])) $value = html_entity_decode($row->nodes[7]->text(), ENT_COMPAT, 'cp1252');
+                        $name = trim(str_replace(':', '', $row->nodes[5]->text()));
+                        if (isset($row->nodes[7])) $value = $row->nodes[7]->text();
                         switch ($name) {
                             case 'Session d\'évaluation':
                                 $program[ 'Program' ][ 'session_evaluation' ] = $this->_convertSemester($value);
@@ -585,12 +583,12 @@ class Capsule {
 
                 $rows = $tables[1]->find('tr');
                 foreach ($rows as $row) {
-                    $name = str_replace(':', '', html_entity_decode($row->nodes[1]->text(), ENT_COMPAT, 'cp1252'));
-                    if (isset($row->nodes[3])) $value = html_entity_decode($row->nodes[3]->text());
-                    if (isset($row->nodes[5])) $value2 = html_entity_decode($row->nodes[5]->text());
-                    if (isset($row->nodes[7])) $value3 = html_entity_decode($row->nodes[7]->text());
-                    if (isset($row->nodes[9])) $value4 = html_entity_decode($row->nodes[9]->text());
-                    if (isset($row->nodes[11])) $value5 = html_entity_decode($row->nodes[11]->text());
+                    $name = str_replace(':', '', $row->nodes[1]->text());
+                    if (isset($row->nodes[3])) $value = $row->nodes[3]->text();
+                    if (isset($row->nodes[5])) $value2 = $row->nodes[5]->text();
+                    if (isset($row->nodes[7])) $value3 = $row->nodes[7]->text();
+                    if (isset($row->nodes[9])) $value4 = $row->nodes[9]->text();
+                    if (isset($row->nodes[11])) $value5 = $row->nodes[11]->text();
                     switch ($name) {
                         case 'Total exigé':
                             $program[ 'Program' ]['requirements'] = $value;
@@ -607,39 +605,49 @@ class Capsule {
                             $program[ 'Program' ]['gpa_overall'] = str_replace(',', '.', $value3);
                             break;
                         default:
-                            if (isset($row->nodes[3]) and strpos(html_entity_decode($row->nodes[3]->text()), 'Moyenne de programme') !== false) {
-                                $program[ 'Program' ]['gpa_program'] = str_replace(',', '.', trim(str_replace(' ', '', substr(html_entity_decode($row->nodes[3]->text(), ENT_COMPAT, 'cp1252'), strpos(html_entity_decode($row->nodes[3]->text(), ENT_COMPAT, 'cp1252'), ':')+1))));
+                            if (isset($row->nodes[3]) and strpos($row->nodes[3]->text(), 'Moyenne de programme') !== false) {
+                                $program[ 'Program' ]['gpa_program'] = str_replace(',', '.', trim(str_replace(' ', '', substr($row->nodes[3]->text(), strpos($row->nodes[3]->text(), ':')+1))));
                             }
                     }
                 }
 
                 $sections = array();
                 $sectionNumber = 1;
-                $section = array( 'number' => $sectionNumber, 'program_id' => $program[ 'Program'][ 'id' ] );
+                $section = array(
+                    'idul'      => $this->idul,
+                    'number'    => $sectionNumber,
+                    'program_id'=> $program[ 'Program'][ 'id' ],
+                    'Course'    => array()
+                );
+                $program[ 'Section' ] = array();
 
                 for ($i = 2; $i < count ($tables); $i++) {
                     $rows = $tables[$i]->find('tr');
                     foreach ($rows as $row) {
-                        $name = str_replace(':', '', html_entity_decode($row->nodes[1]->text(), ENT_COMPAT, 'cp1252'));
+                        $name = str_replace( ':', '', $row->nodes[1]->text() );
                         if ($name == 'Bloc') {
                             // Reset courses fetching
                             $check_courses = false;
 
                             // Ajout de la section précédente
-                            if (!empty($section)) $sections[] = array( 'Section' => $section );
+                            if ( isset( $section[ 'title' ] ) && !empty( $section[ 'title' ] ) )
+                                $program[ 'Section' ][] = $section;
 
                             // Add section
-                            $section = array( 'number' => $sectionNumber, 'program_id' => $program[ 'Program'][ 'id' ] );
-                            $section['title'] = html_entity_decode($row->nodes[3]->text(), ENT_COMPAT, 'cp1252');
+                            $section = array(
+                                'idul'      => $this->idul,
+                                'number'    => $sectionNumber,
+                                'program_id'=> $program[ 'Program'][ 'id' ],
+                                'Course'    => array()
+                            );
+
+                            $section['title'] = $row->nodes[3]->text();
                             $section['title'] = trim(substr($section['title'], 0, strrpos($section['title'], ' - ')));
-                            $section['courses'] = array();
                             if (strpos($section['title'], " ( ")>-1) {
                                 $section['credits'] = trim(substr($section['title'], strrpos($section['title'], " ( ")+3));
                                 $section['credits']	= (int)substr($section['credits'], 0, strpos($section['credits'], ","));
                                 $section['title'] = trim(substr($section['title'], 0, strrpos($section['title'], " ( ")));
                             }
-                            $section['number'] = $sectionNumber;
-
                             $sectionNumber++;
                         } elseif ($name == 'Cours') {
                             $courses = array();
@@ -648,18 +656,28 @@ class Capsule {
                             $check_courses = false;
 
                             // Ajout de la section précédente
-                            if (!empty($section)) $sections[] = array( 'Section' => $section );
+                            if ( isset( $section[ 'title' ] ) && !empty( $section[ 'title' ] ) )
+                                $program[ 'Section' ][] = $section;
 
-                            $section = array( 'number' => $sectionNumber, 'program_id' => $program[ 'Program'][ 'id' ], 'title' => 'Cours échoués' );
+                            // Add section
+                            $section = array(
+                                'idul'      => $this->idul,
+                                'title'     => 'Cours échoués',
+                                'number'    => $sectionNumber,
+                                'program_id'=> $program[ 'Program'][ 'id' ],
+                                'Course'    => array()
+                            );
                             $sectionNumber++;
                         } elseif (trim($name) != '') {
                             if ($check_courses) {
                                 $course = array(
-                                    'code'  =>  strtoupper(trim(html_entity_decode($row->nodes[1]->text()) . '-' . html_entity_decode($row->nodes[3]->text()))),
-                                    'title'     =>  trim(html_entity_decode($row->nodes[5]->text(), ENT_COMPAT, 'cp1252')),
-                                    'semester'  =>  trim(str_replace(' ', '', html_entity_decode($row->nodes[7]->text(), ENT_COMPAT, 'cp1252'))),
-                                    'credits'   =>  (int)trim(str_replace('cr.', '', html_entity_decode($row->nodes[9]->text()))),
-                                    'note'      =>  trim(str_replace('*', '', html_entity_decode($row->nodes[11]->text()))),
+                                    'idul'      => $this->idul,
+                                    'program_id'=> $program[ 'Program'][ 'id' ],
+                                    'code'      =>  strtoupper(trim($row->nodes[1]->text() . '-' . $row->nodes[3]->text())),
+                                    'title'     =>  trim($row->nodes[5]->text()),
+                                    'semester'  =>  trim(str_replace(' ', '', $row->nodes[7]->text())),
+                                    'credits'   =>  (int)trim(str_replace('cr.', '', $row->nodes[9]->text())),
+                                    'note'      =>  trim(str_replace('*', '', $row->nodes[11]->text())),
                                 );
 
                                 if (!empty($course['semester'])) {
@@ -669,11 +687,11 @@ class Capsule {
                                     }
                                 }
 
-                                $courses[] = array( 'Course' => $course );
+                                $courses[] = $course;
                             }
                         } else {
                             if ($check_courses) {
-                                $section[ 'courses' ] = $courses;
+                                $section[ 'Course' ] = $courses;
 
                                 $courses = array();
                                 $check_courses = false;
@@ -683,17 +701,17 @@ class Capsule {
                 }
 
                 // Ajout de la section précédente
-                $section['courses'] = $courses;
-                if ( !empty( $section ) ) $sections[] = array( 'Section' => $section );
+                $section[ 'Course' ] = $courses;
+                if ( isset( $section[ 'title' ] ) && !empty( $section[ 'title' ] ) )
+                    $program[ 'Section' ][] = $section;
 
-                // Enregistrement des sections de cours
-                $program[ 'Program' ]['sections'] = $sections;
+                // Remove link field
+                unset( $program[ 'Program' ][ 'link' ] );
             }
         }
 
-        return ( array( 'userInfo' => $userInfo, 'programs' => $programs ) );
+        return ( array( 'status' => true, 'md5Hash' => $md5Hash, 'userInfo' => $userInfo, 'programs' => $programs ) );
 	}
-	
 	
 	// Student report
 	public function getReport () {
@@ -2208,7 +2226,7 @@ class Capsule {
 
         // Read response content from remote server
         $this->fetcher->ReadWholeReplyBody( $response );
-        $response = utf8_encode( html_entity_decode( $response, ENT_COMPAT, 'cp1252' ) );
+        $response = $response;
 
         // Close remote server connection
         $this->fetcher->Close();
@@ -2220,15 +2238,15 @@ class Capsule {
         }
 
         // Clean HTML code
-        /*if ( function_exists( 'tidy_repair_string' ) ) {
+        if ( function_exists( 'tidy_repair_string' ) ) {
             $tidy = tidy_parse_string( $response );
             $tidy->cleanRepair();
         } else {
             $tidy = $response;
-        }*/
+        }
 
         // Return request result
-        return ( array( 'headers' => $headers, 'response' => $response ) );
+        return ( array( 'headers' => $headers, 'response' => utf8_encode( html_entity_decode( $tidy, ENT_COMPAT, 'cp1252' ) ) ) );
     }
 
 	private function checkPage ($data) {
