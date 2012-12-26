@@ -1,6 +1,6 @@
 <?php
 class RegistrationController extends AppController {
-	public $uses = array( 'StudentScheduleSemester' );
+	public $uses = array( 'StudentScheduleSemester', 'StudentProgramSection' );
 
 	private $registrationSemester = '201201';
 	private $currentSemester = '201209';
@@ -68,6 +68,13 @@ class RegistrationController extends AppController {
 		if ( !empty( $schedule[ 'Course' ] ) )
 			$registeredCourses = $schedule[ 'Course' ];
 
+		$sections = $this->StudentProgramSection->User->find( 'first', array(
+            'conditions'    =>  array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
+            'contain'       =>  array( 'Section' => array( 'Course' ) ),
+            'fields'        =>  array( 'User.idul' )
+        ) );
+
+		$this->set( 'sections', $sections );
 		$this->set( 'registeredCourses', $registeredCourses );
 		$this->set( 'selectedCourses', $selectedCourses );
 		/*

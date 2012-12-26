@@ -10,7 +10,111 @@
 
 <div class="row-fluid">
 	<div class="span8">
-	
+		<?php
+		    foreach ( $sections[ 'Section' ] as $section ) :
+		        $creditsCompleted = 0;
+		        $isCompleted = false;
+
+		        if ( empty( $section[ 'Course' ] ) || $section[ 'title' ] == 'Cours échoués' ) continue;
+
+		        foreach ( $section[ 'Course' ] as $course ) {
+		            if ( !empty( $course[ 'note' ] ) )
+		                $creditsCompleted += $course[ 'credits' ];
+		        }
+
+		        if ( $creditsCompleted == $section[ 'credits' ] )
+		            $isCompleted = true;
+
+		        ?>
+		        <div class="row-fluid">
+		            <div class="span12">
+		                <div class="widget-box<?php if ( $isCompleted ) echo ' completed'; ?>">
+		                    <div class="widget-title">
+		                        <span class="icon">
+		                            <?php if ( $isCompleted ) echo '<i class="icon-ok"></i>'; else echo '<i class="icon-th"></i>'; ?>
+		                        </span>
+		                        <h5><?php echo $section[ 'title' ]; ?></h5>
+		                    </div>
+		                    <div class="widget-content nopadding">
+		                        <table class="table table-bordered table-striped">
+		                            <thead>
+		                                <tr>
+		                                    <th class="course-code">Cours</th>
+		                                    <?php if ( !$isMobile ) : ?>
+		                                        <th class="title">Titre</th>
+		                                    <?php endif; ?>
+		                                    <th class="semester">Session</th>
+		                                    <th class="credits">Crédits</th>
+		                                    <th class="note">Note</th>
+		                                </tr>
+		                            </thead>
+		                            <tbody>
+		                                <?php foreach ( $section[ 'Course' ] as $course ) : ?>
+		                                    <tr class="<?php if ( empty( $course[ 'note' ] ) ) echo 'current'; ?>">
+
+		                                        <?php if ( $isMobile ) : ?>
+		                                            <td class="mobile-title">
+		                                                <strong><?php echo $course[ 'code' ]; ?></strong><br />
+		                                                <span><?php echo $course[ 'title' ]; ?></span>
+		                                            </td>
+		                                        <?php else : ?>
+		                                            <td class="code"><?php echo $course[ 'code' ]; ?></td>
+		                                            <td class="title"><?php echo $course[ 'title' ]; ?></td>
+		                                        <?php endif; ?>
+
+		                                        <td class="semester"><?php if ( !empty( $course[ 'semester' ] ) ) echo $this->App->convertSemester( $course[ 'semester' ], true ); ?></td>
+		                                        <td class="credits"><?php echo $course[ 'credits' ]; ?></td>
+		                                        <td class="note">
+		                                            <?php
+		                                                switch ( $course[ 'note' ] ) {
+		                                                    case 'AUD':
+		                                                        echo '<span class="label">Auditeur</span>';
+		                                                        break;
+		                                                    case 'NA':
+		                                                        echo '<span class="label">Non évalué</span>';
+		                                                        break;
+		                                                    case 'V':
+		                                                        echo '<span class="label label-info">Équivalence</span>';
+		                                                        break;
+		                                                    case 'X':
+		                                                        echo '<span class="label" title="Abandon sans échec">Abandon</span>';
+		                                                        break;
+		                                                    case 'N':
+		                                                        echo '<span class="label" title="Échec non contributoire">Échec (N)</span>';
+		                                                        break;
+		                                                    case 'W':
+		                                                        echo '<span class="label label-important">Échec (W)</span>';
+		                                                        break;
+		                                                    case 'E':
+		                                                        echo '<span class="label label-important">Échec</span>';
+		                                                        break;
+		                                                    default:
+		                                                        echo $course[ 'note' ];
+		                                                }
+		                                            ?>
+		                                        </td>
+		                                    </tr>
+		                                <?php endforeach; ?>
+		                                <tr>
+		                                    <th class="left" colspan="<?php if ( $isMobile ) echo 2; else echo 3; ?>">Total</th>
+		                                    <td class="total-credits">
+		                                        <?php
+		                                            echo $creditsCompleted;
+		                                            
+		                                            if ( !empty( $section[ 'credits' ] ) ) echo ' / ' . $section[ 'credits' ];
+		                                        ?>
+		                                    </td>
+		                                    <td>&nbsp;</td>
+		                                </tr>
+		                            </tbody>
+		                        </table>
+		                    </div>
+		                </div>
+		            </div>
+		        </div><!-- End of row-fluid -->
+		        <?php
+		    endforeach;
+		?>
 	</div>
 	<div class="span4">
 		<div id="registered-courses" style="margin-top: 27px;">

@@ -50,16 +50,13 @@ app.Cache.loadData = function () {
             name:       app.Cache.loadingQueue[0].name,
             auto:       app.Cache.loadingQueue[0].auto
         },
-        error:			function ( xhr, ajaxOptions, thrownError ) {
-            alert(thrownError);
-        },
         callback:       function ( response ) {
         	if ( typeof( response ) === 'undefined' || response == null ) {
         		// Loading failed...
 
         		app.Cache.isLoading = false;
         		
-            	if ( login ) {
+            	if ( $( '#loading-panel' ).length != 0 ) {
             		// Display loading error
             		$( '#loading-panel' ).fadeOut( 'fast', function () {
                         $( '#loading-error' ).fadeIn();
@@ -69,11 +66,7 @@ app.Cache.loadData = function () {
 	            	$( '#content-header .loading-status' ).addClass( 'error' );
 	            	$( '.action-buttons .btn-refresh img' ).hide();
                     $( '.action-buttons .btn-refresh i' ).fadeIn();
-                    if ( response.error ) {
-                        errorMessage( response.error, $( '#content-header .loading-status' ), false );
-                    } else {
-                        errorMessage( 'Erreur lors de l\'actualisation des données.', $( '#content-header .loading-status' ), false );
-                    }
+                    app.Common.displayError( 'Erreur lors de l\'actualisation des données.', $( '#content-header .loading-status' ), false );
             	}
         	} else {
         		// Loading succeeded...

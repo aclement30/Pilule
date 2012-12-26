@@ -85,7 +85,7 @@ class StudiesController extends AppController {
 
         $sections = $this->StudentProgramSection->User->find( 'first', array(
             'conditions'    =>  array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
-            'contain'       =>  array( 'Section' => array( 'Course' ) ),
+            'contain'       =>  array( 'Section' => array( 'Course' => array( 'conditions' => array( 'Course.semester !=' => 'NULL' ) ) ) ),
             'fields'        =>  array( 'User.idul' )
         ) );
 

@@ -74,9 +74,8 @@ ajax.request = function ( params ) {
 					catch(err) {
 						app.Common.dispatchError( {
 							context: 		'ajax-server-invalid-response',
-							code: 			request.status,
-							text: 			message,
-							description: 	request.responseText
+							code: 			err.status,
+							description: 	err.responseText
 						} );
 					}
 					

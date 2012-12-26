@@ -2074,7 +2074,7 @@ class Capsule {
             $course[ 'av' . $semester ] = false;
         }
 
-        return $course;
+        return array( 'UniversityCourse' => $course );
     }
 	
     // Function might be broken !

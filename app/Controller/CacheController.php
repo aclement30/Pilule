@@ -165,6 +165,43 @@ class CacheController extends AppController {
                         $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), $name, $hash );
                     }
 
+                    $this->loadModel( 'UniversityCourse' );
+
+                    foreach ( $result[ 'programs' ] as &$program ) {
+                        foreach ( $program[ 'Section' ] as &$section ) {
+                            foreach ( $section[ 'Course' ] as $courseKey => &$sectionCourse ) {
+                                if ( empty( $sectionCourse[ 'title' ] ) && empty( $sectionCourse[ 'semester' ] ) ) {
+                                    // Find course in Pilule courses database
+                                    $course = $this->UniversityCourse->find( 'first', array(
+                                        'conditions'    =>  array( 'UniversityCourse.code' => $sectionCourse[ 'code' ] )
+                                    ) );
+
+                                    // Course found, use course info to complete student course
+                                    if ( !empty( $course ) ) {
+                                        $sectionCourse[ 'title' ] = $course[ 'UniversityCourse' ][ 'title' ];
+                                        $sectionCourse[ 'credits' ] = $course[ 'UniversityCourse' ][ 'credits' ];
+                                    } else {
+                                        $course = $this->Capsule->fetchCourse( $sectionCourse[ 'code' ], CURRENT_SEMESTER );
+
+                                        if ( !empty( $course[ 'UniversityCourse' ][ 'title' ] ) ) {
+                                            $sectionCourse[ 'title' ] = $course[ 'UniversityCourse' ][ 'title' ];
+                                            if ( !empty( $course[ 'UniversityCourse' ][ 'credits' ] ) )
+                                                $sectionCourse[ 'credits' ] = $course[ 'UniversityCourse' ][ 'credits' ];
+
+                                            // Save fetched course info
+                                            $this->UniversityCourse->create();
+                                            $this->UniversityCourse->set( $course );
+                                            $this->UniversityCourse->saveAll( $course );
+                                        } else {
+                                            // Course not found, remove it from student list
+                                            unset( $section[ 'Course' ][ $courseKey ] );
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
                     // Save programs courses data
                     $this->User->Program->saveAll( $result[ 'programs' ], array( 'deep' => true ) );
                     
