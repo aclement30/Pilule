@@ -54,7 +54,7 @@ class HttpFetcher
 	var $cookies=array();
 	var $error="";
 	var $exclude_address="";
-	var $follow_redirect=0;
+	var $follow_redirect=1;
 	var $redirection_limit=10;
 	var $response_status="";
 	var $response_message="";

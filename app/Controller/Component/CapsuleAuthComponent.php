@@ -28,19 +28,6 @@ class CapsuleAuthComponent extends AuthComponent {
 
 		switch ( $this->authResponse ) {
             case 'success':
-            	// Check if user already exists in DB
-		        if ( $this->controller->User->find( 'count', array( 'conditions' =>	array( 'User.idul' => $idul ) ) ) == 0 ) {
-		            // Save user in DB
-		            $user = array( 'User' => array(
-						'idul'	=>	$idul,
-						'name'	=>	$this->controller->Capsule->userName
-					) );
-
-		            $this->controller->User->create();
-		            $this->controller->User->set( $user );
-		            $this->controller->User->save( $user );
-		        }
-
                 // Authentication successful
                 $isAuthenticated = true;
             break;
@@ -48,17 +35,46 @@ class CapsuleAuthComponent extends AuthComponent {
             case 'server-connection':
                 // Second attempt
                 $this->identify( $idul, $password );
-
+		
                 if ( $this->authResponse == 'success' ) {
                 	$isAuthenticated = true;
                 } else {
 	                // Capsule seems offline
 	                $this->Session->write( 'Capsule.isOffline', true );
+
+	                // Attempt to identify the user with Exchange
+	                $this->identify( $idul, $password, 'exchange' );
+
+	                if ( $this->authResponse == 'success' ) {
+	                	$isAuthenticated = true;
+	                }
 	            }
             break;
         }
 
 		if ( $isAuthenticated ) {
+			// Check if user already exists in DB
+	        if ( $this->controller->User->find( 'count', array( 'conditions' =>	array( 'User.idul' => $idul ) ) ) == 0 ) {
+	        	// If user has not yet been authenticated by Capsule and it's his first visit, access is denied
+	        	if ( $this->Session->read( 'Capsule.isOffline' ) == true ) {
+	        		$isAuthenticated = false;
+
+	        		$this->authResponse = 'fallback-auth-first-visit';
+
+	        		return false;
+	        	}
+
+	            // Save user in DB
+	            $user = array( 'User' => array(
+					'idul'	=>	$idul,
+					'name'	=>	$this->controller->Capsule->userName
+				) );
+
+	            $this->controller->User->create();
+	            $this->controller->User->set( $user );
+	            $this->controller->User->save( $user );
+	        }
+
 			$this->Session->renew();
 			$this->Session->write( self::$sessionKey, $idul, $this->controller->Capsule->cookies );
 			$this->Session->write( 'User.idul', $idul );
@@ -71,7 +87,11 @@ class CapsuleAuthComponent extends AuthComponent {
 	}
 
     public function identify ( $idul, $password, $method = 'capsule' ) {
-    	$this->authResponse = $this->controller->Capsule->login( $idul, $password );
+    	if ( $method == 'capsule' ) {
+    		$this->authResponse = $this->controller->Capsule->login( $idul, $password );
+    	} elseif ( $method == 'exchange' ) {
+    		$this->authResponse = $this->controller->Capsule->loginExchange( $idul, $password );
+    	}
 
     	return true;
     }

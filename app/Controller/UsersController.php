@@ -60,6 +60,9 @@ class UsersController extends AppController {
 	                case 'server-connection':
 	                	$authError = 'Erreur : serveur Capsule indisponible.';
 	                break;
+	                case 'fallback-auth-first-visit':
+	                	$authError = 'Erreur : serveur Capsule indisponible (1ère connexion).';
+	                break;
 	                default:
 	                	$authError = 'Erreur interne lors de l\'authentification.';
 	                break;

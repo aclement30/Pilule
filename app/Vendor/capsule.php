@@ -98,147 +98,82 @@ class Capsule {
             return ( 'server-connection' );
         }
 	}
-	
-    /* DEPRECATED : WEBCT DOESN'T EXISTS ANYMORE !
 
-	// Vérification de l'authentification par WebCT
-	public function loginWebCT ($idul, $password) {
-		$this->fetcher->debug = $this->debug;
-		
-		$_SESSION['referer'] = '';
-		
-		$url="/webct/ticket/ticketLogin?action=print_login&request_uri=/webct/homearea/homearea%3F";
-		$this->fetcher->protocol="https";
-		
-		$arguments['HostName'] = "www.webct.ulaval.ca";
-		$arguments["RequestURI"] = $url;
-		
-		$error=$this->fetcher->Open($arguments);
-		if ($error!="") {
-			if ($error=='0 could not connect to the host "webct.ulaval.ca"') {
-				sleep(1);
+    // Fallback login function when Capsule is offline
+    public function loginExchange ( $idul, $password ) {
+        // Define temporary host
+        $this->host = 'exchange.ulaval.ca';
 
-                // Deuxième essai
-				$error=$this->fetcher->Open($arguments);
-				if ($error!="") {
-					if ($error=='0 could not connect to the host "webct.ulaval.ca"') {
-						return ('server-connection');
-					}
-				}
-			}
-		}
-		
-		$error=$this->fetcher->SendRequest($arguments);
-		if ($error!="") {
-			return ('server-connection');
-		}
-		
-		$headers=array();
-		$error=$this->fetcher->ReadReplyHeaders($headers);
-		if ($error!="") {
-			return ('server-connection');
-		}
-																				
-		$this->fetcher->Close();
-					
-		$this->fetcher->request_method="POST";
-		$this->fetcher->Open($arguments);
-		
-		// Envoi du formulaire
-		$arguments["PostValues"] = array(
-			  'WebCT_ID'		=>	$idul,
-			  'Password'		=>	$password,
-			  'request_uri'		=>	'/webct/homearea/homearea?',
-			  'action'			=>	'webform_user'
-			  );
-		$arguments["RequestURI"] = "/webct/ticket/ticketLogin";
-		
-		$error=$this->fetcher->SendRequest($arguments);
-		if ($error!="") {
-			return ('server-connection');
-		}
-		
-		$headers=array();
-		$error=$this->fetcher->ReadReplyHeaders($headers);
-		if ($error!="") {
-			return ('server-connection');
-		}
-		
-		$error = $this->fetcher->ReadWholeReplyBody($body);
-		$response = utf8_encode(html_entity_decode($body));
-														
-		$this->fetcher->Close();
-				
-		if (strpos($response, "Erreur: Les informations entrées sont incorrectes.")>1) {
-            // Enregistrement du résultat de la requête dans la BD pour débug
-            $this->CI->mHistory->saveRequestData($idul, 'login-webct-error-credentials', $response, __FILE__." : ligne ".__LINE__." | ".$error);
+        // Define request parameters
+        $this->fetcher->set( array(
+            'debug'         =>  $this->debug,
+            'protocol'      =>  'https',
+            'request_method'=>  'GET'
+        ));
 
-            return ('credentials');
-		} elseif (strpos($body, "successful login")>1) {
-			$url="/webct/homearea/homearea?";
-			$this->fetcher->request_method="GET";
-			
-			$arguments["RequestURI"] = $url;
-			
-			$error=$this->fetcher->Open($arguments);
-			if ($error!="") {
-				if ($error=='0 could not connect to the host "webct.ulaval.ca"') {
-					sleep(1);
+        // Define request arguments
+        $arguments = array(
+            'HostName'      =>  $this->host,
+            'RequestURI'    =>  "/owa/auth/logon.aspx"
+        );
 
-                    // Deuxième essai
-					$error=$this->fetcher->Open($arguments);
-					if ($error!="") {
-						if ($error=='0 could not connect to the host "webct.ulaval.ca"') {
-							return ('server-connection');
-						}
-					}
-				}
-			}
-			
-			$error=$this->fetcher->SendRequest($arguments);
-			if ($error!="") {
-				return ('server-connection');
-			}
-			
-			$headers=array();
-			$error=$this->fetcher->ReadReplyHeaders($headers);
-			if ($error!="") {
-				return ('server-connection');
-			}
-			
-			$error = $this->fetcher->ReadWholeReplyBody($body);
-			$response = utf8_encode(html_entity_decode($body));
-		
-			$this->fetcher->Close();
-			$this->fetcher->SaveCookies($cookies);
-			
-			$this->CI->session->set_userdata('cookies', $cookies);
-			
-			// Vérification de l'existence de l'utilisateur
-			if ($this->CI->mUsers->userExists($idul)===false) {
-				$name = substr($body, strpos($body, "<b>Bienvenue,"), 500);
-				$name = substr($name, strpos($name, ",")+1);
-				$name = trim((urldecode(substr($name, 0, strpos($name, "</b>")))));
-				
-				// Enregistrement de l'utilisateur
-				$user = array(
-							  'idul'	=>	$idul,
-							  'name'	=>	$name
-							  );
-				
-				$this->CI->mUsers->addUser($user);
-			}
-			
-			return ('success');
-		} else {
-            // Enregistrement du résultat de la requête dans la BD pour débug
-            $this->CI->mHistory->saveRequestData($idul, 'login-webct-error-server-connection', $response, __FILE__." : ligne ".__LINE__." | ".$error);
+        // Open connection to remote server
+        $error = $this->fetcher->Open( $arguments );
+        if ( !empty( $error ) ) {
+            if ( $error == '0 could not connect to the host "' . $this->host . '"') {
+                sleep(1);
 
-            //error_log($response);
-			return ('server-connection');
-		}
-	}
-	*/
+                // Second attempt to connect
+                $error = $this->fetcher->Open( $arguments );
+                if ( !empty( $error ) ) {
+                    if ( $error == '0 could not connect to the host "' . $this->host . '"' )
+                        return ( 'server-connection' );
+                }
+            }
+        }
+
+        // Send request data to remote server
+        $error = $this->fetcher->SendRequest( $arguments );
+        if ( !empty( $error ) ) return false;
+
+        // Read response content from remote server
+        $this->fetcher->ReadWholeReplyBody( $response );
+        $response = html_entity_decode( $response, ENT_COMPAT, 'utf-8' );
+
+        // Close remote connection
+        $this->fetcher->Close();
+
+        // Check if login form is available
+        if ( strpos( $response, '<label for="username" class="text">IDUL</label><input id="username" name="username" type="text" class="text"/>' ) < 1 )
+            return('server-unavailable');
+
+        // Submit login form
+        $request = $this->_fetchPage( '/exchweb/bin/auth/owaauth.dll', 'POST', array(
+            'destination'   =>  'https://exchange.ulaval.ca/exchange/',
+            'flags'         =>  0,
+            'forcedownlevel'=>  0,
+            'username'      =>  $idul,
+            'password'      =>  $password,
+            'isUtf8'        =>  1,
+            'trusted'       =>  0
+        ), false );
+
+        // Check if provided credentials are accepted by Exchange
+        if ( preg_match( '/utilisateur ou le mot de passe que vous avez/' , $request[ 'response' ] ) ) {
+            // Connection failed because of wrong credentials
+            return ( 'credentials' );
+        } elseif ( strpos( $request[ 'response' ], "Se déconnecter" ) > 1 ) {
+            // Save credentials in private vars (if needed for further access)
+            $this->idul = $idul;
+            $this->password = $password;
+
+            // Connection to Exchange completed with success
+            return ( 'success' );
+        } else {
+            // Unknown error occurred during login
+            return ( 'server-connection' );
+        }
+    }
 
 	// Test connection to Capsule server
 	public function testConnection () {
