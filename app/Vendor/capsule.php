@@ -692,30 +692,18 @@ class Capsule {
                     $md5Hash[ 'studies-courses-program-' . md5( $program[ 'Program' ][ 'name' ] ) ] = md5( serialize( $tables ) );
                 }
 
-                $sections = array();
-                $sectionNumber = 1;
-
                 // Parse data
                 for ($i = 2; $i < count ($tables); $i++) {
-                    // Create new section info
-                    $section = array(
-                        'idul'      => $this->idul,
-                        'order'     => $sectionNumber,
-                        'program_id'=> $program[ 'Program'][ 'id' ],
-                        'Course'    => array()
-                    );
-
+                    $sectionTitle = '';
                     $coursesList = array();
 
                     // Extract section info
                     $rows = $tables[$i]->find('tr');
 
-                    $section[ 'title' ] = $rows[ 0 ]->nodes[ 3 ]->text();
-                    $section[ 'title' ] = trim( substr( $section[ 'title' ], 0, strrpos( $section[ 'title' ], ' - ' ) ) );
-                    if ( strpos( $section[ 'title' ], " ( " ) > -1 ) {
-                        $section[ 'credits' ] = trim( substr( $section[ 'title' ], strrpos( $section[ 'title' ], " ( " ) + 3 ) );
-                        $section[ 'credits' ] = (int)substr( $section[ 'credits' ], 0, strpos( $section[ 'credits' ], "," ) );
-                        $section[ 'title' ] = trim( substr( $section[ 'title' ], 0, strrpos( $section[ 'title' ], " ( " ) ) );
+                    $sectionTitle = $rows[ 0 ]->nodes[ 3 ]->text();
+                    $sectionTitle = trim( substr( $sectionTitle, 0, strrpos( $sectionTitle, ' - ' ) ) );
+                    if ( strpos( $sectionTitle, " ( " ) > -1 ) {
+                        $sectionTitle = trim( substr( $sectionTitle, 0, strrpos( $sectionTitle, " ( " ) ) );
                     }
 
                     $tableContent = $tables[ $i ]->text();
@@ -737,26 +725,39 @@ class Capsule {
                     preg_match_all( '/(([A-Z]{3})(-)([0-9]{4}))/', $tableContent, $results );
                     $coursesList = array_merge( $coursesList, $results[ 0 ] );
 
-                    // Find courses codes
+                    // Find courses codes split in different cells
                     preg_match_all( '/(([A-Z]{3})\s([0-9]{4}))/', $tableContent, $results );
                     foreach ( $results[ 0 ] as &$code ) {
                         $code = str_replace( ' ', '-', $code );
                     }
-
                     $coursesList = array_merge( $coursesList, $results[ 0 ] );
 
-                    // Remove non-wanted courses codes
-                    foreach ( $coursesList as $key => $code ) {
-                        if ( $code == 'EHE-1899' )
-                            unset( $coursesList[ $key ] );
+                    foreach ( $program[ 'Section' ] as &$section ) {
+                        if ( $section[ 'title' ] == $sectionTitle ) {
+                            // Add courses to section list
 
-                        if ( $section[ 'title' ] == 'Connaiss. générale français' && ( $code == 'FRN-1900' || $code == 'FRN-1960' ) )
-                            unset( $coursesList[ $key ] );
+                            foreach ( $coursesList as $key => $code ) {
+                                // Remove 'Équivalence de crédits'
+                                if ( $code == 'EHE-1899' )
+                                    continue;
+
+                                // Remove undesirable courses
+                                if ( $section[ 'title' ] == 'Connaiss. générale français' && ( $code == 'FRN-1900' || $code == 'FRN-1960' ) )
+                                    continue;
+
+                                // Check if course is already in section list
+                                $existingCourse = Set::extract( '/Course[code=' . $code . ']', $section );
+
+                                if ( empty( $existingCourse ) ) {
+                                    $section[ 'Course' ][] = array(
+                                        'idul'      =>  $this->idul,
+                                        'program_id'=>  $program[ 'Program' ][ 'id' ],
+                                        'code'      =>  $code
+                                    );
+                                }
+                            }
+                        }
                     }
-                    //$coursesList = Set::remove( $coursesList, 'EHE-1899' );
-                    pr($coursesList);
-                    $program[ 'Section' ] = $section;
-                    $sectionNumber++;
                 }
 
                 // Remove link field
@@ -1017,7 +1018,7 @@ class Capsule {
         $schedule = array();
 
         foreach ( $suggestedSemesters as $semester ) {
-             // Get list of student report page
+            // Get list of student report page
             $request = $this->_fetchPage( '/pls/etprod7/bwskfshd.P_CrseSchdDetl', 'POST', array( 'term_in' => $semester ) );
 
             if ( !strpos( $request[ 'response' ], "Vous n'êtes pas actuellement inscrit pour la session." ) ) {
@@ -1862,260 +1863,219 @@ class Capsule {
 		}
 	}
 	
-	public function fetchCourse ($code, $semester) {
-		$this->fetcher->cookies = $_SESSION['cookies'];
-		$this->fetcher->debug = $this->debug;
-		$code = explode("-", strtoupper($code));
-		
-		$this->fetcher->protocol="https";
-		
-		$arguments['HostName'] = $this->host;
-		$arguments["RequestURI"] = "/pls/etprod7/bwckctlg.p_disp_course_detail?cat_term_in=".$semester."&subj_code_in=".$code[0]."&crse_numb_in=".$code[1];
-		
-		//echo "<H2><LI>Opening connection to:</H2>\n<PRE>",HtmlEntities($arguments["HostName"]),"</PRE>\n";
-		//flush();
-		$error=$this->fetcher->Open($arguments);
-	
-		if ($error!="") {
-			error_log('Ligne '.__LINE__);
-			return (false);
-		}
-		
-		//echo "<H2><LI>Sending request for page:</H2>\n<PRE>";
-		//echo HtmlEntities($arguments["RequestURI"]),"\n";
-		$error=$this->fetcher->SendRequest($arguments);
-	
-		if ($error!="") {
-			error_log('Ligne '.__LINE__);
-			return (false);
-		}
-			
-		$headers=array();
-		$error=$this->fetcher->ReadReplyHeaders($headers);
-		if ($error!="") {
-			error_log('Ligne '.__LINE__);
-			return (false);
-		}
+	public function fetchCourse ( $code, $semester, $fetchClasses = true ) {
+        ini_set('memory_limit','50M');
+        $code = explode('-', strtoupper( $code ) );
 
-		$error = $this->fetcher->ReadWholeReplyBody($body);
-		$response = utf8_encode(html_entity_decode($body));
-		
-		//error_log($response);
-		$this->fetcher->Close();
-		
-		if (!$this->checkPage($response)) return (false);
-				
-		// Vérification de l'existence du cours
-		if (strpos($response, "Aucun cours à afficher")>1 || trim($response)=='') {
-			return (false);
-		} else {
-			// Sélection des informations du cours
-			$course = array();
-			
-			$title = substr($response, strpos($response, "<TD CLASS=\"nttitle\" scope=\"colgroup"));
-			$title = substr($title, strpos($title, "-")+2);
-			$course['title'] = trim(strip_tags(substr($title, 0, strpos($title, "</TD>"))));
-			
-			$description = substr($response, strpos($response, "<TD CLASS=\"ntdefault\">"));
-			$course['description'] = str_replace("", "'", trim(strip_tags(substr($description, 0, strpos($description, "<BR>")))));
-			
-			$data = substr($response, strpos($response, "<TD CLASS=\"ntdefault\">"));
-			$data = substr($data, strpos($data, "<BR>")+4);
-			$data = explode("<BR>", substr($data, 0, strpos($data, "<SPAN")));
-			//print_r($data);
-			if (strpos($data[0], " OR ")>1) {
-				$data[0] = substr($data[0], strpos($data[0], " OR ")+4);
-				$course['credits'] = trim(strip_tags(substr($data[0], 0, strpos($data[0], ",")+1)));
-			} else {
-				$course['credits'] = trim(strip_tags(substr($data[0], 0, strpos($data[0], ",")+1)));
-			}
-			$course['hours_theory'] = trim(strip_tags(substr($data[1], 0, strpos($data[1], ",")+1)));
-			$course['hours_lab'] = trim(strip_tags(substr($data[2], 0, strpos($data[2], ",")+1)));
-			$course['hours_other'] = 0;
-			if (isset($data[3])) $course['hours_other'] = trim(strip_tags(substr($data[3], 0, strpos($data[3], ",")+1)));
-			
-			$cycle = substr($response, strpos($response, "<TD CLASS=\"ntdefault\">"));
-			$cycle = substr($cycle, strpos($cycle, "Cycle(s): </SPAN>")+17);
-			$cycle = trim(strip_tags(substr($cycle, 0, strpos($cycle, "<BR>"))));
-			switch ($cycle) {
-				case 'Premier cycle':
-					$course['cycle'] = 1;
-				break;
-				case 'Deuxième cycle':
-					$course['cycle'] = 2;
-				break;
-				case 'Troisième cycle':
-					$course['cycle'] = 3;
-				break;
-			}
-			
-			$faculty = substr($response, strpos($response, "Faculté: ")+9);
-			$course['faculty'] = trim(strip_tags(substr($faculty, 0, strpos($faculty, "<BR>"))));
-			
-			$department = substr($response, strpos($response, "Département: ")+13);
-			$course['department'] = trim(strip_tags(substr($department, 0, strpos($department, "<BR>"))));
-			
-			$restrictions = substr($response, strpos($response, "Restrictions:")+13);
-			$course['restrictions'] = trim(strip_tags(substr($restrictions, 0, strpos($restrictions, "<SPAN"))));
-			
-			if (strpos($response, "Préalables:")>1) {
-				$prerequisites = substr($response, strpos($response, "Préalables:")+12);
-				$course['prerequisites'] = trim(strip_tags(substr($prerequisites, 0, strpos($prerequisites, "</TD>"))));
-			}
-			
-			$data = substr($response, strpos($response, "<TD CLASS=\"ntdefault\">"));
-			$data = substr($data, strpos($data, "<SPAN class=fieldlabeltext>Mode d'enseignement: </SPAN>"));
-			$data = substr($data, 0, strpos($data, "<BR>"));
-			
-			?><div style="border-bottom: 1px dotted silver; padding: 5px; font-family: Helvetica; font-size: 10pt;"><strong><?php echo $code[0]."-".$code[1]; ?>&nbsp;&mdash;&nbsp;<?php echo $course['title']; ?></strong></div><?php
+        // Fetch course page
+        $request = $this->_fetchPage( '/pls/etprod7/bwckctlg.p_disp_course_detail?cat_term_in=' . $semester . '&subj_code_in=' . $code[0] . '&crse_numb_in=' . $code[1] );
 
-			if (strpos($data, "HREF=")) {
-				$course['av'.$semester] = '1';
-				$links = array();
-				
-				// Cours disponible
-				if (strpos($data, "</A>, <A")) {
-					// 2 modes d'enseignement
-					$link = substr($data, strpos($data, "HREF=")+6);
-					$link = str_replace("&amp;", "&", substr($link, 0, strpos($link, "\"")));
-					$links[] = $link;
-					
-					$link = substr($data, strpos($data, ">, ")+2);
-					$link = substr($link, strpos($link, "HREF=")+6);
-					$link = str_replace("&amp;", "&", substr($link, 0, strpos($link, "\"")));
-					$links[] = $link;
-				} else {
-					$link = substr($data, strpos($data, "HREF=")+6);
-					$link = str_replace("&amp;", "&", substr($link, 0, strpos($link, "\"")));
-					$links[] = $link;
-				}
-				
-				foreach ($links as $link) {
-					$this->fetcher->referer = "https://capsuleweb.ulaval.ca/pls/etprod7/bwckctlg.p_disp_course_detail?cat_term_in=".$semester."&subj_code_in=".$code[0]."&crse_numb_in=".$code[1];
-				
-					$this->fetcher->protocol="https";
-					
-					$arguments['HostName'] = $this->host;
-					$arguments["RequestURI"] = $link;
-			
-					$error=$this->fetcher->Open($arguments);
-				
-					if ($error!="") {
-						error_log('Ligne '.__LINE__);
-						return (false);
-					}
-					
-					$error=$this->fetcher->SendRequest($arguments);
-				
-					if ($error!="") {
-						error_log('Ligne '.__LINE__);
-						return (false);
-					}
-						
-					$headers=array();
-					$error=$this->fetcher->ReadReplyHeaders($headers);
-					if ($error!="") {
-						error_log('Ligne '.__LINE__);
-						return (false);
-					}
-			
-					$error = $this->fetcher->ReadWholeReplyBody($body);
-					$response = utf8_encode(html_entity_decode($body));
-									
-					$this->fetcher->Close();
-					
-					if (!$this->checkPage($response)) return (false);
-					
-					unset($arguments["PostValues"]);
-					$this->fetcher->request_method = "GET";
-					
-					$data = substr($response, strpos($response, "<CAPTION class=\"captiontext\">Groupes trouvés</CAPTION>"));
-					$data = substr($data, strpos($data, "<TH CLASS=\"ddlabel\" scope=\"row")+20);
-					$data = substr($data, 0, strpos($data, "<TD CLASS=\"ntdefault\">"));
-					
-					$lines = explode("<TH CLASS=\"ddlabel\" scope=\"row", $data);
-					
-					$classes = array();
-					
-					// Suppression des classes déjà enregistrées pour ce semestre
-					$this->CI->mRegistration->deleteCourseClasses($code[0]."-".$code[1], $semester);
-					
-					foreach ($lines as $line) {
-						$class = array();
-						
-						$title = substr($line, strpos($line, "<A HREF="));
-						$title = trim(strip_tags(substr($title, 0, strpos($title, "</A>"))));
-						$title = explode(" - ", $title);
-						
-						//$course['code'] = trim(str_replace(" ", "-", $title[2]));
-						$class['nrc'] = trim($title[1]);
-						if (count($title) > 4) {
-							$class['nrc'] = trim($title[2]);
-						} else {
-							$class['nrc'] = trim($title[1]);
-						}
-						$class['idcourse'] = $code[0]."-".$code[1];
-						//$course['title'] = trim($title[0]);
-						//$course['letter'] = trim($title[3]);
-						
-						$notes = substr($line, strpos($line, "<TD CLASS=\"dddefault\">"));
-						$class['notes'] = trim(strip_tags(substr($notes, 0, strpos($notes, "<BR>"))));
-						
-						$campus = substr($line, strpos($line, "Campus: ")+8);
-						$class['campus'] = str_replace("", "'", trim(strip_tags(substr($campus, 0, strpos($campus, "<BR>")))));
-						
-						$timetable = substr($line, strpos($line, "Horaires prévus"));
-						$timetable = substr($timetable, 0, strpos($timetable, "</TABLE>"));
-						$timetable = explode("<TR>", $timetable);
-						
-						$number2 = 0;
-						$class['timetable'] = array();
-						$class['semester'] = $semester;
-						
-						foreach ($timetable as $line2) {
-							$class2 = array();
-							if ($number2>1) {
-								$line2 = explode("</TD>", $line2);
-								$class2['type'] = trim(strip_tags($line2[0]));
-								if (trim(strip_tags($line2[1]))!="ACU" and trim(strip_tags($line2[1]))!='') {
-									$hours = explode("-", trim(strip_tags($line2[1])));
-									$class2['hour_start'] = trim($hours[0]);
-									$class2['hour_end'] = trim($hours[1]);
-								}
-								$class2['day'] = trim(str_replace("&nbsp;", " ", strip_tags($line2[2])));
-								$class2['local'] = trim(strip_tags($line2[3]));
-								$days = explode("-", trim(strip_tags($line2[4])));
-								$class2['day_start'] = trim(str_replace("/", "", $days[0]));
-								$class2['day_end'] = trim(str_replace("/", "", $days[1]));
-								$class['teacher'] = trim(str_replace("(P)", "", strip_tags($line2[6])));
-								
-								$class['timetable'][] = $class2;
-							}
-							$number2++;
-						}
-						
-						$class['timetable'] = serialize($class['timetable']);
-						
-						?><div style="border-bottom: 1px dotted silver; padding: 5px; padding-left: 40px; font-family: Helvetica; font-size: 10pt;"><?php echo $class['nrc']; ?></div><?php
-						
-						// Enregistrement de la classe
-						$this->CI->mRegistration->addClass($class);
-						
-						// Actualisation des places disponibles
-						$this->updateClassSpots($class['nrc'], $semester);
-					}
-				}
-			} else {
-				$course['av'.$semester] = '0';
-			}
-			
-			// Enregistrement du cours
-			$course['id'] = $code[0]."-".$code[1];
-			$this->CI->mRegistration->addCourse($course);
-			
-			return (true);
-		}
-	}
+        if ( !strpos( $request[ 'response' ], "Aucun cours à afficher" ) ) {
+            $course = array( 'code' => implode( '-', $code ) );
+
+            // Parse DOM structure from response
+            $this->domparser->load( $request[ 'response' ] );
+            $tables = $this->domparser->find( 'table.datadisplaytable' );
+
+            // Get course title
+            $firstCell = $tables[0]->find('tr td.nttitle');
+            $course[ 'title' ] = trim( strip_tags( substr( $firstCell[0]->text(), strpos( $firstCell[0]->text(), " - ") + 2 ) ) );
+
+            $secondCell = $tables[0]->find('tr td.ntdefault');
+            $parts = explode( '<br>', $secondCell[0] );
+
+            $checkRestrictions = false;
+            $checkPrerequisites = false;
+
+            foreach ( $parts as $index => $part ) {
+                if ( $index == 0 ) {
+                    $course[ 'description' ] = trim( strip_tags( str_replace("", "'", $part ) ) );
+                } elseif ( $checkRestrictions ) {
+                    if ( strpos( $part, '<span' ) ) {
+                        $checkRestrictions = false;
+                    } else {
+                        if ( $course[ 'restrictions' ] == '' ) {
+                            $course[ 'restrictions' ] = trim( $part );
+                        } else {
+                            $course[ 'restrictions' ] .= '<br />' . trim( $part );
+                        }
+                    }
+                } elseif ( $checkPrerequisites ) {
+                    if ( trim( $part ) == '' ) {
+                        $checkPrerequisites = false;
+                    } else {
+                        $course[ 'prerequisites' ] = trim( strip_tags( $part ) );
+                    }
+                } elseif ( strpos( $part, "Crédits inscrits" ) ) {
+                    $course[ 'credits' ] = (int)trim( substr( $part, 0, strpos( $part, "," ) + 1 ) );
+                } elseif ( strpos( $part, "Heures de cours" ) ) {
+                    $course[ 'hours_theory' ] = (int)trim( substr( $part, 0, strpos( $part, "," ) + 1 ) );
+                } elseif ( strpos( $part, "Heures de labo" ) ) {
+                    $course[ 'hours_lab' ] = (int)trim( substr( $part, 0, strpos( $part, "," ) + 1 ) );
+                } elseif ( strpos( $part, "Autres heures" ) ) {
+                    $course[ 'hours_other' ] = (int)trim( substr( $part, 0, strpos( $part, "," ) + 1 ) );
+                } elseif ( strpos( $part, "Cycle(s)" ) ) {
+                    $cycle = trim( substr( $part, strpos( $part, "</span>" ) + 7 ) );
+                    switch ($cycle) {
+                        case 'Premier cycle':
+                            $course['cycle'] = 1;
+                        break;
+                        case 'Deuxième cycle':
+                            $course['cycle'] = 2;
+                        break;
+                        case 'Troisième cycle':
+                            $course['cycle'] = 3;
+                        break;
+                    }
+                } elseif ( strpos( $part, "Faculté:" ) ) {
+                    $course[ 'faculty' ] = trim( substr( $part, strpos( $part, ":" ) + 1 ) );
+                } elseif ( strpos( $part, "Département:" ) ) {
+                    $course[ 'department' ] = trim( substr( $part, strpos( $part, ":" ) + 1 ) );
+                } elseif ( strpos( $part, "Restrictions:" ) ) {
+                    $checkRestrictions = true;
+
+                    $course[ 'restrictions' ] = '';
+                } elseif ( strpos( $part, "Préalables:" ) ) {
+                    $checkPrerequisites = true;
+                } elseif ( strpos( $part, "Mode d'enseignement:" ) ) {
+                    if (strpos($part, "href=")) {
+                        $course[ 'av' . $semester ] = true;
+                        $links = array();
+                        
+                        if ( $fetchClasses ) {
+                            $course[ 'Class' ] = array();
+
+                            $part = str_replace( 'href= "', 'href="', $part );
+                            if ( strpos( $part, "</a>, <Aa" ) ) {
+                                // 2 modes d'enseignement
+                                $link = substr( $part, strpos( $part, "href=" ) + 6 );
+                                $link = str_replace("&amp;", "&", substr( $link, 0, strpos($link, "\"")));
+                                $links[] = $link;
+                                
+                                $link = substr( $part, strpos( $part, ">, " ) + 2 );
+                                $link = substr( $link, strpos( $link, " href=" ) + 6 );
+                                $link = str_replace(" &amp;", "&", substr( $link, 0, strpos( $link, "\"" ) ) );
+                                $links[] = $link;
+                            } else {
+                                $link = substr( $part, strpos( $part, "href=" ) + 6 );
+                                $link = str_replace("&amp;", "&", substr( $link, 0, strpos($link, "\"")));
+                                $links[] = $link;
+                            }
+
+                            // Fetch course's classes
+                            foreach ( $links as $link ) {
+                                // Fetch class page
+                                $request = $this->_fetchPage( $link );
+
+                                $class = array();
+
+                                // Parse DOM structure from response
+                                $this->domparser->load( $request[ 'response' ] );
+                                $tables = $this->domparser->find( '.pagebodydiv>table.datadisplaytable' );
+                                $timetables = $this->domparser->find( 'table.datadisplaytable tbody tr td.dddefault table.datadisplaytable' );
+
+                                $tableIndex = 0;
+                                $rows = $tables[ 0 ]->children( -1 );
+
+                                foreach ($rows as $i => $row) {
+                                    if ( $i == 0 ) continue;
+
+                                    $cell = $row->nodes[ 1 ];
+
+                                    if ( isset( $cell->attr[ 'class' ] ) && $cell->attr[ 'class' ] == 'ddlabel' ) {
+                                        // Title cell
+
+                                        $class = array();
+
+                                        $title = $cell->text();
+
+                                        $title = explode( " - ", $title );
+
+                                        // Extract NRC and class section from title
+                                        $class[ 'nrc' ] = trim( $title[ 1 ] );
+                                        if ( count( $title ) > 4 ) {
+                                            $class[ 'nrc' ] = trim( $title[ 2 ] );
+                                        } else {
+                                            $class[ 'nrc' ] = trim( $title[ 1 ] );
+                                        }
+                                        $class[ 'idcourse' ] = $code[ 0 ] . "-" . $code[ 1 ];
+                                    } else if ( isset( $cell->attr[ 'class' ] ) && $cell->attr[ 'class' ] == 'dddefault' ) {
+                                        // Content cell
+
+                                        $cell = $row->nodes[ 1 ];
+                                        $parts = explode( '<br>', $cell );
+
+                                        foreach ( $parts as $index => $part ) {
+                                            if ( $index == 0 ) {
+                                                $class[ 'notes' ] = trim( strip_tags( $part ) );
+                                            } elseif ( strpos( $part, "Campus" ) ) {
+                                                $class[ 'campus' ] = trim( substr( $part, strpos( $part, ":" ) + 1 ) );
+                                            }
+                                        }
+
+                                        $class[ 'timetable' ] = array();
+
+                                        // Get corresponding table
+                                        if ( !isset( $timetables[ $tableIndex ] ) ) continue;
+                                        $currentTimetable = $timetables[ $tableIndex ];
+                                        $tableIndex++;
+
+                                        $subrows = $currentTimetable->find('tr');
+
+                                        foreach ( $subrows as $index => $subrow ) {
+                                            $subclass = array();
+
+                                            if ( $index > 0 ) {
+                                                if ( isset( $subrow->nodes[ 1 ] ) ) $subclass[ 'type' ] = trim( $subrow->nodes[ 1 ]->text() );
+                                                if ( isset( $subrow->nodes[ 3 ] ) ) {
+                                                    $hours = trim( strip_tags( $subrow->nodes[ 3 ]->text() ) );
+                                                    if ( $hours != 'ACU' ) {
+                                                        $hours = explode( '-', str_replace(" ", "", $hours ) );
+                                                        $subclass[ 'hour_start' ] = trim( $hours[0] );
+                                                        $subclass[ 'hour_end' ] = trim( $hours[1] );
+                                                    }
+                                                }
+                                                if ( isset( $subrow->nodes[ 5 ] ) ) {
+                                                    $subclass[ 'day' ] = trim( str_replace("", "'", strtoupper( strip_tags( $subrow->nodes[ 5 ]->text() ) ) ) );
+                                                }
+                                                if ( isset( $subrow->nodes[ 7 ] ) ) {
+                                                    $local = trim( strip_tags( $subrow->nodes[ 7 ]->text() ) );
+                                                    if ( strpos( $local, 'ACU' ) != 0 ) {
+                                                        $subclass[ 'local' ] = $local;
+                                                    }
+                                                }
+                                                if ( isset( $subrow->nodes[ 9 ] ) ) {
+                                                    $days = explode( '-', trim( strip_tags( $subrow->nodes[ 9 ]->text() ) ) );
+                                                    $subclass[ 'day_start' ] = trim( str_replace( '/', '', $days[0] ) );
+                                                    $subclass[ 'day_end' ] = trim( str_replace( '/', '', $days[1] ) );
+                                                }
+                                                if ( isset( $subrow->nodes[ 13 ] ) ) {
+                                                    $teacher = trim( strip_tags( $subrow->nodes[ 13 ]->text() ) );
+                                                    if ( strpos( $teacher, 'ACU' ) != 0 ) {
+                                                        $class[ 'teacher' ] = $teacher;
+                                                    }
+                                                }
+
+                                                $class[ 'timetable' ][] = $subclass;
+                                            }
+                                        }
+
+                                        $course[ 'Class' ][] = $class;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if ( empty( $course[ 'Class' ] ) ) {
+            $course[ 'av' . $semester ] = false;
+        }
+
+        return $course;
+    }
 	
     // Function might be broken !
     // TODO : refactor using DomParser

@@ -151,7 +151,7 @@ class CacheController extends AppController {
                 // Check if user has programs, if not skip the next part
                 $userPrograms = $this->User->Program->find( 'all', array(
                     'conditions'    =>  array( 'Program.idul' => $this->Session->read( 'User.idul' ) ),
-                    'contain'       =>  array( 'Section' )
+                    'contain'       =>  array( 'Section' => array( 'Course' ) )
                 ) );
 
                 if ( empty( $userPrograms ) ) break;
@@ -164,16 +164,10 @@ class CacheController extends AppController {
                         // Update last data checkup timestamp
                         $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), $name, $hash );
                     }
-                    /*
-                    // Save student info
-                    if ( !empty( $result[ 'userInfo' ] ) ) {
-                        $this->User->id = $this->Session->read( 'User.idul' );
-                        $this->User->save( array( 'User' => $result[ 'userInfo' ] ) );
-                    }
 
-                    // Save programs studies data
+                    // Save programs courses data
                     $this->User->Program->saveAll( $result[ 'programs' ], array( 'deep' => true ) );
-                    */
+                    
                     $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-courses' );
                 } else {
                     // Enregistrement de l'erreur
