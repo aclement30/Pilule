@@ -648,6 +648,125 @@ class Capsule {
         return ( array( 'status' => true, 'md5Hash' => $md5Hash, 'userInfo' => $userInfo, 'programs' => $programs ) );
 	}
 	
+    // Rapport de cheminement détaillé
+    public function getStudiesCourses ( $md5Hash, $semester, $programs ) {
+        $userInfo = array();
+
+        // Get list of Rapport de cheminement
+        $request = $this->_fetchPage( '/pls/etprod7/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => $semester ) );
+
+        // Parse DOM structure from response
+        $this->domparser->load( $request[ 'response' ] );
+        $rows = $this->domparser->find( 'table.dataentrytable tr' );
+
+        // Find a link to the last Rapport de cheminement for each study program
+        foreach ( $programs as &$program ) {
+            foreach ( $rows as $row ) {
+                $name = trim( str_replace( ':', '', $row->nodes[1]->text() ) );
+                if ( $name == $program[ 'Program' ][ 'name' ] ) {
+                    // Extract link
+                    $links = $row->find( 'a' );
+                    $program[ 'Program' ][ 'link' ] = $links[ 0 ]->attr[ 'href' ];
+                    break;
+                }
+            }
+
+            if ( isset( $program[ 'Program' ][ 'link' ] ) and ( !empty( $program[ 'Program' ][ 'link' ] ) ) ) {
+                // Fetch Rapport de cheminement détaillé
+                $request = $this->_fetchPage( '/pls/etprod7/bwckcapp.P_VerifyDispEvalViewOption', 'POST', array(
+                    'request_no'        =>  substr( $program[ 'Program' ][ 'link' ], strpos( $program[ 'Program' ][ 'link' ], "_no=" ) + 4 ),
+                    'program_summary'   =>  '3'
+                ) );
+
+                // Parse DOM structure from response
+                $this->domparser->load( $request[ 'response' ] );
+                $tables = $this->domparser->find( 'table.datadisplaytable' );
+
+                // Check if similar data already exists in DB
+                if ( array_key_exists( 'studies-courses-program-' . md5( $program[ 'Program' ][ 'name' ] ), $md5Hash ) && md5( serialize( $tables ) ) == $md5Hash[ 'studies-courses-program-' . md5( $program[ 'Program' ][ 'name' ] ) ] ) {
+                    // Data already exists in DB, if not force to reload, quit
+                    if ( !$this->forceReload )
+                        continue;
+                } else {
+                    // Update MD5 Hash
+                    $md5Hash[ 'studies-courses-program-' . md5( $program[ 'Program' ][ 'name' ] ) ] = md5( serialize( $tables ) );
+                }
+
+                $sections = array();
+                $sectionNumber = 1;
+
+                // Parse data
+                for ($i = 2; $i < count ($tables); $i++) {
+                    // Create new section info
+                    $section = array(
+                        'idul'      => $this->idul,
+                        'order'     => $sectionNumber,
+                        'program_id'=> $program[ 'Program'][ 'id' ],
+                        'Course'    => array()
+                    );
+
+                    $coursesList = array();
+
+                    // Extract section info
+                    $rows = $tables[$i]->find('tr');
+
+                    $section[ 'title' ] = $rows[ 0 ]->nodes[ 3 ]->text();
+                    $section[ 'title' ] = trim( substr( $section[ 'title' ], 0, strrpos( $section[ 'title' ], ' - ' ) ) );
+                    if ( strpos( $section[ 'title' ], " ( " ) > -1 ) {
+                        $section[ 'credits' ] = trim( substr( $section[ 'title' ], strrpos( $section[ 'title' ], " ( " ) + 3 ) );
+                        $section[ 'credits' ] = (int)substr( $section[ 'credits' ], 0, strpos( $section[ 'credits' ], "," ) );
+                        $section[ 'title' ] = trim( substr( $section[ 'title' ], 0, strrpos( $section[ 'title' ], " ( " ) ) );
+                    }
+
+                    $tableContent = $tables[ $i ]->text();
+
+                    // Find courses ranges
+                    preg_match_all( '/(([A-Z]{3})(-)([0-9]{4}))(\s)(à)(\s)(([A-Z]{3})(-)([0-9]{4}))/', $tableContent, $results );
+                    if ( !empty( $results[ 0 ] ) ) {
+                        for ( $n = 0; $n < count( $results[ 4 ] ); $n++ ) {
+                            $firstNumber = $results[ 4 ][ $n ];
+                            $lastNumber = $results[ 11 ][ $n ];
+
+                            for ( $y = $firstNumber; $y < ( $lastNumber+1 ); $y++ ) {
+                                $coursesList[] = $results[ 2 ][ 0 ] . '-' . $y;
+                            }
+                        }
+                    }
+                    
+                    // Find courses codes
+                    preg_match_all( '/(([A-Z]{3})(-)([0-9]{4}))/', $tableContent, $results );
+                    $coursesList = array_merge( $coursesList, $results[ 0 ] );
+
+                    // Find courses codes
+                    preg_match_all( '/(([A-Z]{3})\s([0-9]{4}))/', $tableContent, $results );
+                    foreach ( $results[ 0 ] as &$code ) {
+                        $code = str_replace( ' ', '-', $code );
+                    }
+
+                    $coursesList = array_merge( $coursesList, $results[ 0 ] );
+
+                    // Remove non-wanted courses codes
+                    foreach ( $coursesList as $key => $code ) {
+                        if ( $code == 'EHE-1899' )
+                            unset( $coursesList[ $key ] );
+
+                        if ( $section[ 'title' ] == 'Connaiss. générale français' && ( $code == 'FRN-1900' || $code == 'FRN-1960' ) )
+                            unset( $coursesList[ $key ] );
+                    }
+                    //$coursesList = Set::remove( $coursesList, 'EHE-1899' );
+                    pr($coursesList);
+                    $program[ 'Section' ] = $section;
+                    $sectionNumber++;
+                }
+
+                // Remove link field
+                unset( $program[ 'Program' ][ 'link' ] );
+            }
+        }
+
+        return ( array( 'status' => true, 'md5Hash' => $md5Hash, 'programs' => $programs ) );
+    }
+
 	// Student report
 	public function getReport ( $md5Hash ) {
         // Get list of student report page

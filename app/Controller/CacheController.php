@@ -23,8 +23,8 @@ class CacheController extends AppController {
 		ini_set( 'memory_limit', '50M' );
 
 		$error = false;
-		$auto = $this->request->data[ 'auto' ];				    // TODO : rename query to data
-		$dataObject = $this->request->data[ 'name' ];			// TODO : rename query to data
+		$auto = $this->request->query[ 'auto' ];				    // TODO : rename query to data
+		$dataObject = $this->request->query[ 'name' ];			// TODO : rename query to data
 
         // Force data reload if request has been called by the user (by clicking Reload data button)
         if ( $auto == 0 ) {
@@ -134,6 +134,54 @@ class CacheController extends AppController {
 					$error = true;
 				}
 			break;
+            case 'studies-courses':
+                // Get data request from DB
+                $requests = $this->CacheRequest->find( 'all', array(
+                    'conditions' => array( 'CacheRequest.idul' => $this->Session->read( 'User.idul' ), 'CacheRequest.name LIKE' => 'studies-courses-program-%' )
+                ) );
+                if ( !empty( $requests )) {
+                    $md5Hash = array();
+                    foreach ( $requests as $request ) {
+                        $md5Hash[ $request[ 'CacheRequest' ][ 'name' ] ] = $request[ 'CacheRequest' ][ 'md5' ];
+                    }
+                } else {
+                    $md5Hash = array();
+                }
+
+                // Check if user has programs, if not skip the next part
+                $userPrograms = $this->User->Program->find( 'all', array(
+                    'conditions'    =>  array( 'Program.idul' => $this->Session->read( 'User.idul' ) ),
+                    'contain'       =>  array( 'Section' )
+                ) );
+
+                if ( empty( $userPrograms ) ) break;
+
+                // Load Rapport de cheminement détaillé
+                $result = $this->Capsule->getStudiesCourses( $md5Hash, CURRENT_SEMESTER, $userPrograms );
+
+                if ( $result[ 'status' ] ) {
+                    foreach ( $result[ 'md5Hash' ] as $name => $hash ) {
+                        // Update last data checkup timestamp
+                        $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), $name, $hash );
+                    }
+                    /*
+                    // Save student info
+                    if ( !empty( $result[ 'userInfo' ] ) ) {
+                        $this->User->id = $this->Session->read( 'User.idul' );
+                        $this->User->save( array( 'User' => $result[ 'userInfo' ] ) );
+                    }
+
+                    // Save programs studies data
+                    $this->User->Program->saveAll( $result[ 'programs' ], array( 'deep' => true ) );
+                    */
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-courses' );
+                } else {
+                    // Enregistrement de l'erreur
+                    //$this->mErrors->addError('reload-data', 'studies-details : parsing error');
+                    
+                    $error = true;
+                }
+            break;
 			case 'studies-report':
                 // Get data request from DB
                 $request = $this->CacheRequest->find( 'first', array(
