@@ -21,7 +21,20 @@ class PagesController extends AppController {
 			$subpage = $path[ 1 ];
 		}
 		if ( !empty( $path[ $count - 1 ] ) ) {
-			$title_for_layout = Inflector::humanize( $path[ $count - 1 ] );
+			switch ( $page . '.' . $subpage ) {
+				case 'support.contact':
+					$title_for_layout = 'Contact';
+					break;
+				case 'support.faq':
+					$title_for_layout = 'F.A.Q.';
+					break;
+				case 'support.privacy':
+					$title_for_layout = 'Confidentialité des données';
+					break;
+				case 'support.terms':
+					$title_for_layout = 'Conditions d\'utilisation';
+					break;
+			}
 		}
 
 		$this->set( compact( 'page', 'subpage', 'title_for_layout' ) );
