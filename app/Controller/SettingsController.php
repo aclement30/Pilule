@@ -15,6 +15,13 @@ class SettingsController extends AppController {
                     'conditions'    =>  array( 'Param.idul' => $this->Session->read( 'User.idul' ), 'Param.name' => $paramName )
                 ) );
 
+                if ( empty( $paramData ) ) {
+                    $paramData = array( 'Param' => array(
+                        'idul'      =>  $this->Session->read( 'User.idul' ),
+                        'name'      =>  $paramName
+                    ) );
+                }
+                
                 $paramData[ 'Param' ][ 'value' ] = $value;
 
                 $this->Param->create();

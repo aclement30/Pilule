@@ -42,9 +42,10 @@ class CapsuleAuthComponent extends AuthComponent {
 	                // Capsule seems offline
 	                $this->Session->write( 'Capsule.isOffline', true );
 
-	                // Attempt to identify the user with Exchange
+	                // Attempt to authenticate the user with Exchange
 	                $this->identify( $idul, $password, 'exchange' );
 
+	                // User has been authenticated with Exchange
 	                if ( $this->authResponse == 'success' ) {
 	                	$isAuthenticated = true;
 	                }
@@ -55,7 +56,7 @@ class CapsuleAuthComponent extends AuthComponent {
 		if ( $isAuthenticated ) {
 			// Check if user already exists in DB
 	        if ( $this->controller->User->find( 'count', array( 'conditions' =>	array( 'User.idul' => $idul ) ) ) == 0 ) {
-	        	// If user has not yet been authenticated by Capsule and it's his first visit, access is denied
+	        	// If user has not yet been authenticated by Capsule and it's his first visit, deny access
 	        	if ( $this->Session->read( 'Capsule.isOffline' ) == true ) {
 	        		$isAuthenticated = false;
 

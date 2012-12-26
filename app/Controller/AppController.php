@@ -41,12 +41,25 @@ class AppController extends Controller {
 		// Set User info
 		if ( $this->Session->read( 'User.idul' ) != '' ) {
 			$this->loadModel( 'User' );
-			$user = $this->User->find( 'first', array( 'conditions' => array( 'User.idul' => $this->Session->read( 'User.idul' ) ) ) );
+			$user = $this->User->find( 'first', array(
+				'conditions' 	=>	array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
+				'contain'		=>	array( 'Param' )
+			) );
+			
+			$userParams = array();
 
-			if ( !empty( $user ) )
+			if ( !empty( $user ) ) {
+				if ( !empty( $user[ 'Param' ] ) ) {
+					foreach ( $user[ 'Param' ] as $param ) {
+						$userParams[ $param[ 'name' ] ] = $param[ 'value' ];
+					}
+				}
+
 				$user = array_shift( $user );
+			}
 
 			$this->set( 'user', $user );
+			$this->set( 'userParams', $userParams );
 		}
 	}
 

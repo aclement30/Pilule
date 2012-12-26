@@ -43,23 +43,27 @@
 <script type='text/javascript' src="/js/jquery.flot.min.js"></script>
 <script type='text/javascript' src="/js/jquery.flot.pie.min.js"></script>
 <script type='text/javascript' src="/js/jquery.flot.resize.min.js"></script>
-
+-->
 <script language="javascript">
 $( document ).ready( function() {
-    // Définition du statut connecté de l'utilisateur
-    app.user.isAuthenticated = true;
+    // Define Capsule availability
+    app.isCapsuleOffline = <?php if ( $isCapsuleOffline ) echo 'true'; else echo 'false'; ?>;
 
-    // Définition de la disponibilité de Capsule
-    app.isCapsuleOffline = <?php echo $isCapsuleOffline; ?>;
+    // Define data expiration delay
+    <?php
+        if ( empty( $userParams[ 'data-expiration-delay' ] ) ) {
+            $expirationDelay = DATA_EXPIRATION_DELAY;
+        } else {
+            $expirationDelay = $userParams[ 'data-expiration-delay' ];
+        }
+    ?>
+    var dataExpirationDelay = <?php echo $expirationDelay; ?>;
 
-    // Création d'un iframe invisible pour ouvrir des pages en arrière-plan
-    $('<iframe id="frame" name="frame" frameborder="0" src="blank.html" style="width: 0px; height: 0px;">').appendTo('#sidebar');
-    if ( isMobile != 1 ) {
-    	$('<iframe id="external-frame" name="external-frame" frameborder="0" src="blank.html" style="width: 0px; height: 0px;">').appendTo('body');
-    	app.resizeExternalFrame();
-    }
-
-    $( '.buttons.semester-select select' ).live( 'click', function (e) { app.schedule.displaySemester( $( e.currentTarget ).val() ); } );
+    <?php
+        // Check if data need to be fetched automatically because timestamp is expired
+        if ( !empty( $timestamp ) && $timestamp < ( time() - $expirationDelay ) ) {
+            ?>app.Cache.reloadData( { name: '<?php echo $dataObject; ?>', auto: 1 } );<?php
+        }
+    ?>
 });
 </script>
--->

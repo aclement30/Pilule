@@ -28,7 +28,8 @@ class StudiesController extends AppController {
             )
         ) );
 		$this->set( 'title_for_layout', 'Programme d\'études' );
-		
+		$this->set( 'dataObject', 'studies' );
+
 		$programs = $this->StudentProgram->User->find( 'first', array(
 			'conditions'	=>	array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
         	'contain'		=>	array( 'Program' ),
@@ -74,6 +75,7 @@ class StudiesController extends AppController {
             )
         ) );
         $this->set( 'title_for_layout', 'Rapport de cheminement' );
+        $this->set( 'dataObject', 'studies-details' );
 
         $programs = $this->StudentProgram->User->find( 'first', array(
             'conditions'    =>  array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
@@ -201,6 +203,7 @@ EOD;
             )
         ) );
         $this->set( 'title_for_layout', 'Relevé de notes' );
+        $this->set( 'dataObject', 'studies-report' );
 
         $programs = $this->StudentProgram->User->find( 'first', array(
             'conditions'    =>  array( 'User.idul' => $this->Session->read( 'User.idul' ) ),

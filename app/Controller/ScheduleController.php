@@ -101,7 +101,8 @@ class ScheduleController extends AppController {
             )
         ) );
 		$this->set( 'title_for_layout', 'Horaire de cours' );
-
+        $this->set( 'dataObject', 'schedule' );
+        
 		$schedule = $this->StudentScheduleSemester->find( 'first', array(
 			'conditions'	=>	array( 'StudentScheduleSemester.idul' => $this->Session->read( 'User.idul' ), 'StudentScheduleSemester.semester' => $semester  ),
         	'contain'		=>	array( 'Course' => array( 'Class' ) )

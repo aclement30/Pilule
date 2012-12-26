@@ -33,7 +33,8 @@ class TuitionsController extends AppController {
         ) );
 
 		$this->set( 'title_for_layout', 'Frais de scolarité' );
-		
+		$this->set( 'dataObject', 'tuition-fees' );
+
 		$tuitions = $this->StudentTuitionAccount->User->find( 'first', array(
 			'conditions'	=>	array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
             'contain'       =>  array( 'TuitionAccount' => array( 'Semester' ) ),
@@ -133,6 +134,7 @@ class TuitionsController extends AppController {
         ) );
 
         $this->set( 'title_for_layout', 'Relevé par session' );
+        $this->set( 'dataObject', 'tuition-fees' );
         $this->setAssets( array( '/js/tuitions.js' ) );
 
         $tuitions = $this->StudentTuitionAccount->User->find( 'first', array(
