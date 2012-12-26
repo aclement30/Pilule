@@ -95,7 +95,7 @@ class ScheduleController extends AppController {
                 'type'  =>  'refresh'
             ),
             array(
-                'action'=>  "app.Schedule.download( ' " . $semester . "' );",
+                'action'=>  "app.Schedule.download( '" . $semester . "' );",
                 'tip'   =>  "Télécharger l'horaire",
                 'type'  =>  'download'
             )
