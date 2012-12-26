@@ -22,7 +22,9 @@
                     <li class="<?php if ( $this->request->params[ 'controller' ] == 'tuitions' && $this->request->params[ 'action' ] == 'details' ) echo ' active'; ?>"><a href="/tuitions/details">Relevé par session</a></li>
                 </ul>
             </li>
-
+            <li class="link-registration<?php if ( $this->request->params[ 'controller' ] == 'registration' ) echo ' active'; ?>">
+                <a href="/registration"><i class="icon icon-check"></i> <span>Inscription</span></a>
+            </li>
             <?php if ( isset( $user ) and $user[ 'admin' ] ): ?>
                 <li class="link-admin"><a href="/admin"><i class="icon icon-briefcase"></i> <span>Administration</span></a></li>
             <?php endif; ?>
