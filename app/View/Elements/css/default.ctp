@@ -1,5 +1,5 @@
 <link rel="stylesheet" href="/css/fullcalendar.css" />
-<?php if ( $mobile_browser ): ?>
+<?php if ( $isMobile ): ?>
     <link rel="stylesheet" href="/css/mobile.css?v=2.0.1" />
 <?php else: ?>
     <link rel="stylesheet" href="/css/unicorn.main.css" />

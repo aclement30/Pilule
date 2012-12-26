@@ -16,26 +16,20 @@ class CacheController extends AppController {
 
 	public function beforeFilter() {
 		parent::beforeFilter();
-
-		$this->CapsuleAuth->allow( 'reloadData' );
 	}
 
-	public function reloadData() {
+	public function fetchData() {
 		// Increase memory limit
 		ini_set( 'memory_limit', '50M' );
 
-		$this->Session->write( 'idul', 'alcle8' );
-
 		$error = false;
-		$auto = $this->request->query[ 'auto' ];				// TODO : rename query to data
-		$dataObject = $this->request->query[ 'name' ];			// TODO : rename query to data
+		$auto = $this->request->data[ 'auto' ];				    // TODO : rename query to data
+		$dataObject = $this->request->data[ 'name' ];			// TODO : rename query to data
 
         // Force data reload if request has been called by the user (by clicking Reload data button)
         if ( $auto == 0 ) {
-            $this->lcapsule->forceReload = true;
+            $this->Capsule->forceReload = true;
         }
-
-        $this->CapsuleAuth->login( 'alcle8', 'intelliweb30' );
 
 		// Test connection to Capsule server
 		$this->CapsuleAuth->testConnection();
@@ -46,7 +40,7 @@ class CacheController extends AppController {
             case 'studies-summary':
             	// Get data request from DB
             	$request = $this->CacheRequest->find( 'first', array(
-            		'conditions' => array( 'idul' => $this->Session->read( 'idul' ), 'name' => 'studies-summary' )
+            		'conditions' => array( 'CacheRequest.idul' => $this->Session->read( 'User.idul' ), 'CacheRequest.name' => 'studies-summary' )
             	) );
             	if ( !empty( $request )) {
             		$md5Hash = $request[ 'CacheRequest' ][ 'md5' ];
@@ -61,49 +55,49 @@ class CacheController extends AppController {
                     // Similar data have been found in DB (not reloaded)
 
                     // Update last data checkup timestamp
-                    $this->CacheRequest->saveRequest( $this->Session->read( 'idul' ), 'studies-summary', $md5Hash );
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-summary', $result[ 'md5Hash' ] );
                 } elseif ( !$result ) {
                     // Unknown error
                     $error = true;
                 } elseif ( !$result[ 'status' ] ) {
                     // Delete user's program(s) saved in DB
                     $this->User->Program->deleteAll( array(
-                    	'Program.idul'	=>	$this->Session->read( 'idul' )
+                    	'Program.idul'	=>	$this->Session->read( 'User.idul' )
                     ) );
 
                     // Si l'étudiant n'a aucune information à son dossier, enregistrement dans la BD
-                    $this->User->id = $this->Session->read( 'idul' );
+                    $this->User->id = $this->Session->read( 'User.idul' );
                     $this->User->saveField( 'empty_data', true );
 
                     // Update last data checkup timestamp
-                    $this->CacheRequest->saveRequest( $this->Session->read( 'idul' ), 'studies-summary' );
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-summary' );
                 } elseif ( $result[ 'status' ] ) {
                     // Delete user's program(s) saved in DB
                     $this->User->Program->deleteAll( array(
-                    	'Program.idul'	=>	$this->Session->read( 'idul' )
+                    	'Program.idul'	=>	$this->Session->read( 'User.idul' )
                     ) );
 
                     // Save student info
-                    $this->User->id = $this->Session->read( 'idul' );
+                    $this->User->id = $this->Session->read( 'User.idul' );
                     $this->User->save( array( 'User' => $result[ 'userInfo' ] ) );
 
 					// Save program studies data
 					$this->User->Program->saveAll( $result[ 'programs' ] );
 
                     // Update last data checkup timestamp
-                    $this->CacheRequest->saveRequest( $this->Session->read( 'idul' ), 'studies-summary', $result[ 'md5Hash'] );
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-summary', $result[ 'md5Hash'] );
 				}
 
 				// Check if user has programs, if not skip the next part
                 $userPrograms = $this->User->Program->find( 'all', array(
-                	'conditions'	=>	array( 'User.idul' => $this->Session->read( 'idul' ) )
+                	'conditions'	=>	array( 'Program.idul' => $this->Session->read( 'User.idul' ) )
                 ) );
 
                 if ( empty( $userPrograms ) ) break;
 
                 // Get data request from DB
             	$requests = $this->CacheRequest->find( 'all', array(
-            		'conditions' => array( 'idul' => $this->Session->read( 'idul' ), 'name LIKE' => 'studies-details-program-%' )
+            		'conditions' => array( 'CacheRequest.idul' => $this->Session->read( 'User.idul' ), 'CacheRequest.name LIKE' => 'studies-details-program-%' )
             	) );
             	if ( !empty( $requests )) {
                     $md5Hash = array();
@@ -120,17 +114,19 @@ class CacheController extends AppController {
                 if ( $result[ 'status' ] ) {
                     foreach ( $result[ 'md5Hash' ] as $name => $hash ) {
                         // Update last data checkup timestamp
-                        $this->CacheRequest->saveRequest( $this->Session->read( 'idul' ), $name, $hash );
+                        $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), $name, $hash );
                     }
 
                     // Save student info
                     if ( !empty( $result[ 'userInfo' ] ) ) {
-                        $this->User->id = $this->Session->read( 'idul' );
+                        $this->User->id = $this->Session->read( 'User.idul' );
                         $this->User->save( array( 'User' => $result[ 'userInfo' ] ) );
                     }
 
                     // Save programs studies data
                     $this->User->Program->saveAll( $result[ 'programs' ], array( 'deep' => true ) );
+
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-details' );
                 } else {
 					// Enregistrement de l'erreur
 					//$this->mErrors->addError('reload-data', 'studies-details : parsing error');
@@ -141,7 +137,7 @@ class CacheController extends AppController {
 			case 'studies-report':
                 // Get data request from DB
                 $request = $this->CacheRequest->find( 'first', array(
-                    'conditions' => array( 'idul' => $this->Session->read( 'idul' ), 'name' => 'studies-report' )
+                    'conditions' => array( 'CacheRequest.idul' => $this->Session->read( 'User.idul' ), 'CacheRequest.name' => 'studies-report' )
                 ) );
                 if ( !empty( $request )) {
                     $md5Hash = $request[ 'CacheRequest' ][ 'md5' ];
@@ -150,138 +146,102 @@ class CacheController extends AppController {
                 }
 
 				// Load report
-                $result = $this->capsule->getReport( $md5Hash );
+                $result = $this->Capsule->getReport( $md5Hash );
 
                 if ( $result === true ) {
                 	// Similar data have been found in DB (not reloaded)
 
                     // Update last data checkup timestamp
-                    $this->CacheRequest->saveRequest( $this->Session->read( 'idul' ), 'studies-report', $md5Hash );
-                } elseif (is_array($result)) {
-                    // Save student info
-                	if ( $result[ 'userInfo' ] !== true ) {
-	                    $this->User->id = $this->Session->read( 'idul' );
-	                    $this->User->save( array( 'User' => $userInfo ) );
-	                }
-
-                    // Suppression des données en cache de cours de l'étudiant
-                    $this->mStudies->deleteReportSemesters();
-                    $this->mStudies->deleteReportAdmittedSections();
-
-                    // Enregistrement des données d'études
-                    $this->mStudies->deleteReports();
-                    $this->mStudies->deleteReportCourses();
-                    $this->mStudies->addReport($result['report']);
-
-                    foreach ($result['admitted_sections'] as $section) {
-                        $courses = $section['courses'];
-                        unset($section['courses']);
-
-                        // Enregistrement de la section
-                        $section_id = $this->mStudies->addReportAdmittedSection($section);
-                        foreach ($courses as $course) {
-                            $course['section_id'] = $section_id;
-                            $this->mStudies->addReportCourse($course);
-                        }
-                    }
-
-                    foreach ($result['semesters'] as $semester) {
-                        $courses = $semester['courses'];
-                        unset($semester['courses']);
-
-                        // Enregistrement du semestre
-                        $semester_id = $this->mStudies->addReportSemester($semester);
-                        foreach ($courses as $course) {
-                            $course['semester_id'] = $semester_id;
-                            $this->mStudies->addReportCourse($course);
-                        }
-                    }
-
-                    // Update last data checkup timestamp
-                    $this->CacheRequest->saveRequest( 'studies-report' );
-				} else {
-					// Enregistrement de l'erreur
-					$this->mErrors->addError('reload-data', 'studies-report : parsing error');
-					
-					$error = 1;
-				}
-			    break;
-			case 'schedule':
-				// Chargement des horaires de cours
-				$result = $this->lcapsule->getSchedule();
-
-                if ($result === true) {
-                    // Les données similaires existent déjà dans la BDD
-
-                   	// Update last data checkup timestamp
-                    $this->CacheRequest->saveRequest( 'schedule' );
-                } elseif (is_array($result)) {
-                    // Suppression des données en cache
-                    $this->mSchedule->deleteSemesters();
-                    $this->mSchedule->deleteCourses();
-                    $this->mSchedule->deleteClasses();
-
-                    foreach($result as $semester => $schedule) {
-                        if ($schedule === true) continue;
-
-                        $courses = $schedule['courses'];
-                        unset($schedule['courses']);
-                        $schedule['semester'] = $semester;
-
-                        // Enregistrement du semestre
-                        $this->mSchedule->addSemester($schedule);
-                        foreach ($courses as $course) {
-                            $classes = $course['classes'];
-                            unset($course['classes']);
-
-                            $course['semester'] = $semester;
-                            $this->mSchedule->addCourse($course);
-
-                            foreach($classes as $class) {
-                                $class['semester'] = $semester;
-                                $class['nrc'] = $course['nrc'];
-                                $this->mSchedule->addClass($class);
-                            }
-                        }
-                    }
-
-                    // Update last data checkup timestamp
-                    $this->CacheRequest->saveRequest( 'schedule' );
-                } else {
-                    // Enregistrement de l'erreur
-                    //$this->mErrors->addError('reload-data', 'schedule-semesters : parsing error');
-
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-report', $result[ 'md5Hash' ] );
+                } elseif ( !$result ) {
+                    // Unknown error
                     $error = true;
+                } elseif ( $result[ 'status' ] ) {
+                    // Delete user's report saved in DB
+                    $this->User->Report->deleteAll( array(
+                        'Report.idul'  =>  $this->Session->read( 'User.idul' )
+                    ) );
+
+                    // Save student info
+                    $this->User->id = $this->Session->read( 'User.idul' );
+                    $this->User->save( array( 'User' => $result[ 'userInfo' ] ) );
+
+                    // Save report data
+                    $this->User->Report->saveAll( $result[ 'report' ], array( 'deep' => true ) );
+
+                    // Update last data checkup timestamp
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-report', $result[ 'md5Hash'] );
                 }
 			    break;
-			case 'fees':
-				// Chargement des détails des frais de scolarité
-				$result = $this->lcapsule->getFees();
-
-                if ($result === true) {
-                    // Les données similaires existent déjà dans la BDD
-
-                    // Actualisation de la date de la dernière actualisation des données
-                    $this->mCache->addRequest('fees');
-                } elseif (is_array($result)) {
-                    // Suppression des données en cache
-                    $this->mTuitions->deleteAccount();
-                    $this->mTuitions->deleteSemesters();
-
-                    // Enregistrement du compte de frais
-                    $this->mTuitions->addAccount($result['account']);
-
-                    foreach($result['semesters'] as $semester) {
-                        $this->mTuitions->addSemester($semester);
+			case 'schedule':
+                // Get data request from DB
+                $requests = $this->CacheRequest->find( 'all', array(
+                    'conditions' => array( 'CacheRequest.idul' => $this->Session->read( 'User.idul' ), 'CacheRequest.name LIKE' => 'schedule-%' )
+                ) );
+                if ( !empty( $requests )) {
+                    $md5Hash = array();
+                    foreach ( $requests as $request ) {
+                        $md5Hash[ $request[ 'CacheRequest' ][ 'name' ] ] = $request[ 'CacheRequest' ][ 'md5' ];
                     }
+                } else {
+                    $md5Hash = array();
+                }
+
+				// Loading schedule
+				$result = $this->Capsule->getSchedule( $md5Hash );
+                
+                // Similar data have been found in DB (not reloaded)
+                if ( !$result ) {
+                    // Unknown error
+                    $error = true;
+                } elseif ( $result[ 'status' ] ) {
+                    // Delete user's schedule saved in DB
+                    $this->User->ScheduleSemester->deleteAll( array(
+                        'ScheduleSemester.idul'  =>  $this->Session->read( 'User.idul' )
+                    ) );
+
+                    // Save schedule data
+                    $this->User->ScheduleSemester->saveAll( $result[ 'schedule' ], array( 'deep' => true ) );
 
                     // Update last data checkup timestamp
-                    $this->CacheRequest->saveRequest( 'fees' );
-                } elseif ($result===false) {
-                    // Enregistrement de l'erreur
-                    //$this->mErrors->addError('reload-data', 'fees : parsing error');
+                    foreach ( $result[ 'md5Hash' ] as $name => $hash ) {
+                        $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), $name, $hash );
+                    }
 
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'schedule' );
+                }
+			    break;
+			case 'tuition-fees':
+                // Get data request from DB
+                $request = $this->CacheRequest->find( 'first', array(
+                    'conditions' => array( 'CacheRequest.idul' => $this->Session->read( 'User.idul' ), 'CacheRequest.name' => 'tuition-fees' )
+                ) );
+                if ( !empty( $request )) {
+                    $md5Hash = $request[ 'CacheRequest' ][ 'md5' ];
+                } else {
+                    $md5Hash = null;
+                }
+
+				// Loading student tuition fees
+				$result = $this->Capsule->getTuitionFees( $md5Hash );
+
+                if ( $result === true ) {
+                    // Update last data checkup timestamp
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'tuition-fees', $result[ 'md5Hash' ] );
+                } elseif ( !$result ) {
+                    // Unknown error
                     $error = true;
+                } elseif ( $result[ 'status' ] ) {
+                    // Delete user's tuition fees saved in DB
+                    $this->User->TuitionAccount->deleteAll( array(
+                        'TuitionAccount.idul'  =>  $this->Session->read( 'User.idul' )
+                    ) );
+
+                    // Save tuition fees data
+                    $this->User->TuitionAccount->saveAll( $result[ 'tuitions' ], array( 'deep' => true ) );
+
+                    // Update last data checkup timestamp
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'tuition-fees', $result[ 'md5Hash'] );
                 }
 			    break;
             /*
@@ -300,13 +260,23 @@ class CacheController extends AppController {
 				}
 			    break;
             */
+            default:
+                $error = true;
+                break;
 		}
-		/*
-		return new CakeResponse( array(
-        	'body' => json_encode( array(
-        		
-        	) )
-        ) );
-        */
+		
+        if ( $error ) {
+    		return new CakeResponse( array(
+            	'body' => json_encode( array(
+            		'status'  =>  false
+            	) )
+            ) );
+        } else {
+            return new CakeResponse( array(
+                'body' => json_encode( array(
+                    'status'  =>  true
+                ) )
+            ) );
+        }
 	}
 }

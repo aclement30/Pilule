@@ -16,27 +16,38 @@ class AppController extends Controller {
         )
     );
 
-	var $isCapsuleOffline = false;
+    public $uses = array( 'CacheRequest', 'User' );
 
 	public function beforeFilter() {
 		// Check if browser is mobile
 		$this->_isMobile();
 
-		// Set mobile browser property
-		if ( $this->isMobile ) {
-			$this->set( 'mobile_browser', 1 );
-		} else {
-			$this->set( 'mobile_browser', 0 );
-		}
-
-		// Check is Capsule is offline
-		//'capsule_offline'   =>  ($this->session->userdata('capsule_offline') == 'yes') ? true: false
-
 		$this->CapsuleAuth->allow( 'index' );
 	}
 
 	public function beforeRender() {
-		$this->set( 'isCapsuleOffline', $this->isCapsuleOffline );
+		// Set mobile browser property
+		if ( $this->isMobile ) {
+			$this->set( 'isMobile', true );
+			$this->set( 'mobile_browser', 1 );
+		} else {
+			$this->set( 'isMobile', false );
+			$this->set( 'mobile_browser', 0 );
+		}
+
+		// Check is Capsule is offline
+		$this->set( 'isCapsuleOffline', $this->Session->read( 'Capsule.isOffline' ) );
+
+		// Set User info
+		if ( $this->Session->read( 'User.idul' ) != '' ) {
+			$this->loadModel( 'User' );
+			$user = $this->User->find( 'first', array( 'conditions' => array( 'User.idul' => $this->Session->read( 'User.idul' ) ) ) );
+
+			if ( !empty( $user ) )
+				$user = array_shift( $user );
+
+			$this->set( 'user', $user );
+		}
 	}
 
 	private function _isMobile() {
@@ -83,5 +94,26 @@ class AppController extends Controller {
 		}
 
 		return $this->isMobile;
+	}
+
+	protected function setAssets ( $customsJS = null, $customsCSS = null ) {
+		$assets = array(
+			'css' => array(),
+			'js' => array(),
+		);
+		
+		if ( !is_null( $customsCSS ) ) {
+			foreach ( $customsCSS as $cssPath ) {
+				$assets[ 'css' ][] = $cssPath;
+			}
+		}
+		
+		if ( !is_null( $customsJS ) ) {
+			foreach ( $customsJS as $jsPath ) {
+				$assets[ 'js' ][] = $jsPath;
+			}
+		}
+
+		$this->set( compact( 'assets' ) );
 	}
 }

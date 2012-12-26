@@ -1,6 +1,6 @@
 <?php
 
-class StudentProgramCourse extends Model {
+class StudentProgramCourse extends AppModel {
 	public $useTable = 'stu_programs_courses';
 
 	public $belongsTo = array(

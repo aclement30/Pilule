@@ -1,6 +1,8 @@
 <?php
 class UsersController extends AppController {
 
+	public $uses = array( 'CacheRequest', 'Module', 'User' );
+
 	public function beforeFilter() {
 		parent::beforeFilter();
 
@@ -9,28 +11,43 @@ class UsersController extends AppController {
 
 	public function login () {
 		if ( $this->request->is( 'ajax' ) ) {
+			// Check if auth credentials are provided
+			if ( empty( $this->request->data[ 'idul' ] ) || empty( $this->request->data[ 'password' ] ) ) {
+				return new CakeResponse( array(
+	            	'body' => json_encode( array(
+	            		'status'    =>  false,
+		                'error'		=>  'Erreur : IDUL ou mot de passe absent.'
+	            	) )
+	            ) );
+			}
+			
 			// Attempt to authenticate the user
 			if ( $this->CapsuleAuth->login( strtolower( $this->request->data[ 'idul' ] ), $this->request->data[ 'password' ] ) ) {
 				// Check is user's data already exist in DB
-	            $dataLoaded = true;
-	            $reloadList = array();
-	            $dataRequests = array( 'studies-summary', 'studies-details', 'studies-report', 'schedule', 'fees' );
+	            $dataFetched = true;
+	            $fetchList = array();
+	            $dataObjects = array( 'studies-summary', 'studies-details', 'studies-report', 'schedule', 'tuition-fees' );
 
-	            foreach ($dataRequests as $requestName) {
-	                //$lastRequest = $this->mCache->getLastRequest($requestName);
+	            foreach ( $dataObjects as $objectName ) {
+	            	$lastRequest = $this->CacheRequest->find( 'first', array(
+	            		'conditions' => array(
+	            			'CacheRequest.idul' => $this->Session->read( 'User.idul' ),
+	            			'CacheRequest.name' => $objectName
+	            		)
+	            	) );
 
-	                // If no data found, add element to loading list
+	                // If no data found, add element to fetch list
 	                if ( empty( $lastRequest ) ) {
-	                    $reloadList[] = $requestName;
-	                    $dataLoaded = false;
+	                    $fetchList[] = $objectName;
+	                    $dataFetched = false;
 	                }
 	            }
 
 	            return new CakeResponse( array(
 	            	'body' => json_encode( array(
-	            		'status'    =>  true,
-		                'loading'   =>  ( !$dataLoaded ) ? true: false,
-		                'reloadList'=>  $reloadList
+	            		'status'    		=>  true,
+		                'userDataFetched'   =>  $dataFetched,
+		                'fetchList'			=>  $fetchList
 	            	) )
 	            ) );
 	        } else {
@@ -41,7 +58,7 @@ class UsersController extends AppController {
 	                	$authError = 'Erreur : IDUL ou mot de passe erroné.';
 	                break;
 	                case 'server-connection':
-	                	$authError = 'Erreur : serveur de Capsule indisponible.';
+	                	$authError = 'Erreur : serveur Capsule indisponible.';
 	                break;
 	                default:
 	                	$authError = 'Erreur interne lors de l\'authentification.';
@@ -59,11 +76,86 @@ class UsersController extends AppController {
 
 		// Define layout
 		$this->layout = 'login';
-
+		$this->set( 'title_for_layout', 'Pilule - Gestion des études' );
 		$this->set( 'url', '' );
+		$this->setAssets( array( '/js/users.js' ), null );
 	}
 
 	public function logout() {
-	    $this->redirect( $this->Auth->logout() );
+		$this->Session->destroy();
+
+	    $this->redirect( $this->CapsuleAuth->logout() );
+	}
+
+	public function dashboard () {
+        // Find user dashboard modules
+        $userModules = $this->Module->User->find( 'first', array(
+        	'conditions'	=>	array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
+        	'contain'		=>	array( 'Module' => array( 'conditions' => array( 'Module.active' => true ) ) ),
+        	'fields'		=> 	array( 'User.idul' )
+        ) );
+
+		if ( empty( $modules[ 'Module' ] ) ) {
+			// Load default modules
+			$modules = $this->User->Module->find( 'all', array(
+	        	'conditions'	=>	array( 'Module.active' => true )
+	        ) );
+		}
+
+        $this->set( 'breadcrumb', array( array(
+            'url'   =>  'dashboard',
+            'title' =>  'Tableau de bord'
+        ) ) );
+        $this->set( 'buttons', array(
+        	array(
+	            'action'=>  "app.Dashboard.edit();",
+	            'type'  =>  'edit',
+	            'tip'   =>  'Modifier le tableau de bord'
+	        ),
+	        array(
+	            'action'=>  "app.Dashboard.save();",
+	            'type'  =>  'save',
+	            'tip'   =>  'Enregistrer le tableau de bord'
+	        )
+        ) );
+        $this->set( 'modules', $modules );
+        $this->set( 'userModules', $userModules );
+		$this->set( 'title_for_layout', 'Tableau de bord' );
+		$this->setAssets( array( '/js/dashboard.js' ), null );
+	}
+
+	public function saveDashboard () {
+		if ( $this->request->is( 'ajax' ) ) {
+			$enabledModules = $this->request->data[ 'enabledModules' ];
+
+	        // Add module to user dashboard
+            $modules = array( 'User' => array( 'idul' => $this->Session->read( 'User.idul' ) ), 'Module' => array( 'Module' => array() ) );
+            foreach ( $enabledModules as $id ) {
+           		$modules[ 'Module' ][ 'Module' ][] = $id;
+           	}
+           	pr($modules);
+            $this->User->set( $modules );
+
+            if ( $this->User->saveAll( $modules ) ) {
+                return new CakeResponse( array(
+	            	'body' => json_encode( array(
+	            		'status'    =>  true
+	            	) )
+	            ) );
+            } else {
+                return new CakeResponse( array(
+	            	'body' => json_encode( array(
+	            		'status'    =>  false
+	            	) )
+	            ) );
+            }
+		}
+	}
+
+	function eraseData () {
+		// Effacement des données enregistrées en cache
+        $this->User->deleteAll( array( 'User.idul' => $this->Session->read( 'User.idul' ) ), true );
+		
+		$this->logout();
 	}
 }

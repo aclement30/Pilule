@@ -25,19 +25,20 @@ class CapsuleAuthComponent extends AuthComponent {
 		$isAuthenticated = false;
 
 		$this->identify( $idul, $password );
-		
+
 		switch ( $this->authResponse ) {
             case 'success':
             	// Check if user already exists in DB
-		        if ( $this->User->userExists( $idul ) === false ) {
+		        if ( $this->controller->User->find( 'count', array( 'conditions' =>	array( 'User.idul' => $idul ) ) ) == 0 ) {
 		            // Save user in DB
 		            $user = array( 'User' => array(
 						'idul'	=>	$idul,
-						'name'	=>	$this->Capsule->userName
+						'name'	=>	$this->controller->Capsule->userName
 					) );
 
-		            $this->User->create;
-		            $this->User->save( $user );
+		            $this->controller->User->create();
+		            $this->controller->User->set( $user );
+		            $this->controller->User->save( $user );
 		        }
 
                 // Authentication successful
@@ -46,13 +47,13 @@ class CapsuleAuthComponent extends AuthComponent {
             case 'server-unavailable':
             case 'server-connection':
                 // Second attempt
-                $this->authResponse = $this->identify( $idul, $password );
+                $this->identify( $idul, $password );
 
                 if ( $this->authResponse == 'success' ) {
                 	$isAuthenticated = true;
                 } else {
 	                // Capsule seems offline
-	                $this->isCapsuleOffline = true;
+	                $this->Session->write( 'Capsule.isOffline', true );
 	            }
             break;
         }
@@ -60,6 +61,8 @@ class CapsuleAuthComponent extends AuthComponent {
 		if ( $isAuthenticated ) {
 			$this->Session->renew();
 			$this->Session->write( self::$sessionKey, $idul, $this->controller->Capsule->cookies );
+			$this->Session->write( 'User.idul', $idul );
+			$this->Session->write( 'User.password', $password) ;
 		} else {
 			return false;
 		}

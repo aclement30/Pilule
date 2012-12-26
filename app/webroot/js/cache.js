@@ -3,7 +3,7 @@ if ( !app ) {
 }
 
 app.Cache = {
-    controllerURL	: './cache/',
+    controllerURL	: '/cache/',
     reloadCallback	: null,
     isLoading		: false,
     loadingQueue	: new Array()
@@ -45,8 +45,7 @@ app.Cache.loadData = function () {
 
     ajax.request({
         type:           'PUT',
-        controller:     app.Cache.controllerURL,
-        method:         'reloadData',
+        url:            '/cache/fetchData.json',
         data:           {
             name:       app.Cache.loadingQueue[0].name,
             auto:       app.Cache.loadingQueue[0].auto
@@ -90,9 +89,9 @@ app.Cache.loadData = function () {
                         app.Cache.reloadCallback = null;
                     } else {
                         if ( response.auto == 1 ) {
-                            refreshPage( false );
+                            app.Common.refreshPage( false );
                         } else {
-                            refreshPage( true );
+                            app.Common.refreshPage( true );
                         }
                     }
 					

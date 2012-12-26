@@ -1,6 +1,6 @@
 <?php
 
-class StudentReportAdmittedSection extends Model {
+class StudentReportAdmittedSection extends AppModel {
 	public $useTable = 'stu_reports_admitted_sections';
 
 	public $belongsTo = array(
@@ -13,7 +13,8 @@ class StudentReportAdmittedSection extends Model {
 	public $hasMany = array(
 		'Course'		=>	array(
 			'className'		=>	'StudentReportCourse',
-			'foreignKey'	=>	'section_id'
+			'foreignKey'	=>	'section_id',
+			'dependent'		=>	true
 		)
 	);
 }

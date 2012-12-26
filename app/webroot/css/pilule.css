@@ -65,16 +65,34 @@ body {
 }
 
 .quick-actions.dashboard li.disabled {
+    display: none;
+}
+
+.quick-actions.dashboard li.offline {
+    background-image: -webkit-gradient(linear, 0 0%, 0 100%, from(#afafaf), to(#d6d6d6));
+    background-image: -webkit-linear-gradient(top, #afafaf 0%, #d6d6d6 100%);
+    background-image: -moz-linear-gradient(top, #afafaf 0%, #d6d6d6 100%);
+    background-image: -ms-linear-gradient(top, #afafaf 0%, #d6d6d6 100%);
+    background-image: -o-linear-gradient(top, #afafaf 0%, #d6d6d6 100%);
+    background-image: linear-gradient(top, #afafaf 0%, #d6d6d6 100%);
+    display: inline-block;
+}
+
+.quick-actions.dashboard li.offline a {
+    cursor: default;
+}
+
+.quick-actions.dashboard.edit-mode li.disabled {
     background-image: -webkit-gradient(linear, 0 0%, 0 100%, from(#F2DEDE), to(#EED3D7));
     background-image: -webkit-linear-gradient(top, #F2DEDE 0%, #EED3D7 100%);
     background-image: -moz-linear-gradient(top, #F2DEDE 0%, #EED3D7 100%);
     background-image: -ms-linear-gradient(top, #F2DEDE 0%, #EED3D7 100%);
     background-image: -o-linear-gradient(top, #F2DEDE 0%, #EED3D7 100%);
     background-image: linear-gradient(top, #F2DEDE 0%, #EED3D7 100%);
-
+    display: inline-block;
 }
 
-.quick-actions.dashboard li.enabled {
+.quick-actions.dashboard.edit-mode li.enabled {
     background-image: -webkit-gradient(linear, 0 0%, 0 100%, from(#DFF0D8), to(#D6E9C6));
     background-image: -webkit-linear-gradient(top, #DFF0D8 0%, #D6E9C6 100%);
     background-image: -moz-linear-gradient(top, #DFF0D8 0%, #D6E9C6 100%);
@@ -83,7 +101,7 @@ body {
     background-image: linear-gradient(top, #DFF0D8 0%, #D6E9C6 100%);
 }
 
-.quick-actions.dashboard li.disabled img {
+.quick-actions.dashboard.edit-mode li.disabled img {
     opacity: 0.5;
     -moz-opacity: 0.5;
 }

@@ -30,12 +30,12 @@
             <li>Réessayer de vous connecter.</li>
         </ol>
         Note : certaines fonctions peuvent ne pas être disponibles si les données ne sont pas chargées.</div>
-            <div style="margin-top: 15%; text-align: center;">
-                <div class="btn-group" style="text-align: center; margin-bottom: 20px;">
-                    <a class="btn btn-danger" href="javascript:app.Users.redirectToDashboard();" style="float: none;"><i class="icon-warning-sign icon-white"></i>&nbsp;Continuer sans chargement</a>
-                </div><div class="btn-group" style="margin-left: 0px;">
-                    <a class="btn btn-success" href="javascript:app.Users.retryLogin();" style="float: none;"><i class="icon-repeat icon-white"></i>&nbsp;Réessayer la connexion</a>
-                </div>
+        <div style="margin-top: 15%; text-align: center;">
+            <div class="btn-group" style="text-align: center; margin-bottom: 20px;">
+                <a class="btn btn-danger btn-redirect-dashboard" style="float: none;"><i class="icon-warning-sign icon-white"></i>&nbsp;Continuer sans chargement</a>
+            </div><div class="btn-group" style="margin-left: 0px;">
+                <a class="btn btn-success btn-retry-login" style="float: none;"><i class="icon-repeat icon-white"></i>&nbsp;Réessayer la connexion</a>
             </div>
+        </div>
     </div>
 </div>

@@ -1,22 +1,69 @@
 <?php
 
-class User extends Model {
+class User extends AppModel {
 	public $primaryKey = 'idul';
 
 	public $hasOne = array(
-		'Report'	=>	'StudentReport'
+		'Report'	=>	array(
+			'className'		=>	'StudentReport',
+			'foreignKey'	=>	'idul',
+			'dependent'		=>	true
+		),
+		'TuitionAccount'	=>	array(
+			'className'		=>	'StudentTuitionAccount',
+			'foreignKey'	=>	'idul',
+			'dependent'		=>	true
+		)
 	);
 
 	public $hasMany = array(
+		'CacheRequest'	=>	array(
+			'className'		=>	'CacheRequest',
+			'foreignKey'	=>	'idul',
+			'dependent'		=>	true
+		),
+		'Param'	=>	array(
+			'className'		=>	'Param',
+			'foreignKey'	=>	'idul',
+			'dependent'		=>	true
+		),
 		'Program'	=>	array(
-			'className'		=>	'StudentProgram'
+			'className'		=>	'StudentProgram',
+			'foreignKey'	=>	'idul',
+			'dependent'		=>	true
+		),
+		'Section'	=>	array(
+			'className'		=>	'StudentProgramSection',
+			'foreignKey'	=>	'idul',
+			'dependent'		=>	true
+		),
+		'Report'	=>	array(
+			'className'		=>	'StudentReport',
+			'foreignKey'	=>	'idul',
+			'dependent'		=>	true
+		),
+		'ScheduleSemester'	=>	array(
+			'className'		=>	'StudentScheduleSemester',
+			'foreignKey'	=>	'idul',
+			'dependent'		=>	true
 		)
 	);
+
+	public $hasAndBelongsToMany = array(
+        'Module' =>
+            array(
+                'className'              =>	'Module',
+                'joinTable'              => 'users_modules_map',
+                'foreignKey'             => 'idul',
+                'associationForeignKey'  => 'module_id',
+                'unique'                 => 'keepExisting'
+            )
+    );
 
 	public function edit ( $data ) {
 		$request = array( 'Request' => array(
 			'id'			=>	$request[ 'Request' ][ 'id' ],
-			'idul'			=>	$this->Session->read( 'idul' ),
+			'idul'			=>	$this->Session->read( 'User.idul' ),
 			'name'			=>	$dataObject,
 			'timestamp'		=>	time()
 		) );

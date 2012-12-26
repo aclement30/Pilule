@@ -17,84 +17,120 @@ app.Dashboard.connectTo = function ( url ) {
 };
 
 app.Dashboard.edit = function () {
-    loading();
-
     // Notify Google Analytics of Dashboard-edit action
     _gaq.push(['_trackEvent', 'Dashboard', 'Edit', 'Modification du Tableau de bord']);
 
     $('.action-buttons .buttons a').tooltip('hide');
+    $('.action-buttons a.js-edit-btn' ).hide();
+    $('.action-buttons a.js-save-btn' ).fadeIn();
+    
+    // Display hidden dashboard modules
+    $( 'ul.dashboard' ).addClass( 'edit-mode' );
 
-    // Display dashboard edit page
-    document.location.hash = '#!/dashboard/edit';
+    var modules = $( 'ul.dashboard li' );
+
+	$.each( modules, function( index, module ) {
+		var link = $( module ).find( 'a' );
+
+		// Unbind default click event
+		link.off( 'click' );
+
+		// Bind toggle event
+		link.on( 'click', app.Dashboard.toggleModule );
+	} );
 };
 
 app.Dashboard.save = function () {
-    loading();
-
     // Display save notice when page is refreshed
     loadContentCallback = function () { resultMessage( 'Les modifications au tableau de bord ont été enregistrées.' ); }
 
     $('.action-buttons .buttons a').tooltip('hide');
+    $('.action-buttons a.js-save-btn' ).hide();
+    $('.action-buttons a.js-edit-btn' ).fadeIn();
 
-    // Display normal dashboard
-    document.location.hash = '#!/dashboard';
+    // Hide disabled dashboard modules
+    $( 'ul.dashboard' ).removeClass( 'edit-mode' );
+
+    $( 'ul.dashboard li a' ).off( 'click' );
+
+    app.Dashboard.initModules();
 };
 
-app.Dashboard.toggleModule = function ( id ) {
-	// If module already activated, send deactivation request via AJAX
-    if ( $( '#module-' + id ).hasClass( 'enabled' ) ) {
-        ajax.request({
-            type:           'PUT',
-            controller:     app.Dashboard.controllerURL,
-            method:         'toggleModule',
-            data:           {
-                id:         id,
-                isEnabled:  0
-            },
-            callback:       function ( response ) {
-                if ( response.status ) {
-                    // Module has been activated
-                    $( '#module-' + response.id ).removeClass( 'enabled' ).addClass( 'disabled' );
-                }
-            }
-        });
+app.Dashboard.toggleModule = function ( e ) {
+	var module = $( e.currentTarget ).closest( 'li' );
+
+	// Toggle enabled/disabled class
+    if ( module.hasClass( 'enabled' ) ) {
+    	module.removeClass( 'enabled' ).addClass( 'disabled' );
     } else {
-        ajax.request({
-            type:           'PUT',
-            controller:     app.Dashboard.controllerURL,
-            method:         'toggleModule',
-            data:           {
-                id:         id,
-                isEnabled:  1
-            },
-            callback:       function ( response ) {
-                if ( response.status ) {
-                    // Module has been deactivated
-                    $( '#module-' + response.id ).removeClass( 'disabled' ).addClass( 'enabled' );
-                }
-            }
-        });
+    	module.removeClass( 'disabled' ).addClass( 'enabled' );
     }
+
+    // Get the list of all enabled modules
+    var enabledModules = new Array();
+    var modules = $( 'ul.dashboard li.enabled' );
+
+	$.each( modules, function( index, module ) {
+		enabledModules.push( $( module ).data( 'id' ) );
+	});
+
+	// Update enabled modules list via AJAX
+    ajax.request({
+        type:           'PUT',
+        url:     		'users/saveDashboard.json',
+        data:           {
+            enabledModules:         enabledModules
+        },
+        callback:       function ( response ) { }
+    });
+
+    return false;
 };
 
 // Open external website in external view frame
 app.Dashboard.openExternalWebsite = function ( url ) {
 	// Display small logo
-    $('#header h1').addClass('small');
+    $( '#header h1' ).addClass( 'small' );
 
     // Hide sidebar
-    $('#sidebar').hide();
+    $( '#sidebar' ).hide();
 
     // Display external view frame
-    $('#external-frame').attr('src', url);
-    $('#external-frame').fadeIn();
+    $( '#external-frame' ).attr( 'src', url );
+    $( '#external-frame' ).fadeIn();
 
     // Hide normal navigation menu
-    $('#user-nav .nav').hide();
-    $('#user-nav .nav.external-frame').fadeIn();
+    $( '#user-nav .nav' ).hide();
+    $( '#user-nav .nav.external-frame' ).fadeIn();
 };
 
+app.Dashboard.initModules = function () {
+	var modules = $( 'ul.dashboard li:not(.offline)' );
 
+	$.each( modules, function( index, module ) {
+		if ( $( module ).hasClass( 'external' ) ) {
+			$( module ).find( 'a' ).on( 'click', function( e ) {
+				app.Dashboard.openExternalWebsite( $( module ).data( 'url' ) );
+
+				return false;
+			} );
+		} else {
+			$( module ).find( 'a' ).on( 'click', function( e ) {
+				document.location = $( module ).data( 'url' );
+
+				return false;
+			} );
+		}
+	} );
+};
+
+app.Dashboard.init = function () {
+	app.Dashboard.initModules();
+
+	$('.action-buttons a.js-save-btn' ).hide();
+};
+
+$( document ).ready( function() { app.Dashboard.init(); } );
 /*
 // JavaScript Document
 var dashboardObj = {

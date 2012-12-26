@@ -5,12 +5,17 @@ if ( !app ) {
 }
 
 app.Users = {
-    controllerURL: '/users/'
+    controllerURL:          '/users/',
+    loginState:             0,
+    fetchingTimeoutHandler: null
 };
 
-app.Users.login = function ( askAutoLogon ) {
+app.Users.login = function ( e ) {
     var idul = $( '#login-form .idul' ).val();
     var password = $( '#login-form .password' ).val();
+
+    // Set error handler
+    app.Common.setErrorHandler( app.Users.loginError );
 
     // Hide error message
     $( '#login-form .alert-error' ).hide();
@@ -25,7 +30,7 @@ app.Users.login = function ( askAutoLogon ) {
         // Si le visiteur accède au site depuis un navigateur mobile et que le stockage local est disponible,
         // l'option de mémoriser son mot de passe lui est offerte
         
-        if ( Modernizr.localstorage && askAutoLogon != 1 ) {
+        if ( Modernizr.localstorage ) {
             if ( localStorage.getItem( 'pilule-ask-autologon-' + idul ) == null ) {
                 if ( confirm( "Voulez-vous que Pilule vous connecte automatiquement lors de votre prochaine visite depuis cet appareil ?" ) ) {
                     autoLogon = 1;
@@ -41,13 +46,16 @@ app.Users.login = function ( askAutoLogon ) {
     // Send login request
     ajax.request({
         controller:     app.Users.controllerURL,
-        method:         'login',
+        url:            '/users/login.json',
         data:           {
             idul:       idul,
             password:   password
         },
         callback:       function ( response ) {
             if ( response.status ) {
+                // Update user's login state
+                app.Users.loginState = 1;
+
                 if ( app.isMobile == 1 ) {
                     // Si l'utilisateur a choisi de mémoriser son mot de passe, l'IDUL et le mot de passe sont mémorisés sur l'appareil
                     if ( autoLogon == 1 ) {
@@ -61,22 +69,33 @@ app.Users.login = function ( askAutoLogon ) {
                     }
                 }
                 
-                if ( response.loading ) {
+                if ( !response.userDataFetched ) {
+                    // Set fetching timeout (60 sec) handler in case remote data fetching hangs
+                    app.Users.fetchingTimeoutHandler = setTimeout( function() { app.Users.loginError(); }, 60000 );
+
                     $( '#loading-panel .loading-message' ).html( 'Chargement de vos données' );
                     $( '#loading-panel .waiting-notice' ).fadeIn();
 
-                    var reloadItems = new Array();
-                    $.each( response.reloadList, function( key, value ) {
+                    var fetchItems = new Array();
+                    $.each( response.fetchList, function( key, value ) {
                         // Ajout d'un élément à la liste
-                        reloadItems.push( { name: value, auto: 1, callback: function() {
-                            if ( app.Cache.loadingQueue.length == 0 && ( !app.Cache.isLoading ) ) {
-                                app.Users.redirectToDashboard();
+                        fetchItems.push( {
+                            name:           value,
+                            auto:           1,
+                            callback:       function() {
+                                if ( app.Cache.loadingQueue.length == 0 && ( !app.Cache.isLoading ) ) {
+                                    clearTimeout( app.Users.fetchingTimeoutHandler );
+
+                                    app.Users.loginState = 2;
+                
+                                    app.Users.redirectToDashboard();
+                                }
                             }
-                        }});
+                        });
                     });
 
                     // Actualisation de la liste d'éléments
-                    app.Cache.reloadData( reloadItems );
+                    app.Cache.reloadData( fetchItems );
                 } else {
                     var redirectURL = $( '#redirect_url' ).val();
 
@@ -86,18 +105,59 @@ app.Users.login = function ( askAutoLogon ) {
                     if ( redirectURL != '' && redirectURL != undefined ) {
                         document.location = redirectURL;
                     } else {
-                        document.location = './welcome/';
+                        document.location = '/';
                     }
                 }
             } else {
-                $( '#loading-panel' ).fadeOut( 'fast', function () {
-                    $( '#login-form' ).fadeIn();
+                app.Users.loginError({
+                    context:    'login-error',
+                    message:    response.error
                 });
-
-                errorMessage( response.error, $( '#login-form .alert-error' ), false );
             }
         }
     });
+};
+
+app.Users.redirectToDashboard = function () {
+    if ( !app.Cache.isLoading ) {
+        var redirectURL = $( '#redirect_url' ).val();
+
+        $( '#formContainer' ).fadeOut();
+
+        // Redirection à la page demandée, s'il y a lieu
+        if ( redirectURL != '' && redirectURL != undefined ) {
+            setTimeout( "document.location = redirectURL;", 100 );
+        } else {
+            setTimeout( "document.location = '/';", 100 );
+        }
+    }
+};
+
+app.Users.retryLogin = function () {
+    $( '#loading-error' ).fadeOut( 'fast', function () {
+        $( '#login-form' ).fadeIn();
+    } );
+};
+
+app.Users.loginError = function ( error ) {
+    switch ( app.Users.loginState ) {
+        case 0:         // User is not even logged
+            // Hide loading panel
+            $( '#loading-panel' ).stop( true ).fadeOut( 'fast', function () {
+                $( '#login-form' ).fadeIn();
+            });
+
+            app.Common.displayError( error.message, $( '#login-form .alert-error' ), false );
+            break;
+        case 1:         // User is actually logged in, but an error happens during remote data fetching
+            // Hide loading panel
+            $( '#login-form' ).hide();
+            $( '#loading-panel' ).stop().fadeOut( 'fast', function () {
+                $( '#loading-error' ).fadeIn();
+            });
+
+            break;
+    }
 };
 
 /*

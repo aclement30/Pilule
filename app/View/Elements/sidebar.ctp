@@ -1,37 +1,31 @@
 <?php if ( !empty( $user ) ): ?>
-
     <div id="sidebar">
         <ul class="nav" style="border-bottom: 0px; margin-bottom: 0px;">
-            <li class="active link-dashboard"><a href="#!/dashboard"><i class="icon icon-home"></i> <span>Tableau de bord</span></a></li>
-            <li class="submenu link-studies">
-                <a href="#!/studies"><i class="icon icon-folder-open"></i> <span>Dossier scolaire</span><span class="label"><i class="icon-chevron-down icon-white" style="margin:  0px;"></i></span></a>
+            <li class="link-dashboard<?php if ( $this->request->params[ 'controller' ] == 'users' ) echo ' active'; ?>">
+                <a href="/dashboard"><i class="icon icon-home"></i> <span>Tableau de bord</span></a>
+            </li>
+            <li class="submenu link-studies<?php if ( $this->request->params[ 'controller' ] == 'studies' ) echo ' active open'; ?>">
+                <a href="#"><i class="icon icon-folder-open"></i> <span>Dossier scolaire</span><span class="label"><i class="icon-chevron-down icon-white" style="margin:  0px;"></i></span></a>
                 <ul class="nav">
-                    <li class="link-studies-summary"><a href="#!/studies">Programme d'études</a></li>
-                    <li class="link-studies-details"><a href="#!/studies/details">Rapport de cheminement</a></li>
-                    <li class="link-studies-report"><a href="#!/studies/report">Relevé de notes</a></li>
+                    <li class="link-studies-summary<?php if ( $this->request->params[ 'controller' ] == 'studies' && $this->request->params[ 'action' ] == 'index' ) echo ' active'; ?>"><a href="/studies">Programme d'études</a></li>
+                    <li class="link-studies-details<?php if ( $this->request->params[ 'controller' ] == 'studies' && $this->request->params[ 'action' ] == 'details' ) echo ' active'; ?>"><a href="/studies/details">Rapport de cheminement</a></li>
+                    <li class="link-studies-report<?php if ( $this->request->params[ 'controller' ] == 'studies' && $this->request->params[ 'action' ] == 'report' ) echo ' active'; ?>"><a href="/studies/report">Relevé de notes</a></li>
                 </ul>
             </li>
-            <li class="link-schedule"><a href="#!/schedule"><i class="icon icon-calendar"></i> <span>Horaire</span></a></li>
-            <li class="submenu link-fees link-tuitions"><a href="#!/fees"><i class="icon icon-list"></i> <span>Frais de scolarité</span><span class="label"><i class="icon-chevron-down icon-white" style="margin:  0px;"></i></span></a>
+            <li class="link-schedule<?php if ( $this->request->params[ 'controller' ] == 'schedule' ) echo ' active'; ?>">
+                <a href="/schedule"><i class="icon icon-calendar"></i> <span>Horaire</span></a>
+            </li>
+            <li class="submenu link-tuitions<?php if ( $this->request->params[ 'controller' ] == 'tuitions' ) echo ' active open'; ?>">
+                <a href="#"><i class="icon icon-list"></i> <span>Frais de scolarité</span><span class="label"><i class="icon-chevron-down icon-white" style="margin:  0px;"></i></span></a>
                 <ul class="nav">
-                    <li><a href="#!/fees">Sommaire du compte</a></li>
-                    <li><a href="#!/fees/details">Relevé par session</a></li>
+                    <li class="<?php if ( $this->request->params[ 'controller' ] == 'tuitions' && $this->request->params[ 'action' ] == 'index' ) echo ' active'; ?>"><a href="/tuitions">Sommaire du compte</a></li>
+                    <li class="<?php if ( $this->request->params[ 'controller' ] == 'tuitions' && $this->request->params[ 'action' ] == 'details' ) echo ' active'; ?>"><a href="/tuitions/details">Relevé par session</a></li>
                 </ul>
             </li>
 
             <?php if ( isset( $user ) and $user[ 'admin' ] ): ?>
-                <li class="link-admin"><a href="#!/admin"><i class="icon icon-briefcase"></i> <span>Administration</span></a></li>
+                <li class="link-admin"><a href="/admin"><i class="icon icon-briefcase"></i> <span>Administration</span></a></li>
             <?php endif; ?>
-
-            <li style="height: 10px;">&nbsp;</li>
-
-            <li id="notifications">
-                <div class="alert alert-warning">
-                    <h4>Frais de scolarité</h4>
-                    <strong>Session Oct-Janv. 2012</strong><br />
-                    Date limite de paiement : 12 novembre 2012.
-                </div>
-            </li>
         </ul>
     </div>
 

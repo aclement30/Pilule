@@ -2,6 +2,8 @@
 <html lang='en'>
 <meta charset='utf-8'>
 <head>
+    
+    <base href="http://www.pilule.ulaval.ca" />
 
     <?php echo $this->element( 'metas' ); ?>
 	
@@ -39,11 +41,33 @@
 
 	<?php echo $this->element( 'sidebar' ); ?>
 
-
-
-			<?php echo $this->Session->flash(); ?>
-
-			<?php echo $this->fetch('content'); ?>
+  <div id="content">
+    <div id="content-header">
+        <h1><?php echo $title_for_layout; ?></h1>
+        <div class="btn-group action-buttons">
+            <div class="buttons">
+              <?php
+                if ( isset( $buttons ) && !empty( $buttons ) )
+                  echo $this->element( 'action_buttons', $buttons );
+              ?>
+            </div>
+            <div class="timestamp no-print">
+              <?php
+                if ( isset( $timestamp ) && !empty( $timestamp ) )
+                    echo 'Données actualisées : ' . $this->App->timeAgo( $timestamp ) . '.';
+              ?>
+            </div>
+            <div class="loading-status"></div>
+        </div>
+    </div>
+    <div id="breadcrumb"><?php //echo $this->Html->getCrumbs(' > ', 'Tableau de bord' ); ?></div>
+    <div class="container-fluid" id="content-layer">
+        <?php echo $this->Session->flash(); ?>
+        <div class="content-inside">
+          <?php echo $this->fetch('content'); ?>
+        </div>
+    </div>
+  </div>
 		
 	<?php echo $this->element( 'footer' ); ?>
 

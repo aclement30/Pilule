@@ -3,8 +3,27 @@
 <script type='text/javascript' src="/js/libs/fullcalendar.min.js"></script>
 <script type='text/javascript' src="/js/libs/modernizr.custom.41742.js"></script>
 <script type='text/javascript' src="/js/ajax.js"></script>
+<!--<script type='text/javascript' src="/js/path.min.js"></script>-->
 
 <!-- Load Pilule-specific JS files -->
+<?php
+    // Define site-wide scripts
+    $scripts = array( '/js/pilule.js', '/js/cache.js' );
+
+    if ( isset( $assets ) && isset( $assets[ 'js' ] ) ) {
+        $scripts = array_merge( $scripts, $assets[ 'js' ] );
+    }
+
+    // Add version number to each JS path : clear old JS files in browser cache
+    $currentVersion = '2.1.1';
+
+    foreach ( $scripts as &$path ) {
+        $path .= '?ver=' . $currentVersion;
+    }
+
+    echo $this->Html->script( $scripts );
+?>
+<!--
 <script type='text/javascript' src="/js/pilule.js?ver=2.1"></script>
 <script type='text/javascript' src="/js/users.js?ver=2.1"></script>
 <script type='text/javascript' src="/js/studies.js?ver=2.1"></script>
@@ -13,7 +32,7 @@
 <script type='text/javascript' src="/js/dashboard.js?ver=2.1"></script>
 <script type='text/javascript' src="/js/schedule.js?ver=2.1"></script>
 <script type='text/javascript' src="/js/cache.js?ver=2.1"></script>
-
+-->
 <!--
 <?php if ( !isset( $user ) ): ?>
     <script type='text/javascript' src="/js/login.js?ver=2.0.2"></script>

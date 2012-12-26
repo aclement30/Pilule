@@ -9,7 +9,7 @@
 <meta property="og:site_name" content="Pilule - Gestion des études"/>
 <meta property="fb:app_id" content="102086416558659"/>
 
-<?php if ( $mobile_browser ): ?>
+<?php if ( $isMobile ): ?>
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0;" />

@@ -28,13 +28,20 @@
 	
 	Router::parseExtensions( 'json' );
 
-	Router::connect( '/', array('controller' => 'pages', 'action' => 'display', 'home' ) );
+	Router::connect( '/', array( 'controller' => 'users', 'action' => 'dashboard' ) );
+	Router::connect( '/dashboard', array( 'controller' => 'users', 'action' => 'dashboard' ) );
 	Router::connect( '/login', array( 'controller' => 'users', 'action' => 'login' ) );
+	Router::connect( '/logout', array( 'controller' => 'users', 'action' => 'logout' ) );
+
 /**
  * ...and connect the rest of 'Pages' controller's urls.
  */
 	Router::connect( '/support/:page', array( 'controller' => 'pages', 'action' => 'display', 'support' ), array( 'pass' => array( 'page' ) ) );
 	Router::connect( '/pages/*', array( 'controller' => 'pages', 'action' => 'display'));
+
+	Router::connect( '/schedule/:semester', array( 'controller' => 'schedule', 'action' => 'index' ), array( 'pass' => array( 'semester' ) ) );
+
+	Router::connect( '/services/:service', array( 'controller' => 'services', 'action' => 'connect' ), array( 'pass' => array( 'service' ) ) );
 
 /**
  * Load all plugin routes.  See the CakePlugin documentation on 
