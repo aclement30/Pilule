@@ -50,7 +50,7 @@
 		                            </thead>
 		                            <tbody>
 		                                <?php foreach ( $section[ 'Course' ] as $course ) : ?>
-		                                    <tr class="<?php if ( empty( $course[ 'note' ] ) ) echo 'current'; ?>">
+		                                    <tr class="<?php if ( empty( $course[ 'note' ] ) ) echo 'current'; ?>" data-code="<?php echo $course[ 'code' ]; ?>">
 
 		                                        <?php if ( $isMobile ) : ?>
 		                                            <td class="mobile-title">

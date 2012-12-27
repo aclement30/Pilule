@@ -77,9 +77,10 @@ class CapsuleAuthComponent extends AuthComponent {
 	        }
 
 			$this->Session->renew();
-			$this->Session->write( self::$sessionKey, $idul, $this->controller->Capsule->cookies );
+			$this->Session->write( self::$sessionKey, $idul );
 			$this->Session->write( 'User.idul', $idul );
-			$this->Session->write( 'User.password', $password) ;
+			$this->Session->write( 'User.password', $password);
+			$this->Session->write( 'Capsule.cookies', $this->controller->Capsule->cookies );
 		} else {
 			return false;
 		}

@@ -177,6 +177,8 @@ class Capsule {
 
 	// Test connection to Capsule server
 	public function testConnection () {
+        $this->cookies = SessionComponent::read( 'Capsule.cookies' );
+
         $request = $this->_fetchPage( '/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_AdminMnu' );
 
         // Retry user login if request fails
@@ -379,7 +381,7 @@ class Capsule {
                         // If new program, current program data are added to the end of programs list
                         if ( $program != array() ) {
                             $program[ 'concentrations' ] = serialize( $program[ 'concentrations' ] );
-                            $program[ 'idul' ] = $this->Session->read( 'User.idul' );
+                            $program[ 'idul' ] = SessionComponent::read( 'User.idul' );
                             $programs[] = array( 'Program' => $program );
                         }
                         $program = array();
@@ -1906,8 +1908,13 @@ class Capsule {
                     } else {
                         $course[ 'prerequisites' ] = trim( strip_tags( $part ) );
                     }
-                } elseif ( strpos( $part, "Crédits inscrits" ) ) {
-                    $course[ 'credits' ] = (int)trim( substr( $part, 0, strpos( $part, "," ) + 1 ) );
+                } elseif ( strpos( $part, "Crédits" ) ) {
+                    if ( strpos( $part, ' OR ' ) ) {
+                        $course[ 'credits' ] = substr( $part, strpos( $part, "OR" ) + 3 );
+                        $course[ 'credits' ] = (int)trim( substr( $course[ 'credits' ], 0, strpos( $course[ 'credits' ], "," ) + 1 ) );
+                    } else {
+                        $course[ 'credits' ] = (int)trim( substr( $part, 0, strpos( $part, "," ) + 1 ) );
+                    }
                 } elseif ( strpos( $part, "Heures de cours" ) ) {
                     $course[ 'hours_theory' ] = (int)trim( substr( $part, 0, strpos( $part, "," ) + 1 ) );
                 } elseif ( strpos( $part, "Heures de labo" ) ) {
@@ -1937,146 +1944,196 @@ class Capsule {
                     $course[ 'restrictions' ] = '';
                 } elseif ( strpos( $part, "Préalables:" ) ) {
                     $checkPrerequisites = true;
-                } elseif ( strpos( $part, "Mode d'enseignement:" ) ) {
-                    if (strpos($part, "href=")) {
-                        $course[ 'av' . $semester ] = true;
-                        $links = array();
-                        
-                        if ( $fetchClasses ) {
-                            $course[ 'Class' ] = array();
+                }
 
-                            $part = str_replace( 'href= "', 'href="', $part );
-                            if ( strpos( $part, "</a>, <Aa" ) ) {
-                                // 2 modes d'enseignement
-                                $link = substr( $part, strpos( $part, "href=" ) + 6 );
-                                $link = str_replace("&amp;", "&", substr( $link, 0, strpos($link, "\"")));
-                                $links[] = $link;
-                                
-                                $link = substr( $part, strpos( $part, ">, " ) + 2 );
-                                $link = substr( $link, strpos( $link, " href=" ) + 6 );
-                                $link = str_replace(" &amp;", "&", substr( $link, 0, strpos( $link, "\"" ) ) );
-                                $links[] = $link;
-                            } else {
-                                $link = substr( $part, strpos( $part, "href=" ) + 6 );
-                                $link = str_replace("&amp;", "&", substr( $link, 0, strpos($link, "\"")));
-                                $links[] = $link;
-                            }
+                if ( date( 'm' ) < 3 ) {
+                    $suggestedSemesters = array(
+                        date( 'Y' ) . "01"
+                    );
+                } elseif ( date( 'm' ) > 2 && date( 'm' ) > 6 ) {
+                    $suggestedSemesters = array(
+                        date( 'Y' ) . "09",
+                        date( 'Y' ) . "05"
+                    );
+                } elseif ( date( 'm' ) > 5 && date( 'm' ) < 9 ) {
+                    $suggestedSemesters = array(
+                        date( 'Y' ) . "09",
+                        date( 'Y' ) . "05"
+                    );
+                } elseif ( date( 'm' ) > 8 && date( 'm' ) < 11 ) {
+                    $suggestedSemesters = array(
+                        date( 'Y' ) . "09"
+                    );
+                } elseif ( date( 'm' ) > 10 ) {
+                    $suggestedSemesters = array(
+                        ( date( 'Y' ) + 1 ) . "01"
+                    );
+                }
 
-                            // Fetch course's classes
-                            foreach ( $links as $link ) {
-                                // Fetch class page
-                                $request = $this->_fetchPage( $link );
+                if ( $fetchClasses ) {
+                    $course[ 'Class' ] = array();
 
-                                $class = array();
+                    foreach ( $suggestedSemesters as $suggestedSemester ) {
+                        $classes = $this->fetchClasses( $course[ 'code' ], $suggestedSemester );
 
-                                // Parse DOM structure from response
-                                $this->domparser->load( $request[ 'response' ] );
-                                $tables = $this->domparser->find( '.pagebodydiv>table.datadisplaytable' );
-                                $timetables = $this->domparser->find( 'table.datadisplaytable tbody tr td.dddefault table.datadisplaytable' );
-
-                                $tableIndex = 0;
-                                $rows = $tables[ 0 ]->children( -1 );
-
-                                foreach ($rows as $i => $row) {
-                                    if ( $i == 0 ) continue;
-
-                                    $cell = $row->nodes[ 1 ];
-
-                                    if ( isset( $cell->attr[ 'class' ] ) && $cell->attr[ 'class' ] == 'ddlabel' ) {
-                                        // Title cell
-
-                                        $class = array();
-
-                                        $title = $cell->text();
-
-                                        $title = explode( " - ", $title );
-
-                                        // Extract NRC and class section from title
-                                        $class[ 'nrc' ] = trim( $title[ 1 ] );
-                                        if ( count( $title ) > 4 ) {
-                                            $class[ 'nrc' ] = trim( $title[ 2 ] );
-                                        } else {
-                                            $class[ 'nrc' ] = trim( $title[ 1 ] );
-                                        }
-                                        $class[ 'idcourse' ] = $code[ 0 ] . "-" . $code[ 1 ];
-                                    } else if ( isset( $cell->attr[ 'class' ] ) && $cell->attr[ 'class' ] == 'dddefault' ) {
-                                        // Content cell
-
-                                        $cell = $row->nodes[ 1 ];
-                                        $parts = explode( '<br>', $cell );
-
-                                        foreach ( $parts as $index => $part ) {
-                                            if ( $index == 0 ) {
-                                                $class[ 'notes' ] = trim( strip_tags( $part ) );
-                                            } elseif ( strpos( $part, "Campus" ) ) {
-                                                $class[ 'campus' ] = trim( substr( $part, strpos( $part, ":" ) + 1 ) );
-                                            }
-                                        }
-
-                                        $class[ 'timetable' ] = array();
-
-                                        // Get corresponding table
-                                        if ( !isset( $timetables[ $tableIndex ] ) ) continue;
-                                        $currentTimetable = $timetables[ $tableIndex ];
-                                        $tableIndex++;
-
-                                        $subrows = $currentTimetable->find('tr');
-
-                                        foreach ( $subrows as $index => $subrow ) {
-                                            $subclass = array();
-
-                                            if ( $index > 0 ) {
-                                                if ( isset( $subrow->nodes[ 1 ] ) ) $subclass[ 'type' ] = trim( $subrow->nodes[ 1 ]->text() );
-                                                if ( isset( $subrow->nodes[ 3 ] ) ) {
-                                                    $hours = trim( strip_tags( $subrow->nodes[ 3 ]->text() ) );
-                                                    if ( $hours != 'ACU' ) {
-                                                        $hours = explode( '-', str_replace(" ", "", $hours ) );
-                                                        $subclass[ 'hour_start' ] = trim( $hours[0] );
-                                                        $subclass[ 'hour_end' ] = trim( $hours[1] );
-                                                    }
-                                                }
-                                                if ( isset( $subrow->nodes[ 5 ] ) ) {
-                                                    $subclass[ 'day' ] = trim( str_replace("", "'", strtoupper( strip_tags( $subrow->nodes[ 5 ]->text() ) ) ) );
-                                                }
-                                                if ( isset( $subrow->nodes[ 7 ] ) ) {
-                                                    $local = trim( strip_tags( $subrow->nodes[ 7 ]->text() ) );
-                                                    if ( strpos( $local, 'ACU' ) != 0 ) {
-                                                        $subclass[ 'local' ] = $local;
-                                                    }
-                                                }
-                                                if ( isset( $subrow->nodes[ 9 ] ) ) {
-                                                    $days = explode( '-', trim( strip_tags( $subrow->nodes[ 9 ]->text() ) ) );
-                                                    $subclass[ 'day_start' ] = trim( str_replace( '/', '', $days[0] ) );
-                                                    $subclass[ 'day_end' ] = trim( str_replace( '/', '', $days[1] ) );
-                                                }
-                                                if ( isset( $subrow->nodes[ 13 ] ) ) {
-                                                    $teacher = trim( strip_tags( $subrow->nodes[ 13 ]->text() ) );
-                                                    if ( strpos( $teacher, 'ACU' ) != 0 ) {
-                                                        $class[ 'teacher' ] = $teacher;
-                                                    }
-                                                }
-
-                                                $class[ 'timetable' ][] = $subclass;
-                                            }
-                                        }
-
-                                        $course[ 'Class' ][] = $class;
-                                    }
-                                }
-                            }
+                        if ( $classes && !empty( $classes ) ) {
+                            $course[ 'Class' ] += $classes;
+                            $course[ 'av' . $suggestedSemester ] = true;
+                        } else {
+                            $course[ 'av' . $suggestedSemester ] = false;
                         }
                     }
                 }
             }
-        }
 
-        if ( empty( $course[ 'Class' ] ) ) {
-            $course[ 'av' . $semester ] = false;
+            return array( 'UniversityCourse' => $course );
+        } else {
+            return false;
         }
-
-        return array( 'UniversityCourse' => $course );
     }
 	
+    public function fetchClasses ( $code, $semester ) {
+        $code = explode('-', strtoupper( $code ) );
+        $classes = array();
+
+        // Fetch course page
+        $request = $this->_fetchPage( '/pls/etprod7/bwckctlg.p_disp_course_detail?cat_term_in=' . $semester . '&subj_code_in=' . $code[0] . '&crse_numb_in=' . $code[1] );
+
+        if ( !strpos( $request[ 'response' ], "Aucun cours à afficher" ) ) {
+            $part = substr( $request[ 'response' ], strpos( $request[ 'response' ], 'Mode d\'enseignement:' ), 1000 );
+            $part = substr( $part, 0, strpos( $part, '<br>' ) );
+
+            if (strpos($part, "href=")) {
+                $links = array();
+                
+                $part = str_replace( 'href= "', 'href="', $part );
+                if ( strpos( $part, "</a>, <Aa" ) ) {
+                    // 2 modes d'enseignement
+                    $link = substr( $part, strpos( $part, "/pls/etprod7/" ) );
+                    $link = str_replace("&amp;", "&", substr( $link, 0, strpos($link, "\"")));
+                    $links[] = $link;
+                    
+                    $link = substr( $part, strpos( $part, ">, " ) + 2 );
+                    $link = substr( $link, strpos( $link, "/pls/etprod7/" ) );
+                    $link = str_replace(" &amp;", "&", substr( $link, 0, strpos( $link, "\"" ) ) );
+                    $links[] = $link;
+                } else {
+                    $link = substr( $part, strpos( $part, "/pls/etprod7/" ) );
+                    $link = str_replace("&amp;", "&", substr( $link, 0, strpos($link, "\"")));
+                    $links[] = $link;
+                }
+
+                // Fetch course's classes
+                foreach ( $links as $link ) {
+                    // Fetch class page
+                    $request = $this->_fetchPage( $link );
+
+                    $class = array();
+
+                    // Parse DOM structure from response
+                    $this->domparser->load( $request[ 'response' ] );
+                    $tables = $this->domparser->find( '.pagebodydiv>table.datadisplaytable' );
+                    $timetables = $this->domparser->find( 'table.datadisplaytable tbody tr td.dddefault table.datadisplaytable' );
+
+                    $tableIndex = 0;
+
+                    $rows = $tables[ 0 ]->children( -1 );
+
+                    foreach ($rows as $i => $row) {
+                        if ( $i == 0 ) continue;
+
+                        $cell = $row->nodes[ 1 ];
+
+                        if ( isset( $cell->attr[ 'class' ] ) && $cell->attr[ 'class' ] == 'ddlabel' ) {
+                            // Title cell
+
+                            $class = array();
+
+                            $title = $cell->text();
+
+                            $title = explode( " - ", $title );
+
+                            // Extract NRC and class section from title
+                            $class[ 'nrc' ] = trim( $title[ 1 ] );
+                            if ( count( $title ) > 4 ) {
+                                $class[ 'nrc' ] = trim( $title[ 2 ] );
+                            } else {
+                                $class[ 'nrc' ] = trim( $title[ 1 ] );
+                            }
+                            $class[ 'idcourse' ] = $code[ 0 ] . "-" . $code[ 1 ];
+                        } else if ( isset( $cell->attr[ 'class' ] ) && $cell->attr[ 'class' ] == 'dddefault' ) {
+                            // Content cell
+
+                            $cell = $row->nodes[ 1 ];
+                            $parts = explode( '<br>', $cell );
+
+                            foreach ( $parts as $index => $part ) {
+                                if ( $index == 0 ) {
+                                    $class[ 'notes' ] = trim( strip_tags( $part ) );
+                                } elseif ( strpos( $part, "Campus" ) ) {
+                                    $class[ 'campus' ] = trim( substr( $part, strpos( $part, ":" ) + 1 ) );
+                                }
+                            }
+
+                            $class[ 'timetable' ] = array();
+
+                            // Get corresponding table
+                            if ( !isset( $timetables[ $tableIndex ] ) ) continue;
+                            $currentTimetable = $timetables[ $tableIndex ];
+                            $tableIndex++;
+
+                            $subrows = $currentTimetable->find('tr');
+
+                            foreach ( $subrows as $index => $subrow ) {
+                                $subclass = array();
+
+                                if ( $index > 0 ) {
+                                    if ( isset( $subrow->nodes[ 1 ] ) ) $subclass[ 'type' ] = trim( $subrow->nodes[ 1 ]->text() );
+                                    if ( isset( $subrow->nodes[ 3 ] ) ) {
+                                        $hours = trim( strip_tags( $subrow->nodes[ 3 ]->text() ) );
+                                        if ( $hours != 'ACU' ) {
+                                            $hours = explode( '-', str_replace(" ", "", $hours ) );
+                                            $subclass[ 'hour_start' ] = trim( $hours[0] );
+                                            $subclass[ 'hour_end' ] = trim( $hours[1] );
+                                        }
+                                    }
+                                    if ( isset( $subrow->nodes[ 5 ] ) ) {
+                                        $subclass[ 'day' ] = trim( str_replace("", "'", strtoupper( strip_tags( $subrow->nodes[ 5 ]->text() ) ) ) );
+                                    }
+                                    if ( isset( $subrow->nodes[ 7 ] ) ) {
+                                        $local = trim( strip_tags( $subrow->nodes[ 7 ]->text() ) );
+                                        if ( strpos( $local, 'ACU' ) != 0 ) {
+                                            $subclass[ 'local' ] = $local;
+                                        }
+                                    }
+                                    if ( isset( $subrow->nodes[ 9 ] ) ) {
+                                        $days = explode( '-', trim( strip_tags( $subrow->nodes[ 9 ]->text() ) ) );
+                                        $subclass[ 'day_start' ] = trim( str_replace( '/', '', $days[0] ) );
+                                        $subclass[ 'day_end' ] = trim( str_replace( '/', '', $days[1] ) );
+                                    }
+                                    if ( isset( $subrow->nodes[ 13 ] ) ) {
+                                        $teacher = trim( strip_tags( $subrow->nodes[ 13 ]->text() ) );
+                                        if ( strpos( $teacher, 'ACU' ) != 0 ) {
+                                            $class[ 'teacher' ] = $teacher;
+                                        }
+                                    }
+
+                                    $class[ 'timetable' ][] = $subclass;
+                                }
+                            }
+
+                            $classes[] = $class;
+                        }
+                    }
+                }
+            }
+
+            return array( 'Class' => $classes );
+        } else {
+            return false;
+        }
+    }
+
     // Function might be broken !
     // TODO : refactor using DomParser
 	public function updateClassSpots ( $nrc, $semester ) {
@@ -2114,12 +2171,12 @@ class Capsule {
 	
     private function _fetchPage ( $url, $method = 'GET', $postVars = array(), $checkPage = true ) {
         // Define request parameters
-        $this->fetcher->set(array(
+        $this->fetcher->set( array(
             'cookies'       =>  $this->cookies,
             'debug'         =>  $this->debug,
             'protocol'      =>  'https',
             'request_method'=>  $method
-        ));
+        ) );
 
         // Define Host name
         $arguments = array(

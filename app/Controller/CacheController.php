@@ -181,7 +181,7 @@ class CacheController extends AppController {
                                         $sectionCourse[ 'title' ] = $course[ 'UniversityCourse' ][ 'title' ];
                                         $sectionCourse[ 'credits' ] = $course[ 'UniversityCourse' ][ 'credits' ];
                                     } else {
-                                        $course = $this->Capsule->fetchCourse( $sectionCourse[ 'code' ], CURRENT_SEMESTER );
+                                        $course = $this->Capsule->fetchCourse( $sectionCourse[ 'code' ], CURRENT_SEMESTER, false );
 
                                         if ( !empty( $course[ 'UniversityCourse' ][ 'title' ] ) ) {
                                             $sectionCourse[ 'title' ] = $course[ 'UniversityCourse' ][ 'title' ];

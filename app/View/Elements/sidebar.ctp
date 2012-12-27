@@ -23,7 +23,7 @@
                 </ul>
             </li>
             <li class="link-registration<?php if ( $this->request->params[ 'controller' ] == 'registration' ) echo ' active'; ?>">
-                <a href="/registration"><i class="icon icon-check"></i> <span>Inscription</span></a>
+                <a href="/registration"><i class="icon icon-check"></i> <span>Choix de cours</span></a>
             </li>
             <?php if ( isset( $user ) and $user[ 'admin' ] ): ?>
                 <li class="link-admin"><a href="/admin"><i class="icon icon-briefcase"></i> <span>Administration</span></a></li>
