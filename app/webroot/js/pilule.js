@@ -84,6 +84,18 @@ app.Common.displaySubmenu = function ( e ) {
     return false;
 };
 
+// Show modal
+app.Common.showModal = function ( params ) {
+    $( '#modal' ).load( params.url, function() {
+        $( '#modal' ).modal( 'show' );
+
+        // Execute callback, if needed
+        if ( params.callback ) {
+            ( params.callback )();
+        }
+    } );
+};
+
 // Display loading message
 app.Common.loading = function ( object, message ) {
 

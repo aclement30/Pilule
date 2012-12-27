@@ -43,6 +43,8 @@
 
 	Router::connect( '/services/:service', array( 'controller' => 'services', 'action' => 'connect' ), array( 'pass' => array( 'service' ) ) );
 
+	Router::connect( '/registration/getCourseInfo/:code', array( 'controller' => 'registration', 'action' => 'getCourseInfo' ), array( 'pass' => array( 'code' ) ) );
+
 /**
  * Load all plugin routes.  See the CakePlugin documentation on 
  * how to customize the loading of plugin routes.

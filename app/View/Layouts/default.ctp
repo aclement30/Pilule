@@ -68,7 +68,9 @@
         </div>
     </div>
   </div>
-		
+	
+  <div id="modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true"></div>
+
 	<?php echo $this->element( 'footer' ); ?>
 
 	<?php echo $this->element('sql_dump'); ?>

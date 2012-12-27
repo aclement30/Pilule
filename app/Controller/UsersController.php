@@ -136,7 +136,7 @@ class UsersController extends AppController {
             foreach ( $enabledModules as $id ) {
            		$modules[ 'Module' ][ 'Module' ][] = $id;
            	}
-           	pr($modules);
+
             $this->User->set( $modules );
 
             if ( $this->User->saveAll( $modules ) ) {

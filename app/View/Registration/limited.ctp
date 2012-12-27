@@ -36,7 +36,7 @@
 		                        <h5><?php echo $section[ 'title' ]; ?></h5>
 		                    </div>
 		                    <div class="widget-content nopadding">
-		                        <table class="table table-bordered table-striped">
+		                        <table class="table table-bordered table-striped courses">
 		                            <thead>
 		                                <tr>
 		                                    <th class="course-code">Cours</th>

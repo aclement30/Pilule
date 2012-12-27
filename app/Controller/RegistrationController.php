@@ -1,6 +1,6 @@
 <?php
 class RegistrationController extends AppController {
-	public $uses = array( 'StudentScheduleSemester', 'StudentProgramSection' );
+	public $uses = array( 'StudentScheduleCourse', 'StudentScheduleSemester', 'StudentProgramSection', 'UniversityCourse' );
 
 	private $registrationSemester = '201201';
 	private $currentSemester = '201209';
@@ -217,6 +217,48 @@ class RegistrationController extends AppController {
     $('.courses').each(function(index, value) { $(value).find('tr').css('backgroundColor', '#fff'); $(value).find('tr:visible:odd').css('backgroundColor', '#dae6f1'); });
     	*/
 
+    	$this->setAssets( array( '/js/registration.js' ) );
     	$this->render( 'limited' );
+	}
+
+	public function getCourseInfo ( $code = null ) {
+		if ( $this->request->is( 'ajax' ) ) {
+			$semester = $this->registrationSemester;
+			$isRegistered = false;
+			$isSelected = false;
+
+			// Get requested course info
+			$course = $this->UniversityCourse->find( 'first', array(
+                'conditions'    =>  array( 'UniversityCourse.code' => $code )
+            ) );
+						
+			// Check if student is already registered to this course
+			if ( $this->StudentScheduleCourse->find( 'count', array(
+					'conditions'	=>	array(
+						'StudentScheduleCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
+						'StudentScheduleCourse.semester'	=>	$semester
+					) ) ) != 0 ) {
+				$isRegistered = true;
+		    }
+			/*
+			// Recherche des cours sélectionnés
+			$cache = $this->mCache->getCache('data|selected-courses['.$data['semester'].']');
+			$courses2 = array();
+			if ($cache!=array()) {
+				$selected = unserialize($cache['value']);
+				foreach ($selected as $course) {
+					$courses2[$course['nrc']] = $course;
+				}
+			}
+			$data['selected_courses'] = $courses2;
+			*/
+
+			$this->set( 'course', $course );
+			$this->set( 'isRegistered', $isRegistered );
+			$this->set( 'isSelected', $isSelected );
+			
+			$this->layout = 'ajax';
+			$this->render( 'modals/course_info' );
+		}
 	}
 }
