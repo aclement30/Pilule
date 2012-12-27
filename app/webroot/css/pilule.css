@@ -295,5 +295,73 @@ font-weight: bold;
 }
 
 #breadcrumb {
-    display: block;;
+    display: block;
+}
+
+#modal p {
+    line-height: 20px; margin-top: 0px; padding-top: 0px;
+}
+
+#modal h4 {
+    margin-top: 10px;
+}
+
+#modal .loading-classes {
+    text-align: center;
+    padding: 30px;
+    margin-top: 10px;
+}
+
+#modal .loading-classes div:first-child {
+    margin-bottom: 30px;
+}
+
+#modal .loading-classes span {
+    color: gray;
+}
+
+#modal .classes-list .class .type {
+    float: left;
+}
+
+#modal .classes-list .class .semester {
+    float: right; font-family: Arial, Helvetica, sans-serif; font-size: 10pt; color: #666;
+}
+
+#modal .classes-list .class .timetable {
+    line-height: 12pt; padding-top: 5px;
+}
+
+#modal .classes-list .class .timetable table {
+    width: 100%; background-color: #cdcdcd; padding: 5px; margin-bottom: 5px;
+}
+
+#modal .classes-list .class .timetable table td.dates {
+    font-weight: bold; padding-bottom: 5px; border-bottom: 1px dotted #999;
+}
+
+#modal .classes-list .class .spots span {
+    font-weight: bold;
+    color: #444;
+}
+
+#modal .classes-list .class .spots span.almost-full {
+    color: orange;
+}
+
+#modal .classes-list .class .spots span.full {
+    color: red;
+}
+
+#modal .classes-list .class .registration-state {
+
+}
+
+#modal .classes-list .class .registration-state span.selected {
+    color: orange;
+}
+
+
+#modal .classes-list .class .registration-state span.registered {
+    color: green;
 }

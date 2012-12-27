@@ -23,8 +23,8 @@ class CacheController extends AppController {
 		ini_set( 'memory_limit', '50M' );
 
 		$error = false;
-		$auto = $this->request->query[ 'auto' ];				    // TODO : rename query to data
-		$dataObject = $this->request->query[ 'name' ];			// TODO : rename query to data
+		$auto = $this->request->data[ 'auto' ];				    // TODO : rename query to data
+		$dataObject = $this->request->data[ 'name' ];			// TODO : rename query to data
 
         // Force data reload if request has been called by the user (by clicking Reload data button)
         if ( $auto == 0 ) {

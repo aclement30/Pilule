@@ -1024,8 +1024,6 @@ class Capsule {
             $request = $this->_fetchPage( '/pls/etprod7/bwskfshd.P_CrseSchdDetl', 'POST', array( 'term_in' => $semester ) );
 
             if ( !strpos( $request[ 'response' ], "Vous n'êtes pas actuellement inscrit pour la session." ) ) {
-                $scheduleSemester = array();
-
                 // Parse DOM structure from response
                 $this->domparser->load( $request[ 'response' ] );
                 $tables = $this->domparser->find( 'table.datadisplaytable' );
@@ -1104,6 +1102,7 @@ class Capsule {
                         // Add course to semester schedule
                         if ( !empty( $course ) ) {
                             $course[ 'idul' ] = $this->idul;
+                            $course[ 'semester' ] = $semester;
                             $scheduleSemester[ 'Course' ][] = $course;
                         }
 
@@ -2134,39 +2133,45 @@ class Capsule {
         }
     }
 
-    // Function might be broken !
-    // TODO : refactor using DomParser
 	public function updateClassSpots ( $nrc, $semester ) {
         // Get class page
         $request = $this->_fetchPage( '/pls/etprod7/bwckschd.p_disp_detail_sched?term_in=' . $semester . '&crn_in=' . $nrc );
 
         // Parse DOM structure from response
-        //$this->domparser->load( $request[ 'response' ] );
+        $this->domparser->load( $request[ 'response' ] );
+        $tables = $this->domparser->find( '.pagebodydiv>table.datadisplaytable table.datadisplaytable' );
 
-        // Analyse du contenu de la page
-		$data = substr( $request[ 'response' ], strpos( $request[ 'response' ], "Places disponibles" ) );
-		$data = substr( $data, 0, strpos( $data, "</TABLE>" ) );
-		$data = substr( $data, strpos( $data, '<SPAN class=fieldlabeltext>Places</SPAN>' ) );
-		$data = substr( $data, strpos( $data, '<TD' ) );
-		$data = explode( "</TD>", $data );
-		
-		$spots = array();
-		$spots['total'] = trim(strip_tags($data[0]));
-		$spots['registered'] = trim(strip_tags($data[1]));
-		$spots['remaining'] = trim(strip_tags($data[2]));
-		
-		$spots['waiting_total'] = trim(strip_tags(substr($data[3], strpos($data[3], "<TD"))));
-		$spots['waiting_registered'] = trim(strip_tags($data[4]));
-		$spots['waiting_remaining'] = trim(strip_tags($data[5]));
-		
-		$spots['nrc'] = $nrc;
-		
-        // This will NOT work
-		if ($this->CI->mCourses->updateClassSpots($spots)) {
-			return (true);
-		} else {
-			return (false);
-		}
+        $cells = $tables[ 0 ]->find('tr td.dddefault');
+
+        $spots = array(
+            'nrc'           =>  $nrc,
+            'last_update'   =>  time()
+        );        
+
+        foreach ( $cells as $index => $cell ) {
+            switch ( $index ) {
+                case 0:
+                    $spots[ 'total' ] = (int)$cell->text();
+                    break;
+                case 1:
+                    $spots[ 'registered' ] = (int)$cell->text();
+                    break;
+                case 2:
+                    $spots[ 'remaining' ] = (int)$cell->text();
+                    break;
+                case 3:
+                    $spots[ 'waiting_total' ] = (int)$cell->text();
+                    break;
+                case 4:
+                    $spots[ 'waiting_registered' ] = (int)$cell->text();
+                    break;
+                case 5:
+                    $spots[ 'waiting_remaining' ] = (int)$cell->text();
+                    break;
+            }
+        }
+
+        return $spots;
 	}
 	
     private function _fetchPage ( $url, $method = 'GET', $postVars = array(), $checkPage = true ) {

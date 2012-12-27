@@ -224,22 +224,68 @@ class RegistrationController extends AppController {
 	public function getCourseInfo ( $code = null ) {
 		if ( $this->request->is( 'ajax' ) ) {
 			$semester = $this->registrationSemester;
-			$isRegistered = false;
-			$isSelected = false;
 
 			// Get requested course info
 			$course = $this->UniversityCourse->find( 'first', array(
                 'conditions'    =>  array( 'UniversityCourse.code' => $code )
             ) );
-						
+
+			$this->set( 'course', $course );
+			$this->set( 'semester', $semester );
+			
+			$this->layout = 'ajax';
+			$this->render( 'modals/course_info' );
+		}
+	}
+
+	public function getAvailableClasses ( $code = null ) {
+		//if ( $this->request->is( 'ajax' ) ) {
+			$semester = $this->registrationSemester;
+			$registeredCourses = array();
+			$selectedCourses = array();
+
+			// Get requested course info
+			$course = $this->UniversityCourse->find( 'first', array(
+                'conditions'    =>  array( 'UniversityCourse.code' => $code ),
+                'contain'		=>	array( 'Class' => array( 'Spot' ) )
+            ) );
+
+			foreach ( $course[ 'Class' ] as &$class ) {
+				if ( empty( $class[ 'Spot' ] ) ) {
+					// Update class spots
+					$class[ 'Spot' ] = $this->Capsule->updateClassSpots( $class[ 'nrc' ], $semester );
+
+					// Save updated class spots
+					$this->UniversityCourse->Class->set( $class );
+					$this->UniversityCourse->Class->saveAll( $class );
+				} else {
+					$lastUpdate = $class[ 'Spot' ][ 'last_update' ];
+					$remainingSpots = $class[ 'Spot' ][ 'remaining' ];
+
+					// Check if class spots need to be updated
+					if ( $lastUpdate < ( time() - ( 3600 * 24 ) ) || 							// Last update was yesterday or later
+						( $remainingSpots < 5 ) || 												// Less than 5 spots remaining
+						( $remainingSpots < 10 && $lastUpdate < ( time() - ( 60 * 30 ) ) ) || 	// Less than 10 spots and last update was more than 30 minutes ago
+						( $remainingSpots < 20 && $lastUpdate < ( time() - ( 3600 ) ) ) ) {		// Less than 20 spots and last update was more than 1 hour ago
+						// Update class spots
+						$class[ 'Spot' ] = $this->Capsule->updateClassSpots( $class[ 'nrc' ], $semester );
+
+						// Save updated class spots
+						$this->UniversityCourse->Class->set( $class );
+						$this->UniversityCourse->Class->saveAll( $class );
+					}
+				}
+			}
+
 			// Check if student is already registered to this course
-			if ( $this->StudentScheduleCourse->find( 'count', array(
-					'conditions'	=>	array(
-						'StudentScheduleCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
-						'StudentScheduleCourse.semester'	=>	$semester
-					) ) ) != 0 ) {
-				$isRegistered = true;
-		    }
+			$registeredCourses = $this->StudentScheduleCourse->find( 'list', array(
+				'conditions'	=>	array(
+					'StudentScheduleCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
+					'StudentScheduleCourse.semester'	=>	$semester
+				),
+				'fields'	=>	array( 'id', 'nrc' )
+			) );
+			
 			/*
 			// Recherche des cours sélectionnés
 			$cache = $this->mCache->getCache('data|selected-courses['.$data['semester'].']');
@@ -253,12 +299,13 @@ class RegistrationController extends AppController {
 			$data['selected_courses'] = $courses2;
 			*/
 
-			$this->set( 'course', $course );
-			$this->set( 'isRegistered', $isRegistered );
-			$this->set( 'isSelected', $isSelected );
-			
+			$this->set( 'classes', $course[ 'Class' ] );
+			$this->set( 'semester', $semester );
+			$this->set( 'registeredCourses', $registeredCourses );
+			$this->set( 'selectedCourses', $selectedCourses );
+
 			$this->layout = 'ajax';
-			$this->render( 'modals/course_info' );
-		}
+			$this->render( 'modals/available_classes' );
+		//}
 	}
 }

@@ -107,7 +107,7 @@ ajax.request = function ( params ) {
 			}
 		},
 		statusCode: {
-			404: function() {
+			404: function( request, status, message ) {
 				app.Common.dispatchError( {
 					context: 		'ajax-server-error',
 					code: 			request.status,

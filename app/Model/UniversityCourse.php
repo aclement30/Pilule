@@ -5,7 +5,7 @@ class UniversityCourse extends AppModel {
 
 	public $hasMany = array(
 		'Class'	=>	array(
-			'className'		=>	'Class',
+			'className'		=>	'CourseClass',
 			'foreignKey'	=>	'course_id',
 			'dependent'		=>	true
 		)
