@@ -3,7 +3,7 @@
 # Set this to the root of your project when deployed:
 http_path = "/"
 css_dir = "app/webroot/css"
-sass_dir = "app/webroot/sass"
+sass_dir = "app/webroot/scss"
 images_dir = "app/webroot/img"
 javascripts_dir = "app/webroot/js"
 
@@ -16,4 +16,9 @@ javascripts_dir = "app/webroot/js"
 # To disable debugging comments that display the original location of your selectors. Uncomment:
 # line_comments = false
 
-preferred_syntax = :sass
+
+# If you prefer the indented syntax, you might want to regenerate this
+# project again passing --syntax sass, or you can uncomment this:
+# preferred_syntax = :sass
+# and then run:
+# sass-convert -R --from scss --to sass app/webroot/scss scss && rm -rf sass && mv scss sass

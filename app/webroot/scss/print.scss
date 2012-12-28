@@ -1,0 +1,30 @@
+body {
+  margin: 0px;
+}
+
+#header, #user-nav, #sidebar, .footer, #breadcrumb, .btn-group.action-buttons .buttons, .no-print, .widget-box .widget-title .icon {
+  display: none!important;
+}
+
+#content {
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+}
+
+#content-header {
+  margin-top: 0px;
+  height: 50px;
+}
+
+th.course-code {
+  width: 2cm!important;
+}
+
+.widget-content .panel-left {
+  width: 100%;
+}
+
+.request-description {
+  display: block;
+}
