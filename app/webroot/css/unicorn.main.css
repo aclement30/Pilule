@@ -1182,7 +1182,7 @@ span.icon .checker {
     background-image: -moz-linear-gradient(center top , #555555, #222222) !important;
     background-image: -ms-linear-gradient(top, #555555, #222222) !important;
     background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#555555), to(#222222)) !important;
-    background-image: -webkit-linear-gradient(top, #555555, #222222); !important
+    background-image: -webkit-linear-gradient(top, #555555, #222222) !important;
     background-image: -o-linear-gradient(top, #555555, #222222) !important;
     background-image: linear-gradient(top, #555555, #222222) !important;
     color: #ffffff !important;
