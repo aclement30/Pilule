@@ -2,6 +2,14 @@
 
 class CourseClass extends AppModel {
 	public $useTable = 'classes';
+	public $order = 'nrc';
+
+	public $belongsTo = array(
+		'UniversityCourse'	=>	array(
+			'className'		=>	'UniversityCourse',
+			'foreignKey'	=>	'course_id'
+		)
+	);
 
 	public $hasOne = array(
 		'Spot'	=>	array(

@@ -37,6 +37,11 @@ class User extends AppModel {
 			'foreignKey'	=>	'idul',
 			'dependent'		=>	true
 		),
+		'SelectedCourse'	=>	array(
+			'className'		=>	'SelectedCourse',
+			'foreignKey'	=>	'idul',
+			'dependent'		=>	true
+		),
 		'Report'	=>	array(
 			'className'		=>	'StudentReport',
 			'foreignKey'	=>	'idul',

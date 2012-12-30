@@ -1,6 +1,6 @@
 <?php
 class RegistrationController extends AppController {
-	public $uses = array( 'StudentScheduleCourse', 'StudentScheduleSemester', 'StudentProgramSection', 'UniversityCourse' );
+	public $uses = array( 'User', 'UniversityCourse' );
 
 	private $registrationSemester = '201201';
 	private $currentSemester = '201209';
@@ -61,15 +61,15 @@ class RegistrationController extends AppController {
 		$registeredCourses = array();
 		$selectedCourses = array();
 
-		$schedule = $this->StudentScheduleSemester->find( 'first', array(
-			'conditions'	=>	array( 'StudentScheduleSemester.idul' => $this->Session->read( 'User.idul' ), 'StudentScheduleSemester.semester' => $this->registrationSemester  ),
+		$schedule = $this->User->ScheduleSemester->find( 'first', array(
+			'conditions'	=>	array( 'ScheduleSemester.idul' => $this->Session->read( 'User.idul' ), 'ScheduleSemester.semester' => $this->registrationSemester  ),
         	'contain'		=>	array( 'Course' )
         ) );
 		
 		if ( !empty( $schedule[ 'Course' ] ) )
 			$registeredCourses = $schedule[ 'Course' ];
 
-		$sections = $this->StudentProgramSection->User->find( 'first', array(
+		$sections = $this->Section->User->find( 'first', array(
             'conditions'    =>  array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
             'contain'       =>  array( 'Section' => array( 'Course' => array( 'conditions' => array( 'Course.code !=' => 'EHE-1899' ) ) ) ),
             'fields'        =>  array( 'User.idul' )
@@ -267,8 +267,11 @@ class RegistrationController extends AppController {
 						( $remainingSpots < 5 ) || 												// Less than 5 spots remaining
 						( $remainingSpots < 10 && $lastUpdate < ( time() - ( 60 * 30 ) ) ) || 	// Less than 10 spots and last update was more than 30 minutes ago
 						( $remainingSpots < 20 && $lastUpdate < ( time() - ( 3600 ) ) ) ) {		// Less than 20 spots and last update was more than 1 hour ago
+						$spotId = $class[ 'Spot' ][ 'id' ];
+
 						// Update class spots
 						$class[ 'Spot' ] = $this->Capsule->updateClassSpots( $class[ 'nrc' ], $semester );
+						$class[ 'Spot' ][ 'id' ] = $spotId;
 
 						// Save updated class spots
 						$this->UniversityCourse->Class->set( $class );
@@ -277,27 +280,23 @@ class RegistrationController extends AppController {
 				}
 			}
 
-			// Check if student is already registered to this course
-			$registeredCourses = $this->StudentScheduleCourse->find( 'list', array(
+			// Get student registered courses for registration semester
+			$registeredCourses = $this->User->ScheduleSemester->Course->find( 'list', array(
 				'conditions'	=>	array(
-					'StudentScheduleCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
-					'StudentScheduleCourse.semester'	=>	$semester
+					'Course.idul' 		=>	$this->Session->read( 'User.idul' ),
+					'Course.semester'	=>	$semester
 				),
 				'fields'	=>	array( 'id', 'nrc' )
 			) );
 			
-			/*
-			// Recherche des cours sélectionnés
-			$cache = $this->mCache->getCache('data|selected-courses['.$data['semester'].']');
-			$courses2 = array();
-			if ($cache!=array()) {
-				$selected = unserialize($cache['value']);
-				foreach ($selected as $course) {
-					$courses2[$course['nrc']] = $course;
-				}
-			}
-			$data['selected_courses'] = $courses2;
-			*/
+			// Get student selected courses for registration semester
+			$selectedCourses = $this->User->SelectedCourse->find( 'list', array(
+				'conditions'	=>	array(
+					'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
+					'SelectedCourse.semester'	=>	$semester
+				),
+				'fields'	=>	array( 'id', 'nrc' )
+			) );
 
 			$this->set( 'classes', $course[ 'Class' ] );
 			$this->set( 'semester', $semester );
@@ -307,5 +306,147 @@ class RegistrationController extends AppController {
 			$this->layout = 'ajax';
 			$this->render( 'modals/available_classes' );
 		//}
+	}
+
+	function selectCourse () {
+		if ( $this->request->is( 'ajax' ) ) {
+			$nrc = $this->request->query[ 'nrc' ];
+			$semester = $this->registrationSemester;
+			$replace = null;
+			if ( !empty( $this->request->query[ 'replace' ] ) )
+				$replace = $this->request->query[ 'replace' ];
+
+			// Get requested course info
+			$class = $this->UniversityCourse->Class->find( 'first', array(
+                'conditions'    =>  array( 'Class.nrc' => $nrc ),
+                'contain'		=>	array( 'UniversityCourse' )
+            ) );
+			
+			// Check if student is already registered to this course
+			if ( $this->User->ScheduleSemester->Course->find( 'list', array(
+				'conditions'	=>	array(
+					'Course.idul' 		=>	$this->Session->read( 'User.idul' ),
+					'Course.semester'	=>	$semester,
+					'Course.nrc'	=>	$nrc
+				) ) ) != 0 ) {
+				// Error : course already registered
+				return new CakeResponse( array(
+	            	'body' => json_encode( array(
+	            		'status'    	=>  false,
+	            		'errorCode'		=>	5
+	            	) )
+	            ) );
+			}
+
+			// Check if student is already registered to a similar course
+			if ( $this->User->ScheduleSemester->Course->find( 'list', array(
+				'conditions'	=>	array(
+					'Course.idul' 		=>	$this->Session->read( 'User.idul' ),
+					'Course.semester'	=>	$semester,
+					'Course.code'		=>	$class[ 'UniversityCourse' ][ 'code' ]
+				) ) ) != 0 ) {
+				if ( $replace == null ) {
+					// Error : similar course already registered
+					return new CakeResponse( array(
+		            	'body' => json_encode( array(
+		            		'status'    	=>  false,
+		            		'errorCode'		=>	6,
+		            		'nrc'			=>	$nrc
+		            	) )
+		            ) );
+		        }
+			}
+			
+			// Check if student has already selected this course
+			if ( $this->User->SelectedCourse->find( 'list', array(
+				'conditions'	=>	array(
+					'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
+					'SelectedCourse.semester'	=>	$semester,
+					'SelectedCourse.nrc'	=>	$nrc
+				) ) ) != 0 ) {
+				// Error : course already selected
+				return new CakeResponse( array(
+	            	'body' => json_encode( array(
+	            		'status'    	=>  false,
+	            		'errorCode'		=>	3
+	            	) )
+	            ) );
+			}
+
+			// Check if student has already selected a similar course
+			if ( $this->User->SelectedCourse->find( 'list', array(
+				'conditions'	=>	array(
+					'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
+					'SelectedCourse.semester'	=>	$semester,
+					'SelectedCourse.code'		=>	$class[ 'UniversityCourse' ][ 'code' ]
+				) ) ) != 0 ) {
+				if ( $replace == null ) {
+					// Error : similar course already selected
+					return new CakeResponse( array(
+		            	'body' => json_encode( array(
+		            		'status'    	=>  false,
+		            		'errorCode'		=>	4,
+		            		'nrc'			=>	$nrc
+		            	) )
+		            ) );
+		        } elseif ( $replace ) {
+		        	// Delete similar selected course
+					$this->User->SelectedCourse->deleteAll( array(
+						'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
+						'SelectedCourse.semester'	=>	$semester,
+						'SelectedCourse.code'		=>	$class[ 'UniversityCourse' ][ 'code' ]
+					) );
+				}
+			}
+
+			// Add selected course to course selection
+			$selectedCourse = array( 'SelectedCourse' => array(
+				'idul'		=>	$this->Session->read( 'User.idul' ),
+				'course_id'	=>	$class[ 'UniversityCourse' ][ 'id' ],
+				'code'		=>	$class[ 'UniversityCourse' ][ 'code' ],
+				'nrc'		=>	$nrc,
+				'semester'	=>	$semester
+			) );
+
+			$this->User->SelectedCourse->create();
+			$this->User->SelectedCourse->set( $selectedCourse );
+			if ( !$this->User->SelectedCourse->save( $selectedCourse ) ) {
+				// Error : unknown error
+				return new CakeResponse( array(
+	            	'body' => json_encode( array(
+	            		'status'    	=>  false,
+	            		'errorCode'		=>	2
+	            	) )
+	            ) );
+			}
+
+			// Get student selected courses for registration semester
+			$selectedCourses = $this->User->SelectedCourse->find( 'all', array(
+				'conditions'	=>	array(
+					'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
+					'SelectedCourse.semester'	=>	$semester
+				)
+			) );
+			
+			$credits = 0;
+			
+			ob_start();
+			
+			foreach ($selected_courses as $course) { ?>
+				<li>
+					<a href="javascript:registrationObj.getCourseInfo(this, '<?php echo $course['code']; ?>');" class="course"><span style="font-size: 8pt;"><?php if (strlen($course['title'])>35) echo substr($course['title'], 0, 30)."..."; else echo $course['title']; ?></span><br />
+				<div class="title" style="font-weight: bold; margin-bottom: 0px; float: left;"><?php echo $course['code']; ?></div>
+				<div style="float: right; margin-bottom: 0px; color: green;">NRC : <?php echo $course['nrc']; ?></div><div style="clear: both;"></div></a>
+					<a href="javascript:registrationObj.removeSelectedCourse('<?php echo $course['nrc']; ?>');" class="delete-link" title="Enlever le cours"><img src="./images/cross-gray.png" width="16" height="16" /></a>
+					<div style="clear: both;"></div>
+				</li>
+				<?php
+					$credits += $course['credits'];
+				}
+			
+			$content = str_replace("\n", "", str_replace("\r", "", ob_get_clean()));
+			
+			?>top.$.modal.close();top.$('#courses-selection').html('<?php echo addslashes($content); ?>');top.registrationObj.addSelectedCourseCallback(1, '<?php echo $nrc; ?>', '<?php echo count($selected_courses); ?>', '<?php echo $credits; ?>');<?php
+		}
 	}
 }

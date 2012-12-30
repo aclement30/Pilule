@@ -21,8 +21,6 @@ class AppController extends Controller {
 	public function beforeFilter() {
 		// Check if browser is mobile
 		$this->_isMobile();
-
-		$this->CapsuleAuth->allow( 'index' );
 	}
 
 	public function beforeRender() {

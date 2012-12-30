@@ -1,0 +1,59 @@
+
+#calendar {
+    .fc-widget-header {
+        text-align: center;
+        text-transform: lowercase;
+    }
+
+    .fc-header-title h2 {
+        font-size: 10pt;
+        font-weight: normal;
+    }
+
+    .fc-header-left {
+        width: 90px;
+
+        .fc-button {
+            float: left;
+        }
+    }
+
+    .fc-header-center {
+        padding-right: 10%;
+    }
+
+    .fc-event-title {
+        font-weight: bold;
+
+        div {
+            font-weight: normal;
+        }
+    }
+}
+
+#external-events .class {
+    background-color: #dae6f1;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    width: 92%;
+    float: right;
+
+    .title {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .code {
+        float: left;
+    }
+
+    .nrc {
+        float: right;
+    }
+
+    .type {
+        margin-bottom: 5px;
+        margin-top: 5px;
+    }
+}
