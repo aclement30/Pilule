@@ -69,11 +69,19 @@ class RegistrationController extends AppController {
 		if ( !empty( $schedule[ 'Course' ] ) )
 			$registeredCourses = $schedule[ 'Course' ];
 
-		$sections = $this->Section->User->find( 'first', array(
-            'conditions'    =>  array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
-            'contain'       =>  array( 'Section' => array( 'Course' => array( 'conditions' => array( 'Course.code !=' => 'EHE-1899' ) ) ) ),
-            'fields'        =>  array( 'User.idul' )
+		$sections = $this->User->Section->find( 'all', array(
+            'conditions'    =>  array( 'Section.idul' => $this->Session->read( 'User.idul' ) ),
+            'contain'       =>  array( 'Course' => array( 'conditions' => array( 'Course.code !=' => 'EHE-1899' ) ) )
         ) );
+
+		// Get student selected courses for registration semester
+		$selectedCourses = $this->User->SelectedCourse->find( 'all', array(
+			'conditions'	=>	array(
+				'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
+				'SelectedCourse.semester'	=>	$this->registrationSemester
+			),
+			'contain'		=>	array( 'UniversityCourse' )
+		) );
 
 		$this->set( 'sections', $sections );
 		$this->set( 'registeredCourses', $registeredCourses );
@@ -310,11 +318,11 @@ class RegistrationController extends AppController {
 
 	function selectCourse () {
 		if ( $this->request->is( 'ajax' ) ) {
-			$nrc = $this->request->query[ 'nrc' ];
+			$nrc = $this->request->data[ 'nrc' ];
 			$semester = $this->registrationSemester;
 			$replace = null;
-			if ( !empty( $this->request->query[ 'replace' ] ) )
-				$replace = $this->request->query[ 'replace' ];
+			if ( !empty( $this->request->data[ 'replace' ] ) )
+				$replace = $this->request->data[ 'replace' ];
 
 			// Get requested course info
 			$class = $this->UniversityCourse->Class->find( 'first', array(
@@ -421,32 +429,33 @@ class RegistrationController extends AppController {
 			}
 
 			// Get student selected courses for registration semester
-			$selectedCourses = $this->User->SelectedCourse->find( 'all', array(
+			$selectedCourses = $this->User->SelectedCourse->find( 'list', array(
 				'conditions'	=>	array(
 					'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
 					'SelectedCourse.semester'	=>	$semester
-				)
+				),
+				'fields'		=>	array( 'id', 'nrc' )
 			) );
 			
-			$credits = 0;
-			
-			ob_start();
-			
-			foreach ($selected_courses as $course) { ?>
-				<li>
-					<a href="javascript:registrationObj.getCourseInfo(this, '<?php echo $course['code']; ?>');" class="course"><span style="font-size: 8pt;"><?php if (strlen($course['title'])>35) echo substr($course['title'], 0, 30)."..."; else echo $course['title']; ?></span><br />
-				<div class="title" style="font-weight: bold; margin-bottom: 0px; float: left;"><?php echo $course['code']; ?></div>
-				<div style="float: right; margin-bottom: 0px; color: green;">NRC : <?php echo $course['nrc']; ?></div><div style="clear: both;"></div></a>
-					<a href="javascript:registrationObj.removeSelectedCourse('<?php echo $course['nrc']; ?>');" class="delete-link" title="Enlever le cours"><img src="./images/cross-gray.png" width="16" height="16" /></a>
-					<div style="clear: both;"></div>
-				</li>
-				<?php
-					$credits += $course['credits'];
-				}
-			
-			$content = str_replace("\n", "", str_replace("\r", "", ob_get_clean()));
-			
-			?>top.$.modal.close();top.$('#courses-selection').html('<?php echo addslashes($content); ?>');top.registrationObj.addSelectedCourseCallback(1, '<?php echo $nrc; ?>', '<?php echo count($selected_courses); ?>', '<?php echo $credits; ?>');<?php
+			// Get last selected course
+			$selectedCourse = $this->User->SelectedCourse->find( 'first', array(
+				'conditions'	=>	array(
+					'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
+					'SelectedCourse.nrc'		=>	$nrc,
+					'SelectedCourse.semester'	=>	$semester
+				),
+				'contain'		=>	array( 'UniversityCourse' )
+			) );
+			$view = new View( $this, false );
+			$content = $view->element( 'registration/selected_course', array( 'course' => $selectedCourse ) );
+
+			return new CakeResponse( array(
+            	'body' => json_encode( array(
+            		'status'    			=>  true,
+            		'nrc'					=>	$nrc,
+            		'selectedCourseContent'	=>	$content
+            	) )
+            ) );
 		}
 	}
 }

@@ -53,60 +53,77 @@ app.Registration.getAvailableClasses = function ( code ) {
 };
 
 app.Registration.selectCourse = function ( e ) {
-	var nrc = $( e.currentTarget ).closest( 'class' ).data( 'nrc' );
+	var nrc = $( e.currentTarget ).closest( '.class' ).data( 'nrc' );
 
-	loading("Ajout du cours à la sélection...");
+	$( e.currentTarget ).parent().addClass( 'loading' );
 	
 	// Send AJAX request
-    ajax.request({
+    ajax.request( {
         url:     		'/registration/selectCourse.json',
         data:           {
            	nrc: 		nrc
         },
         callback:       app.Registration.addSelectedCourse
-    });
+    } );
+
+    return false;
 };
 
 app.Registration.addSelectedCourse = function ( response ) {
-	if ( response.status == 1 ) {				// Course selection has been saved successfully
-		$.modal.close();
-		
+	$( '#modal .classes-list .registration-state' ).removeClass( 'loading' );
+	$.modal.close();
+
+	alert(response.status);
+
+	if ( response.status ) {				// Course selection has been saved successfully		
 		resultMessage( "Le cours a été ajouté à votre sélection." );
 		
-		$( '#selected-courses .credits-total' ).html( response.credits + ' crédits' );
-		$( '#selected-courses .courses-total' ).html( response.total + ' cours' );
-		
-		app.Registration.selectionTotal++;
-	} else if ( response.status == 2 ) {		// Unknown error during course selection
-		errorMessage( "Le cours n'a pas pu être ajouté à votre sélection." );
-	} else if ( response.status == 3 ) {		// Unknown error during course selection
-		stopLoading();
-	} else if ( response.status == 4 ) {		// Error : similar course already selected
-		stopLoading();
+		var newRow = $( response.selectedCourseContent );
+		newRow.css( 'display', 'none' );
+		$( '#selected-courses table tbody' ).prepend( newRow );
+		newRow.slideDown();
 
-		if ( confirm( "Vous avez déjà sélectionné un cours similaire, mais avec un horaire différent. Voulez-vous le remplacer par celui-ci ?" ) ) {
-			ajax.request({
-		        url:     		'/registration/selectCourse.json',
-		        data:           {
-		            replace: 	'yes',
-		           	nrc: 		nrc
-		        },
-		        callback:       app.Registration.addSelectedCourse
-		    });
-		} else {
-			ajax.request({
-		        url:     		'/registration/selectCourse.json',
-		        data:           {
-		            replace: 	'no',
-		           	nrc: 		nrc
-		        },
-		        callback:       app.Registration.addSelectedCourse
-		    });
+		//$( '#selected-courses .credits-total' ).html( response.credits + ' crédits' );
+		//$( '#selected-courses .courses-total' ).html( response.total + ' cours' );
+	} else {
+		alert(response.errorCode);
+		if ( response.errorCode == 2 ) {		// Unknown error during course selection
+			errorMessage( "Le cours n'a pas pu être ajouté à votre sélection." );
+		} else if ( response.errorCode == 3 ) {		// Unknown error during course selection
+			stopLoading();
+		} else if ( response.errorCode == 4 ) {		// Error : similar course already selected
+			stopLoading();
+
+			if ( confirm( "Vous avez déjà sélectionné un cours similaire, mais avec un horaire différent. Voulez-vous le remplacer par celui-ci ?" ) ) {
+				ajax.request({
+			        url:     		'/registration/selectCourse.json',
+			        data:           {
+			            replace: 	'yes',
+			           	nrc: 		nrc
+			        },
+			        callback:       app.Registration.addSelectedCourse
+			    });
+			} else {
+				ajax.request({
+			        url:     		'/registration/selectCourse.json',
+			        data:           {
+			            replace: 	'no',
+			           	nrc: 		nrc
+			        },
+			        callback:       app.Registration.addSelectedCourse
+			    });
+			}
+		} else if ( response.errorCode == 5 ) {		// Error : course already registered
+			app.Common.dispatchError({
+				message: 	"Vous êtes déjà inscrit à ce cours.",
+				context: 	'registration-error'
+			});
+		} else if ( response.errorCode == 6 ) {		// Error : similar course already registered
+			app.Common.dispatchError({
+				message: 	"Vous êtes déjà inscrit à un cours similaire, mais avec un horaire différent.",
+				context: 	'registration-error'
+			});
 		}
-	} else if ( response.status == 5 ) {		// Error : course already registered
-		errorMessage( "Vous êtes déjà inscrit à ce cours." );
-	} else if ( response.status == 6 ) {		// Error : similar course already registered
-		errorMessage( "Vous êtes déjà inscrit à un cours similaire, mais avec un horaire différent." );
 	}
 };
 

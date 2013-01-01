@@ -11,18 +11,18 @@
 <div class="row-fluid">
 	<div class="span8">
 		<?php
-		    foreach ( $sections[ 'Section' ] as $section ) :
+		    foreach ( $sections as $section ) :
 		        $creditsCompleted = 0;
 		        $isCompleted = false;
 
-		        if ( empty( $section[ 'Course' ] ) || $section[ 'title' ] == 'Cours échoués' ) continue;
+		        if ( empty( $section[ 'Course' ] ) || $section[ 'Section' ][ 'title' ] == 'Cours échoués' ) continue;
 
 		        foreach ( $section[ 'Course' ] as $course ) {
 		            if ( !empty( $course[ 'note' ] ) )
 		                $creditsCompleted += $course[ 'credits' ];
 		        }
 
-		        if ( $creditsCompleted == $section[ 'credits' ] )
+		        if ( $creditsCompleted == $section[ 'Section' ][ 'credits' ] )
 		            $isCompleted = true;
 
 		        ?>
@@ -33,7 +33,7 @@
 		                        <span class="icon">
 		                            <?php if ( $isCompleted ) echo '<i class="icon-ok"></i>'; else echo '<i class="icon-th"></i>'; ?>
 		                        </span>
-		                        <h5><?php echo $section[ 'title' ]; ?></h5>
+		                        <h5><?php echo $section[ 'Section' ][ 'title' ]; ?></h5>
 		                    </div>
 		                    <div class="widget-content nopadding">
 		                        <table class="table table-bordered table-striped courses">
@@ -101,7 +101,7 @@
 		                                        <?php
 		                                            echo $creditsCompleted;
 		                                            
-		                                            if ( !empty( $section[ 'credits' ] ) ) echo ' / ' . $section[ 'credits' ];
+		                                            if ( !empty( $section[ 'Section' ][ 'credits' ] ) ) echo ' / ' . $section[ 'Section' ][ 'credits' ];
 		                                        ?>
 		                                    </td>
 		                                    <td>&nbsp;</td>
@@ -195,8 +195,8 @@
 			                <table class="table courses courses-list table-bordered table-striped">
 			                    <thead>
 									<tr>
-										<th style="font-weight: bold; text-align: left;">Cours</th>
-										<th style="font-weight: bold; text-align: center; width: 25%;">NRC</th>
+										<th>Cours</th>
+										<th>NRC</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -204,27 +204,9 @@
 										$credits = 0;
 										if ( is_array( $selectedCourses ) ):
 											foreach ( $selectedCourses as $course ):
-												?>
-												<tr data-nrc="<?php echo $course[ 'nrc' ]; ?>">
-													<td style="font-size: 8pt;">
-														<?php
-															if ( strlen( $course[ 'title' ] ) > 35 ):
-																echo substr( $course[ 'title' ], 0, 30 ) . "...";
-															else:
-																echo $course[ 'title' ];
-															endif;
-														?>
-														<br />
-														NRC : <?php echo $course['nrc']; ?>
-													</td>
-													<td style="font-weight: bold; text-align: right;">
-														<?php echo $course['code']; ?>
-														<br />
-														<a href="#" class="btn delete-link"><i class="icon-remove"></i></a>
-													</td>
-												</tr>
-												<?php
-												$credits += $course[ 'credits' ];
+												echo $this->element( 'registration/selected_course', array( 'course' => $course ) );
+									
+												$credits += $course[ 'UniversityCourse' ][ 'credits' ];
 											endforeach;
 										endif;
 									?>

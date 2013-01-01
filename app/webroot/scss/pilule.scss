@@ -278,7 +278,7 @@ a:hover {
             > a {
                 padding: 5px 10px;
                 display: block;
-                font-size: 10px;
+                font-size: 10pt;
                 color: #fff;
 
                 > .label {
@@ -1352,6 +1352,20 @@ div.dataTables_wrapper .ui-widget-header {
 
                 &.registered {
                     color: green;
+                }
+            }
+        
+            .loading-img {
+                display: none;
+            }
+
+            &.loading {
+                .btn {
+                    display: none;
+                }
+
+                .loading-img {
+                    display: inline;
                 }
             }
         }

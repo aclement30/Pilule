@@ -38,7 +38,7 @@ class User extends AppModel {
 			'dependent'		=>	true
 		),
 		'SelectedCourse'	=>	array(
-			'className'		=>	'SelectedCourse',
+			'className'		=>	'StudentSelectedCourse',
 			'foreignKey'	=>	'idul',
 			'dependent'		=>	true
 		),
