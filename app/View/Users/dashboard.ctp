@@ -18,7 +18,7 @@
 
 					switch ( $module[ 'alias' ] ):
 						case 'registration':
-							$allowed = true;
+							$allowed = false;
 							//if ( !$user[ 'registration' ] ) $allowed = false;
 							break;
 						case 'admin':
