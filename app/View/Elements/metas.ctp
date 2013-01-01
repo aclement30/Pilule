@@ -9,6 +9,8 @@
 <meta property="og:site_name" content="Pilule - Gestion des études"/>
 <meta property="fb:app_id" content="102086416558659"/>
 
+<meta name="google-site-verification" content="Ik8Zit9T1rOcM6WMr7ls6yGI5apxQl9L_ERciD4aR2E" />
+
 <?php if ( $isMobile ): ?>
 
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18,11 +20,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="HandheldFriendly" content="True" />
     <meta name="MobileOptimized" content="320" />
-    <link rel="apple-touch-startup-image" href="/images/startup.png">
+    <link rel="apple-touch-startup-image" href="/img/startup.png">
     <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/img/icons/apple-touch-icon-144x144-precomposed.png" />    
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/img/icons/apple-touch-icon-114x114-precomposed.png" />
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/img/icons/apple-touch-icon-72x72-precomposed.png" />
-    <link rel="apple-touch-icon-precomposed" href="/img/icons/apple-touch-icon-precomposed.png" />
-    <link rel="shortcut icon" href="/img/icons/apple-touch-icon-precomposed.png" />
+    <link rel="apple-touch-icon-precomposed" href="/img/icons/apple-touch-icon-57x57-precomposed.png" />
 
 <?php endif; ?>
