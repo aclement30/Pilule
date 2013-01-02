@@ -65,5 +65,9 @@ $( document ).ready( function() {
             ?>app.Cache.reloadData( { name: '<?php echo $dataObject; ?>', auto: 1 } );<?php
         }
     ?>
+
+    app.ipAddress = '<?php echo $this->request->clientIp(); ?>';
+
+    app.init();
 });
 </script>

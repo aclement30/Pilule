@@ -1,6 +1,6 @@
 <?php if ( !empty( $user ) ): ?>
     <div id="sidebar">
-        <ul class="nav" style="border-bottom: 0px; margin-bottom: 0px;">
+        <ul class="nav">
             <li class="link-dashboard<?php if ( $this->request->params[ 'controller' ] == 'users' ) echo ' active'; ?>">
                 <a href="/dashboard"><i class="icon icon-home"></i> <span>Tableau de bord</span></a>
             </li>

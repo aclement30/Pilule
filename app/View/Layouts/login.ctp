@@ -44,45 +44,79 @@
         <p class="inside">
             <div class="navbar">
                 <div class="navbar-inner">
-                    <ul class="nav" style="margin-top: 20px;">
+                    <ul class="nav menu">
                         <li><a href="/support/terms">Conditions d'utilisation</a></li>
                         <li><a href="/support/privacy">Confidentialité des données</a></li>
                         <li><a href="/support/faq">F.A.Q.</a></li>
                         <li><a href="/support/contact">Contact</a></li>
                     </ul>
-                    <div class="nav" style="float: right; padding-top: 10px; margin-right: 20px;">
-                        <p style="float: right; margin-left: 40px; font-style: italic; font-size: 8pt; text-align: right;">Projet hébergé par<br /><img src="/img/ulaval-black.png" height="36" align="absbottom" style="padding-top: 6px; padding-bottom: 5px;" /></p>
-                        <p id="copyright" style="text-align: right; float: right;">Conception<br /><a href="http://www.alexandreclement.com" target="_blank" style="font-style: normal; font-size: 9pt;">Alexandre Clément</a></p>
-                        <div style="clear: both;"></div>
+                    <div class="nav credits clearfix">
+                        <p class="hosting">
+                            Projet hébergé par<br />
+                            <img src="/img/ulaval-black.png" height="36" align="absbottom" />
+                        </p>
+                        <p class="conception">
+                            Conception<br />
+                            <a href="http://www.alexandreclement.com" target="_blank">Alexandre Clément</a>
+                        </p>
                     </div>
                 </div>
             </div>
         </p>
     </footer>
 
-    <?php echo $this->element('sql_dump'); ?>
-
     <?php echo $this->element('js'); ?>
 
     <script type="text/javascript">
-    $(document).ready(function() {
-        // Mettre le focus sur le champ IDUL
-        //setTimeout( "$('#idul').focus()", 500 );
+        $(document).ready(function() {
+            $( '#btn-login' ).on( 'click', app.Users.login );
+            $( '#login-form input.idul, #login-form input.password' ).on( 'keyup', function ( e ) {
+                // If Enter key is pressed, submit login form
+                if ( e.keyCode == 13 ) {
+                    app.Users.login();
+                }
+            } );
+            $( '#loading-error .btn-redirect-dashboard' ).on( 'click', app.Users.redirectToDashboard );
+            $( '#loading-error .btn-retry-login' ).on( 'click', app.Users.retryLogin );
 
-        // Quand la touche Enter est pressée dans le champ Password, valider le formulaire
-        $('#password').keypress(function(e){
-            if (e.which == 13) {
-                app.users.login();
+            $( '#login-form input.idul' ).focus();
+
+            if ( Modernizr.localstorage ) {
+                if ( localStorage.getItem( 'pilule-autologon-idul' ) == null ) {
+                    if ( !app.ipAddress.match( /132\.203\.[0-9]{1,3}\.[0-9]{1,3}/g ) ) {
+                        $( '.js-save-idul' ).parent().show();
+                    }
+                } else {
+                    $( '#login-form input.idul' ).val( localStorage.getItem( 'pilule-autologon-idul' ) );
+                    $( '#login-form input.password' ).focus();
+                }
             }
+
+            var updateResponsive = function () {
+                if ( $( window ).width() <= 480 ) {
+                    $( '#login-form input.idul, #login-form input.password' ).addClass( 'input-xlarge' );
+                    $( '#login-form #btn-login' ).addClass( ' btn-large' );
+
+                    $( '#login-form input.idul' ).attr( 'placeholder', $( '#login-form input.idul' ).data( 'placeholder' ) );
+                    $( '#login-form input.password' ).attr( 'placeholder', $( '#login-form input.password' ).data( 'placeholder' ) );
+                    
+                    $( '#formContainer' ).css( 'marginTop', '0px' );
+                } else {
+                    $( '#login-form input.idul, #login-form input.password' ).removeClass( 'input-xlarge' );
+                    $( '#login-form #btn-login' ).removeClass( ' btn-large' );
+
+                    $( '#login-form input.idul' ).removeAttr( 'placeholder' );
+                    $( '#login-form input.password' ).removeAttr( 'placeholder' );
+                    
+                    // Vertically position the form container
+                    $( '#formContainer' ).css( 'marginTop', ( $( window ).height() / 2 ) - 200 );
+                }
+            };
+
+            ( updateResponsive )();
+
+            $( window ).resize( updateResponsive );
         });
-
-        // Positionner la boîte de connexion verticalement
-        $( '#formContainer' ).css( 'marginTop', ( $( window ).height() / 2 ) - 200 );
-
-        $( window ).resize( function() {
-            $( '#formContainer' ).css( 'marginTop', ( $(window).height()/2)-200);
-        } );
-    });
-</script>
+    </script>
 </body>
 </html>

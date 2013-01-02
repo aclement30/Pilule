@@ -3,30 +3,24 @@ var app = {
     isCapsuleOffline    :   false,                 // Capsule availability
     isMobile            :   false,
     isLogged            :   true,
-    errorHandler        :   null
+    errorHandler        :   null,
+    ipAddress           :   null
 };
 
 app.init = function () {
     // If Capsule is offline, display information notice
     if ( this.isCapsuleOffline ) $( '.capsule-offline' ).show();
 
-    if ( $( '#login-form input.idul' ).length != 0 ) {
-        $( '#btn-login' ).on( 'click', app.Users.login );
-        $( '#login-form input.idul, #login-form input.password' ).on( 'keyup', function ( e ) {
-            // If Enter key is pressed, submit login form
-            if ( e.keyCode == 13 ) {
-                app.Users.login();
-            }
-        } );
-        $( '#loading-error .btn-redirect-dashboard' ).on( 'click', app.Users.redirectToDashboard );
-        $( '#loading-error .btn-retry-login' ).on( 'click', app.Users.retryLogin );
-    }
-
     $( '#sidebar ul li.submenu>a' ).on( 'click', app.Common.displaySubmenu );
 
     if ( !app.isMobile ) {
         $( '<iframe id="external-frame" name="external-frame" frameborder="0" src="blank.html" style="width: 0px; height: 0px;">' ).appendTo( 'body' );
         app.Common.resizeExternalFrame();
+    }
+
+    // Responsive design
+    if ( $( window ).width() <= 400 ) {
+
     }
 };
 
@@ -178,4 +172,3 @@ function errorMessage( message ) {
         app.Common.displayError( message );
     }
 }
-$( document ).ready( function() { app.init(); } );

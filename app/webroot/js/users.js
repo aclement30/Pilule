@@ -19,9 +19,12 @@ app.Users.login = function ( e ) {
 
     // Hide error message
     $( '#login-form .alert-error' ).hide();
+    $( '#formContainer' ).removeClass( 'error' );
 
     $( '#login-form' ).fadeOut( 'fast', function () {
-        $( '#loading-panel' ).fadeIn();
+        if ( !$( '#formContainer' ).hasClass( 'error' ) ) {
+            $( '#loading-panel' ).fadeIn();
+        }
     });
     
     var autoLogon = 0;
@@ -55,6 +58,20 @@ app.Users.login = function ( e ) {
             if ( response.status ) {
                 // Update user's login state
                 app.Users.loginState = 1;
+
+                if ( Modernizr.localstorage ) {
+                    var idul = $( '#login-form .idul' ).val();
+
+                    // If user asked to save IDUL, save logged user IDUL in local storage
+                    if ( $( '.js-save-idul' ).is( ':checked' ) ) {
+                        localStorage.setItem( 'pilule-autologon-idul', idul );
+                    } else {
+                        // If user log in with different IDUL than the one saved, remove saved IDUL
+                        if ( localStorage.getItem( 'pilule-autologon-idul' ) != idul ) {
+                           localStorage.removeItem( 'pilule-autologon-idul' );
+                        }
+                    }
+                }
 
                 if ( app.isMobile == 1 ) {
                     // Si l'utilisateur a choisi de mémoriser son mot de passe, l'IDUL et le mot de passe sont mémorisés sur l'appareil
@@ -140,10 +157,12 @@ app.Users.retryLogin = function () {
 };
 
 app.Users.loginError = function ( error ) {
+    $( '#formContainer' ).addClass( 'error' );
+
     switch ( app.Users.loginState ) {
         case 0:         // User is not even logged
             // Hide loading panel
-            $( '#loading-panel' ).stop( true ).fadeOut( 'fast', function () {
+            $( '#loading-panel' ).fadeOut( 'fast', function () {
                 $( '#login-form' ).fadeIn();
             });
 
@@ -152,7 +171,7 @@ app.Users.loginError = function ( error ) {
         case 1:         // User is actually logged in, but an error happens during remote data fetching
             // Hide loading panel
             $( '#login-form' ).hide();
-            $( '#loading-panel' ).stop().fadeOut( 'fast', function () {
+            $( '#loading-panel' ).stop( true ).fadeOut( 'fast', function () {
                 $( '#loading-error' ).fadeIn();
             });
 
