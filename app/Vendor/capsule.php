@@ -74,7 +74,7 @@ class Capsule {
         ) );
 
         // Check if provided credentials are accepted by Capsule
-        if ( preg_match( '/IDUL ou le NIP sont invalides/' , $request[ 'response' ] ) ) {
+        if ( preg_match( '/chec de la connexion/' , $request[ 'response' ] ) ) {
             // Connection failed because of wrong credentials
             return ( 'credentials' );
         } elseif ( strpos( $request[ 'response' ], "bienvenue+dans+Capsule" ) > 1 ) {
