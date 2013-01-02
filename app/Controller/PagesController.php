@@ -5,6 +5,12 @@ App::uses('AppController', 'Controller');
 class PagesController extends AppController {
 	public $name = 'Pages';
 
+	public function beforeFilter() {
+		parent::beforeFilter();
+
+		$this->CapsuleAuth->allow( 'display' );
+	}
+
 	public function display() {
 		$path = array_reverse( func_get_args() );
 
