@@ -99,6 +99,39 @@ class Capsule {
         }
 	}
 
+    // Check the availability of Capsule and Exchange servers
+    public function pokeULServers () {
+        $capsule = true;
+        $exchange = true;
+
+        // Test for Capsule availability
+        $request = $this->_fetchPage( '/pls/etprod7/twbkwbis.P_WWWLogin', 'GET', array(), false );
+
+        if ( !$request ) {
+            $capsule = false;
+        }
+        
+        // Check if login form is available
+        if ( $capsule && strpos( $request[ 'response' ], '<input type="submit" value="Connexion">' ) < 1 ) {
+            $capsule = false;
+        }
+
+        // Test for Exchange availability
+        $this->host = 'exchange.ulaval.ca';
+        $request = $this->_fetchPage( '/owa/auth/logon.aspx', 'GET', array(), false );
+
+        if ( !$request ) {
+            $exchange = false;
+        }
+            
+        // Check if login form is available
+        if ( strpos( $request[ 'response' ], '<input type="submit" class="btn" value="" onclick="clkLgn()">' ) < 1 ) {
+            $exchange = false;
+        }
+
+        return array( 'capsule' => $capsule, 'exchange' => $exchange );
+    }
+
     // Fallback login function when Capsule is offline
     public function loginExchange ( $idul, $password ) {
         // Define temporary host
