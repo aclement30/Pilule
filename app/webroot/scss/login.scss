@@ -76,9 +76,19 @@ h1 {
                 color: #4a99e6;
             }
 
-            .submit-btn {
-                display: block;
-                margin: 20px auto 10px;
+            .btn-group {
+                display: inline-block;
+                margin: 20px 55px 10px;
+
+                .help-btn i {
+                    opacity: 0.5;
+                    -moz-opacity: 0.5;
+
+                    &.icon-white {
+                        opacity: 1;
+                        -moz-opacity: 1;
+                    }
+                }
             }
 
             .control-group.checkbox {
@@ -87,6 +97,19 @@ h1 {
                 label {
                     display: inline;
                 }
+            }
+        }
+
+        .login-help {
+            margin-top: 20px;
+
+            a {
+                color: #C4E2FF;
+            }
+
+            a:hover {
+                color: #fff;
+                text-decoration: none;
             }
         }
     }
@@ -259,10 +282,6 @@ footer {
                 .control-group {
                     margin-top: 35px;
                     margin-bottom: 35px;
-                }
-
-                .submit-btn {
-                    margin: 30px auto 10px;
                 }
             }
 
