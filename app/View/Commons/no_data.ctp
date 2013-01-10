@@ -8,10 +8,10 @@
 
     <div class="hero-unit no-data span12">
         <div class="span1">&nbsp;</div>
-        <div class="span3" style="text-align: right; padding-right: 15px;">
+        <div class="span3 image">
             <img src="./img/lego-man.png" alt="Lego Man" />
         </div>
-        <div class="span7" style="padding-top: 40px;">
+        <div class="span7 main">
             <p class="lead">
                 <?php
                     if ( !empty( $selectedSemester ) ) :
