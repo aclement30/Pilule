@@ -1,7 +1,7 @@
-<div class="semester-select semesters-dropdown">
+<div class="semester-select semesters-dropdown clearfix right">
     <?php if ( !$isMobile ) : ?>
         <div class="btn-group">
-            <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
                 <?php echo $this->App->convertSemester( $selectedSemester ); ?>
                 <span class="caret"></span>
             </a>
@@ -15,14 +15,14 @@
                 <?php endforeach; ?>
             </ul>
         </div>
-        <div>Session affichée : </div>
+        <div class="select-label">Session affichée : </div>
     <?php else : ?>
         <select class="input-medium">
             <?php foreach ( $semestersList as $semester ) : ?>
                 <option value="<?php echo $semester; ?>"> <?php echo $this->App->convertSemester( $semester ); ?></option>
             <?php endforeach; ?>
         </select>
-        <div>Session affichée : </div>
+        <div class="label">Session affichée : </div>
     <?php endif; ?>
     <div style="clear: both;"></div>
 </div>
