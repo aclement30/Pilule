@@ -40,6 +40,12 @@ class PagesController extends AppController {
 				case 'support.terms':
 					$title_for_layout = 'Conditions d\'utilisation';
 					break;
+				case 'support.login-help':
+					$title_for_layout = 'Résolution des problèmes de connexion';
+
+					// Test for UL servers availability
+					$this->set( 'serversAvailability', $this->CapsuleAuth->pokeULServers() );
+					break;
 			}
 		}
 

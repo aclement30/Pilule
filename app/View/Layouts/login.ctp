@@ -81,6 +81,18 @@
 
             $( '#login-form input.idul' ).focus();
 
+            $( '#login-form .help-btn' ).on( 'mouseover', function( e ) {
+                $( this ).addClass( 'btn-danger' );
+                $( this ).find( 'i' ).addClass( 'icon-white' );
+            });
+
+            $( '#login-form .help-btn' ).on( 'mouseout', function( e ) {
+                $( this ).removeClass( 'btn-danger' );
+                $( this ).find( 'i' ).removeClass( 'icon-white' );
+            });
+
+            $( '#login-form .help-btn' ).tooltip();
+
             if ( Modernizr.localstorage ) {
                 if ( localStorage.getItem( 'pilule-autologon-idul' ) == null ) {
                     if ( !app.ipAddress.match( /132\.203\.[0-9]{1,3}\.[0-9]{1,3}/g ) ) {
@@ -95,7 +107,7 @@
             var updateResponsive = function () {
                 if ( $( window ).width() <= 480 ) {
                     $( '#login-form input.idul, #login-form input.password' ).addClass( 'input-xlarge' );
-                    $( '#login-form #btn-login' ).addClass( ' btn-large' );
+                    $( '#login-form #btn-login, #login-form .help-btn' ).addClass( ' btn-large' );
 
                     $( '#login-form input.idul' ).attr( 'placeholder', $( '#login-form input.idul' ).data( 'placeholder' ) );
                     $( '#login-form input.password' ).attr( 'placeholder', $( '#login-form input.password' ).data( 'placeholder' ) );
@@ -103,11 +115,11 @@
                     $( '#formContainer' ).css( 'marginTop', '0px' );
                 } else {
                     $( '#login-form input.idul, #login-form input.password' ).removeClass( 'input-xlarge' );
-                    $( '#login-form #btn-login' ).removeClass( ' btn-large' );
+                    $( '#login-form #btn-login, #login-form .help-btn' ).removeClass( ' btn-large' );
 
                     $( '#login-form input.idul' ).removeAttr( 'placeholder' );
                     $( '#login-form input.password' ).removeAttr( 'placeholder' );
-                    
+
                     // Vertically position the form container
                     $( '#formContainer' ).css( 'marginTop', ( $( window ).height() / 2 ) - 200 );
                 }
