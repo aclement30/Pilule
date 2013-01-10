@@ -102,4 +102,7 @@ class CapsuleAuthComponent extends AuthComponent {
     	$this->controller->Capsule->testConnection();
     }
     
+    public function pokeULServers() {
+    	return $this->controller->Capsule->pokeULServers();
+    }
 }
