@@ -14,9 +14,12 @@
             <div class="control-group checkbox">
                 <?php echo $this->Form->input( 'User.memorize', array( 'type' => 'checkbox', 'class' => 'js-save-idul', 'label' => 'Mémoriser mon IDUL sur cet ordinateur' ) ); ?>
             </div>
-            <button type="button" id="btn-login" class="btn btn-success submit-btn">
-                <i class="icon-chevron-right icon-white"></i>&nbsp;Connexion
-            </button>
+            <div class="btn-group">
+                <?php echo $this->Html->link( '<i class="icon-question-sign"></i>', '/support/login-help', array( 'class' => 'btn help-btn', 'title' => 'Problèmes de connexion ?', 'escape' => false ) ); ?>
+                <button type="button" id="btn-login" class="btn btn-success submit-btn">
+                    <i class="icon-chevron-right icon-white"></i>&nbsp;Connexion
+                </button>
+            </div>
             <?php echo $this->Form->input( 'redirect_url', array( 'type' => 'hidden', 'value' => $url ) ); ?>
         <?php echo $this->Form->end(); ?>
     </div>
