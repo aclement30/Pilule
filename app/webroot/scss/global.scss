@@ -487,11 +487,17 @@ ul.stat-list {
   display: inline-block;
   margin-bottom: 20px;
   margin-right: 20px;
+
   .top {
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
     background-color: #555555;
     padding-top: 20px;
+
+    img {
+      height: 64px;
+    }
+    
     i {
       display: block;
       margin: 0px auto 20px;
