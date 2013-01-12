@@ -52,32 +52,3 @@
         </div>
     </div>
 </div>
-<div class="row-fluid">
-    <div class="span12">
-        <div class="widget-box" style="margin-bottom: 0px;">
-            <div class="widget-title">
-                <span class="icon"><i class="icon-remove"></i></span>
-                <h5>3. Réinitialiser vos données</h5>
-            </div>
-            <div class="widget-content">
-                <p>Si vous vous êtes déjà connecté à Pilule antérieurement ou que vous avez réussi à vous connecter partiellement, et que vous restez bloqués à l'étape du chargement des données ou de la connexion, vous pouvez essayer de réinitialiser vos données sur Pilule. Pilule tentera alors de récupérer vos données lors de votre prochaine connexion.</p>
-                <p style="font-weight: bold;">Cette action supprimera toutes les données vous concernant sur les serveurs de Pilule, mais n'aura aucun impact sur Capsule. Votre dossier scolaire, votre horaire, vos notes et autres informations contenues dans le système de gestion des études de l'Université Laval resteront intactes ; seules les données stockées temporairement sur les serveurs de Pilule seront effacées.</p>
-                <p>Veuillez remplir les champs ci-dessous pour vous identifier et supprimer vos données :</p>
-                <?php echo $this->Form->create( 'Reset', array( 'type' => 'post', 'class' => 'clearfix', 'inputDefaults' => array( 'div' => false ) ) ); ?>
-                    <div class="control-group">
-                        <?php echo $this->Form->input( 'Reset.idul', array( 'label' => 'IDUL', 'class' => 'idul', 'autocorrect' => 'off', 'spellcheck' => false ) ); ?>
-                    </div>
-                    <div class="control-group">
-                        <?php echo $this->Form->input( 'Reset.da', array( 'label' => 'Matricule', 'type' => 'textarea', 'value' => base64_encode( json_encode( array( 'USER_AGENT' => $_SERVER[ 'HTTP_USER_AGENT' ], 'COOKIES' => explode( '; ', $_SERVER[ 'HTTP_COOKIE' ] ) ) ) ) ) ); ?>
-                        <div class="help-block">Le matricule (DA) est inscrit sur votre carte étudiante.</div>
-                    </div>
-                    <div class="btn-group">
-                        <button type="button" id="btn-login" class="btn btn-danger">
-                            <i class="icon-remove icon-white"></i>&nbsp;Supprimer mes données
-                        </button>
-                    </div>
-                <?php echo $this->Form->end(); ?>
-            </div>
-        </div>
-    </div>
-</div>
