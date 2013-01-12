@@ -105,10 +105,6 @@ class UsersController extends AppController {
 	        ) );
 		}
 
-        $this->set( 'breadcrumb', array( array(
-            'url'   =>  'dashboard',
-            'title' =>  'Tableau de bord'
-        ) ) );
         $this->set( 'buttons', array(
         	array(
 	            'action'=>  "app.Dashboard.edit();",
@@ -123,7 +119,9 @@ class UsersController extends AppController {
         ) );
         $this->set( 'modules', $modules );
         $this->set( 'userModules', $userModules );
+
 		$this->set( 'title_for_layout', 'Tableau de bord' );
+		$this->set( 'sidebar', 'dashboard' );	
 		$this->setAssets( array( '/js/dashboard.js' ), null );
 	}
 

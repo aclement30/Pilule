@@ -13,7 +13,7 @@
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
-    <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+    <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
 
     <script type="text/javascript">
@@ -53,7 +53,7 @@
                     <div class="nav credits clearfix">
                         <p class="hosting">
                             Projet hébergé par<br />
-                            <img src="/img/ulaval-black.png" height="36" align="absbottom" />
+                            <img src="/img/ulaval-black.png" />
                         </p>
                         <p class="conception">
                             Conception<br />

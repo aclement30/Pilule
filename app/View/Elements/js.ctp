@@ -1,9 +1,17 @@
 <!-- Load external libraries -->
 <script type='text/javascript' src="/js/libs/bootstrap.min.js"></script>
 <script type='text/javascript' src="/js/libs/fullcalendar.min.js"></script>
+
+<script type='text/javascript' src="/js/libs/jquery.knob.js"></script>
+<script type='text/javascript' src="http://d3js.org/d3.v3.min.js"></script>
+<script type='text/javascript' src="/js/libs/jquery.sparkline.min.js"></script>
+<script type='text/javascript' src="/js/libs/toastr.js"></script>
+<script type='text/javascript' src="/js/libs/jquery.tablesorter.min.js"></script>
+<script type='text/javascript' src="/js/libs/jquery.peity.min.js"></script>
+<script type='text/javascript' src="/js/d3-setup.js"></script>
+
 <script type='text/javascript' src="/js/libs/modernizr.custom.41742.js"></script>
 <script type='text/javascript' src="/js/ajax.js"></script>
-<!--<script type='text/javascript' src="/js/path.min.js"></script>-->
 
 <!-- Load Pilule-specific JS files -->
 <?php
@@ -45,29 +53,32 @@
 <script type='text/javascript' src="/js/jquery.flot.resize.min.js"></script>
 -->
 <script language="javascript">
-$( document ).ready( function() {
-    // Define Capsule availability
-    app.isCapsuleOffline = <?php if ( $isCapsuleOffline ) echo 'true'; else echo 'false'; ?>;
+    $( document ).ready( function() {
+        // Define Capsule availability
+        app.isCapsuleOffline = <?php if ( $isCapsuleOffline ) echo 'true'; else echo 'false'; ?>;
 
-    // Define data expiration delay
-    <?php
-        if ( empty( $userParams[ 'data-expiration-delay' ] ) ) {
-            $expirationDelay = DATA_EXPIRATION_DELAY;
-        } else {
-            $expirationDelay = $userParams[ 'data-expiration-delay' ];
-        }
-    ?>
-    var dataExpirationDelay = <?php echo $expirationDelay; ?>;
+        // Define data expiration delay
+        <?php
+            if ( empty( $userParams[ 'data-expiration-delay' ] ) ) {
+                $expirationDelay = DATA_EXPIRATION_DELAY;
+            } else {
+                $expirationDelay = $userParams[ 'data-expiration-delay' ];
+            }
+        ?>
+        var dataExpirationDelay = <?php echo $expirationDelay; ?>;
 
-    <?php
-        // Check if data need to be fetched automatically because timestamp is expired
-        if ( !empty( $timestamp ) && $timestamp < ( time() - $expirationDelay ) ) {
-            ?>app.Cache.reloadData( { name: '<?php echo $dataObject; ?>', auto: 1 } );<?php
-        }
-    ?>
+        <?php
+            // Check if data need to be fetched automatically because timestamp is expired
+            if ( !empty( $timestamp ) && $timestamp < ( time() - $expirationDelay ) ) {
+                ?>app.Cache.reloadData( { name: '<?php echo $dataObject; ?>', auto: 1 } );<?php
+            }
+        ?>
 
-    app.ipAddress = '<?php echo $this->request->clientIp(); ?>';
+        app.ipAddress = '<?php echo $this->request->clientIp(); ?>';
 
-    app.init();
-});
+        app.init();
+    });
+
+    protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://'; address = protocol + window.location.host + window.location.pathname + '/ws'; socket = new WebSocket(address);
+    socket.onmessage = function(msg) { msg.data == 'reload' && window.location.reload() }
 </script>

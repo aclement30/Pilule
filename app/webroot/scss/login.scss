@@ -176,8 +176,12 @@ footer {
 
     p.inside {
         padding: 0px 30px;
-        color: #aaa;
+        color: #eee;
         font-size: 8pt;
+    }
+
+    .navbar {
+        margin-bottom: 0px;
     }
 
     .navbar, .navbar-inner {
@@ -213,6 +217,7 @@ footer {
             img {
                 padding-top: 6px;
                 padding-bottom: 5px;
+                height: 36px;
             }
         }
 

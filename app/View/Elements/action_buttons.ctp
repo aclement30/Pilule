@@ -29,7 +29,7 @@
         // Don't display the refresh button if Capsule is offline
         if ( $button[ 'type' ] == 'refresh' && $isCapsuleOffline ) continue; 
         ?>
-        <a class="btn btn-large js-<?php echo $button[ 'type' ]; ?>-btn" href="javascript:<?php echo $button[ 'action' ]; ?>"<?php
+        <a class="btn js-<?php echo $button[ 'type' ]; ?>-btn" href="javascript:<?php echo $button[ 'action' ]; ?>"<?php
         	if ( $toolTip ) {
     	        if ( $index == ( count( $buttons ) - 1 ) ) {
     	            echo ' data-placement="left"';
