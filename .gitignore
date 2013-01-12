@@ -40,3 +40,4 @@ application/logs/*
 nbproject/*
 app/tmp/*
 app/tmp/cache/*
+.sass-cache
