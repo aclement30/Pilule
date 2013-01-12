@@ -25,7 +25,7 @@ ajax.request = function ( params ) {
 	var defaults = ajax.defaults;
 
 	// Replace default parameters with function parameters
-	var p =  $.extend( defaults, params );
+	var p = $.extend( defaults, params );
 
 	if ( p.url == null ) {
 		// Define AJAX URL
