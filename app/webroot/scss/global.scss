@@ -250,6 +250,41 @@ footer {
   a {
     color: #999;
   }
+  
+  ul.nav {
+    float: left;
+    
+    li {
+      display: inline-block;
+      padding-right: 20px;
+    }
+  }
+
+  p.hosting {
+    float: right;
+    margin-left: 40px;
+    font-style: italic;
+    font-size: 8pt;
+    text-align: right;
+
+    img {
+      padding-top: 6px;
+      padding-bottom: 5px;
+      height: 38px;
+    }
+  }
+
+  p.conception {
+    font-style: italic;
+    text-align: right;
+    float: right;
+    font-size: 8pt;
+
+    a {
+      font-size: 10pt;
+      font-style: normal;
+    }
+  }
 }
 
 .divide {

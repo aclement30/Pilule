@@ -1,8 +1,8 @@
 <footer>
     <div class="container">
         <div class="row">
-            <div class="span12">
-                <ul class="nav menu">
+            <div class="span12 clearfix">
+                <ul class="nav">
                     <li><a href="/support/terms">Conditions d'utilisation</a></li>
                     <li><a href="/support/privacy">Confidentialité des données</a></li>
                     <li><a href="/support/faq">F.A.Q.</a></li>

@@ -53,7 +53,7 @@
                     <div class="nav credits clearfix">
                         <p class="hosting">
                             Projet hébergé par<br />
-                            <img src="/img/ulaval-black.png" />
+                            <img src="/img/ulaval-white.png" />
                         </p>
                         <p class="conception">
                             Conception<br />
