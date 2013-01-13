@@ -19,9 +19,18 @@ app.init = function () {
     }
 
     // Responsive design
-    if ( $( window ).width() <= 400 ) {
-
+    if ( $( window ).width() <= 480 ) {
+        // If there is a sidebar, autoscroll to content
+        if ( $( '.sidebar .nav-col' ) ) {
+            $( 'html, body' ).animate({
+                scrollTop: ( $( 'h4.header' ).offset().top - 90 )
+            }, 1);
+        }
     }
+
+    $( '#in-nav ul .menu a' ).on( 'click', app.Layout.displaySubmenu );
+
+    app.Layout.makeExpandable();
 
     $(".dial").knob();
   
@@ -65,6 +74,47 @@ app.init = function () {
         spacing: 4,
         width: 58
     });
+};
+
+app.Layout = {};
+
+// Make content sections expandable
+app.Layout.makeExpandable = function () {
+    $( '.table-panel' ).addClass( 'expandable' ).find( 'h4' ).append( $( '<span class="expand-icon"><i class="icon-chevron-down"></i></span><span class="expand-icon"><i class="icon-chevron-up"></i></span>' ) ).on( 'click', app.Layout.expand );
+};
+
+app.Layout.expand = function ( e ) {
+    if ( $( window ).width() > 480 )
+        return false;
+
+    $( e.currentTarget ).closest( '.table-panel' ).toggleClass( 'expanded' );
+
+    if ( $( e.currentTarget ).closest( '.table-panel' ).hasClass( 'expanded' ) ) {
+        $('html, body').animate({
+            scrollTop: ( $( e.currentTarget ).closest( '.table-panel' ).offset().top - 80 )
+        }, 400);
+    }
+    
+    return false;
+};
+
+app.Layout.displaySubmenu = function () {
+    var submenu = $( '#in-sub-nav' );
+
+    if ( submenu.is( ':visible' ) ) {
+        submenu.slideUp( 'normal', function() {
+        });
+    } else {
+        submenu.slideDown( 'normal', function() { });
+    }
+
+    if ( $(document).scrollTop() != 0 ) {
+        $( 'html, body' ).animate({
+            scrollTop: ( 0 )
+        }, 200);
+    }
+
+    return false;
 };
 
 app.Common = {};

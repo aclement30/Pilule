@@ -1,6 +1,4 @@
-<div class="row-fluid">
-    <div class="request-description">Données extraites du système de gestion des études de l'Université Laval, le <?php echo date( 'd/m/Y, à H:i', $timestamp ); ?>.</div>
-</div>
+<div class="request-description">Données extraites du système de gestion des études de l'Université Laval, le <?php echo date( 'd/m/Y, à H:i', $timestamp ); ?>.</div>
 
 <?php if ( count( $programs[ 'Program' ] ) > 1 ) : ?>
     <p style="margin-top: 20px; margin-bottom: 0px; text-align: right;">Programme : <select onchange="javascript:app.studies.displayProgramPanel(this.options[this.selectedIndex].value);">
@@ -13,60 +11,53 @@
 endif;
 $program_number = 1;
 
-foreach ($programs[ 'Program' ] as $program) {
+foreach ($programs[ 'Program' ] as $program) :
     ?>
 <div class="program-panel" id="program-<?php echo $program['id']; ?>"<?php if ($program_number != 1) echo ' style="display: none;"'; ?>>
 
-<div class="row-fluid no-print">
-    <div class="span12">
-        <div class="widget-box widget-plain">
-            <div class="widget-content center">
-                <ul class="stats-plain">
-                    <li>
-                        <h4><?php echo $program['gpa_program']; ?></h4>
-                        <span>Moyenne de programme</span>
-                    </li>
-                    <li>
-                        <h4><?php echo ($program['credits_used']+$program['credits_admitted']); ?></h4>
-                        <span>Crédits accumulés</span>
-                    </li>
-                    <li>
-                        <h4><?php echo ($program['courses_used']+$program['courses_admitted']); ?></h4>
-                        <span>Cours complétés/reconnus</span>
-                    </li>
-                </ul>
+<div class="stats no-print">
+    <div class="row-fluid">
+        <div class="span4">
+            <div class="stat info">
+                <h2><?php echo $program['gpa_program']; ?></h2>
+                <h6>Moyenne de programme</h6>
+            </div>
+        </div>
+        <div class="span4">
+            <div class="stat danger">
+                <h2><?php echo ($program['credits_used']+$program['credits_admitted']); ?></h2>
+                <h6>Crédits accumulés</h6>
+            </div>
+        </div>
+        <div class="span4">
+            <div class="stat warning">
+                <h2><?php echo ($program['courses_used']+$program['courses_admitted']); ?></h2>
+                <h6>Cours complétés/reconnus</h6>
             </div>
         </div>
     </div>
 </div>
 
 <div class="row-fluid">
-
-        <div class="span7">
-        <div class="widget-box">
-            <div class="widget-title">
-                                    <span class="icon">
-                                        <i class="icon-user"></i>
-                                    </span>
-                <h5>Dossier de l'étudiant</h5>
-            </div>
-            <div class="widget-content nopadding">
-                <table class="table table-bordered table-striped">
-                    <tbody>
+    <div class="span7">
+        <div class="table-panel expandable">
+            <h4> <i class="icon-user"></i>Dossier de l'étudiant</h4>
+            <table class="table table-striped sortable">
+                <tbody>
                     <tr>
-                        <th style="vertical-align: middle;">Étudiant</th>
+                        <th>Étudiant</th>
                         <td><?php echo $user['name']; ?></td>
                     </tr>
                     <tr>
-                        <th style="vertical-align: middle;">Code permanent</th>
+                        <th>Code permanent</th>
                         <td><?php echo $user['code_permanent'] ; ?></td>
                     </tr>
                     <tr>
-                        <th style="vertical-align: middle;">Programme</th>
+                        <th>Programme</th>
                         <td><?php echo $program['name'] ; ?> (<?php echo $program['diploma'] ; ?>)</td>
                     </tr>
                     <tr>
-                        <th style="vertical-align: middle;">Cycle</th>
+                        <th>Cycle</th>
                         <td><?php if ($program['cycle'] == 1) {
                             echo 'Premier cycle';
                         } elseif ($program['cycle'] == 2) {
@@ -76,134 +67,123 @@ foreach ($programs[ 'Program' ] as $program) {
                         } ?></td>
                     </tr>
                     <tr>
-                        <th style="vertical-align: middle;">Admission</th>
+                        <th>Admission</th>
                         <td><?php echo $this->App->convertSemester($program['adm_semester']); ?>&nbsp;&nbsp;|&nbsp;&nbsp;<?php echo $program['adm_type'] ; ?> </td>
                     </tr>
                     <tr>
-                        <th style="vertical-align: middle;">Majeure</th>
+                        <th>Majeure</th>
                         <td><?php echo $program['major'] ; ?></td>
                     </tr>
                     <?php if (!empty($program['minor'])) { ?>
                     <tr>
-                        <th style="vertical-align: middle;">Mineure(s)</th>
+                        <th>Mineure(s)</th>
                         <td><?php echo $program['minor']; ?></td>
                     </tr>
                     <?php } if ($program['concentrations']!=array()) { ?>
                     <tr>
-                        <th style="vertical-align: middle;">Concentration(s)</th>
+                        <th>Concentration(s)</th>
                         <td><?php echo implode(', ', $program['concentrations']); ?></td>
                     </tr>
                         <?php } ?>
                     <tr>
-                        <th style="vertical-align: middle;">Session de répertoire</th>
+                        <th>Session de répertoire</th>
                         <td><?php echo $this->App->convertSemester($program['session_repertoire']); ?></td>
                     </tr>
                     <tr>
-                        <th style="vertical-align: middle;">Session d'évaluation</th>
+                        <th>Session d'évaluation</th>
                         <td><?php echo $this->App->convertSemester($program['session_evaluation']); ?></td>
                     </tr>
                     <?php if (strlen($program['date_diplome'])>2) { ?>
                     <tr>
-                        <th style="vertical-align: middle;">Date obtention du diplôme</th>
+                        <th>Date obtention du diplôme</th>
                         <td><?php echo $program['date_diplome'] ; ?></td>
                     </tr>
                     <?php } ?>
                     <tr>
-                        <th style="vertical-align: middle;">Date de l'attestation</th>
+                        <th>Date de l'attestation</th>
                         <td><?php echo $program['date_attestation'] ; ?></td>
                     </tr>
-                    </tbody>
-                </table>
-            </div>
+                </tbody>
+            </table>
         </div>
     </div>
     <div class="span5">
-        <div class="widget-box">
-            <div class="widget-title">
-                                    <span class="icon">
-                                        <i class="icon-th"></i>
-                                    </span>
-                <h5>Cours et crédits</h5>
-            </div>
-            <div class="widget-content nopadding">
-                <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>&nbsp;</th>
-                            <th style="text-align: center;">Utilisés</th>
-                            <th style="text-align: center;">Reconnus</th>
-                            <th style="text-align: center;">Programme</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+        <div class="table-panel">
+            <h4> <i class="icon-th"></i>Cours et crédits</h4>
+            <table class="table table-striped sortable courses-credits">
+                <thead>
+                    <tr>
+                        <th>&nbsp;</th>
+                        <th>Utilisés</th>
+                        <th>Reconnus</th>
+                        <th>Programme</th>
+                    </tr>
+                </thead>
+                <tbody>
                     <tr>
                         <th>Crédits</th>
-                        <td style="text-align: center;"><?php echo $program['credits_used']; ?></td>
-                        <td style="text-align: center;"><?php echo $program['credits_admitted']; ?></td>
-                        <td style="text-align: center;"><?php echo $program['credits_program']; ?></td>
+                        <td><?php echo $program['credits_used']; ?></td>
+                        <td><?php echo $program['credits_admitted']; ?></td>
+                        <td><?php echo $program['credits_program']; ?></td>
                     </tr>
                     <tr>
                         <th>Cours</th>
-                        <td style="text-align: center;"><?php echo $program['courses_used']; ?></td>
-                        <td style="text-align: center;"><?php echo $program['courses_admitted']; ?></td>
-                        <td style="text-align: center;"><?php echo $program['courses_program']; ?></td>
+                        <td><?php echo $program['courses_used']; ?></td>
+                        <td><?php echo $program['courses_admitted']; ?></td>
+                        <td><?php echo $program['courses_program']; ?></td>
                     </tr>
                     <tr>
                         <th>Exigences satisfaites</th>
-                        <td colspan="3"><?php if ($program['requirements']) echo 'Oui'; else echo 'Non'; ?></td>
+                        <td colspan="3" class="requirements"><?php if ($program['requirements']) echo 'Oui'; else echo 'Non'; ?></td>
                     </tr>
-                    </tbody>
-                </table>
-            </div>
+                </tbody>
+            </table>
         </div>
     </div>
     <div class="span5">
-        <div class="widget-box" style="margin-bottom: 0px;">
-            <div class="widget-title">
-                                    <span class="icon">
-                                        <i class="icon-signal"></i>
-                                    </span>
-                <h5>Moyennes</h5>
-            </div>
-            <div class="widget-content nopadding">
-                <table class="table table-bordered table-striped">
-                    <thead>
+        <div class="table-panel">
+            <h4> <i class="icon-signal"></i>Moyennes</h4>
+            <table class="table table-striped sortable gpas">
+                <thead>
                     <tr>
-                        <th style="text-align: center;">Programme</th>
-                        <th style="text-align: center;">Cheminement</th>
+                        <th>Programme</th>
+                        <th>Cheminement</th>
                         <?php if ( isset( $program[ 'cohort_gpa' ] ) && $program[ 'cohort_gpa' ][ 'number' ] >= 10 ) { ?>
-                        <th style="text-align: center;" class="no-print">Cohorte <?php echo substr($program['session_repertoire'], 0, 4); ?> *</th>
+                        <th class="no-print">Cohorte <?php echo substr($program['session_repertoire'], 0, 4); ?> *</th>
                         <?php } ?>
                     </tr>
-                    </thead>
-                    <tbody>
+                </thead>
+                <tbody>
                     <tr>
-                        <td style="text-align: center;"><?php echo $program['gpa_program']; ?></td>
-                        <td style="text-align: center;"><?php echo $program['gpa_overall']; ?></td>
+                        <td><?php echo $program['gpa_program']; ?></td>
+                        <td><?php echo $program['gpa_overall']; ?></td>
                         <?php if ( isset( $program[ 'cohort_gpa' ] ) && $program[ 'cohort_gpa' ][ 'number' ] >= 10 ) { ?>
-                        <td style="text-align: center;" class="no-print"><?php echo number_format($program['cohort_gpa']['average'], 2); ?></td>
+                        <td class="no-print"><?php echo number_format($program['cohort_gpa']['average'], 2); ?></td>
                         <?php } ?>
                     </tr>
                     <tr>
-                    </tbody>
-                </table>
-            </div>
+                </tbody>
+            </table>
         </div>
-        <!--
-        <div class="widget-box no-print style="margin-top: 0px; border-top:  0px; margin-bottom: 5px;">
-            <div class="widget-content">
-                <div class="chart" style="height: 98px;"></div>
-            </div>
-        </div>
-        -->
-        <?php if ( isset( $program[ 'cohort_gpa' ] ) && $program[ 'cohort_gpa' ][ 'number' ] >= 10 ) { ?>
-        <p class="no-print" style="font-size: 7pt; color:  gray; line-height: 9pt;">* La moyenne de cohorte évalue l'ensemble des moyennes de programme des <?php echo $program['cohort_gpa']['number']; ?> étudiants de cette cohorte inscrits sur Pilule. Cette moyenne est affichée à titre indicatif.</p>
-        <?php } ?>
     </div>
+
+    <!--
+    <div class="widget-box no-print style="margin-top: 0px; border-top:  0px; margin-bottom: 5px;">
+        <div class="widget-content">
+            <div class="chart" style="height: 98px;"></div>
+        </div>
+    </div>
+
+    <?php if ( isset( $program[ 'cohort_gpa' ] ) && $program[ 'cohort_gpa' ][ 'number' ] >= 10 ) { ?>
+    <p class="no-print" style="font-size: 7pt; color:  gray; line-height: 9pt;">* La moyenne de cohorte évalue l'ensemble des moyennes de programme des <?php echo $program['cohort_gpa']['number']; ?> étudiants de cette cohorte inscrits sur Pilule. Cette moyenne est affichée à titre indicatif.</p>
+    <?php } ?>
+    -->
 
 </div><!-- End of row-fluid -->
 
-<h2>Formation</h2>
+<hr>
+
+<h4 class="formation">Formation</h4>
 
 <?php
     foreach ( $sections[ 'Section' ] as $section ) :
@@ -221,92 +201,75 @@ foreach ($programs[ 'Program' ] as $program) {
             $isCompleted = true;
 
         ?>
-        <div class="row-fluid">
-            <div class="span12">
-                <div class="widget-box<?php if ( $isCompleted ) echo ' completed'; ?>">
-                    <div class="widget-title">
-                        <span class="icon">
-                            <?php if ( $isCompleted ) echo '<i class="icon-ok"></i>'; else echo '<i class="icon-th"></i>'; ?>
-                        </span>
-                        <h5><?php echo $section[ 'title' ]; ?></h5>
-                    </div>
-                    <div class="widget-content nopadding">
-                        <table class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th class="course-code">Cours</th>
-                                    <?php if ( !$isMobile ) : ?>
-                                        <th class="title">Titre</th>
-                                    <?php endif; ?>
-                                    <th class="semester">Session</th>
-                                    <th class="credits">Crédits</th>
-                                    <th class="note">Note</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ( $section[ 'Course' ] as $course ) : ?>
-                                    <tr class="<?php if ( empty( $course[ 'note' ] ) ) echo 'current'; ?>">
+        <div class="table-panel<?php if ( $isCompleted ) echo ' completed'; ?>">
+            <h5> <?php if ( $isCompleted ) echo '<i class="icon-ok"></i>'; else echo '<i class="icon-th"></i>'; echo $section[ 'title' ]; ?></h5>
+            <table class="table table-striped sortable courses-list">
+                <thead>
+                    <tr>
+                        <th class="course-code">Cours</th>
+                        <th class="title">Titre</th>
+                        <th class="semester">Session</th>
+                        <th class="credits">Crédits</th>
+                        <th class="note">Note</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ( $section[ 'Course' ] as $course ) : ?>
+                        <tr class="<?php if ( empty( $course[ 'note' ] ) ) echo 'current'; ?>">
+                            <td class="code">
+                                <?php echo $course[ 'code' ]; ?><br />
+                                <span class="mobile-title"><?php echo $course[ 'title' ]; ?></span>
+                            </td>
+                            <td class="title"><?php echo $course[ 'title' ]; ?></td>
+                            <td class="semester"><?php if ( !empty( $course[ 'semester' ] ) ) echo $this->App->convertSemester( $course[ 'semester' ], true ); ?></td>
+                            <td class="credits"><?php echo $course[ 'credits' ]; ?></td>
+                            <td class="note">
+                                <?php
+                                    switch ( $course[ 'note' ] ) {
+                                        case 'AUD':
+                                            echo '<span class="label">Auditeur</span>';
+                                            break;
+                                        case 'NA':
+                                            echo '<span class="label">Non évalué</span>';
+                                            break;
+                                        case 'V':
+                                            echo '<span class="label label-info">Équivalence</span>';
+                                            break;
+                                        case 'X':
+                                            echo '<span class="label" title="Abandon sans échec">Abandon</span>';
+                                            break;
+                                        case 'N':
+                                            echo '<span class="label" title="Échec non contributoire">Échec (N)</span>';
+                                            break;
+                                        case 'W':
+                                            echo '<span class="label label-important">Échec (W)</span>';
+                                            break;
+                                        case 'E':
+                                            echo '<span class="label label-important">Échec</span>';
+                                            break;
+                                        default:
+                                            echo $course[ 'note' ];
+                                    }
+                                ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th class="left" colspan="<?php if ( $isMobile ) echo 2; else echo 3; ?>">Total</th>
+                        <td class="total-credits">
+                            <?php
+                                echo $creditsCompleted;
 
-                                        <?php if ( $isMobile ) : ?>
-                                            <td class="mobile-title">
-                                                <strong><?php echo $course[ 'code' ]; ?></strong><br />
-                                                <span><?php echo $course[ 'title' ]; ?></span>
-                                            </td>
-                                        <?php else : ?>
-                                            <td class="code"><?php echo $course[ 'code' ]; ?></td>
-                                            <td class="title"><?php echo $course[ 'title' ]; ?></td>
-                                        <?php endif; ?>
-
-                                        <td class="semester"><?php if ( !empty( $course[ 'semester' ] ) ) echo $this->App->convertSemester( $course[ 'semester' ], true ); ?></td>
-                                        <td class="credits"><?php echo $course[ 'credits' ]; ?></td>
-                                        <td class="note">
-                                            <?php
-                                                switch ( $course[ 'note' ] ) {
-                                                    case 'AUD':
-                                                        echo '<span class="label">Auditeur</span>';
-                                                        break;
-                                                    case 'NA':
-                                                        echo '<span class="label">Non évalué</span>';
-                                                        break;
-                                                    case 'V':
-                                                        echo '<span class="label label-info">Équivalence</span>';
-                                                        break;
-                                                    case 'X':
-                                                        echo '<span class="label" title="Abandon sans échec">Abandon</span>';
-                                                        break;
-                                                    case 'N':
-                                                        echo '<span class="label" title="Échec non contributoire">Échec (N)</span>';
-                                                        break;
-                                                    case 'W':
-                                                        echo '<span class="label label-important">Échec (W)</span>';
-                                                        break;
-                                                    case 'E':
-                                                        echo '<span class="label label-important">Échec</span>';
-                                                        break;
-                                                    default:
-                                                        echo $course[ 'note' ];
-                                                }
-                                            ?>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                                <tr>
-                                    <th class="left" colspan="<?php if ( $isMobile ) echo 2; else echo 3; ?>">Total</th>
-                                    <td class="total-credits">
-                                        <?php
-                                            echo $creditsCompleted;
-
-                                            if ( !empty( $section[ 'credits' ] ) ) echo ' / ' . $section[ 'credits' ];
-                                        ?>
-                                    </td>
-                                    <td>&nbsp;</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div><!-- End of row-fluid -->
+                                if ( !empty( $section[ 'credits' ] ) ) echo ' / ' . $section[ 'credits' ];
+                            ?>
+                        </td>
+                        <td>&nbsp;</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
         <?php
     endforeach;
 
@@ -387,9 +350,7 @@ foreach ($programs[ 'Program' ] as $program) {
     }
     */
      ?>
-
-    </div><!-- End of row-fluid -->
-</div>
-<?php
-    $program_number++;
-} ?>
+        <?php
+        $program_number++;
+    endforeach;
+?>

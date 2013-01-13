@@ -43,13 +43,12 @@
         <div class="page-container">
             <div class="container">
                 <div class="row">
-                    <div class="span3">
-                        <?php
-                            if ( !empty( $sidebar ) )
-                                echo $this->element( 'sidebars/' . $sidebar );
-                        ?>
-                    </div>
-                    <div class="span9">
+                    <?php if ( !empty( $sidebar ) ) : ?>
+                        <div class="span3">
+                            <?php echo $this->element( 'sidebars/' . $sidebar ); ?>
+                        </div>
+                    <?php endif; ?>
+                    <div class="<?php if ( !empty( $sidebar ) ) echo 'span9'; else echo 'span12'; ?>">
                         <div class="btn-group action-buttons pull-right">
                             <div class="buttons">
                               <?php

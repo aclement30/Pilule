@@ -3,12 +3,12 @@
 <script type='text/javascript' src="/js/libs/fullcalendar.min.js"></script>
 
 <script type='text/javascript' src="/js/libs/jquery.knob.js"></script>
-<script type='text/javascript' src="http://d3js.org/d3.v3.min.js"></script>
+<!--<script type='text/javascript' src="http://d3js.org/d3.v3.min.js"></script>-->
 <script type='text/javascript' src="/js/libs/jquery.sparkline.min.js"></script>
-<script type='text/javascript' src="/js/libs/toastr.js"></script>
+<!--<script type='text/javascript' src="/js/libs/toastr.js"></script>-->
 <script type='text/javascript' src="/js/libs/jquery.tablesorter.min.js"></script>
 <script type='text/javascript' src="/js/libs/jquery.peity.min.js"></script>
-<script type='text/javascript' src="/js/d3-setup.js"></script>
+<!--script type='text/javascript' src="/js/d3-setup.js"></script>-->
 
 <script type='text/javascript' src="/js/libs/modernizr.custom.41742.js"></script>
 <script type='text/javascript' src="/js/ajax.js"></script>
@@ -18,7 +18,7 @@
     // Define site-wide scripts
     $scripts = array( '/js/pilule.js', '/js/cache.js' );
 
-    if ( isset( $assets ) && isset( $assets[ 'js' ] ) ) {
+    if ( isset( $assets ) && !empty( $assets[ 'js' ] ) ) {
         $scripts = array_merge( $scripts, $assets[ 'js' ] );
     }
 
@@ -79,6 +79,6 @@
         app.init();
     });
 
-    protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://'; address = protocol + window.location.host + window.location.pathname + '/ws'; socket = new WebSocket(address);
-    socket.onmessage = function(msg) { msg.data == 'reload' && window.location.reload() }
+    //protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://'; address = protocol + window.location.host + window.location.pathname + '/ws'; socket = new WebSocket(address);
+    //socket.onmessage = function(msg) { msg.data == 'reload' && window.location.reload() }
 </script>
