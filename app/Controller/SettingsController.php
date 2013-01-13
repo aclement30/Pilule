@@ -68,6 +68,8 @@ class SettingsController extends AppController {
         $this->set( 'title_for_layout', 'Préférences' );
         $this->setAssets( array(
             '/js/settings.js'
+        ), array(
+            '/css/settings.css'
         ) );
 	}
 }

@@ -1,0 +1,12 @@
+@import 'global';
+
+form label {
+	display: inline-block;
+	padding-right: 10px;
+}
+
+form .input {
+	select, input {
+		margin-top: 8px;
+	}
+}

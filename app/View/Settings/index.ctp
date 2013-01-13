@@ -1,53 +1,40 @@
 <div class="row-fluid">
     <div class="span6">
-        <div class="widget-box">
-            <div class="widget-title">
-				<span class="icon"><i class="icon-time"></i></span>
-                <h5>Stockage des données</h5>
-            </div>
-            <div class="widget-content no-padding">
-                <p>Pour accélérer le chargement de Pilule, le système garde une copie de certaines données de votre dossier scolaire sur le serveur de l'Université Laval. Ces données sont automatiquement actualisées lorsqu'elles ont été enregistrées depuis un délai supérieur au délai indiqué ci-dessous.</p>
-                <hr>
-                <?php echo $this->Form->create( 'Settings' ); ?>
-                    <div style="font-style: normal; float: left; padding-top: 5px; margin-right: 10px;">Délai d'expiration des données :</div>
-                    <div style="float: left;">
-                        <?php
-                            echo $this->Form->input( 'data-expiration-delay', array( 'type' => 'select', 'label' => 'Délai d\'expiration des données :', 'options' => array(
-                                ( 3600 * 24 )   =>  '24 heures',
-                                ( 3600 * 12 )   =>  '12 heures',
-                                ( 3600 * 6 )    =>  '6 heures',
-                                ( 3600 * 5 )    =>  '5 heures',
-                                ( 3600 * 2 )    =>  '2 heures',
-                                ( 60 * 60 )     =>  '1 heure',
-                                ( 60 * 30 )     =>  '30 min',
-                                ( 60 * 15 )     =>  '15 min'
-                            ), 'class' => 'input-small js-expiration-delay' ) );
-                        ?>
-                    </div>
-                    <div style="clear: both;"></div>
-                </form>
-            </div>
-        </div>
+        <h5><i class="icon-time"></i> Stockage des données</h5>
+        <p>Pour accélérer le chargement de Pilule, le système garde une copie de certaines données de votre dossier scolaire sur le serveur de l'Université Laval. Ces données sont automatiquement actualisées lorsqu'elles ont été enregistrées depuis un délai supérieur au délai indiqué ci-dessous.</p>
+
+        <hr>
+
+        <?php echo $this->Form->create( 'Settings' ); ?>
+                <?php
+                    echo $this->Form->input( 'data-expiration-delay', array( 'type' => 'select', 'label' => 'Délai d\'expiration des données :', 'options' => array(
+                        ( 3600 * 24 )   =>  '24 heures',
+                        ( 3600 * 12 )   =>  '12 heures',
+                        ( 3600 * 6 )    =>  '6 heures',
+                        ( 3600 * 5 )    =>  '5 heures',
+                        ( 3600 * 2 )    =>  '2 heures',
+                        ( 60 * 60 )     =>  '1 heure',
+                        ( 60 * 30 )     =>  '30 min',
+                        ( 60 * 15 )     =>  '15 min'
+                    ), 'class' => 'input-small js-expiration-delay' ) );
+                ?>
+        <?php echo $this->Form->end(); ?>
     </div>
 
-    <?php if ($user['idul'] != 'demo') { ?>
+    <?php if ( $user['idul'] != 'demo' ) : ?>
+
     <div class="span6">
-        <div class="widget-box">
-            <div class="widget-title">
-				<span class="icon"><i class="icon-remove-circle"></i></span>
-                <h5>Suppression des données</h5>
-            </div>
-            <div class="widget-content">
-                <p>Vous avez la possibilité de supprimer toutes vos données enregistrées sur le serveur de Pilule. Cela peut être utile si vous avez des problèmes d'utilisation de Pilule ou si les données stockées sont corrompues.</p>
-                <p><strong>Attention : vous serez automatiquement déconnecté de Pilule après la suppression de vos données.</strong></p>
-                <div style="text-align: center; padding: 5px;">
-                    <?php
-                        echo $this->Html->link( '<i class="icon-remove icon-white"></i> Supprimer les données', array( 'controller' => 'users', 'action' => 'eraseData' ), array( 'class' => 'btn btn-danger js-erase-data-btn', 'escape' => false ) );
-                    ?></div>
-            </div>
-        </div>
+        <h5><i class="icon-remove-circle"></i> Suppression des données</h5>
+        <p>Vous avez la possibilité de supprimer toutes vos données enregistrées sur le serveur de Pilule. Cela peut être utile si vous avez des problèmes d'utilisation de Pilule ou si les données stockées sont corrompues.</p>
+        <p><strong>Attention : vous serez automatiquement déconnecté de Pilule après la suppression de vos données.</strong></p>
+        
+        <div style="text-align: center; padding: 5px;">
+            <?php
+                echo $this->Html->link( '<i class="icon-remove icon-white"></i> Supprimer les données', array( 'controller' => 'users', 'action' => 'eraseData' ), array( 'class' => 'btn btn-danger js-erase-data-btn', 'escape' => false ) );
+            ?></div>
     </div>
-    <?php } ?>
+
+    <?php endif; ?>
 </div>
 
 <?php if ( isset( $autologon ) && $autologon == 'yes' ) : ?>
