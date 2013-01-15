@@ -15,7 +15,7 @@
 			
 			$allowed = true;
 			$displayed = false;
-			$classNames = array( 'panel' );
+			$classNames = array( 'panel module' );
 
 			switch ( $module[ 'alias' ] ):
 				case 'registration':

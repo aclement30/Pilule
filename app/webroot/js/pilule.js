@@ -19,6 +19,13 @@ app.init = function () {
     }
 
     // Responsive design
+    if ( $( window ).width() <= 660 ) {
+        $( 'table.courses-list tfoot .left' ).attr( 'colspan', '2' );
+
+        $( 'table.courses-list tbody td:first-child .course-code' ).append( $( '<span class="expand-icon"><i class="icon-chevron-down"></i></span><span class="expand-icon"><i class="icon-chevron-up"></i></span>' ) );
+        $( 'table.courses-list tbody td:first-child' ).on( 'click', app.Layout.expandTableCell );
+    }
+
     if ( $( window ).width() <= 480 ) {
         // If there is a sidebar, autoscroll to content
         if ( $( '.sidebar .nav-col' ) ) {
@@ -74,13 +81,17 @@ app.init = function () {
         spacing: 4,
         width: 58
     });
+
+    $( '#in-nav .external-frame a' ).on( 'click', app.Common.closeExternalFrame );
+
+    $( '#in-sub-nav li.exchange a' ).on( 'click', function(){ app.Common.openExternalWebsite( $( '#in-sub-nav li.exchange a' ).data( 'url' ) ); return false; } );
 };
 
 app.Layout = {};
 
 // Make content sections expandable
 app.Layout.makeExpandable = function () {
-    $( '.table-panel' ).addClass( 'expandable' ).find( 'h4' ).append( $( '<span class="expand-icon"><i class="icon-chevron-down"></i></span><span class="expand-icon"><i class="icon-chevron-up"></i></span>' ) ).on( 'click', app.Layout.expand );
+    $( '.table-panel:not(.not-expandable)' ).addClass( 'expandable' ).find( 'h4' ).append( $( '<span class="expand-icon"><i class="icon-chevron-down"></i></span><span class="expand-icon"><i class="icon-chevron-up"></i></span>' ) ).on( 'click', app.Layout.expand );
 };
 
 app.Layout.expand = function ( e ) {
@@ -94,6 +105,15 @@ app.Layout.expand = function ( e ) {
             scrollTop: ( $( e.currentTarget ).closest( '.table-panel' ).offset().top - 80 )
         }, 400);
     }
+    
+    return false;
+};
+
+app.Layout.expandTableCell = function ( e ) {
+    if ( $( window ).width() > 480 )
+        return false;
+
+    $( e.currentTarget ).toggleClass( 'expanded' );
     
     return false;
 };
@@ -117,29 +137,30 @@ app.Layout.displaySubmenu = function () {
     return false;
 };
 
-app.Common = {};
-
 // Resize external view iframe on window resize
 app.Common.resizeExternalFrame = function () {
     $( '#external-frame' ).css( 'width', $( window ).width() );
     $( '#external-frame' ).css( 'height', $( window ).height() - 42 );
 };
 
+// Open external website in external view frame
+app.Common.openExternalWebsite = function ( url ) {
+    // Display external view frame
+    $( '#external-frame' ).attr( 'src', url ).fadeIn();
+
+    // Hide normal navigation menu
+    $( '#in-nav #user-nav' ).hide();
+    $( '#in-nav .external-frame' ).fadeIn();
+};
+
 app.Common.closeExternalFrame = function () {
     // Hide external view frame
-    $( '#external-frame' ).fadeOut();
-    $( '#external-frame' ).attr( 'src', 'blank.html' );
+    $( '#external-frame' ).fadeOut().attr( 'src', 'blank.html' );
 
     // Reset default menu navigation
-    $( '#user-nav .nav.external-frame' ).hide();
-    $( '#user-nav .nav.external-frame li' ).removeClass( 'active' );
-    $( '#user-nav .nav:not(.external-frame)' ).fadeIn();
-
-    // Show sidebar
-    $( '#sidebar' ).show();
-
-    // Reset default logo
-    $( '#header h1' ).removeClass('small');
+    $( '#in-nav .external-frame' ).hide();
+    $( '#in-nav .external-frame li' ).removeClass( 'active' );
+    $( '#in-nav #user-nav' ).fadeIn();
 };
 
 app.Common.displaySubmenu = function ( e ) {
