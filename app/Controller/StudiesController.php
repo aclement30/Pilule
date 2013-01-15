@@ -25,6 +25,10 @@ class StudiesController extends AppController {
         	array(
                 'action'=>  "app.Cache.reloadData( { name: 'studies', auto: 0 } );",
                 'type'  =>  'refresh'
+            ),
+            array(
+                'action'=>  "window.print();",
+                'type'  =>  'print'
             )
         ) );
 		$this->set( 'title_for_layout', 'Programme d\'études' );
@@ -74,6 +78,10 @@ class StudiesController extends AppController {
             array(
                 'action'=>  "app.Cache.reloadData( { name: 'studies-details', auto: 0 } );",
                 'type'  =>  'refresh'
+            ),
+            array(
+                'action'=>  "window.print();",
+                'type'  =>  'print'
             )
         ) );
         $this->set( 'title_for_layout', 'Rapport de cheminement' );
@@ -204,6 +212,10 @@ EOD;
             array(
                 'action'=>  "app.Cache.reloadData( { name: 'studies-report', auto: 0 } );",
                 'type'  =>  'refresh'
+            ),
+            array(
+                'action'=>  "window.print();",
+                'type'  =>  'print'
             )
         ) );
         $this->set( 'title_for_layout', 'Relevé de notes' );

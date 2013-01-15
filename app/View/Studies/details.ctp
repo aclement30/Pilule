@@ -18,19 +18,19 @@ foreach ($programs[ 'Program' ] as $program) :
 <div class="stats no-print">
     <div class="row-fluid">
         <div class="span4">
-            <div class="stat info">
+            <div class="stat">
                 <h2><?php echo $program['gpa_program']; ?></h2>
                 <h6>Moyenne de programme</h6>
             </div>
         </div>
         <div class="span4">
-            <div class="stat danger">
+            <div class="stat">
                 <h2><?php echo ($program['credits_used']+$program['credits_admitted']); ?></h2>
                 <h6>Crédits accumulés</h6>
             </div>
         </div>
         <div class="span4">
-            <div class="stat warning">
+            <div class="stat">
                 <h2><?php echo ($program['courses_used']+$program['courses_admitted']); ?></h2>
                 <h6>Cours complétés/reconnus</h6>
             </div>
@@ -40,9 +40,9 @@ foreach ($programs[ 'Program' ] as $program) :
 
 <div class="row-fluid">
     <div class="span7">
-        <div class="table-panel expandable">
+        <div class="table-panel">
             <h4> <i class="icon-user"></i>Dossier de l'étudiant</h4>
-            <table class="table table-striped sortable">
+            <table class="table table-striped">
                 <tbody>
                     <tr>
                         <th>Étudiant</th>
@@ -110,13 +110,13 @@ foreach ($programs[ 'Program' ] as $program) :
     <div class="span5">
         <div class="table-panel">
             <h4> <i class="icon-th"></i>Cours et crédits</h4>
-            <table class="table table-striped sortable courses-credits">
+            <table class="table table-striped courses-credits" style="width: 100%;">
                 <thead>
                     <tr>
                         <th>&nbsp;</th>
                         <th>Utilisés</th>
                         <th>Reconnus</th>
-                        <th>Programme</th>
+                        <th>Prog.</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -143,7 +143,7 @@ foreach ($programs[ 'Program' ] as $program) :
     <div class="span5">
         <div class="table-panel">
             <h4> <i class="icon-signal"></i>Moyennes</h4>
-            <table class="table table-striped sortable gpas">
+            <table class="table table-striped gpas">
                 <thead>
                     <tr>
                         <th>Programme</th>
@@ -201,7 +201,7 @@ foreach ($programs[ 'Program' ] as $program) :
             $isCompleted = true;
 
         ?>
-        <div class="table-panel<?php if ( $isCompleted ) echo ' completed'; ?>">
+        <div class="table-panel<?php if ( $isCompleted ) echo ' completed'; ?> not-expandable">
             <h5> <?php if ( $isCompleted ) echo '<i class="icon-ok"></i>'; else echo '<i class="icon-th"></i>'; echo $section[ 'title' ]; ?></h5>
             <table class="table table-striped sortable courses-list">
                 <thead>
@@ -217,11 +217,13 @@ foreach ($programs[ 'Program' ] as $program) :
                     <?php foreach ( $section[ 'Course' ] as $course ) : ?>
                         <tr class="<?php if ( empty( $course[ 'note' ] ) ) echo 'current'; ?>">
                             <td class="code">
-                                <?php echo $course[ 'code' ]; ?><br />
+                                <span class="course-code"><?php echo $course[ 'code' ]; ?></span><br />
                                 <span class="mobile-title"><?php echo $course[ 'title' ]; ?></span>
                             </td>
                             <td class="title"><?php echo $course[ 'title' ]; ?></td>
-                            <td class="semester"><?php if ( !empty( $course[ 'semester' ] ) ) echo $this->App->convertSemester( $course[ 'semester' ], true ); ?></td>
+                            <td class="semester">
+                                <?php if ( !empty( $course[ 'semester' ] ) ) echo $this->App->convertSemester( $course[ 'semester' ], true ); ?>
+                            </td>
                             <td class="credits"><?php echo $course[ 'credits' ]; ?></td>
                             <td class="note">
                                 <?php
@@ -257,7 +259,7 @@ foreach ($programs[ 'Program' ] as $program) :
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th class="left" colspan="<?php if ( $isMobile ) echo 2; else echo 3; ?>">Total</th>
+                        <th class="left" colspan="3">Total</th>
                         <td class="total-credits">
                             <?php
                                 echo $creditsCompleted;

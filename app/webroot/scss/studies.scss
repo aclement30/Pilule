@@ -1,6 +1,6 @@
 @import 'global';
 
-table.courses-credits, table.gpas {
+table.courses-credits, table.gpas, table.summary {
 	thead th {
 		text-align: center;
 	}
@@ -12,12 +12,6 @@ table.courses-credits, table.gpas {
 
 h4.formation {
 	margin-bottom: 30px;
-}
-
-.table-panel {
-	.expand-icon {
-		display: none;
-	}
 }
 
 table.courses-list {
@@ -37,6 +31,7 @@ table.courses-list {
 
 	thead th:first-child {
 		width: 15%;
+		min-width: 100px;
 	}
 
 	thead th.title {
@@ -56,63 +51,16 @@ table.courses-list {
 		text-align: right;
 	}
 
-	tfoot td.total-credits {
+	tfoot td {
 		text-align: center;
 		font-weight: bold;
 	}
 }
 
-@media (max-width: 480px) {
-	.table-panel {
-		&.expandable {
-			table {
-				display: none;
-			}
-
-			h4 {
-				padding-bottom: 10px;
-				margin-bottom: 20px;
-				border-bottom: 1px solid #eee;
-				cursor: pointer;
-
-				.expand-icon {
-					display: block;
-					float: right;
-
-					i.icon-chevron-down {
-						display: inline-block;
-					}
-
-					i.icon-chevron-up {
-						display: none;
-					}
-				}
-			}
-
-			&.expanded {
-				table {
-					display: block;
-				}
-				
-				h4 {
-					padding-bottom: 0px;
-					border-bottom: none;
-
-					i.icon-chevron-down {
-						display: none;
-					}
-
-					i.icon-chevron-up {
-						display: inline-block;
-					}
-				}
-			}
-		}
-	}
-}
-
 @media (max-width: 660px) {
 	table.courses-list {
+		margin-bottom: 20px;
+
 		thead th.title, tbody td.title {
 			display: none;
 		}
@@ -125,8 +73,48 @@ table.courses-list {
 			width: 20%;
 		}
 
-		td.code .mobile-title {
-			display: inline;
+		tbody td.code {
+			cursor: pointer;
+			vertical-align: center;
+
+			.expand-icon {
+				display: block;
+				float: right;
+				position: relative;
+				top: -3px;
+
+				i.icon-chevron-down {
+					display: inline-block;
+				}
+
+				i.icon-chevron-up {
+					display: none;
+				}
+			}
+
+			&.expanded {
+				.mobile-title {
+					display: inline;
+					font-size: 8pt;
+					line-height: 10pt;
+				}
+
+				.course-code {
+					i.icon-chevron-down {
+						display: none;
+					}
+
+					i.icon-chevron-up {
+						display: inline-block;
+					}
+				}
+			}
 		}
+	}
+}
+
+@media (max-width: 768px) {
+	.stats {
+		display: none;
 	}
 }
