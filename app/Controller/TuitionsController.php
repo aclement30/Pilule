@@ -33,19 +33,19 @@ class TuitionsController extends AppController {
         ) );
 
 		$this->set( 'title_for_layout', 'Frais de scolarité' );
+        $this->set( 'sidebar', 'tuitions' );
+        $this->setAssets( array(
+            '/js/tuitions.js',
+            '/js/jquery.flot.min.js',
+            '/js/jquery.flot.pie.min.js',
+            '/js/jquery.flot.resize.min.js' 
+        ), array( '/css/tuitions.css' ) );
 		$this->set( 'dataObject', 'tuition-fees' );
 
 		$tuitions = $this->StudentTuitionAccount->User->find( 'first', array(
 			'conditions'	=>	array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
             'contain'       =>  array( 'TuitionAccount' => array( 'Semester' ) ),
         	'fields'		=> 	array( 'User.idul' )
-        ) );
-
-        $this->setAssets( array(
-            '/js/tuitions.js',
-            '/js/jquery.flot.min.js',
-            '/js/jquery.flot.pie.min.js',
-            '/js/jquery.flot.resize.min.js' 
         ) );
 
 		// Check is data exists in DB
@@ -135,7 +135,10 @@ class TuitionsController extends AppController {
 
         $this->set( 'title_for_layout', 'Relevé par session' );
         $this->set( 'dataObject', 'tuition-fees' );
-        $this->setAssets( array( '/js/tuitions.js' ) );
+        $this->set( 'sidebar', 'tuitions' );
+        $this->setAssets( array(
+            '/js/tuitions.js'
+        ), array( '/css/tuitions.css' ) );
 
         $tuitions = $this->StudentTuitionAccount->User->find( 'first', array(
             'conditions'    =>  array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
