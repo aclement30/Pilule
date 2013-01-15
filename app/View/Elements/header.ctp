@@ -22,9 +22,9 @@
                         </li>
                     </ul>
                     
-                    <ul class="external-frame">
+                    <ul class="external-frame pull-right">
                         <li>
-                            <a title="Revenir au site de Pilule" href="javascript:app.Common.closeExternalFrame();"><i class="icon icon-arrow-left"></i> Revenir à Pilule</a>
+                            <a title="Revenir au site de Pilule" href="javascript:app.Common.closeExternalFrame();"><i class="icon icon-arrow-left icon-white"></i>&nbsp;&nbsp;Revenir à Pilule</a>
                         </li>
                     </ul>
 
@@ -41,22 +41,22 @@
         <div class="row">
             <div class="span12">
                 <ul>
-                    <li class="home">
+                    <li class="home<?php if ( $this->request->params[ 'controller' ] == 'users' && $this->request->params[ 'action' ] == 'dashboard' ) echo ' active'; ?>">
                         <?php echo $this->Html->link( '<i class="batch home"></i><br>Tableau de bord', array( 'controller' => 'users', 'action' => 'dashboard' ), array( 'escape' => false ) ); ?>
                     </li>
-                    <li>
+                    <li class="<?php if ( $this->request->params[ 'controller' ] == 'studies' ) echo 'active'; ?>">
                         <?php echo $this->Html->link( '<i class="batch stream"></i><br>Dossier scolaire', array( 'controller' => 'studies' ), array( 'escape' => false ) ); ?>
                     </li>
-                    <li>
+                    <li class="<?php if ( $this->request->params[ 'controller' ] == 'schedule' ) echo 'active'; ?>">
                         <?php echo $this->Html->link( '<i class="batch calendar"></i><br>Horaire', array( 'controller' => 'schedule' ), array( 'escape' => false ) ); ?>
                     </li>
                     <li class="exchange">
-                        <?php echo $this->Html->link( '<i class="batch plane"></i><br>Exchange', '#', array( 'escape' => false ) ); ?>
+                        <?php echo $this->Html->link( '<i class="batch plane"></i><br>Exchange', '#', array( 'escape' => false, 'data-url' => '/services/exchange' ) ); ?>
                     </li>
-                    <li>
+                    <li class="<?php if ( $this->request->params[ 'controller' ] == 'tuitions' ) echo 'active'; ?>">
                         <?php echo $this->Html->link( '<i class="batch quill"></i><br>Frais de scolarité', array( 'controller' => 'tuitions' ), array( 'escape' => false ) ); ?>
                     </li>
-                    <li class="registration">
+                    <li class="registration<?php if ( $this->request->params[ 'controller' ] == 'registration' ) echo ' active'; ?>">
                         <?php echo $this->Html->link( '<i class="batch forms"></i><br>Choix de cours', array( 'controller' => 'registration' ), array( 'escape' => false ) ); ?>
                     </li>
                 </ul>
