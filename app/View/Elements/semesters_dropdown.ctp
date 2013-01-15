@@ -7,7 +7,7 @@
             </a>
             <ul class="dropdown-menu pull-right">
                 <?php foreach ( $semestersList as $semester ) : ?>
-                    <li>
+                    <li<?php if ( $semester == $selectedSemester ) echo ' class="selected"'; ?>>
                         <a href="#" data-semester="<?php echo $semester; ?>">
                             <?php echo $this->App->convertSemester( $semester ); ?>
                         </a>
