@@ -44,11 +44,11 @@
             <div class="container">
                 <div class="row">
                     <?php if ( !empty( $sidebar ) ) : ?>
-                        <div class="span3">
+                        <div class="span3 aside">
                             <?php echo $this->element( 'sidebars/' . $sidebar ); ?>
                         </div>
                     <?php endif; ?>
-                    <div class="<?php if ( !empty( $sidebar ) ) echo 'span9'; else echo 'span12'; ?>">
+                    <div class="<?php if ( !empty( $sidebar ) ) echo 'span9'; else echo 'span12'; ?> main">
                         <div class="btn-group action-buttons pull-right">
                             <div class="buttons">
                               <?php

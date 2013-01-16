@@ -181,7 +181,7 @@ foreach ($programs[ 'Program' ] as $program) :
 
 </div><!-- End of row-fluid -->
 
-<hr>
+<hr style="page-break-after: always;">
 
 <h4 class="formation">Formation</h4>
 

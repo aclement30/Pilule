@@ -2,27 +2,22 @@ body {
   margin: 0px;
 }
 
-#header, #user-nav, #sidebar, .footer, #breadcrumb, .btn-group.action-buttons .buttons, .no-print, .widget-box .widget-title .icon {
+#in-nav, #in-sub-nav, .container .aside, footer, .action-buttons .buttons, .no-print {
   display: none!important;
 }
 
-#content {
+.container .main {
   width: 100%;
   margin: 0px;
   padding: 0px;
 }
 
-#content-header {
-  margin-top: 0px;
-  height: 50px;
+.container h4 i, .container h5 i {
+  display: none;
 }
 
 th.course-code {
   width: 2cm!important;
-}
-
-.widget-content .panel-left {
-  width: 100%;
 }
 
 .request-description {
