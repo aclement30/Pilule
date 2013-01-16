@@ -30,8 +30,21 @@
 
 	Router::connect( '/', array( 'controller' => 'users', 'action' => 'dashboard' ) );
 	Router::connect( '/dashboard', array( 'controller' => 'users', 'action' => 'dashboard' ) );
-	Router::connect( '/login', array( 'controller' => 'users', 'action' => 'login' ) );
-	Router::connect( '/logout', array( 'controller' => 'users', 'action' => 'logout' ) );
+
+	Router::connect( '/dossier-scolaire', array( 'controller' => 'studies', 'action' => 'index' ) );
+	Router::connect( '/dossier-scolaire/rapport-cheminement', array( 'controller' => 'studies', 'action' => 'details' ) );
+	Router::connect( '/dossier-scolaire/releve-notes', array( 'controller' => 'studies', 'action' => 'report' ) );
+
+	Router::connect( '/frais-scolarite', array( 'controller' => 'tuitions', 'action' => 'index' ) );
+	Router::connect( '/frais-scolarite/releve', array( 'controller' => 'tuitions', 'action' => 'details' ) );
+	Router::connect( '/frais-scolarite/:semester', array( 'controller' => 'tuitions', 'action' => 'details' ), array( 'pass' => array( 'semester' ) ) );
+
+	Router::connect( '/preferences', array( 'controller' => 'settings', 'action' => 'index' ) );
+
+	Router::connect( '/connexion', array( 'controller' => 'users', 'action' => 'login' ) );
+
+	//Router::connect( '/logout', array( 'controller' => 'users', 'action' => 'logout' ) );
+	Router::connect( '/deconnexion', array( 'controller' => 'users', 'action' => 'logout' ) );
 
 /**
  * ...and connect the rest of 'Pages' controller's urls.
@@ -40,9 +53,12 @@
 	Router::connect( '/pages/*', array( 'controller' => 'pages', 'action' => 'display'));
 
 	Router::connect( '/schedule/:semester', array( 'controller' => 'schedule', 'action' => 'index' ), array( 'pass' => array( 'semester' ) ) );
+	Router::connect( '/horaire/:semester', array( 'controller' => 'schedule', 'action' => 'index' ), array( 'pass' => array( 'semester' ) ) );
+	Router::connect( '/horaire', array( 'controller' => 'schedule', 'action' => 'index' ) );
 
 	Router::connect( '/services/:service', array( 'controller' => 'services', 'action' => 'connect' ), array( 'pass' => array( 'service' ) ) );
 
+	Router::connect( '/choix-cours', array( 'controller' => 'registration', 'action' => 'index' ) );
 	Router::connect( '/registration/getCourseInfo/:code', array( 'controller' => 'registration', 'action' => 'getCourseInfo' ), array( 'pass' => array( 'code' ) ) );
 
 /**
