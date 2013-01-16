@@ -510,6 +510,88 @@ footer {
   position: fixed;
   top: 60px;
 }
+
+.no-data {
+  p.lead {
+    margin-top: 30px;
+    font-weight: normal;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero-unit.no-data {
+    padding: 30px;
+
+    p.lead {
+      margin-top: 0px;
+    }
+
+    .main {
+      padding-top: 0px;
+    }
+
+    .image, .span1 {
+      display: none;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-unit.no-data {
+    .image {
+      max-width: 100%;
+      float: left;
+      text-align: right;
+      padding-left: 0px;
+      padding-right: 15px;
+
+      img {
+        max-width: 90%;
+      }
+    }
+  }
+}
+
+@media (min-width: 600px) and (max-width: 979px) {
+  .hero-unit.no-data {
+      padding: 30px;
+
+      p.lead {
+        margin-top: 0px;
+      }
+
+      .image {
+          max-width: 40%;
+          float: left;
+          text-align: right;
+          padding-left: 0px;
+          padding-right: 15px;
+
+          img {
+              max-width: 90%;
+          }
+      }
+
+      .main {
+          max-width: 60%;
+          float: left;
+          padding-top: 0px;
+      }
+
+      .span1 {
+          display: none;
+      }
+  }
+}
+
+@media (min-width: 1200px) {
+  .hero-unit.no-data {
+    p.lead {
+      margin-top: 70px;
+    }
+  }
+}
+
 /* ============== login ============== */
 
 .login {
