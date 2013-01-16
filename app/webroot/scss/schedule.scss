@@ -1,32 +1,29 @@
+@import 'global';
 
-#calendar {
-    .fc-widget-header {
-        text-align: center;
-        text-transform: lowercase;
-    }
-
-    .fc-header-title h2 {
-        font-size: 10pt;
-        font-weight: normal;
-    }
-
-    .fc-header-left {
-        width: 90px;
-
-        .fc-button {
-            float: left;
+@media (max-width: 480px) {
+    .action-buttons {
+        .js-download-btn {
+            display: none;
         }
     }
 
-    .fc-header-center {
-        padding-right: 10%;
+    h4.header span.long {
+        display: none;
     }
+}
 
-    .fc-event-title {
-        font-weight: bold;
+.main > .semesters-dropdown.compact {
+    display: none;
+}
 
-        div {
-            font-weight: normal;
+.action-buttons .buttons {
+    .semesters-dropdown {
+        float: right;
+        margin-top: 0px;
+        margin-left: 10px;
+
+        .select-label {
+            display: none;
         }
     }
 }

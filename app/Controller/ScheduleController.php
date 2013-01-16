@@ -100,7 +100,8 @@ class ScheduleController extends AppController {
                 'type'  =>  'download'
             )
         ) );
-		$this->set( 'title_for_layout', 'Horaire de cours' );
+		$this->set( 'title_for_layout', 'Horaire<span class="long"> de cours</span>' );
+        $this->setAssets( array( '/js/schedule.js' ), array( '/css/schedule.css' ) );
         $this->set( 'dataObject', 'schedule' );
         
 		$schedule = $this->StudentScheduleSemester->find( 'first', array(
@@ -111,8 +112,6 @@ class ScheduleController extends AppController {
         $semestersList = $this->StudentScheduleSemester->find( 'list', array(
             'conditions'    =>  array( 'StudentScheduleSemester.idul' => $this->Session->read( 'User.idul' ) )
         ) );
-
-        $this->setAssets( array( '/js/schedule.js' ) );
 
 		// Check is data exists in DB
         if ( ( $lastRequest = $this->CacheRequest->requestExists( 'schedule-' . $semester ) ) && !empty( $schedule[ 'Course' ] ) ) {

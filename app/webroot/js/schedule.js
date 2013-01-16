@@ -22,14 +22,27 @@ app.Schedule.displaySemester = function ( e ) {
 };
 
 app.Schedule.display = function ( calendar ) {
-    $( '#calendar' ).fullCalendar( {
-        header: 		{
+	var defaultView = 'agendaWeek';
+
+	if ( $( window ).width() <= 480 ) {
+		defaultView = 'agendaDay';
+		var header = {
+            left: 	'title',
+            center: '',
+            right: 	'prev, next'
+        };
+	} else {
+		var header = {
             left: 	'prev, next',
             center: 'title',
             right: 	''
-        },
+        };
+	}
+
+    $( '#calendar' ).fullCalendar( {
+        header: 		header,
         firstDay:   	1,
-        defaultView :   'agendaWeek',
+        defaultView :   defaultView,
         allDaySlot:     false,
         firstHour:      8,
         minTime:        8,
@@ -40,18 +53,18 @@ app.Schedule.display = function ( calendar ) {
         timeFormat: 	'H(:mm)', // uppercase H for 24-hour clock
         axisFormat: 	'H:mm',
          buttonText: 	{
-            prev: '',
-            next: ''
+            prev: '&nbsp;◄&nbsp;',
+            next: '&nbsp;►&nbsp;'
         },
         titleFormat:    {
             month:  'MMMM yyyy',
-            week: 	"d[ MMM][ yyyy]{ '&#8212;' d MMM. yyyy}",
+            week: 	"d['&nbsp;&nbsp;&nbsp;'MMM]['&nbsp;&nbsp;&nbsp;'yyyy]{ '&#8212;' d'&nbsp;&nbsp;&nbsp;'MMM.'&nbsp;&nbsp;&nbsp;'yyyy}",
             day: 	'dddd, d MMM. yyyy'
         },
         eventRender: 	function( event, element ) {
-            element.find( '.fc-event-time' ).append( ' ' + event.code );
-            var description = '<br /><div style="margin-top: 5px;"><i class="icon-map-marker icon-white"></i> <span>' + event.location + '</span></div>';
-            if ( event.teacher != '' ) description += '<div style="margin-bottom: 5px; margin-top:  5px;"><i class="icon-user icon-white"></i> <span>' + event.teacher + '</span></div>';
+            element.find( '.fc-event-time' ).append( '&nbsp;&nbsp;-&nbsp;&nbsp;' + event.code );
+            var description = '<br /><div class="location"><i class="icon-map-marker icon-white"></i> <span>' + event.location + '</span></div>';
+            if ( event.teacher != '' ) description += '<div class="teacher"><i class="icon-user icon-white"></i> <span>' + event.teacher + '</span></div>';
             element.find( '.fc-event-title' ).append( description );
         },
         monthNamesShort:    [ 'janv', 'fév', 'mars', 'avril', 'mai', 'juin', 'juil', 'août', 'sept', 'oct', 'nov', 'déc' ],
@@ -62,8 +75,14 @@ app.Schedule.display = function ( calendar ) {
             week: 	'ddd. d', // Mon 9/7
             day: 	''  // Nothing
         },
-        height: 		650,
-        events: 		calendar.events
+        height: 		700,
+        events: 		calendar.events,
+        viewDisplay: function() {
+	        // Move the semesters dropdown in the calendar right header
+	        if ( $( '#calendar .fc-header-right .semesters-dropdown' ).not( '.compact' ).length == 0 && $( window ).width() > 480 ) {
+	        	$( '.main .semesters-dropdown' ).not( '.compact' ).appendTo( '#calendar .fc-header-right' );
+	        }
+	    }
     } );
 
 	// If no other courses for this semester, hide right column
@@ -91,6 +110,13 @@ app.Schedule.init = function () {
 	}
 
 	$( '.semesters-dropdown ul li a' ).on( 'click', app.Schedule.displaySemester );
+
+	if ( $( window ).width() <= 480 ) {
+		$( '.main .semesters-dropdown.compact' ).appendTo( '.main .action-buttons .buttons' );
+		
+		if ( $( '.main .no-data' ).length == 0 )
+			$( '.main .semesters-dropdown' ).not( '.compact' ).hide();
+	}
 };
 
 $( document ).ready( app.Schedule.init );

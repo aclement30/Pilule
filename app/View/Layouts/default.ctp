@@ -7,7 +7,7 @@
 
     <?php echo $this->element( 'metas' ); ?>
 	
-    <title><?php if ( isset( $title_for_layout ) ) echo $title_for_layout . ' | '; ?>Pilule - Gestion des études</title>
+    <title><?php if ( isset( $title_for_layout ) ) echo strip_tags( $title_for_layout ) . ' - '; ?>Pilule - Gestion des études</title>
 
     <?php echo $this->element( 'css/bootstrap' ); ?>
     <?php echo $this->element( 'css/default' ); ?>

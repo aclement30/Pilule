@@ -499,6 +499,10 @@ footer {
         }
     }
 
+    ul {
+      text-align: left;
+    }
+    
     li.selected a {
       font-weight: bold;
     }
@@ -1197,7 +1201,22 @@ ul.stat-list {
     background-color: #007ccd;
     border: 1px solid #007ccd;
     border-radius: 4px;
+  }
+  .fc-event-head {
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
     text-align: center;
+  }
+  .fc-event-time {
+    font-size: 10pt;
+  }
+  .fc-event-content {
+    padding: 5px;
+    line-height: 12pt;
+
+    .location, .teacher {
+      margin-top: 5px;
+    }
   }
 }
 

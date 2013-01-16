@@ -28,7 +28,7 @@ app.init = function () {
 
     if ( $( window ).width() <= 480 ) {
         // If there is a sidebar, autoscroll to content
-        if ( $( '.sidebar .nav-col' ) ) {
+        if ( $( '.sidebar .col-nav' ).length != 0 ) {
             $( 'html, body' ).animate({
                 scrollTop: ( $( 'h4.header' ).offset().top - 90 )
             }, 1);
@@ -84,7 +84,15 @@ app.init = function () {
 
     $( '#in-nav .external-frame a' ).on( 'click', app.Common.closeExternalFrame );
 
-    $( '#in-sub-nav li.exchange a' ).on( 'click', function(){ app.Common.openExternalWebsite( $( '#in-sub-nav li.exchange a' ).data( 'url' ) ); return false; } );
+    $( '#in-sub-nav li.exchange a' ).on( 'click', function(){
+        if ( $( window ).width() > 660 ) {
+            app.Common.openExternalWebsite( $( '#in-sub-nav li.exchange a' ).data( 'url' ) );
+        } else {
+            document.location = $( '#in-sub-nav li.exchange a' ).data( 'url' );
+        }
+
+        return false;
+    } );
 };
 
 app.Layout = {};

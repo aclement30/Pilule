@@ -121,7 +121,7 @@ class UsersController extends AppController {
         $this->set( 'userModules', $userModules );
 
 		$this->set( 'title_for_layout', 'Tableau de bord' );
-		$this->set( 'sidebar', 'dashboard' );	
+		$this->set( 'sidebar', 'dashboard' );
 		$this->setAssets( array( '/js/dashboard.js' ), null );
 	}
 

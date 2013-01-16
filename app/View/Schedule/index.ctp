@@ -12,11 +12,24 @@
 	) );
 ?>
 
-<div class="row-fluid">
-    <div class="request-description">
-    	Données extraites du système de gestion des études de l'Université Laval, le <?php echo date( 'd/m/Y, à H:i', $timestamp ); ?>.
-    </div>
+<div class="request-description">
+	Données extraites du système de gestion des études de l'Université Laval, le <?php echo date( 'd/m/Y, à H:i', $timestamp ); ?>.
 </div>
+
+
+<?php
+	// Display semesters dropdown
+    if ( !empty( $semestersList ) ) :
+        echo $this->element( 'semesters_dropdown', array( 'semestersList' => $semestersList, 'selectedSemester' => $semester ) );
+    endif;
+?>
+
+<?php
+	// Display semesters dropdown
+    if ( !empty( $semestersList ) ) :
+        echo $this->element( 'semesters_dropdown', array( 'semestersList' => $semestersList, 'selectedSemester' => $semester, 'compact' => true ) );
+    endif;
+?>
 
 <?php /* ?>
 	<div class="alert alert-info sharing-notice">
@@ -35,25 +48,8 @@
 	</div>
 <?php */ ?>
 
-
-<div class="row-fluid">
-    <div class="span12">
-        <div class="widget-box">
-            <div class="widget-title">
-                <span class="icon"><i class="icon-calendar"></i></span>
-                <h5>Cours en classe</h5>
-                <div class="buttons">
-	                <?php
-	                	// Display semesters dropdown
-					    if ( !empty( $semestersList ) ) :
-					        echo $this->element( 'semesters_dropdown', array( 'semestersList' => $semestersList, 'selectedSemester' => $semester ) );
-					    endif;
-					?>
-				</div>
-            </div>
-            <div class="widget-content nopadding">
-                <div class="panel-left">
-                    <div id="calendar"></div>
+<div id="calendar"></div>
+<!--
                 </div>
                 <div id="external-events" class="panel-right no-print">
                     <div class="panel-title">
@@ -99,6 +95,7 @@
         </div>
     </div>
 </div>
+-->
 
 <script type="text/javascript">
 	var timetable = <?php echo json_encode( $timetable ); ?>;
