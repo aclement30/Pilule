@@ -137,6 +137,8 @@ app.Layout.displaySubmenu = function () {
     return false;
 };
 
+app.Common = {};
+
 // Resize external view iframe on window resize
 app.Common.resizeExternalFrame = function () {
     $( '#external-frame' ).css( 'width', $( window ).width() );
