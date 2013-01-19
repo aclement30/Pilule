@@ -1,12 +1,4 @@
 <div class="row-fluid dashboard">
-	<div class="panel">
-		<div class="top primary">
-			<i class="batch-big b-database"></i>
-		</div>
-		<div class="bottom">
-			<h5>Dossier scolaire</h5>
-		</div>
-	</div>
 	<?php
 		$number = 1;
 		foreach ( $modules as $module ) :
@@ -59,7 +51,7 @@
 				<div class="<?php echo implode( ' ', $classNames ); ?>" data-id="<?php echo $module[ 'id' ]; ?>" data-url="<?php echo $module[ 'url' ]; ?>">
 					<a href="#"<?php if (isset($module['target'])) echo ' target="'.$module['target'].'"'; ?>>
 						<div class="top primary">
-							<img src="/img/modules/<?php echo $module['icon']; ?>" />
+							<img src="/img/modules/<?php echo $module[ 'alias' ]; ?>.png" />
 							<!--<i class="batch-big b-database"></i>-->
 						</div>
 						<div class="bottom">
