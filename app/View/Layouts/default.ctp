@@ -49,27 +49,29 @@
                         </div>
                     <?php endif; ?>
                     <div class="<?php if ( !empty( $sidebar ) ) echo 'span9'; else echo 'span12'; ?> main">
-                        <div class="btn-group action-buttons pull-right">
-                            <div class="buttons">
-                              <?php
-                                if ( isset( $buttons ) && !empty( $buttons ) )
-                                  echo $this->element( 'action_buttons', $buttons );
-                              ?>
+                        <div class="inner-content">
+                            <div class="btn-group action-buttons pull-right">
+                                <div class="buttons">
+                                  <?php
+                                    if ( isset( $buttons ) && !empty( $buttons ) )
+                                      echo $this->element( 'action_buttons', $buttons );
+                                  ?>
+                                </div>
+                                <div class="timestamp no-print">
+                                  <?php
+                                    if ( isset( $timestamp ) && !empty( $timestamp ) )
+                                        echo 'Données actualisées : ' . $this->App->timeAgo( $timestamp ) . '.';
+                                  ?>
+                                </div>
+                                <div class="loading-status"></div>
                             </div>
-                            <div class="timestamp no-print">
-                              <?php
-                                if ( isset( $timestamp ) && !empty( $timestamp ) )
-                                    echo 'Données actualisées : ' . $this->App->timeAgo( $timestamp ) . '.';
-                              ?>
-                            </div>
-                            <div class="loading-status"></div>
+
+                            <h4 class="header"><?php echo $title_for_layout; ?></h4>
+
+                            <?php echo $this->Session->flash(); ?>
+
+                            <?php echo $this->fetch('content'); ?>
                         </div>
-
-                        <h4 class="header"><?php echo $title_for_layout; ?></h4>
-
-                        <?php echo $this->Session->flash(); ?>
-
-                        <?php echo $this->fetch('content'); ?>
                     </div>
                 </div>
             </div>

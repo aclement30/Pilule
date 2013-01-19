@@ -5,7 +5,7 @@
 <script type='text/javascript' src="/js/libs/jquery.knob.js"></script>
 <!--<script type='text/javascript' src="http://d3js.org/d3.v3.min.js"></script>-->
 <script type='text/javascript' src="/js/libs/jquery.sparkline.min.js"></script>
-<!--<script type='text/javascript' src="/js/libs/toastr.js"></script>-->
+<script type='text/javascript' src="/js/libs/toastr.js"></script>
 <script type='text/javascript' src="/js/libs/jquery.tablesorter.min.js"></script>
 <script type='text/javascript' src="/js/libs/jquery.peity.min.js"></script>
 <!--script type='text/javascript' src="/js/d3-setup.js"></script>-->
