@@ -1,9 +1,21 @@
 body {
-  margin: 0px;
+	width: 8.5in;
+  margin: 0.5cm;
+  background: none;
 }
 
 #in-nav, #in-sub-nav, .container .aside, footer, .action-buttons .buttons, .no-print {
   display: none!important;
+}
+
+.page {
+	width: 100%;
+	border-radius: 0px;
+	box-shadow: none;
+}
+
+.container {
+	width: 100%;
 }
 
 .container .main {
