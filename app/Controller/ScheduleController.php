@@ -98,6 +98,10 @@ class ScheduleController extends AppController {
                 'action'=>  "app.Schedule.download( '" . $semester . "' );",
                 'tip'   =>  "Télécharger l'horaire",
                 'type'  =>  'download'
+            ),
+            array(
+                'action'=>  "window.print();",
+                'type'  =>  'print'
             )
         ) );
 		$this->set( 'title_for_layout', 'Horaire<span class="long"> de cours</span>' );

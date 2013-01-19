@@ -28,6 +28,100 @@
     }
 }
 
+#agenda {
+    table {
+        thead {
+            th {
+                text-align: center;
+                background-color: silver;
+            }
+
+            th {
+                width: 18%;
+            }
+
+            th:first-child {
+                width: 10%;
+            }
+        }
+
+        tbody {
+            td, th {
+                padding: 5px;
+                border-right: 1px solid #ccc;
+            }
+
+            th.hour {
+                text-align: center;
+                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-size: 11px;
+                font-weight: normal;
+                color: #666;
+                border-left: 1px solid #ccc;
+            }
+
+            tr:nth-child(odd) td {
+                border-top: 1px solid #ccc;
+            }
+
+            tr:nth-child(even) td, tr:nth-child(even) th {
+                border-top: 1px dotted #ddd;
+            }
+
+            tr:last-child td, tr:last-child th.hour {
+                border-bottom: 1px solid #ccc;
+            }
+
+            td.class {
+                padding: 1px;
+
+                .inside {
+                    height: 100%;
+                    color: #fff;
+                    padding: 6px 8px;
+                    background-color: #08c;
+                    border-radius: 3px;
+                    font-weight: normal;
+                    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+                    .code {
+                        font-weight: bold;
+                    }
+
+                    .title, .teacher, .location {
+                        font-size: 12px;
+                        margin-top: 3px;
+                        padding-top: 3px;
+                        border-top: 1px dotted #eee;
+                    }
+                }
+
+                &.length-half {
+                    .inside {
+                        padding: 4px 8px;
+                    }
+
+                    .title, .teacher, .location {
+                        display: none;
+                    }
+                }
+
+                &.length-hour {
+                    .title, .teacher {
+                        display: none;
+                    }
+                }
+
+                &.length-hour-half {
+                    .title {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+}
+
 #external-events .class {
     background-color: #dae6f1;
     border-radius: 5px;
