@@ -62,15 +62,8 @@ app.Users.login = function ( e ) {
                 if ( Modernizr.localstorage ) {
                     var idul = $( '#login-form .idul' ).val();
 
-                    // If user asked to save IDUL, save logged user IDUL in local storage
-                    if ( $( '.js-save-idul' ).is( ':checked' ) ) {
-                        localStorage.setItem( 'pilule-autologon-idul', idul );
-                    } else {
-                        // If user log in with different IDUL than the one saved, remove saved IDUL
-                        if ( localStorage.getItem( 'pilule-autologon-idul' ) != idul ) {
-                           localStorage.removeItem( 'pilule-autologon-idul' );
-                        }
-                    }
+                    // Save logged user IDUL in local storage
+                    localStorage.setItem( 'pilule-autologon-idul', idul );
                 }
 
                 if ( app.isMobile == 1 ) {
