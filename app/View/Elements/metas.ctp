@@ -12,7 +12,7 @@
 <meta name="google-site-verification" content="Ik8Zit9T1rOcM6WMr7ls6yGI5apxQl9L_ERciD4aR2E" />
 
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0;" />
+<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 <meta name="format-detection" content="telephone=no">
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black" />
