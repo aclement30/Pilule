@@ -182,3 +182,6 @@ CakeLog::config('error', array(
 
 define ( 'CURRENT_SEMESTER', 201209 );			// Current semester
 define ( 'DATA_EXPIRATION_DELAY', 21600 );		// Default data expiration delay : 6 hours
+
+setlocale( LC_ALL, 'fr_FR.UTF-8' );
+
