@@ -1,3 +1,5 @@
+@import "compass/css3/box-sizing";
+
 body {
   background-color: #f6f6f6;
   font-family: Lato;
@@ -13,6 +15,10 @@ body {
   }
 
   margin-top: 60px;
+
+  img.hi-res {
+    display: none;
+  }
 }
 
 #logo {
@@ -27,9 +33,9 @@ body {
 .page {
   width: 980px;
   margin: auto;
+  margin-top: -70px;
   background-color: #FFF;
   border-radius: 6px;
-  margin-top: -70px;
   padding: 20px 0px;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
   .header {
@@ -155,6 +161,28 @@ body {
     list-style-type: none;
     display: inline-block;
 
+    i {
+      display: inline-block;
+      height: 32px;
+      width: 32px;
+
+      &.studies {
+        background-image: url(../img/modules/small/studies.png);
+      }
+
+      &.schedule {
+        background-image: url(../img/modules/small/schedule.png);
+      }
+
+      &.exchange {
+        background-image: url(../img/modules/small/exchange.png);
+      }
+
+      &.tuitions {
+        background-image: url(../img/modules/small/tuitions.png);
+      }
+    }
+
     a {
       display: block;
       border-radius: 6px;
@@ -182,6 +210,10 @@ body {
         text-decoration: none;
       }
     }
+  }
+
+  li.registration {
+    display: none;
   }
 }
 
@@ -222,13 +254,18 @@ body {
       margin: 0 0 10px;
 
       li {
-        width: 24%;
+        width: 22%;
         vertical-align: top;
 
         a {
-          padding: 5px;
+          padding: 10px 5px;
           padding-bottom: 0px;
-          font-size: 9px;
+          font-size: 11px;
+          color: #fff !important;
+
+          .long {
+            display: none;
+          }
         }
       }
 
@@ -400,6 +437,10 @@ footer {
 
 .action-buttons .btn {
   margin-left: 10px;
+
+  &:focus {
+    outline: none;
+  }
 }
 
 .btn-refresh img {
@@ -588,6 +629,7 @@ footer {
   }
 }
 
+/*
 @media (min-width: 1200px) {
   .hero-unit.no-data {
     p.lead {
@@ -595,6 +637,7 @@ footer {
     }
   }
 }
+*/
 
 /* ============== login ============== */
 
@@ -620,7 +663,6 @@ footer {
         display: block;
         padding: 10px;
         border-bottom: 1px solid #eeeeee;
-        text-transform: uppercase;
 
         &:hover {
           background-color: #EEE;
@@ -844,6 +886,11 @@ ul.stat-list {
   margin-bottom: 20px;
   margin-right: 20px;
 
+  a:hover {
+    text-decoration: none;
+    color: black;
+  }
+
   .top {
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
@@ -884,16 +931,15 @@ ul.stat-list {
     h5 {
       font-size: 10pt;
     }
+    h5:hover {
+      text-decoration: none;
+    }
     h6 {
       font-size: 0.7em;
       font-weight: 600;
       position: relative;
       bottom: 10px;
       color: #555555;
-    }
-
-    a:hover {
-      text-decoration: none;
     }
   }
   .warning {
@@ -954,6 +1000,12 @@ ul.stat-list {
       background-color: #7932ea;
       /*    box-shadow: inset 0 0 10px lighten($purple, 8%);
           border: 1px solid darken($purple, 20%)*/
+    }
+  }
+
+  &:hover {
+    .top {
+      background-color: gray;
     }
   }
 }
@@ -1248,4 +1300,21 @@ ul.stat-list {
 
 .settings-group {
   margin-top: 40px;
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio: 2),
+  only screen and (-o-min-device-pixel-ratio: 2),
+  only screen and (min--moz-device-pixel-ratio: 2),
+  only screen and (min-device-pixel-ratio: 2) {
+    img.hi-res {
+      display: inline;
+    }
+
+    #logo img {
+      display: none;
+    }
+
+    #logo img.hi-res {
+      display: inline;
+    }
 }
