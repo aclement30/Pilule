@@ -4,14 +4,14 @@
 
 <script type='text/javascript' src="/js/libs/jquery.knob.js"></script>
 <!--<script type='text/javascript' src="http://d3js.org/d3.v3.min.js"></script>-->
+<!--script type='text/javascript' src="/js/d3-setup.js"></script>-->
 <script type='text/javascript' src="/js/libs/jquery.sparkline.min.js"></script>
 <script type='text/javascript' src="/js/libs/toastr.js"></script>
 <script type='text/javascript' src="/js/libs/jquery.tablesorter.min.js"></script>
 <script type='text/javascript' src="/js/libs/jquery.peity.min.js"></script>
-<!--script type='text/javascript' src="/js/d3-setup.js"></script>-->
 
 <script type='text/javascript' src="/js/libs/modernizr.custom.41742.js"></script>
-<script type='text/javascript' src="/js/ajax.js"></script>
+<script type='text/javascript' src="/js/ajax.js?ver=2.5"></script>
 
 <!-- Load Pilule-specific JS files -->
 <?php
@@ -23,7 +23,7 @@
     }
 
     // Add version number to each JS path : clear old JS files in browser cache
-    $currentVersion = '2.1.1';
+    $currentVersion = '2.5';
 
     foreach ( $scripts as &$path ) {
         $path .= '?ver=' . $currentVersion;
@@ -31,27 +31,7 @@
 
     echo $this->Html->script( $scripts );
 ?>
-<!--
-<script type='text/javascript' src="/js/pilule.js?ver=2.1"></script>
-<script type='text/javascript' src="/js/users.js?ver=2.1"></script>
-<script type='text/javascript' src="/js/studies.js?ver=2.1"></script>
-<script type='text/javascript' src="/js/tuitions.js?ver=2.1"></script>
-<script type='text/javascript' src="/js/settings.js?ver=2.1"></script>
-<script type='text/javascript' src="/js/dashboard.js?ver=2.1"></script>
-<script type='text/javascript' src="/js/schedule.js?ver=2.1"></script>
-<script type='text/javascript' src="/js/cache.js?ver=2.1"></script>
--->
-<!--
-<?php if ( !isset( $user ) ): ?>
-    <script type='text/javascript' src="/js/login.js?ver=2.0.2"></script>
-<?php endif; ?>
-<script type='text/javascript' src="/js/main.js?ver=2.0.2"></script>
-<script type='text/javascript' src="/js/ajax.js?ver=2.0.2"></script>
-<script type='text/javascript' src="/js/path.min.js"></script>
-<script type='text/javascript' src="/js/jquery.flot.min.js"></script>
-<script type='text/javascript' src="/js/jquery.flot.pie.min.js"></script>
-<script type='text/javascript' src="/js/jquery.flot.resize.min.js"></script>
--->
+
 <script language="javascript">
     $( document ).ready( function() {
         // Define Capsule availability
@@ -78,7 +58,4 @@
 
         app.init();
     });
-
-    //protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://'; address = protocol + window.location.host + window.location.pathname + '/ws'; socket = new WebSocket(address);
-    //socket.onmessage = function(msg) { msg.data == 'reload' && window.location.reload() }
 </script>
