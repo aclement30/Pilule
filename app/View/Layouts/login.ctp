@@ -37,10 +37,15 @@
     <div style="padding: 20px; color: #fff; font-size: 11pt;"><strong>Votre navigateur (Internet Explorer 6) n'est pas supporté par Pilule.</strong> Veuillez mettre à jour votre navigateur ou utiliser un autre navigateur compatible (Firefox 3.5+, Safari 3+, Chrome, etc).</div>
     </div>
     <![endif]-->
+    <!--[if IE 7]>
+    <div style="background-color: red; width:100%; border-bottom: 2px solid black;">
+    <div style="padding: 20px; color: #fff; font-size: 11pt;"><strong>Votre navigateur (Internet Explorer 7) n'est pas supporté par Pilule.</strong> Veuillez mettre à jour votre navigateur ou utiliser un autre navigateur compatible (Firefox 3.5+, Safari 3+, Chrome, etc).</div>
+    </div>
+    <![endif]-->
 
     <?php echo $this->fetch('content'); ?>
 
-    <footer>
+    <footer class="login">
         <p class="inside">
             <div class="navbar">
                 <div class="navbar-inner">
@@ -121,7 +126,7 @@
                     $( '#login-form input.password' ).removeAttr( 'placeholder' );
 
                     // Vertically position the form container
-                    $( '#formContainer' ).css( 'marginTop', ( $( window ).height() / 2 ) - 200 );
+                    $( '#formContainer' ).css( 'marginTop', ( $( window ).height() / 2 ) - 250 );
                 }
             };
 
