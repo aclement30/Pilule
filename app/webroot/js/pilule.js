@@ -15,7 +15,6 @@ app.init = function () {
 
     if ( !app.isMobile ) {
         $( '<iframe id="external-frame" name="external-frame" frameborder="0" src="blank.html" style="width: 0px; height: 0px;">' ).appendTo( 'body' );
-        app.Common.resizeExternalFrame();
     }
 
     // Responsive design
@@ -39,7 +38,7 @@ app.init = function () {
 
     app.Layout.makeExpandable();
 
-    $(".dial").knob();
+    $( ".dial" ).knob();
   
     for (var a=[],i=0;i<20;++i) a[i]=i;
 
@@ -155,6 +154,8 @@ app.Common.resizeExternalFrame = function () {
 
 // Open external website in external view frame
 app.Common.openExternalWebsite = function ( url ) {
+    app.Common.resizeExternalFrame();
+    
     // Display external view frame
     $( '#external-frame' ).attr( 'src', url ).fadeIn();
 
@@ -171,6 +172,8 @@ app.Common.closeExternalFrame = function () {
     $( '#in-nav .external-frame' ).hide();
     $( '#in-nav .external-frame li' ).removeClass( 'active' );
     $( '#in-nav #user-nav' ).fadeIn();
+
+    $( 'html, body' ).animate( { scrollTop: 0 }, 1 );
 };
 
 app.Common.displaySubmenu = function ( e ) {
