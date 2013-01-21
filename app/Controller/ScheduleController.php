@@ -52,6 +52,7 @@ class ScheduleController extends AppController {
     );
 
     private $holidays;
+    private $semesterDates;
 
     public $uses = array( 'StudentScheduleSemester' );
 	public $helpers = array( 'Time' );
@@ -62,13 +63,55 @@ class ScheduleController extends AppController {
         // Set holidays
         $this->holidays = array(
             'action-graces' =>  20121008,
-            'reading-week'  =>  array(
+            'reading-week-201209'  =>  array(
                 strtotime( '10 October 2012' ),
                 strtotime( '3 November 2012, 23:59' )
             ),
             'noel'          =>  array(
                 strtotime( '22 December 2012' ),
                 strtotime( '2 January 2013, 23:59' )
+            ),
+            'reading-week-201301'  =>  array(
+                strtotime( '11 March 2013' ),
+                strtotime( '16 March 2013, 23:59' )
+            ),
+            'easter'          =>  array(
+                strtotime( '29 March 2013' ),
+                strtotime( '1 April 2013, 23:59' )
+            ),
+        );
+
+        // Set semester start/end dates
+        $this->semesterDates = array(
+            // Year 2011
+            '201101'    =>  array(
+                date( 'Y-m-d', strtotime( '10 January 2011' ) ), date( 'Y-m-d', strtotime( '24 April 2011' ) )
+            ),
+            '201109'    =>  array(
+                date( 'Y-m-d', strtotime( '5 September 2011' ) ), date( 'Y-m-d', strtotime( '16 December 2011' ) )
+            ),
+            // Year 2012
+            '201201'    =>  array(
+                date( 'Y-m-d', strtotime( '9 January 2012' ) ), date( 'Y-m-d', strtotime( '20 April 2012' ) )
+            ),
+            '201205'    =>  array(
+                date( 'Y-m-d', strtotime( '30 April 2012' ) ), date( 'Y-m-d', strtotime( '10 August 2012' ) )
+            ),
+            '201209'    =>  array(
+                date( 'Y-m-d', strtotime( '3 September 2012' ) ), date( 'Y-m-d', strtotime( '11 January 2013' ) )
+            ),
+            // Year 2013
+            '201301'    =>  array(
+                date( 'Y-m-d', strtotime( '21 January 2013' ) ), date( 'Y-m-d', strtotime( '30 April 2013' ) )
+            ),
+            '201305'    =>  array(
+                date( 'Y-m-d', strtotime( '6 May 2013' ) ), date( 'Y-m-d', strtotime( '16 August 2013' ) )
+            ),
+            '201309'    =>  array(
+                date( 'Y-m-d', strtotime( '2 September 2013' ) ), date( 'Y-m-d', strtotime( '13 December 2013' ) )
+            ),
+            '201401'    =>  array(
+                date( 'Y-m-d', strtotime( '13 January 2014' ) ), date( 'Y-m-d', strtotime( '25 April 2014' ) )
             )
         );
 	}
@@ -94,11 +137,13 @@ class ScheduleController extends AppController {
                 'action'=>  "app.Cache.reloadData( { name: 'schedule', auto: 0 } );",
                 'type'  =>  'refresh'
             ),
+            /*
             array(
                 'action'=>  "app.Schedule.download( '" . $semester . "' );",
                 'tip'   =>  "Télécharger l'horaire",
                 'type'  =>  'download'
             ),
+            */
             array(
                 'action'=>  "window.print();",
                 'type'  =>  'print'
@@ -120,6 +165,7 @@ class ScheduleController extends AppController {
 		// Check is data exists in DB
         if ( ( $lastRequest = $this->CacheRequest->requestExists( 'schedule-' . $semester ) ) && !empty( $schedule[ 'Course' ] ) ) {
             $this->set( 'semester', $semester );
+            $this->set( 'semesterDates', $this->semesterDates[ $semester ] );
             $this->set( 'semestersList', $semestersList );
         	$this->set( 'schedule', $schedule );
 
@@ -235,22 +281,21 @@ class ScheduleController extends AppController {
         $this->layout = false;
         $this->autoRender = false;
 
-        $schedule = $this->ScheduleSemester->User->find( 'first', array(
-            'conditions'    =>  array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
-            'contain'       =>  array( 'ScheduleSemester' => array( 'conditions' => array( 'ScheduleSemester.semester' => $semester ), 'Course' => array( 'Class' ) ) ),
-            'fields'        =>  array( 'User.idul' )
+        $schedule = $this->StudentScheduleSemester->find( 'first', array(
+            'conditions'    =>  array( 'StudentScheduleSemester.idul' => $this->Session->read( 'User.idul' ), 'StudentScheduleSemester.semester' => $semester  ),
+            'contain'       =>  array( 'Course' => array( 'Class' ) )
         ) );
 
-        if ( !empty( $schedule[ 'ScheduleSemester' ] ) && !empty( $schedule[ 'ScheduleSemester' ][ 0 ][ 'Course' ] ) ) {
+        if ( !empty( $schedule[ 'Course' ] ) ) {
             $view = new View( $this, false );
 
             // Set timetable params
             $view->set( 'semester', $semester );
+            $this->set( 'semesterDates', $this->semesterDates[ $semester ] );
             $view->set( 'schedule', $schedule );
             $view->set( 'sectors', $this->sectors );
             $view->set( 'weekdays', $this->weekdays );
             $view->set( 'holidays', $this->holidays );
-            $view->set( 'startDate', date( 'Ymd', time() + 3600 * 24 * 365 ) );
 
             // Render calendar output
             $output = $view->render( 'ical' );

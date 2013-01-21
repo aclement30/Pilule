@@ -13,85 +13,54 @@ app.Schedule.displaySemester = function ( e ) {
 		e.preventDefault;
 
 		// Param is an event, retrieve the semester
-		document.location = '/schedule/' + $( this ).data( 'semester' );
+		document.location = '/horaire/' + $( this ).data( 'semester' );
 	} else {
-    	document.location = '/schedule/' + semester;
+    	document.location = '/horaire/' + semester;
     }
 
     return false;
 };
 
-app.Schedule.display = function ( calendar ) {
-	var defaultView = 'agendaWeek';
+app.Schedule.displayPreviousWeek = function ( e ) {
+	var container = '#agenda';
 
-	if ( $( window ).width() <= 480 ) {
-		defaultView = 'agendaDay';
-		var header = {
-            left: 	'title',
-            center: '',
-            right: 	'prev, next'
-        };
-	} else {
-		var header = {
-            left: 	'prev, next',
-            center: 'title',
-            right: 	''
-        };
+	if ( $( window ).width() <= 660 ) {
+		container = '#mobile-agenda';
 	}
 
-    $( '#calendar' ).fullCalendar( {
-        header: 		header,
-        firstDay:   	1,
-        defaultView :   defaultView,
-        allDaySlot:     false,
-        firstHour:      8,
-        minTime:        8,
-        maxTime:        22,
-        weekends:   	false,
-        year:           calendar.startYear,
-        month:          calendar.startMonth,
-        timeFormat: 	'H(:mm)', // uppercase H for 24-hour clock
-        axisFormat: 	'H:mm',
-         buttonText: 	{
-            prev: '&nbsp;◄&nbsp;',
-            next: '&nbsp;►&nbsp;'
-        },
-        titleFormat:    {
-            month:  'MMMM yyyy',
-            week: 	"d['&nbsp;&nbsp;&nbsp;'MMM]['&nbsp;&nbsp;&nbsp;'yyyy]{ '&#8212;' d'&nbsp;&nbsp;&nbsp;'MMM.'&nbsp;&nbsp;&nbsp;'yyyy}",
-            day: 	'dddd, d MMM. yyyy'
-        },
-        eventRender: 	function( event, element ) {
-            element.find( '.fc-event-time' ).append( '&nbsp;&nbsp;-&nbsp;&nbsp;' + event.code );
-            var description = '<br /><div class="location"><i class="icon-map-marker icon-white"></i> <span>' + event.location + '</span></div>';
-            if ( event.teacher != '' ) description += '<div class="teacher"><i class="icon-user icon-white"></i> <span>' + event.teacher + '</span></div>';
-            element.find( '.fc-event-title' ).append( description );
-        },
-        monthNamesShort:    [ 'janv', 'fév', 'mars', 'avril', 'mai', 'juin', 'juil', 'août', 'sept', 'oct', 'nov', 'déc' ],
-        dayNamesShort:      [ 'Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam' ],
-        dayNames:           [ 'Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi' ],
-        columnFormat:       {
-            month: 	'ddd',    // Mon
-            week: 	'ddd. d', // Mon 9/7
-            day: 	''  // Nothing
-        },
-        height: 		700,
-        events: 		calendar.events,
-        viewDisplay: function() {
-	        // Move the semesters dropdown in the calendar right header
-	        if ( $( '#calendar .fc-header-right .semesters-dropdown' ).not( '.compact' ).length == 0 && $( window ).width() > 480 ) {
-	        	$( '.main .semesters-dropdown' ).not( '.compact' ).appendTo( '#calendar .fc-header-right' );
-	        }
-	    }
-    } );
+	var currentWeek = parseInt( $( container + ' .week.current' ).data( 'week' ) );
+	currentWeek--;
 
-	// If no other courses for this semester, hide right column
-	if ( calendar.otherCourses == 0 ) {
-		//$( '.widget-content .panel-right' ).hide();
-		//$( '.widget-content .panel-left' ).css( 'width', '100%' );
+	// Display previous week if exists
+	if ( $( container + ' .week.week' + currentWeek ).length != 0 ) {
+		$( container + ' .week.current' ).fadeOut( 'fast', function(){
+			$( container + ' .week.current' ).removeClass( 'current' );
+			$( container + ' .week.week' + currentWeek ).fadeIn().addClass( 'current' );
+
+			$( '.calendar-header .dates h4' ).html( $( container + ' .week.week' + currentWeek ).data( 'title' ) );
+		} );
+	}
+};
+
+app.Schedule.displayNextWeek = function ( e ) {
+	var container = '#agenda';
+
+	if ( $( window ).width() <= 660 ) {
+		container = '#mobile-agenda';
 	}
 
-    //setTimeout(displayCalendar, 100);
+	var currentWeek = parseInt( $( container + ' .week.current' ).data( 'week' ) );
+	currentWeek++;
+
+	// Display previous week if exists
+	if ( $( container + ' .week.week' + currentWeek ).length != 0 ) {
+		$( container + ' .week.current' ).fadeOut( 'fast', function(){
+			$( container + ' .week.current' ).removeClass( 'current' );
+			$( container + ' .week.week' + currentWeek ).fadeIn().addClass( 'current' );
+
+			$( '.calendar-header .dates h4' ).html( $( container + ' .week.week' + currentWeek ).data( 'title' ) );
+		} );
+	}
 };
 
 // Download schedule in iCal format
@@ -100,23 +69,25 @@ app.Schedule.download = function ( semester ) {
     _gaq.push(['_trackEvent', 'Schedule', 'Download', 'Téléchargement de l\'horaire']);
 
     // Download schedule iCal file
-    $( '#frame' ).attr( 'src', app.Schedule.controllerURL + 'ical_download/' + semester );
+    $( '#external-frame' ).attr( 'src', app.Schedule.controllerURL + 'ical_download/' + semester );
 };
 
 app.Schedule.init = function () {
-	// Check if calendar data exists
-	if ( typeof timetable != 'undefined' ) {
-		app.Schedule.display( timetable );
-	}
-
 	$( '.semesters-dropdown ul li a' ).on( 'click', app.Schedule.displaySemester );
 
-	if ( $( window ).width() <= 480 ) {
-		$( '.main .semesters-dropdown.compact' ).appendTo( '.main .action-buttons .buttons' );
-		
+	$( '.calendar-header .semesters-dropdown.compact' ).appendTo( '.main .action-buttons .buttons' );
+
+	if ( $( window ).width() <= 480 ) {		
 		if ( $( '.main .no-data' ).length == 0 )
-			$( '.main .semesters-dropdown' ).not( '.compact' ).hide();
+			$( '.calendar-header .semesters-dropdown' ).not( '.compact' ).hide();
 	}
+
+	var tableCells = $( '#agenda table tbody td.class' );
+
+	$( '#agenda table tbody td.class .inside' ).popover();
+
+	$( '.calendar-header .js-prec-calendar' ).on( 'click', app.Schedule.displayPreviousWeek );
+	$( '.calendar-header .js-next-calendar' ).on( 'click', app.Schedule.displayNextWeek );
 };
 
 $( document ).ready( app.Schedule.init );

@@ -12,8 +12,37 @@
     }
 }
 
-.main > .semesters-dropdown.compact {
-    display: none;
+@media only screen and (min-width: 551px) {
+    .action-buttons .semesters-dropdown.compact {
+        display: none;
+    }
+}
+
+.calendar-header {
+    .dates {
+        margin-top: 5px;
+        text-align: center;
+    }
+
+    &.no-regular-courses {
+        .span4:first-child, .dates {
+            display: none;
+        }
+
+        .calendar-semester {
+            float: right;
+        }
+    }
+}
+
+.calendar-semester {
+    .semesters-dropdown {
+        margin-top: 10px;
+    }
+
+    .semesters-dropdown.compact {
+        display: none;
+    }
 }
 
 .action-buttons .buttons {
@@ -29,6 +58,8 @@
 }
 
 #agenda {
+    margin-top: 10px;
+
     table {
         thead {
             th {
@@ -65,7 +96,7 @@
             }
 
             tr:nth-child(even) td, tr:nth-child(even) th {
-                border-top: 1px dotted #ddd;
+                border-top: 1px solid #eee;
             }
 
             tr:last-child td, tr:last-child th.hour {
@@ -74,13 +105,13 @@
 
             td.class {
                 padding: 1px;
+                border: 1px solid silver;
+                background-color: #08c;
 
                 .inside {
                     height: 100%;
                     color: #fff;
                     padding: 6px 8px;
-                    background-color: #08c;
-                    border-radius: 3px;
                     font-weight: normal;
                     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 
@@ -93,6 +124,14 @@
                         margin-top: 3px;
                         padding-top: 3px;
                         border-top: 1px dotted #eee;
+                    }
+
+                    .title .short {
+                        display: none;
+                    }
+
+                    .location .label {
+                        display: none;
                     }
                 }
 
@@ -120,31 +159,173 @@
             }
         }
     }
+
+    table.week {
+        display: none;
+    }
+
+    table.week:first-child {
+        display: table;
+    }
 }
 
-#external-events .class {
-    background-color: #dae6f1;
-    border-radius: 5px;
-    padding: 10px;
-    margin-bottom: 10px;
-    width: 92%;
-    float: right;
+#mobile-agenda {
+    display: none;
 
-    .title {
-        font-weight: bold;
-        margin-bottom: 5px;
+    .week {
+        display: none;
+
+        .class {
+            .hours {
+                float: left;
+                width: 50px;
+                line-height: 10pt;
+                font-size: 10pt;
+                margin-top: 5px;
+                color: #08c;
+            }
+
+            .details {
+                float: left;
+                width: 75%;
+                border-left: 5px solid #08c;
+                padding-left: 10px;
+
+                .code {
+                    color: gray;
+                    font-weight: normal;
+                }
+
+                .title {
+                    font-weight: bold;
+                }
+
+                hr {
+                    margin: 5px 0;
+                }
+            }
+        }
     }
 
-    .code {
-        float: left;
+    .week:first-child {
+        display: table;
+    }
+}
+
+@media (max-width: 980px) {
+    .calendar-semester {
+        .semesters-dropdown .select-label {
+            display: none;
+        }
+    }
+}
+
+@media (max-width: 767px) {
+    .calendar-header {
+        .span4 {
+            float: left;
+            width: 31.491712707182323%;
+        }
+
+        .span4.calendar-semester {
+            float: right;
+        }
+    }
+}
+
+@media (max-width: 550px) {
+    .calendar-header {
+        .dates {
+            float: right;
+            width: 60%;
+            text-align: right;
+        }
+
+        .span4.calendar-semester {
+            display: none;
+        }
+    }
+}
+
+@media (max-width: 660px) {
+    #agenda {
+        table {
+            tbody {
+                td.class {
+                    .title {
+                        .short {
+                            display: inline!important;
+                        }
+
+                        .full {
+                            display: none;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media only screen and (max-width: 660px) {
+    #mobile-agenda {
+        display: block;
     }
 
-    .nrc {
-        float: right;
+    #agenda {
+        display: none;
+    }
+}
+
+#external-events {
+    .class {
+        margin-bottom: 20px;
+        .details {
+            border-left: 5px solid #08c;
+            padding-left: 10px;
+
+            .code {
+                color: gray;
+                font-weight: normal;
+            }
+
+            .title {
+                font-weight: bold;
+            }
+
+            hr {
+                margin: 5px 0;
+            }
+        }
+    }
+}
+
+@media print {
+    .calendar-header {
+        .span4:first-child, .calendar-semester {
+            display: none;
+        }
+
+        .dates {
+            float: none;
+            width: 100%;
+        }
     }
 
-    .type {
-        margin-bottom: 5px;
-        margin-top: 5px;
+    .action-buttons .semesters-dropdown.compact {
+        display: block !important;
+        margin-top: 10px;
+
+        a.dropdown-toggle {
+            font-weight: bold;
+        }
+    }
+
+    #agenda table .class .inside i {
+        display: none;
+    }
+
+    #agenda table .class .inside .location .label {
+        display: inline !important;
     }
 }
