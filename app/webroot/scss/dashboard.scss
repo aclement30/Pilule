@@ -1,2 +1,53 @@
 @import 'global';
 
+@media (max-width: 480px) {
+  .aside {
+    display: none;
+  }
+
+  .main {
+  	.panel {
+  		width: 130px;
+  		margin-bottom: 15px;
+  		margin-right: 15px;
+
+  		.top {
+  			padding: 20px;
+  		}
+  	}
+  }
+}
+
+@media (max-width: 480px) {
+  .main {
+  	.panel:nth-child(even) {
+  		margin-right: 0px;
+  	}
+  }
+}
+
+@media only screen and (min-width: 1200px) {
+  .main {
+    .panel {
+      margin-bottom: 30px;
+      margin-right: 28px;
+    }
+
+    .panel:nth-child(7) {
+      margin-right: 0px;
+    }
+  }
+}
+
+@media only screen and (min-width: 980px) and (max-width: 1199px) {
+  .main {
+    .panel {
+      margin-bottom: 20px;
+      margin-right: 17px;
+    }
+
+    .panel:nth-child(6) {
+      margin-right: 0px;
+    }
+  }
+}
