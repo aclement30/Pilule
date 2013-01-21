@@ -11,6 +11,8 @@ app.Users = {
 };
 
 app.Users.login = function ( e ) {
+    $( 'html, body' ).animate( { scrollTop: 0 }, 1 );
+
     var idul = $( '#login-form .idul' ).val();
     var password = $( '#login-form .password' ).val();
 
