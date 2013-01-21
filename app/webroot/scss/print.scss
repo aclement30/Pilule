@@ -4,7 +4,7 @@ body {
   background: none;
 }
 
-#in-nav, #in-sub-nav, .container .aside, footer, .action-buttons .buttons, .no-print {
+#in-nav, #in-sub-nav, .container .aside, footer, .action-buttons .buttons > .btn, .no-print {
   display: none!important;
 }
 
@@ -12,6 +12,8 @@ body {
 	width: 100%;
 	border-radius: 0px;
 	box-shadow: none;
+  margin-top: 0px;
+  padding-top: 0px;
 }
 
 .container {
@@ -34,4 +36,13 @@ th.course-code {
 
 .request-description {
   display: block;
+}
+
+.btn {
+  border: 0px;
+  box-shadow: none;
+
+  .caret {
+    display: none;
+  }
 }
