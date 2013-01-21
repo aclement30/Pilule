@@ -151,7 +151,7 @@ class TuitionsController extends AppController {
         ) );
 
         // Check is data exists in DB
-        if ( ( $lastRequest = $this->CacheRequest->requestExists( 'tuition-fees' ) ) && ( !empty( $tuitions ) ) ) {
+        if ( ( $lastRequest = $this->CacheRequest->requestExists( 'tuition-fees' ) ) && ( !empty( $tuitions[ 'TuitionAccount' ][ 'Semester' ] ) ) ) {
             $this->set( 'semester', $semester );
             $this->set( 'tuitions', $tuitions );
             $this->set( 'semestersList', $semestersList );
@@ -159,6 +159,10 @@ class TuitionsController extends AppController {
         } else {
             if ( !empty( $lastRequest ) )
                 $this->set( 'timestamp', $lastRequest[ 'timestamp' ] );
+
+            $this->set( 'selectedSemester', $semester );
+            if ( !empty( $semestersList ) )
+                $this->set( 'semestersList', $semestersList );
 
             // No data exists for this page
             $this->viewPath = 'commons';
