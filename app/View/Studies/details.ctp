@@ -38,76 +38,75 @@ foreach ($programs[ 'Program' ] as $program) :
     </div>
 </div>
 
+<div class="table-panel">
+    <h4> <i class="icon-user"></i>Dossier de l'étudiant</h4>
+    <table class="table table-striped">
+        <tbody>
+            <tr>
+                <th>Étudiant</th>
+                <td><?php echo $user['name']; ?></td>
+            </tr>
+            <tr>
+                <th>Code permanent</th>
+                <td><?php echo $user['code_permanent'] ; ?></td>
+            </tr>
+            <tr>
+                <th>Programme</th>
+                <td><?php echo $program['name'] ; ?> (<?php echo $program['diploma'] ; ?>)</td>
+            </tr>
+            <tr>
+                <th>Cycle</th>
+                <td><?php if ($program['cycle'] == 1) {
+                    echo 'Premier cycle';
+                } elseif ($program['cycle'] == 2) {
+                    echo 'Deuxième cycle';
+                } elseif ($program['cycle'] == 3) {
+                    echo 'Troisième cycle';
+                } ?></td>
+            </tr>
+            <tr>
+                <th>Admission</th>
+                <td><?php echo $this->App->convertSemester($program['adm_semester']); ?>&nbsp;&nbsp;|&nbsp;&nbsp;<?php echo $program['adm_type'] ; ?> </td>
+            </tr>
+            <tr>
+                <th>Majeure</th>
+                <td><?php echo $program['major'] ; ?></td>
+            </tr>
+            <?php if (!empty($program['minor'])) { ?>
+            <tr>
+                <th>Mineure(s)</th>
+                <td><?php echo $program['minor']; ?></td>
+            </tr>
+            <?php } if ($program['concentrations']!=array()) { ?>
+            <tr>
+                <th>Concentration(s)</th>
+                <td><?php echo implode(', ', $program['concentrations']); ?></td>
+            </tr>
+                <?php } ?>
+            <tr>
+                <th>Session de répertoire</th>
+                <td><?php echo $this->App->convertSemester($program['session_repertoire']); ?></td>
+            </tr>
+            <tr>
+                <th>Session d'évaluation</th>
+                <td><?php echo $this->App->convertSemester($program['session_evaluation']); ?></td>
+            </tr>
+            <?php if (strlen($program['date_diplome'])>2) { ?>
+            <tr>
+                <th>Date obtention du diplôme</th>
+                <td><?php echo $program['date_diplome'] ; ?></td>
+            </tr>
+            <?php } ?>
+            <tr>
+                <th>Date de l'attestation</th>
+                <td><?php echo $program['date_attestation'] ; ?></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
 <div class="row-fluid">
-    <div class="span7">
-        <div class="table-panel">
-            <h4> <i class="icon-user"></i>Dossier de l'étudiant</h4>
-            <table class="table table-striped">
-                <tbody>
-                    <tr>
-                        <th>Étudiant</th>
-                        <td><?php echo $user['name']; ?></td>
-                    </tr>
-                    <tr>
-                        <th>Code permanent</th>
-                        <td><?php echo $user['code_permanent'] ; ?></td>
-                    </tr>
-                    <tr>
-                        <th>Programme</th>
-                        <td><?php echo $program['name'] ; ?> (<?php echo $program['diploma'] ; ?>)</td>
-                    </tr>
-                    <tr>
-                        <th>Cycle</th>
-                        <td><?php if ($program['cycle'] == 1) {
-                            echo 'Premier cycle';
-                        } elseif ($program['cycle'] == 2) {
-                            echo 'Deuxième cycle';
-                        } elseif ($program['cycle'] == 3) {
-                            echo 'Troisième cycle';
-                        } ?></td>
-                    </tr>
-                    <tr>
-                        <th>Admission</th>
-                        <td><?php echo $this->App->convertSemester($program['adm_semester']); ?>&nbsp;&nbsp;|&nbsp;&nbsp;<?php echo $program['adm_type'] ; ?> </td>
-                    </tr>
-                    <tr>
-                        <th>Majeure</th>
-                        <td><?php echo $program['major'] ; ?></td>
-                    </tr>
-                    <?php if (!empty($program['minor'])) { ?>
-                    <tr>
-                        <th>Mineure(s)</th>
-                        <td><?php echo $program['minor']; ?></td>
-                    </tr>
-                    <?php } if ($program['concentrations']!=array()) { ?>
-                    <tr>
-                        <th>Concentration(s)</th>
-                        <td><?php echo implode(', ', $program['concentrations']); ?></td>
-                    </tr>
-                        <?php } ?>
-                    <tr>
-                        <th>Session de répertoire</th>
-                        <td><?php echo $this->App->convertSemester($program['session_repertoire']); ?></td>
-                    </tr>
-                    <tr>
-                        <th>Session d'évaluation</th>
-                        <td><?php echo $this->App->convertSemester($program['session_evaluation']); ?></td>
-                    </tr>
-                    <?php if (strlen($program['date_diplome'])>2) { ?>
-                    <tr>
-                        <th>Date obtention du diplôme</th>
-                        <td><?php echo $program['date_diplome'] ; ?></td>
-                    </tr>
-                    <?php } ?>
-                    <tr>
-                        <th>Date de l'attestation</th>
-                        <td><?php echo $program['date_attestation'] ; ?></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="span5">
+    <div class="span6">
         <div class="table-panel">
             <h4> <i class="icon-th"></i>Cours et crédits</h4>
             <table class="table table-striped courses-credits" style="width: 100%;">
@@ -140,7 +139,7 @@ foreach ($programs[ 'Program' ] as $program) :
             </table>
         </div>
     </div>
-    <div class="span5">
+    <div class="span6">
         <div class="table-panel">
             <h4> <i class="icon-signal"></i>Moyennes</h4>
             <table class="table table-striped gpas">
