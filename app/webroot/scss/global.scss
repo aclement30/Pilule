@@ -217,7 +217,11 @@ body {
   }
 }
 
-@media (max-width: 480px) {
+@media only screen and (-moz-min-device-pixel-ratio: 2) and (max-width: 1200px),
+    only screen and (-o-min-device-pixel-ratio: 2/1) and (max-width: 1200px),
+    only screen and (-webkit-min-device-pixel-ratio: 2) and (max-width: 1200px),
+    only screen and (min-device-pixel-ratio: 2) and (max-width: 1200px),
+    only screen and (max-width: 480px) {
   #in-nav {
     #user-nav {
       top: 5px;
@@ -581,7 +585,11 @@ footer {
   }
 }
 
-@media (max-width: 480px) {
+@media only screen and (-moz-min-device-pixel-ratio: 2) and (max-width: 1200px),
+    only screen and (-o-min-device-pixel-ratio: 2/1) and (max-width: 1200px),
+    only screen and (-webkit-min-device-pixel-ratio: 2) and (max-width: 1200px),
+    only screen and (min-device-pixel-ratio: 2) and (max-width: 1200px),
+    only screen and (max-width: 480px) {
   .hero-unit.no-data {
     .image {
       max-width: 100%;
@@ -807,7 +815,11 @@ ul.stat-list {
   }
 }
 
-@media (max-width: 480px) {
+@media only screen and (-moz-min-device-pixel-ratio: 2) and (max-width: 1200px),
+    only screen and (-o-min-device-pixel-ratio: 2/1) and (max-width: 1200px),
+    only screen and (-webkit-min-device-pixel-ratio: 2) and (max-width: 1200px),
+    only screen and (min-device-pixel-ratio: 2) and (max-width: 1200px),
+    only screen and (max-width: 480px) {
   .table-panel {
     &.expandable {
       table {

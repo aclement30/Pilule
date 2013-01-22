@@ -238,8 +238,11 @@ footer {
 }
 
 /* Responsive design */
-
-@media (max-width: 480px) {
+@media only screen and (-moz-min-device-pixel-ratio: 2) and (max-width: 1200px),
+    only screen and (-o-min-device-pixel-ratio: 2/1) and (max-width: 1200px),
+    only screen and (-webkit-min-device-pixel-ratio: 2) and (max-width: 1200px),
+    only screen and (min-device-pixel-ratio: 2) and (max-width: 1200px),
+    only screen and (max-width: 480px) {
     body {
         background: url('../img/login-form-bg.gif');
         background-position: top;
