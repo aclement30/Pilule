@@ -38,7 +38,7 @@
             <div class="btn-group">
                 <a class="btn btn-danger btn-redirect-dashboard"><i class="icon-warning-sign icon-white"></i>&nbsp;Continuer sans chargement</a>
             </div>
-            <div class="btn-group">
+            <div class="btn-group" style="margin-top: 20px;">
                 <a class="btn btn-success btn-retry-login"><i class="icon-repeat icon-white"></i>&nbsp;Réessayer la connexion</a>
             </div>
         </div>
