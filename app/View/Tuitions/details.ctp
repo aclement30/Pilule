@@ -8,7 +8,7 @@
     endif;
 ?>
 
-<div class="table-panel expandable not-expandable">
+<div class="table-panel not-expandable">
     <h4> <i class="icon-list"></i>Frais de scolarité - <?php echo $this->App->convertSemester( $semester ); ?></h4>
     <table class="table table-striped fees">
         <thead>
