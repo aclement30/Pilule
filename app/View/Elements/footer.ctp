@@ -14,7 +14,9 @@
                 </p>
                 <p class="conception pull-right">
                     Conception<br />
-                    <a href="http://www.alexandreclement.com" target="_blank">Alexandre Clément</a>
+                    <a href="http://www.alexandreclement.com" target="_blank">Alexandre Clément</a><br>
+                    Contribution<br />
+                    <a href="https://twitter.com/GabParent" target="_blank">Gabriel Parent-Nadon</a>
                 </p>
             </div>
         </div>
