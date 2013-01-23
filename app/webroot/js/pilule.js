@@ -229,16 +229,11 @@ app.Common.stopLoading = function () {
 
 // Display error message
 app.Common.displayError = function ( message, object, autoHide ) {
-    if ( object == null ) {
-        object = '.alert.alert-error';
-    }
+    toastr.options = {
+        positionClass: 'toast-bottom-left'
+    };
 
-    $( object ).html( message );
-    $( object ).fadeIn();
-
-    if ( autoHide != false ) {
-        setTimeout( function(){ $( object ).fadeOut(); }, 2500 );
-    }
+    toastr.success( message );
 };
 
 app.Common.refreshPage = function () {
