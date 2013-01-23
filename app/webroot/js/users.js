@@ -131,18 +131,18 @@ app.Users.login = function ( e ) {
 };
 
 app.Users.redirectToDashboard = function () {
-    if ( !app.Cache.isLoading ) {
-        var redirectURL = $( '#redirect_url' ).val();
+    //if ( !app.Cache.isLoading ) {
+    var redirectURL = $( '#redirect_url' ).val();
 
-        $( '#formContainer' ).fadeOut();
+    $( '#formContainer' ).fadeOut();
 
-        // Redirection à la page demandée, s'il y a lieu
-        if ( redirectURL != '' && redirectURL != undefined ) {
-            setTimeout( "document.location = redirectURL;", 100 );
-        } else {
-            setTimeout( "document.location = '/';", 100 );
-        }
+    // Redirection à la page demandée, s'il y a lieu
+    if ( redirectURL != '' && redirectURL != undefined ) {
+        setTimeout( "document.location = redirectURL;", 100 );
+    } else {
+        setTimeout( "document.location = '/';", 100 );
     }
+    //}
 };
 
 app.Users.retryLogin = function () {
