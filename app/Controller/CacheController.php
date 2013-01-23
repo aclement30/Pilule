@@ -22,6 +22,8 @@ class CacheController extends AppController {
 		// Increase memory limit
 		ini_set( 'memory_limit', '50M' );
 
+        ob_start();
+
 		$error = false;
 		$auto = $this->request->data[ 'auto' ];				    // TODO : rename query to data
 		$dataObject = $this->request->data[ 'name' ];			// TODO : rename query to data
@@ -344,6 +346,8 @@ class CacheController extends AppController {
                 break;
 		}
 		
+        CakeLog::write( 'loading-data', ob_get_clean() );
+        
         if ( $error ) {
     		return new CakeResponse( array(
             	'body' => json_encode( array(
