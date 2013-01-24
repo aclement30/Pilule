@@ -1,0 +1,113 @@
+table.courses-list {
+	margin-bottom: 30px;
+
+	thead {
+		th {
+			cursor: pointer;
+		}
+
+		th.semester, th.credits, th.note {
+			text-align: center;
+			width: 10%;
+		}
+
+		th:first-child {
+			width: 15%;
+			min-width: 100px;
+		}
+
+		th.title {
+			width: 60%;
+		}
+	}
+
+	tbody {
+		td.code {
+			font-weight: bold;
+
+			.mobile-title {
+				font-weight: normal;
+				display: none;
+			}
+		}
+
+		td.semester, td.credits, td.note {
+			text-align: center;
+		}
+	}
+
+	tfoot {
+		th.left {
+			text-align: right;
+		}
+
+		td {
+			text-align: center;
+			font-weight: bold;
+		}
+	}
+}
+
+@media (max-width: 660px) {
+	table.courses-list {
+		margin-bottom: 20px;
+
+		thead {
+			th.title {
+				display: none;
+			}
+
+			th:first-child {
+				width: 70%;
+			}
+
+			th.note {
+				width: 20%;
+			}
+		}
+
+		tbody {
+			td.title {
+				display: none;
+			}
+
+			td.code {
+				cursor: pointer;
+				vertical-align: center;
+
+				.expand-icon {
+					display: block;
+					float: right;
+					position: relative;
+					top: -3px;
+
+					i.icon-chevron-down {
+						display: inline-block;
+					}
+
+					i.icon-chevron-up {
+						display: none;
+					}
+				}
+
+				&.expanded {
+					.mobile-title {
+						display: inline;
+						font-size: 8pt;
+						line-height: 10pt;
+					}
+
+					.course-code {
+						i.icon-chevron-down {
+							display: none;
+						}
+
+						i.icon-chevron-up {
+							display: inline-block;
+						}
+					}
+				}
+			}
+		}
+	}
+}

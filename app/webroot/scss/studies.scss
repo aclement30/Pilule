@@ -1,4 +1,5 @@
 @import 'global';
+@import 'partials/_courses-list';
 
 table.courses-credits, table.gpas, table.summary {
 	thead th {
@@ -12,105 +13,6 @@ table.courses-credits, table.gpas, table.summary {
 
 h4.formation {
 	margin-bottom: 30px;
-}
-
-table.courses-list {
-	margin-bottom: 30px;
-	tbody td.code {
-		font-weight: bold;
-	}
-
-	thead th {
-		cursor: pointer;
-	}
-
-	thead th.semester, thead th.credits, thead th.note {
-		text-align: center;
-		width: 10%;
-	}
-
-	thead th:first-child {
-		width: 15%;
-		min-width: 100px;
-	}
-
-	thead th.title {
-		width: 60%;
-	}
-
-	td.code .mobile-title {
-		font-weight: normal;
-		display: none;
-	}
-
-	tbody td.semester, tbody td.credits, tbody td.note {
-		text-align: center;
-	}
-
-	tfoot th.left {
-		text-align: right;
-	}
-
-	tfoot td {
-		text-align: center;
-		font-weight: bold;
-	}
-}
-
-@media (max-width: 660px) {
-	table.courses-list {
-		margin-bottom: 20px;
-
-		thead th.title, tbody td.title {
-			display: none;
-		}
-
-		thead th:first-child {
-			width: 70%;
-		}
-
-		thead th.note {
-			width: 20%;
-		}
-
-		tbody td.code {
-			cursor: pointer;
-			vertical-align: center;
-
-			.expand-icon {
-				display: block;
-				float: right;
-				position: relative;
-				top: -3px;
-
-				i.icon-chevron-down {
-					display: inline-block;
-				}
-
-				i.icon-chevron-up {
-					display: none;
-				}
-			}
-
-			&.expanded {
-				.mobile-title {
-					display: inline;
-					font-size: 8pt;
-					line-height: 10pt;
-				}
-
-				.course-code {
-					i.icon-chevron-down {
-						display: none;
-					}
-
-					i.icon-chevron-up {
-						display: inline-block;
-					}
-				}
-			}
-		}
-	}
 }
 
 @media (max-width: 768px) {
