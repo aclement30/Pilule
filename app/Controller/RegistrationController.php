@@ -2,13 +2,15 @@
 class RegistrationController extends AppController {
 	public $uses = array( 'User', 'UniversityCourse' );
 
-	private $registrationSemester = '201201';
-	private $currentSemester = '201209';
+	public $helpers = array( 'Time' );
+
+	private $registrationSemester = '201301';
+	private $currentSemester = CURRENT_SEMESTER;
 	private $deadlines = array(
 						   '201301'	=> array(
 								'registration_start'=>	'20121105',
-								'edit_selection'	=>	'20130106', // TODO : to be updated
-								'drop_nofee'		=>	'20130123', // TODO : to be updated
+								'edit_selection'	=>	'20130128', // TODO : to be updated
+								'drop_nofee'		=>	'20130223', // TODO : to be updated
 								'drop_fee'			=>	'20130319'	// TODO : to be updated
 							),
 						   '201205'	=> array(
@@ -24,6 +26,7 @@ class RegistrationController extends AppController {
 								'drop_fee'			=>	'20121113'
 							)
 						   );
+	
 	private $registrationSemesters = array( '201209', '201301' );
 
 	public function beforeFilter () {
@@ -225,8 +228,27 @@ class RegistrationController extends AppController {
     $('.courses').each(function(index, value) { $(value).find('tr').css('backgroundColor', '#fff'); $(value).find('tr:visible:odd').css('backgroundColor', '#dae6f1'); });
     	*/
 
-    	$this->setAssets( array( '/js/registration.js' ) );
-    	$this->render( 'limited' );
+    	$this->setAssets( array( '/js/registration.js' ), array( '/css/registration.css' ) );
+    	$this->set( 'sidebar', 'registration' );
+    	$this->set( 'dataObject', 'studies-courses' );
+
+    	// Check is data exists in DB
+        if ( ( $lastRequest = $this->CacheRequest->requestExists( 'studies-courses' ) ) ) {
+        	$this->set( 'timestamp', $lastRequest[ 'timestamp' ] );
+        	$this->render( 'limited' );
+        } else {
+        	if ( !empty( $lastRequest ) ) {
+				$this->set( 'timestamp', $lastRequest[ 'timestamp' ] );
+			} else {
+				$this->set( 'timestamp', 1 );
+			}
+
+        	// No data exists for this page
+        	$this->viewPath = 'commons';
+			$this->render( 'searching_courses' );
+
+            return (true);
+        }
 	}
 
 	public function getCourseInfo ( $code = null ) {
