@@ -74,7 +74,9 @@ class RegistrationController extends AppController {
 
 		$sections = $this->User->Section->find( 'all', array(
             'conditions'    =>  array( 'Section.idul' => $this->Session->read( 'User.idul' ) ),
-            'contain'       =>  array( 'Course' => array( 'conditions' => array( 'Course.code !=' => 'EHE-1899' ) ) )
+            'contain'       =>  array( 'Course' => array(
+            	'conditions'	=> 	array( 'Course.code !=' => 'EHE-1899' )
+            ) )
         ) );
 
 		// Get student selected courses for registration semester
@@ -86,147 +88,21 @@ class RegistrationController extends AppController {
 			'contain'		=>	array( 'UniversityCourse' )
 		) );
 
+		// Extract courses codes
+		$coursesCodes = Set::extract( '/Course/code', $sections );
+		
+		$availableCourses = $this->UniversityCourse->find( 'list', array(
+			'conditions'	=>	array( 'UniversityCourse.code' => $coursesCodes, 'UniversityCourse.av' . $this->registrationSemester => true ),
+			'fields'		=>	array( 'id', 'code' )
+		) );
+
+		if ( !empty( $availableCourses ) )
+			$availableCourses = array_values( $availableCourses );
+
 		$this->set( 'sections', $sections );
 		$this->set( 'registeredCourses', $registeredCourses );
 		$this->set( 'selectedCourses', $selectedCourses );
-		/*
-		// Get program registration info
-		$program = $this->mPrograms->getProgramByName( $data[ 'userPrograms' ][ 0 ][ 'name' ] );
-		
-		// Get program sections
-		$sections = $this->mPrograms->getSections( $program[ 'code' ] );
-		
-		// Get user selected program sections list
-		$data[ 'userSections' ] = $this->mUser->getParam( 'registration-' . $program[ 'code' ] . '-sections' );
-		
-		if ( ( !$data[ 'userSections' ] ) or $data[ 'userSections' ] == array() ) {
-			// Redirect to registration config page
-			?>document.location.hash="#!/registration/configure";<?php
-		} else {
-			$data['userSections'] = explode(",", $data['userSections']);
-		}
-		
-		// Include program plugin
-		switch ($program['code']) {
-			case 'B-LMO':
-				include ('./programs/'.'b-lmo'.'.php');
-			break;
-		}
-		
-		// Define available sections
-		$data['sections'] = $sections;
-
-		// Get program courses
-		$programCourses = $this->mCourses->getProgramCourses( $program['code'] );
-		
-		// Get student report semesters
-        $reportSemesters = $this->mStudies->getReportSemesters();
-
-        // Find courses in student report
-		$reportCourses = array();
-		if ( !empty( $reportSemesters ) ) {			
-			foreach ( $reportSemesters as $semester ) {
-				$courses = $this->mStudies->getReportCourses( array( 'semester_id' => $semester['id'] ) );
-
-				foreach ( $courses as $course ) {
-					// Define course semester
-					$course['semester'] = convertSemester( $semester[ 'semester' ], true );
-
-					// Add course to report
-					$reportCourses[ $course[ 'code' ] ] = $course;
-				}
-			}
-		}
-		
-		// Find courses already registered for registration semester
-		$data[ 'registeredCourses' ] = array();
-
-		$scheduleCourses = $this->mSchedule->getCourses( array( 'semester' => $data[ 'registrationSemester' ] ) );
-		foreach ( $scheduleCourses as $course ) {
-			$data[ 'registeredCourses' ][ $course[ 'code' ] ] = $course;
-		}
-		
-		// Find courses already selected for registration semester
-		$cache = $this->mCache->getCache( 'data|selected-courses[' . $data[ 'registrationSemester' ] . ']' );
-		$data[ 'selectedCourses' ] = array();
-		if ( $cache != array() ) {
-
-			$selectedCourses = unserialize($cache['value']);
-			foreach ( $selectedCourses as $course ) {
-				$data[ 'selectedCourses' ][ $course[ 'nrc' ] ] = $course;
-			}
-		}
-				
-		// Find courses in current semester
-		$scheduleCourses = $this->mSchedule->getCourses( array( 'semester' => $data[ 'currentSemester' ] ) );
-		foreach ( $scheduleCourses as $course ) {
-			$scheduleCourses[ $course[ 'code' ] ] = $course;
-		}
-		
-		$data['programCourses'] = array();
-
-		foreach ( $programCourses as &$course ) {
-			// If course is in student report
-			if ( isset( $reportCourses[ $course[ 'code' ] ] ) ) {
-				$course[ 'note' ] = $reportCourses[ $course[ 'code' ] ][ 'note' ];
-				$course['semester'] = $reportCourses[ $course[ 'code' ] ][ 'semester' ];
-			}
-
-			// If course is in current semester schedule
-			if ( isset( $scheduleCourses[ $course[ 'code' ] ] ) )
-				$course[ 'semester' ] = convertSemester( $this->currentSemester, true );
-			
-			// Define course level
-			$course[ 'level' ] = 4;
-			if ( isset( $course[ 'note'] ) && !empty( $course['note'] ) ) {
-				$course[ 'level' ] = 1;			// Course completed
-			} elseif ( isset( $course[ 'semester'] ) && $course[ 'semester '] == $this->currentSemester ) {
-				$course[ 'level' ] = 2;			// Course is being attending in this current semester
-			} elseif ( $course[ 'av' . $data[ 'registrationSemester' ] ] ) {
-				$course[ 'level' ] = 3;			// Course is available for registration
-			} elseif ( !$course[ 'av' . $data[ 'registrationSemester' ] ] ) {
-				$course[ 'level' ] = 4;			// Course is not available for registration
-			}
-
-			if ( isset( $data[ 'programCourses' ][ $course[ 'category' ] ] ) ) {
-				$data[ 'programCourses' ][$course[ 'category' ] ][] = $course;
-			} else {
-				$data[ 'programCourses' ][ $course[ 'category' ] ] = array();
-				$data[ 'programCourses' ][ $course[ 'category' ] ][] = $course;
-			}
-		}
-
-		$data['courses'] = $programCourses;
-		
-		$this->mHistory->save('registration-courses');
-		
-		$currentDate = date('Ymd');
-		// Chargement de la page d'inscription
-		respond(array(
-                'title'         =>  'Choix de cours',
-                'content'       =>  $this->load->view('registration/courses', $data, true),
-                'breadcrumb'    =>  array(
-                    array(
-                        'url'   =>  '#!/dashboard',
-                        'title' =>  'Tableau de bord'
-                    ),
-                    array(
-                        'url'   =>  '#!/registration',
-                        'title' =>  'Choix de cours'
-                    )
-                ),
-                'code'			=>	<<<EOT
-    app.Registration.init({
-    	registrationSemester: 	'{$this->registrationSemester}',
-    	currentSemester:		'{$this->currentSemester}',
-    	currentDate:			'{$currentDate}',
-    	deadline_drop_fee:		'{$this->deadlines[$this->registrationSemester]['drop_fee']}',
-    	deadline_drop_nofee:	'{$this->deadlines[$this->registrationSemester]['drop_nofee']}',
-    	deadline_edit_selection:'{$this->deadlines[$this->registrationSemester]['edit_selection']}'
-    });
-    
-    $('.courses').each(function(index, value) { $(value).find('tr').css('backgroundColor', '#fff'); $(value).find('tr:visible:odd').css('backgroundColor', '#dae6f1'); });
-    	*/
+		$this->set( 'availableCourses', $availableCourses );
 
     	$this->setAssets( array( '/js/registration.js' ), array( '/css/registration.css' ) );
     	$this->set( 'sidebar', 'registration' );
@@ -357,8 +233,8 @@ class RegistrationController extends AppController {
 				'conditions'	=>	array(
 					'Course.idul' 		=>	$this->Session->read( 'User.idul' ),
 					'Course.semester'	=>	$semester,
-					'Course.nrc'	=>	$nrc
-				) ) ) != 0 ) {
+					'Course.nrc'		=>	$nrc
+				) ) ) != array() ) {
 				// Error : course already registered
 				return new CakeResponse( array(
 	            	'body' => json_encode( array(
@@ -374,7 +250,7 @@ class RegistrationController extends AppController {
 					'Course.idul' 		=>	$this->Session->read( 'User.idul' ),
 					'Course.semester'	=>	$semester,
 					'Course.code'		=>	$class[ 'UniversityCourse' ][ 'code' ]
-				) ) ) != 0 ) {
+				) ) ) != array() ) {
 				if ( $replace == null ) {
 					// Error : similar course already registered
 					return new CakeResponse( array(
@@ -393,7 +269,7 @@ class RegistrationController extends AppController {
 					'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
 					'SelectedCourse.semester'	=>	$semester,
 					'SelectedCourse.nrc'	=>	$nrc
-				) ) ) != 0 ) {
+				) ) ) != array() ) {
 				// Error : course already selected
 				return new CakeResponse( array(
 	            	'body' => json_encode( array(
@@ -409,7 +285,7 @@ class RegistrationController extends AppController {
 					'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
 					'SelectedCourse.semester'	=>	$semester,
 					'SelectedCourse.code'		=>	$class[ 'UniversityCourse' ][ 'code' ]
-				) ) ) != 0 ) {
+				) ) ) != array() ) {
 				if ( $replace == null ) {
 					// Error : similar course already selected
 					return new CakeResponse( array(
@@ -440,7 +316,14 @@ class RegistrationController extends AppController {
 
 			$this->User->SelectedCourse->create();
 			$this->User->SelectedCourse->set( $selectedCourse );
-			if ( !$this->User->SelectedCourse->save( $selectedCourse ) ) {
+			if ( $this->User->SelectedCourse->save( $selectedCourse ) ) {
+				return new CakeResponse( array(
+	            	'body' => json_encode( array(
+	            		'status'    			=>  true,
+	            		'nrc'					=>	$nrc
+	            	) )
+	            ) );
+	        } else {
 				// Error : unknown error
 				return new CakeResponse( array(
 	            	'body' => json_encode( array(
@@ -449,35 +332,30 @@ class RegistrationController extends AppController {
 	            	) )
 	            ) );
 			}
+		}
+	}
 
-			// Get student selected courses for registration semester
-			$selectedCourses = $this->User->SelectedCourse->find( 'list', array(
-				'conditions'	=>	array(
-					'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
-					'SelectedCourse.semester'	=>	$semester
-				),
-				'fields'		=>	array( 'id', 'nrc' )
-			) );
-			
-			// Get last selected course
-			$selectedCourse = $this->User->SelectedCourse->find( 'first', array(
-				'conditions'	=>	array(
-					'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
-					'SelectedCourse.nrc'		=>	$nrc,
-					'SelectedCourse.semester'	=>	$semester
-				),
-				'contain'		=>	array( 'UniversityCourse' )
-			) );
-			$view = new View( $this, false );
-			$content = $view->element( 'registration/selected_course', array( 'course' => $selectedCourse ) );
+	function unselectCourse () {
+		if ( $this->request->is( 'ajax' ) ) {
+			$nrc = $this->request->data[ 'nrc' ];
+			$semester = $this->registrationSemester;
 
-			return new CakeResponse( array(
-            	'body' => json_encode( array(
-            		'status'    			=>  true,
-            		'nrc'					=>	$nrc,
-            		'selectedCourseContent'	=>	$content
-            	) )
-            ) );
+			if ( $this->User->SelectedCourse->deleteAll( array( 'SelectedCourse.nrc' => $nrc, 'SelectedCourse.semester' => $semester, 'SelectedCourse.idul' => $this->Session->read( 'User.idul' ) ) ) ) {
+				return new CakeResponse( array(
+	            	'body' => json_encode( array(
+	            		'status'    			=>  true,
+	            		'nrc'					=>	$nrc
+	            	) )
+	            ) );
+	        } else {
+				// Error : unknown error
+				return new CakeResponse( array(
+	            	'body' => json_encode( array(
+	            		'status'    	=>  false,
+	            		'errorCode'		=>	2
+	            	) )
+	            ) );
+			}
 		}
 	}
 }

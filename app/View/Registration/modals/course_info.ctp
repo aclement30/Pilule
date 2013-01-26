@@ -7,6 +7,8 @@
 
   <p class="description"><?php echo str_replace( "", "'", $course[ 'UniversityCourse' ][ 'description' ] ); ?></p>
 
+  <hr>
+
   <div class="row-fluid">
     <!-- Course restrictions -->
     <?php if ( !empty( $course[ 'UniversityCourse' ][ 'restrictions' ] ) ): ?>
@@ -35,9 +37,11 @@
     <?php endif; ?>
   </div>
 
+  <hr>
+
   <!-- Available classes for this course -->
   <h4>Cours disponibles</h4>
-  <?php if ( !$course[ 'UniversityCourse' ][ 'av' . $semester ] ): ?>
+  <?php if ( $course[ 'UniversityCourse' ][ 'av' . $semester ] ): ?>
     <div class="hero-unit loading-classes">
       <div><img src="/img/redirect-loading.gif" alt="Chargement" /></div>
       <p class="lead">Recherche de cours offerts</p>

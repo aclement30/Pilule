@@ -1042,7 +1042,10 @@ class Capsule {
                 date( 'Y' ) . "01",
                 ( date( 'Y' ) - 1 ) . "09",
                 ( date( 'Y' ) - 1 ) . "05",
-                ( date( 'Y' ) - 1 ) . "01"
+                ( date( 'Y' ) - 1 ) . "01",
+                ( date( 'Y' ) - 2 ) . "09",
+                ( date( 'Y' ) - 2 ) . "05",
+                ( date( 'Y' ) - 2 ) . "01"
             );
 
             $semesters = array();
@@ -1978,6 +1981,8 @@ class Capsule {
                     $checkPrerequisites = true;
                 }
 
+                /*
+
                 if ( date( 'm' ) < 3 ) {
                     $suggestedSemesters = array(
                         date( 'Y' ) . "01"
@@ -2001,20 +2006,21 @@ class Capsule {
                         ( date( 'Y' ) + 1 ) . "01"
                     );
                 }
+                */
 
                 if ( $fetchClasses ) {
                     $course[ 'Class' ] = array();
 
-                    foreach ( $suggestedSemesters as $suggestedSemester ) {
-                        $classes = $this->fetchClasses( $course[ 'code' ], $suggestedSemester );
+                    $classes = $this->fetchClasses( $course[ 'code' ], $semester );
 
-                        if ( $classes && !empty( $classes ) ) {
-                            $course[ 'Class' ] += $classes;
-                            $course[ 'av' . $suggestedSemester ] = true;
-                        } else {
-                            $course[ 'av' . $suggestedSemester ] = false;
-                        }
+                    if ( $classes && !empty( $classes ) ) {
+                        $course[ 'Class' ] += $classes;
+                        $course[ 'av' . $semester ] = true;
+                    } else {
+                        $course[ 'av' . $semester ] = false;
                     }
+
+                    $course[ 'checkup_' . $semester ] = time();
                 }
             }
 
@@ -2025,7 +2031,7 @@ class Capsule {
     }
 	
     public function fetchClasses ( $code, $semester ) {
-        $code = explode('-', strtoupper( $code ) );
+        $code = explode( '-', strtoupper( $code ) );
         $classes = array();
 
         // Fetch course page
@@ -2079,7 +2085,7 @@ class Capsule {
                         if ( isset( $cell->attr[ 'class' ] ) && $cell->attr[ 'class' ] == 'ddlabel' ) {
                             // Title cell
 
-                            $class = array();
+                            $class = array( 'semester' => $semester );
 
                             $title = $cell->text();
 

@@ -36,7 +36,22 @@
             </thead>
             <tbody>
                 <?php foreach ( $section[ 'Course' ] as $course ) : ?>
-                    <tr class="<?php if ( empty( $course[ 'note' ] ) ) echo 'current'; ?>" data-code="<?php echo $course[ 'code' ]; ?>">
+                	<?php
+                		$courseClassnames = array();
+
+                		if ( !empty( $course[ 'note' ] ) )
+                			$courseClassnames[] = 'done';
+                		
+                		if ( empty( $course[ 'note' ] ) && !empty( $course[ 'semester' ] ) )
+                			$courseClassnames[] = 'current';
+                		
+                		if ( in_array( $course[ 'code' ], $availableCourses ) ) {
+                			$courseClassnames[] = 'available';
+                		} else {
+                			$courseClassnames[] = 'not-available';
+                		}
+                	?>
+                    <tr class="<?php echo implode( ' ', $courseClassnames ); ?>" data-code="<?php echo $course[ 'code' ]; ?>">
 						<td class="code">
                             <span class="course-code"><?php echo $course[ 'code' ]; ?></span><br />
                             <span class="mobile-title"><?php echo $course[ 'title' ]; ?></span>

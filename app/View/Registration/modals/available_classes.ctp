@@ -5,13 +5,13 @@
 			$number++
 			?>
 			<div class="class span4" data-nrc="<?php echo $class[ 'nrc' ]; ?>" style="<?php if ($number%3==0) echo 'margin-right: 0px;'; ?>">
-				<div>
+				<div class="clearfix">
 					<div class="type"><?php echo $class[ 'timetable' ][ 0 ][ 'type' ]; ?></div>
 					<div class="semester">
 						<?php echo $this->App->convertSemester( $class[ 'semester' ], true ); ?>
 					</div>
-					<div style="clear: both;"></div>
 				</div>
+				<hr>
 				<?php /*
 			<?php if ( trim( $class[ 'timetable' ][0][ 'day' ] ) != '' && $class[ 'timetable' ][0][ 'day' ] != ' ' ): ?>
 				<div class="timetable">
@@ -107,6 +107,7 @@
 					// Display class notes, if any
 					if ( !empty( $class[ 'notes' ] ) ):
 						?>
+						<hr>
 						<div class="notes" title="<?php echo $class[ 'notes' ]; ?>">
 							<?php
 								if ( md5( $class[ 'notes' ] ) == '6496af59f3e58084b2a48b4fb93bf696' ):
@@ -133,20 +134,22 @@
 						<?php
 					endif;
 				?>
-				<div class="nrc">NRC : <strong><?php echo $class[ 'nrc' ]; ?></strong></div>
-				<div class="registration-state">
-					<?php
-						if ( in_array( $class[ 'nrc' ], $registeredCourses ) ) {
-							echo '<span class="registered">Inscrit</span>';
-						} elseif ( in_array( $class[ 'nrc' ], $selectedCourses ) ) {
-							echo '<span class="selected">Sélectionné</span>';
-						} else {
-							echo $this->Html->link( '<i class="icon-plus"></i>&nbsp;Ajouter', '#', array( 'class' => 'btn btn-mini js-select-btn', 'escape' => false ) );
-						}
-					?>
-					<img src="/img/loading-btn.gif" class="loading-img" />
+				<hr>
+				<div class="clearfix">
+					<div class="nrc">NRC : <strong><?php echo $class[ 'nrc' ]; ?></strong></div>
+					<div class="registration-state">
+						<?php
+							if ( in_array( $class[ 'nrc' ], $registeredCourses ) ) {
+								echo '<span class="registered">Inscrit</span>';
+							} elseif ( in_array( $class[ 'nrc' ], $selectedCourses ) ) {
+								echo '<span class="selected">Sélectionné</span>';
+							} else {
+								echo $this->Html->link( '<i class="icon-plus"></i>&nbsp;Ajouter', '#', array( 'class' => 'btn btn-mini js-select-btn', 'escape' => false ) );
+							}
+						?>
+						<img src="/img/loading-btn.gif" class="loading-img" />
+					</div>
 				</div>
-				<div style="clear: both;"></div>
 			</div>
 		<?php
 			if ( $number % 3 == 0 ) {

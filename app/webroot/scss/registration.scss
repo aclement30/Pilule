@@ -1,3 +1,77 @@
 @import 'global';
 @import 'partials/_courses-list';
 
+table.courses-list {
+	tbody {
+		tr td {
+			cursor: pointer;
+		}
+
+		tr.available td {
+			color: green;
+		}
+
+		tr.not-available td {
+			color: gray;
+		}
+
+		tr.not-available {
+			:not(.done) {
+				display: none;
+			}
+		}
+		tr.done td {
+			color: black;
+		}
+
+		tr.current td {
+			color: orange;
+		}
+	}
+}
+
+body .modal {
+    //new custom width
+    width: 800px;
+    margin-left: -400px;
+
+    .classes-list {
+    	.class {
+    		background-color: #ddd;
+    		border-radius: 5px;
+    		padding: 10px;
+    		margin-bottom: 20px;
+
+    		hr {
+    			margin: 5px 0;
+    			border: 1px dotted silver;
+    		}
+
+    		.type {
+    			float: left;
+    			font-weight: bold;
+    		}
+
+    		.semester {
+    			float: right;
+    			font-weight: bold;
+    		}
+
+    		.notes {
+    			font-size: 8pt;
+    		}
+
+    		.nrc {
+    			float: left;
+    		}
+
+    		.registration-state {
+    			float: right;
+
+    			.loading-img {
+    				display: none;
+    			}
+    		}
+    	}
+    }
+}

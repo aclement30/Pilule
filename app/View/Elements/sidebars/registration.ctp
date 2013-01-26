@@ -1,6 +1,6 @@
 <h4><?php echo $this->App->convertSemester( $registrationSemester, true ) ?> : Cours inscrits</h4>
-<div class="table-panel">
-    <table class="table table-striped registered-courses">
+<div class="table-panel registered-courses">
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th style="font-weight: bold; text-align: left;">Cours</th>
@@ -52,8 +52,8 @@
 </div>
 
 <h4>Sélection de cours</h4>
-<div class="table-panel">
-    <table class="table table-striped selected-courses">
+<div class="table-panel selected-courses">
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th style="font-weight: bold; text-align: left;">Cours</th>
