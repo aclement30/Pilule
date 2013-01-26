@@ -16,7 +16,7 @@
 <!-- Load Pilule-specific JS files -->
 <?php
     // Define site-wide scripts
-    $scripts = array( '/js/pilule-3.0.0.js', '/js/cache-3.0.0.js' );
+    $scripts = array( '/js/pilule.js', '/js/cache.js' );
 
     if ( isset( $assets ) && !empty( $assets[ 'js' ] ) ) {
         $scripts = array_merge( $scripts, $assets[ 'js' ] );
@@ -26,7 +26,7 @@
     $currentVersion = '3.0.0';
 
     foreach ( $scripts as &$path ) {
-        $path .= str_replace( '.js', '-' . $currentVersion . '.js' );
+        $path = str_replace( '.js', '-' . $currentVersion . '.js', $path );
     }
 
     echo $this->Html->script( $scripts );
