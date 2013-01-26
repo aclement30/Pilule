@@ -227,13 +227,23 @@ app.Common.stopLoading = function () {
 
 };
 
+
+// Display success message
+app.Common.displayMessage = function ( message ) {
+    toastr.options = {
+        positionClass: 'toast-bottom-left'
+    };
+
+    toastr.success( message );
+};
+
 // Display error message
 app.Common.displayError = function ( message, object, autoHide ) {
     toastr.options = {
         positionClass: 'toast-bottom-left'
     };
 
-    toastr.success( message );
+    toastr.error( message );
 };
 
 app.Common.refreshPage = function () {
