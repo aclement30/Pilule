@@ -1,0 +1,22 @@
+@import 'global';
+@import 'partials/_courses-list';
+
+table.courses-credits, table.gpas, table.summary {
+	thead th {
+		text-align: center;
+	}
+
+	tbody td:not(.requirements) {
+		text-align: center;
+	}
+}
+
+h4.formation {
+	margin-bottom: 30px;
+}
+
+@media (max-width: 768px) {
+	.stats {
+		display: none;
+	}
+}

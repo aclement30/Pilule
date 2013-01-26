@@ -13,66 +13,54 @@ app.Schedule.displaySemester = function ( e ) {
 		e.preventDefault;
 
 		// Param is an event, retrieve the semester
-		document.location = '/schedule/' + $( this ).data( 'semester' );
+		document.location = '/horaire/' + $( this ).data( 'semester' );
 	} else {
-    	document.location = '/schedule/' + semester;
+    	document.location = '/horaire/' + semester;
     }
 
     return false;
 };
 
-app.Schedule.display = function ( calendar ) {
-    $( '#calendar' ).fullCalendar( {
-        header: 		{
-            left: 	'prev, next',
-            center: 'title',
-            right: 	''
-        },
-        firstDay:   	1,
-        defaultView :   'agendaWeek',
-        allDaySlot:     false,
-        firstHour:      8,
-        minTime:        8,
-        maxTime:        22,
-        weekends:   	false,
-        year:           calendar.startYear,
-        month:          calendar.startMonth,
-        timeFormat: 	'H(:mm)', // uppercase H for 24-hour clock
-        axisFormat: 	'H:mm',
-         buttonText: 	{
-            prev: '',
-            next: ''
-        },
-        titleFormat:    {
-            month:  'MMMM yyyy',
-            week: 	"d[ MMM][ yyyy]{ '&#8212;' d MMM. yyyy}",
-            day: 	'dddd, d MMM. yyyy'
-        },
-        eventRender: 	function( event, element ) {
-            element.find( '.fc-event-time' ).append( ' ' + event.code );
-            var description = '<br /><div style="margin-top: 5px;"><i class="icon-map-marker icon-white"></i> <span>' + event.location + '</span></div>';
-            if ( event.teacher != '' ) description += '<div style="margin-bottom: 5px; margin-top:  5px;"><i class="icon-user icon-white"></i> <span>' + event.teacher + '</span></div>';
-            element.find( '.fc-event-title' ).append( description );
-        },
-        monthNamesShort:    [ 'janv', 'fév', 'mars', 'avril', 'mai', 'juin', 'juil', 'août', 'sept', 'oct', 'nov', 'déc' ],
-        dayNamesShort:      [ 'Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam' ],
-        dayNames:           [ 'Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi' ],
-        columnFormat:       {
-            month: 	'ddd',    // Mon
-            week: 	'ddd. d', // Mon 9/7
-            day: 	''  // Nothing
-        },
-        height: 		650,
-        events: 		calendar.events
-    } );
+app.Schedule.displayPreviousWeek = function ( e ) {
+	var container = '#agenda';
 
-	// If no other courses for this semester, hide right column
-	if ( calendar.otherCourses == 0 ) {
-		//$( '.widget-content .panel-right' ).hide();
-		//$( '.widget-content .panel-left' ).css( 'width', '100%' );
+	if ( $( window ).width() <= 660 ) {
+		container = '#mobile-agenda';
 	}
 
-    //setTimeout(displayCalendar, 100);
+	var currentWeek = parseInt( $( container + ' .week.current' ).data( 'week' ) );
+	currentWeek--;
+
+	// Display previous week if exists
+	if ( $( container + ' .week.week' + currentWeek ).length != 0 ) {
+		$( container + ' .week.current' ).fadeOut( 'fast', function(){
+			$( container + ' .week.current' ).removeClass( 'current' );
+			$( container + ' .week.week' + currentWeek ).fadeIn().addClass( 'current' );
+
+			$( '.calendar-header .dates h4' ).html( $( container + ' .week.week' + currentWeek ).data( 'title' ) );
+		} );
+	}
+};
+
+app.Schedule.displayNextWeek = function ( e ) {
+	var container = '#agenda';
+
+	if ( $( window ).width() <= 660 ) {
+		container = '#mobile-agenda';
+	}
+
+	var currentWeek = parseInt( $( container + ' .week.current' ).data( 'week' ) );
+	currentWeek++;
+
+	// Display previous week if exists
+	if ( $( container + ' .week.week' + currentWeek ).length != 0 ) {
+		$( container + ' .week.current' ).fadeOut( 'fast', function(){
+			$( container + ' .week.current' ).removeClass( 'current' );
+			$( container + ' .week.week' + currentWeek ).fadeIn().addClass( 'current' );
+
+			$( '.calendar-header .dates h4' ).html( $( container + ' .week.week' + currentWeek ).data( 'title' ) );
+		} );
+	}
 };
 
 // Download schedule in iCal format
@@ -81,16 +69,25 @@ app.Schedule.download = function ( semester ) {
     _gaq.push(['_trackEvent', 'Schedule', 'Download', 'Téléchargement de l\'horaire']);
 
     // Download schedule iCal file
-    $( '#frame' ).attr( 'src', app.Schedule.controllerURL + 'ical_download/' + semester );
+    $( '#external-frame' ).attr( 'src', app.Schedule.controllerURL + 'ical_download/' + semester );
 };
 
 app.Schedule.init = function () {
-	// Check if calendar data exists
-	if ( typeof timetable != 'undefined' ) {
-		app.Schedule.display( timetable );
+	$( '.semesters-dropdown ul li a' ).on( 'click', app.Schedule.displaySemester );
+
+	$( '.calendar-header .semesters-dropdown.compact' ).appendTo( '.main .action-buttons .buttons' );
+
+	if ( $( window ).width() <= 480 ) {		
+		if ( $( '.main .no-data' ).length == 0 )
+			$( '.calendar-header .semesters-dropdown' ).not( '.compact' ).hide();
 	}
 
-	$( '.semesters-dropdown ul li a' ).on( 'click', app.Schedule.displaySemester );
+	var tableCells = $( '#agenda table tbody td.class' );
+
+	$( '#agenda table tbody td.class .inside' ).popover();
+
+	$( '.calendar-header .js-prec-calendar' ).on( 'click', app.Schedule.displayPreviousWeek );
+	$( '.calendar-header .js-next-calendar' ).on( 'click', app.Schedule.displayNextWeek );
 };
 
 $( document ).ready( app.Schedule.init );

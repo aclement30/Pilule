@@ -7,26 +7,26 @@
 
     <?php echo $this->element( 'metas' ); ?>
 	
-    <title><?php if ( isset( $title_for_layout ) ) echo $title_for_layout . ' | '; ?>Pilule - Gestion des études</title>
+    <title><?php if ( isset( $title_for_layout ) ) echo strip_tags( $title_for_layout ) . ' - '; ?>Pilule - Gestion des études</title>
 
     <?php echo $this->element( 'css/bootstrap' ); ?>
     <?php echo $this->element( 'css/default' ); ?>
     
-    <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+    <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
 
     <script type="text/javascript">
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-345357-28']);
-      _gaq.push(['_trackPageview']);
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-345357-28']);
+        _gaq.push(['_trackPageview']);
 
-      (function() {
+        (function() {
         var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
         ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
+        })();
 
-      <?php if ( isset( $_GET[ 'debug' ] ) and $_GET[ 'debug' ] == 1 ) echo 'var debug = 1;'; else echo 'var debug=0;'; ?>
+        <?php if ( isset( $_GET[ 'debug' ] ) and $_GET[ 'debug' ] == 1 ) echo 'var debug = 1;'; else echo 'var debug=0;'; ?>
     </script>
 </head>
 
@@ -39,37 +39,46 @@
 
 	<?php echo $this->element( 'header' ); ?>
 
-	<?php echo $this->element( 'sidebar' ); ?>
+    <div class="page">
+        <div class="page-container">
+            <div class="container">
+                <div class="row">
+                    <?php if ( !empty( $sidebar ) ) : ?>
+                        <div class="span3 aside">
+                            <?php echo $this->element( 'sidebars/' . $sidebar ); ?>
+                        </div>
+                    <?php endif; ?>
+                    <div class="<?php if ( !empty( $sidebar ) ) echo 'span9'; else echo 'span12'; ?> main">
+                        <div class="inner-content">
+                            <div class="btn-group action-buttons pull-right">
+                                <div class="buttons">
+                                  <?php
+                                    if ( isset( $buttons ) && !empty( $buttons ) )
+                                      echo $this->element( 'action_buttons', $buttons );
+                                  ?>
+                                </div>
+                                <div class="timestamp no-print">
+                                  <?php
+                                    if ( isset( $timestamp ) && !empty( $timestamp ) )
+                                        echo 'Données actualisées : ' . $this->App->timeAgo( $timestamp ) . '.';
+                                  ?>
+                                </div>
+                                <div class="loading-status"></div>
+                            </div>
 
-  <div id="content">
-    <div id="content-header">
-        <h1><?php echo $title_for_layout; ?></h1>
-        <div class="btn-group action-buttons">
-            <div class="buttons">
-              <?php
-                if ( isset( $buttons ) && !empty( $buttons ) )
-                  echo $this->element( 'action_buttons', $buttons );
-              ?>
+                            <h4 class="header"><?php echo $title_for_layout; ?></h4>
+
+                            <?php echo $this->Session->flash(); ?>
+
+                            <?php echo $this->fetch('content'); ?>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="timestamp no-print">
-              <?php
-                if ( isset( $timestamp ) && !empty( $timestamp ) )
-                    echo 'Données actualisées : ' . $this->App->timeAgo( $timestamp ) . '.';
-              ?>
-            </div>
-            <div class="loading-status"></div>
         </div>
     </div>
-    <div id="breadcrumb"><?php //echo $this->Html->getCrumbs(' > ', 'Tableau de bord' ); ?></div>
-    <div class="container-fluid" id="content-layer">
-        <?php echo $this->Session->flash(); ?>
-        <div class="content-inside">
-          <?php echo $this->fetch('content'); ?>
-        </div>
-    </div>
-  </div>
-	
-  <div id="modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true"></div>
+
+    <div id="modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true"></div>
 
 	<?php echo $this->element( 'footer' ); ?>
 

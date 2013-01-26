@@ -1,0 +1,34 @@
+@import 'global';
+
+table.fees {
+	thead th:last-child {
+		text-align: right;
+	}
+
+	tbody td:last-child {
+		text-align: right;
+	}
+
+	tfoot {
+		tr.amount-paid {
+			td, th {
+				color: green;
+			}
+		}
+
+		th {
+			text-align: right;
+		}
+
+		td:last-child {
+			font-weight: bold;
+			text-align: right;
+		}
+	}	
+}
+
+@media (max-width: 768px) {
+	.stats {
+		display: none;
+	}
+}

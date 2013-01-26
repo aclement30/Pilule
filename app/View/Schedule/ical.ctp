@@ -1,10 +1,11 @@
 <?php
 	// Extract courses from schedule
-	$courses = Set::extract( '/ScheduleSemester/Course', $schedule );
+	$courses = Set::extract( '/Course', $schedule );
 
 	// Build timetable
-	$timetable = $this->App->buildTimetable( $courses, array(
-		'startDate'		=>	$startDate,
+	$timetable = $this->App->buildCalendar( $courses, array(
+		'startDate'		=>	$semesterDates[ 0 ],
+		'endDate'		=>	$semesterDates[ 1 ],
 		'sectors'		=>	$sectors,
 		'holidays'		=>	$holidays,
 		'weekdays'		=>	$weekdays,

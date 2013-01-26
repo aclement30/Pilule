@@ -87,30 +87,13 @@ app.Dashboard.toggleModule = function ( e ) {
     return false;
 };
 
-// Open external website in external view frame
-app.Dashboard.openExternalWebsite = function ( url ) {
-	// Display small logo
-    $( '#header h1' ).addClass( 'small' );
-
-    // Hide sidebar
-    $( '#sidebar' ).hide();
-
-    // Display external view frame
-    $( '#external-frame' ).attr( 'src', url );
-    $( '#external-frame' ).fadeIn();
-
-    // Hide normal navigation menu
-    $( '#user-nav .nav' ).hide();
-    $( '#user-nav .nav.external-frame' ).fadeIn();
-};
-
 app.Dashboard.initModules = function () {
-	var modules = $( 'ul.dashboard li:not(.offline)' );
+	var modules = $( '.dashboard .module:not(.offline)' );
 
 	$.each( modules, function( index, module ) {
 		if ( $( module ).hasClass( 'external' ) ) {
 			$( module ).find( 'a' ).on( 'click', function( e ) {
-				app.Dashboard.openExternalWebsite( $( module ).data( 'url' ) );
+				app.Common.openExternalWebsite( $( module ).data( 'url' ) );
 
 				return false;
 			} );

@@ -11,7 +11,7 @@
         <div class="span3 image">
             <img src="./img/lego-man.png" alt="Lego Man" />
         </div>
-        <div class="span7 main">
+        <div class="span7">
             <p class="lead">
                 <?php
                     if ( !empty( $selectedSemester ) ) :

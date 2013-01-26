@@ -1,30 +1,48 @@
 body {
-  margin: 0px;
+	width: 8.5in;
+  margin: 0.5cm;
+  background: none;
 }
 
-#header, #user-nav, #sidebar, .footer, #breadcrumb, .btn-group.action-buttons .buttons, .no-print, .widget-box .widget-title .icon {
+#in-nav, #in-sub-nav, .container .aside, footer, .action-buttons .buttons > .btn, .no-print {
   display: none!important;
 }
 
-#content {
+.page {
+	width: 100%;
+	border-radius: 0px;
+	box-shadow: none;
+  margin-top: 0px;
+  padding-top: 0px;
+}
+
+.container {
+	width: 100%;
+}
+
+.container .main {
   width: 100%;
   margin: 0px;
   padding: 0px;
 }
 
-#content-header {
-  margin-top: 0px;
-  height: 50px;
+.container h4 i, .container h5 i {
+  display: none;
 }
 
 th.course-code {
   width: 2cm!important;
 }
 
-.widget-content .panel-left {
-  width: 100%;
-}
-
 .request-description {
   display: block;
+}
+
+.btn {
+  border: 0px;
+  box-shadow: none;
+
+  .caret {
+    display: none;
+  }
 }

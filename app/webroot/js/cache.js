@@ -81,11 +81,7 @@ app.Cache.loadData = function () {
                         ( app.Cache.reloadCallback )();
                         app.Cache.reloadCallback = null;
                     } else {
-                        if ( response.auto == 1 ) {
-                            app.Common.refreshPage( false );
-                        } else {
-                            app.Common.refreshPage( true );
-                        }
+                        app.Common.refreshPageContent();
                     }
 					
                     if ( app.Cache.loadingQueue.length == 0 ) {

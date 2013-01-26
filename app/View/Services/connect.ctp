@@ -1,4 +1,4 @@
-<div class="row-fluid" style="margin-top: 10%;">
+<div class="row-fluid loading-service-notice" style="margin-top: 10%;">
 	<div class="span4">&nbsp;</div>
     <div class="hero-unit span4" style="text-align: center;">
     	<div style="margin-bottom: 30px;">

@@ -1517,7 +1517,11 @@ form {
 
 /* Responsive design */
 
-@media (max-width: 480px) {
+@media only screen and (-moz-min-device-pixel-ratio: 2) and (max-width: 1200px),
+    only screen and (-o-min-device-pixel-ratio: 2/1) and (max-width: 1200px),
+    only screen and (-webkit-min-device-pixel-ratio: 2) and (max-width: 1200px),
+    only screen and (min-device-pixel-ratio: 2) and (max-width: 1200px),
+    only screen and (max-width: 480px) {
     #header h1 {
         top: auto;
         left: auto;

@@ -15,7 +15,7 @@ var ajax = {
 		data: 			{},
 		controller:		null,
 		object: 		null,
-		method:			null,
+		func:			null,
 		url:			null,
 		callback:		null
 	}
@@ -29,7 +29,7 @@ ajax.request = function ( params ) {
 
 	if ( p.url == null ) {
 		// Define AJAX URL
-		p.url = p.controller + p.method + '.json';
+		p.url = p.controller + p.func + '.json';
 	}
 
     if (p.data != null) {
@@ -123,7 +123,7 @@ ajax.request = function ( params ) {
 					description: 	request.responseText
 				} );
 			}
-		},
+		}
 	});
 };
 

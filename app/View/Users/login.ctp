@@ -11,9 +11,6 @@
                 <?php echo $this->Form->input( 'User.password', array( 'label' => 'Mot de passe', 'class' => 'password', 'between' => '<div class="input-prepend"><span class="add-on"><i class="icon-lock"></i></span>', 'after' => '</div>', 'type' => 'password', 'data-placeholder' => 'Mot de passe' ) ); ?>
                 <div class="help-block">Votre NIP ne sera pas enregistré dans le système.</div>
             </div>
-            <div class="control-group checkbox">
-                <?php echo $this->Form->input( 'User.memorize', array( 'type' => 'checkbox', 'class' => 'js-save-idul', 'label' => 'Mémoriser mon IDUL sur cet ordinateur' ) ); ?>
-            </div>
             <div class="btn-group">
                 <?php echo $this->Html->link( '<i class="icon-question-sign"></i>', '/support/login-help', array( 'class' => 'btn help-btn', 'title' => 'Problèmes de connexion ?', 'escape' => false ) ); ?>
                 <button type="button" id="btn-login" class="btn btn-success submit-btn">
@@ -41,7 +38,7 @@
             <div class="btn-group">
                 <a class="btn btn-danger btn-redirect-dashboard"><i class="icon-warning-sign icon-white"></i>&nbsp;Continuer sans chargement</a>
             </div>
-            <div class="btn-group">
+            <div class="btn-group" style="margin-top: 20px;">
                 <a class="btn btn-success btn-retry-login"><i class="icon-repeat icon-white"></i>&nbsp;Réessayer la connexion</a>
             </div>
         </div>

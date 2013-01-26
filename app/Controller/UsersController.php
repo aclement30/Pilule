@@ -91,24 +91,32 @@ class UsersController extends AppController {
 	}
 
 	public function dashboard () {
+		$idul = $this->Session->read( 'User.idul' );
+		if ( empty( $idul ) ) {
+			$this->redirect( '/connexion' );
+			exit();
+		}
+		
+		/*
         // Find user dashboard modules
         $userModules = $this->Module->User->find( 'first', array(
         	'conditions'	=>	array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
         	'contain'		=>	array( 'Module' => array( 'conditions' => array( 'Module.active' => true ) ) ),
         	'fields'		=> 	array( 'User.idul' )
         ) );
+        */
+
+        $userModules = array();
 
 		if ( empty( $modules[ 'Module' ] ) ) {
 			// Load default modules
 			$modules = $this->User->Module->find( 'all', array(
-	        	'conditions'	=>	array( 'Module.active' => true )
+	        	'conditions'	=>	array( 'Module.active' => true ),
+	        	'order'			=>	'Module.order'
 	        ) );
 		}
 
-        $this->set( 'breadcrumb', array( array(
-            'url'   =>  'dashboard',
-            'title' =>  'Tableau de bord'
-        ) ) );
+		/*
         $this->set( 'buttons', array(
         	array(
 	            'action'=>  "app.Dashboard.edit();",
@@ -121,10 +129,13 @@ class UsersController extends AppController {
 	            'tip'   =>  'Enregistrer le tableau de bord'
 	        )
         ) );
+        */
         $this->set( 'modules', $modules );
         $this->set( 'userModules', $userModules );
+
 		$this->set( 'title_for_layout', 'Tableau de bord' );
-		$this->setAssets( array( '/js/dashboard.js' ), null );
+		//$this->set( 'sidebar', 'dashboard' );
+		$this->setAssets( array( '/js/dashboard.js' ), array( '/css/dashboard.css' ) );
 	}
 
 	public function saveDashboard () {

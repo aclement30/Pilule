@@ -84,10 +84,12 @@ class AppHelper extends Helper {
         return $timeAgo;
     }
 
-    public function buildTimetable ( $courses, $params = array() ) {
-        $timetable = array(
+    public function buildCalendar ( $courses, $params = array() ) {
+        $schedule = array(
+            'regularCourses'    =>  0,
             'otherCourses'      =>  0,
             'startDate'         =>  $params[ 'startDate' ],
+            'endDate'           =>  $params[ 'endDate' ],
             'events'            =>  array()
         );
 
@@ -95,7 +97,7 @@ class AppHelper extends Helper {
             foreach ( $course[ 'Course' ][ 'Class' ] as $class ) {
                 // No day defined for this class, increment off-campus class and skip to the next class
                 if ( empty( $class[ 'day' ] ) ) {
-                    $timetable[ 'otherCourses' ]++;
+                    $schedule[ 'otherCourses' ]++;
                     continue;
                 }
 
@@ -109,8 +111,8 @@ class AppHelper extends Helper {
                 $currentDay = $firstDay;
 
                 // If first day of class start before the predicted semester start date, move back the semester start date
-                if ( date( 'Ymd', $firstDay ) < $timetable[ 'startDate' ] )
-                    $timetable[ 'startDate' ] = date( 'Ymd', $firstDay );
+                if ( date( 'Y-m-d', $firstDay ) < $schedule[ 'startDate' ] )
+                    $schedule[ 'startDate' ] = date( 'Y-m-d', $firstDay );
 
                 while ( $currentDay < $lastDay ) {
                     if ( $currentDay > $lastDay ) break;
@@ -126,16 +128,6 @@ class AppHelper extends Helper {
                     }
 
                     if ( !$holiday ) {
-                        // Calculate class start time
-                        $startTime = floor( $class[ 'hour_start' ] );
-                        if ( $startTime < 10 ) $startTime = '0' . $startTime;
-                        $startTime .= ':' . ( ceil( $class[ 'hour_start' ] ) - $class[ 'hour_start' ] ) * 60;
-
-                        // Calculate class end time
-                        $endTime = floor( $class[ 'hour_end' ] );
-                        if ( $endTime < 10 ) $endTime = '0' . $endTime;
-                        $endTime .= ':' . ( ceil( $class[ 'hour_end' ] ) - $class[ 'hour_end' ] ) * 60;
-
                         // Find class location
                         if ( !empty( $class[ 'location' ] ) ) {
                             $local = $class[ 'location' ];
@@ -151,14 +143,16 @@ class AppHelper extends Helper {
                             $location = '';
                         }
 
-                        // Add class to timetable events
-                        $timetable[ 'events' ][] = array(
+                        // Add class to schedule events
+                        $schedule[ 'events' ][] = array(
                             'title'     =>  $course[ 'Course' ][ 'title' ],
                             'code'      =>  $course[ 'Course' ][ 'code' ],
                             'location'  =>  $location,
                             'teacher'   =>  $class[ 'teacher' ],
-                            'start'     =>  date( 'Y-m-d' , $currentDay ) . ' ' . $startTime . ':00',
-                            'end'       =>  date( 'Y-m-d' , $currentDay ) . ' ' . $endTime . ':00',
+                            'startDay'  =>  date( 'Y-m-d' , $currentDay ),
+                            'startTime' =>  $class[ 'hour_start' ],
+                            'endDay'    =>  date( 'Y-m-d' , $currentDay ),
+                            'endTime'   =>  $class[ 'hour_end' ],
                             'allDay'    =>  false
                         );
                     }
@@ -170,15 +164,222 @@ class AppHelper extends Helper {
         }
 
         if ( $params[ 'semester' ] == CURRENT_SEMESTER ) {
-            $timetable[ 'startDay' ] = (int)date( 'd' );
-            $timetable[ 'startMonth' ] = (int)date( 'm' );
-            $timetable[ 'startYear' ] = date( 'Y' );
+            $schedule[ 'startDay' ] = (int)date( 'd' );
+            $schedule[ 'startMonth' ] = (int)date( 'm' );
+            $schedule[ 'startYear' ] = date( 'Y' );
         } else {
-            $timetable[ 'startDay' ] = (int)substr( $timetable[ 'startDate' ], 6, 2 );
-            $timetable[ 'startMonth' ] = (int)substr( $timetable[ 'startDate' ], 4, 2 );
-            $timetable[ 'startYear' ] = substr( $timetable[ 'startDate' ], 0, 4 );
+            $schedule[ 'startDay' ] = (int)substr( $schedule[ 'startDate' ], 6, 2 );
+            $schedule[ 'startMonth' ] = (int)substr( $schedule[ 'startDate' ], 4, 2 );
+            $schedule[ 'startYear' ] = substr( $schedule[ 'startDate' ], 0, 4 );
         }
 
-        return $timetable;
+        return $schedule;
+    }
+
+    public function buildTimetable ( $courses, $params = array() ) {
+        $schedule = array(
+            'regularCourses'    =>  0,
+            'otherCourses'      =>  0,
+            'startDate'         =>  $params[ 'startDate' ],
+            'endDate'           =>  $params[ 'endDate' ],
+            'events'            =>  array()
+        );
+
+        /*
+        foreach( $courses as $course ) {
+            foreach ( $course[ 'Course' ][ 'Class' ] as $class ) {
+                // No day defined for this class, increment off-campus class and skip to the next class
+                if ( empty( $class[ 'day' ] ) ) {
+                    $schedule[ 'otherCourses' ]++;
+                    continue;
+                }
+
+                // Check if semester begins before on first class day
+                if ( ( $params[ 'weekdays' ][ $class[ 'day' ] ] + 1 ) < date( 'N', mktime( floor( $class[ 'hour_start' ] ), 0, 0, substr( $class[ 'date_start' ], 4, 2 ), substr( $class[ 'date_start' ], 6, 2 ), substr( $class[ 'date_start' ], 0, 4 ) ) ) ) {
+                    $firstDay = mktime( floor( $class[ 'hour_start' ] ), 0, 0, substr( $class[ 'date_start' ], 4, 2 ), substr( $class[ 'date_start' ], 6, 2), substr( $class[ 'date_start' ], 0, 4 ) ) + ( ( ( 6 - $params[ 'weekdays' ][ $class[ 'day' ] ] ) + $params[ 'weekdays' ][ $class[ 'day' ] ] ) * 3600 * 24 );
+                } else {
+                    $firstDay = mktime( floor( $class[ 'hour_start' ] ), 0, 0, substr( $class[ 'date_start' ], 4, 2 ), substr( $class[ 'date_start' ], 6, 2), substr( $class[ 'date_start' ], 0, 4 ) ) + ( ( ( $params[ 'weekdays' ][ $class[ 'day' ] ] + 1 ) - date( 'N', mktime( floor( $class[ 'hour_start' ] ), 0, 0, substr( $class[ 'date_start' ], 4, 2 ), substr( $class[ 'date_start' ], 6, 2 ), substr( $class[ 'date_start' ], 0, 4 ) ) ) ) * 3600 * 24 );
+                }
+                $lastDay = mktime( floor( $class[ 'hour_end' ] ), 0, 0, substr( $class[ 'date_end' ], 4, 2 ), substr( $class[ 'date_end' ], 6, 2 ), substr( $class[ 'date_end' ], 0, 4 ) );
+                $currentDay = $firstDay;
+
+                // If first day of class start before the predicted semester start date, move back the semester start date
+                if ( date( 'Y-m-d', $firstDay ) < $schedule[ 'startDate' ] )
+                    $schedule[ 'startDate' ] = date( 'Y-m-d', $firstDay );
+
+                // If start date is not a Monday, go back until Monday
+                if ( date( 'N', $this->Time->toUnix( $timetable[ 'startDate' ] ) ) > 1 ) {
+                    $schedule[ 'startDate' ] = date('Y-m-d', strtotime( '-' . ( $dayOfWeek - 1 ) . ' days', $this->Time->toUnix( $schedule[ 'startDate' ] ) ) );
+                }
+
+                while ( $currentDay < $lastDay ) {
+                    if ( $currentDay > $lastDay ) break;
+
+                    // Check if currentDay is not a holiday
+                    $holiday = false;
+                    foreach ( $params[ 'holidays' ] as $name => $range ) {
+                        if ( is_array( $range ) && $currentDay >= $range[ 0 ] && $currentDay <= $range[ 1 ] ) {
+                            $holiday = true;
+                        } elseif ( !is_array( $range ) && date( 'Ymd', $currentDay ) == $range ) {
+                            $holiday = true;
+                        }
+                    }
+
+                    if ( !$holiday ) {
+                        // Find class location
+                        if ( !empty( $class[ 'location' ] ) ) {
+                            $local = $class[ 'location' ];
+                            $sector = substr( $local, 0, strrpos( $local, ' ' ) );
+                            $localNumber = substr( $local, strrpos( $local, ' ' ) + 1 );
+
+                            if ( array_key_exists( $sector, $params[ 'sectors' ] ) ) {
+                                $location = $params[ 'sectors' ][ $sector ] . ' ' . $localNumber;
+                            } else {
+                                $location = $sector . ', local ' . $localNumber;
+                            }
+                        } else {
+                            $location = '';
+                        }
+
+                        // Add class to schedule events
+                        $schedule[ 'events' ][] = array(
+                            'title'     =>  $course[ 'Course' ][ 'title' ],
+                            'code'      =>  $course[ 'Course' ][ 'code' ],
+                            'location'  =>  $location,
+                            'teacher'   =>  $class[ 'teacher' ],
+                            'startDay'  =>  date( 'Y-m-d' , $currentDay ),
+                            'startTime' =>  $class[ 'hour_start' ],
+                            'endDay'    =>  date( 'Y-m-d' , $currentDay ),
+                            'endTime'   =>  $class[ 'hour_end' ],
+                            'allDay'    =>  false
+                        );
+                    }
+
+                    // Increment current day
+                    $currentDay += 3600*24*7;
+                }
+            }
+        }
+    */
+
+        $currentWeekFirstDay = $schedule[ 'startDate' ];
+
+        while ( $currentWeekFirstDay < $schedule[ 'endDate' ] ) {
+            $timetable = array();
+            $currentTime = '8';
+
+            for( $hour = 8.0; $hour < 23; $hour += 0.5 ) {
+                $currentTime = str_replace( ',', '.', $hour );
+
+                if ( !isset( $timetable[ $currentTime ] ) ) {
+                    $timetable[ $currentTime ] = array();
+                }
+
+                $currentUnixDay = strtotime( $currentWeekFirstDay );
+                
+                foreach ( $params[ 'weekdays' ] as $weekday => $index ) {
+                    if ( !isset( $timetable[ $currentTime ][ $index ] ) ) {
+                        $timetable[ $currentTime ][ $index ] = array();
+                    }
+
+                    if ( $index != 0 ) {
+                        $currentUnixDay = strtotime( '+1 day', $currentUnixDay );
+                    }
+
+                    // Check if currentUnixDay is not a holiday
+                    $holiday = false;
+                    foreach ( $params[ 'holidays' ] as $name => $range ) {
+                        if ( is_array( $range ) && $currentUnixDay >= $range[ 0 ] && $currentUnixDay <= $range[ 1 ] ) {
+                            $holiday = true;
+                        } elseif ( !is_array( $range ) && date( 'Ymd', $currentUnixDay ) == $range ) {
+                            $holiday = true;
+                        }
+                    }
+
+                    if ( $holiday ) continue;
+
+                    // Check if a class start at this hour
+                    $class = Set::extract( '/Course/Class[day=' . $weekday . '][hour_start=' . $currentTime . ']', $courses );
+
+                    if ( !empty( $class ) ) {
+                        $class = array_shift( array_shift( $class ) );
+
+                        if ( $class[ 'date_start' ] <= date( 'Ymd', $currentUnixDay ) && $class[ 'date_end' ] >= date( 'Ymd', $currentUnixDay ) ) {
+
+                            $schedule[ 'regularCourses' ]++;
+                            $classLength = $class[ 'hour_end' ] - $class[ 'hour_start' ];
+
+                            // Find class location
+                            if ( !empty( $class[ 'location' ] ) ) {
+                                $local = $class[ 'location' ];
+                                $sector = substr( $local, 0, strrpos( $local, ' ' ) );
+                                $localNumber = substr( $local, strrpos( $local, ' ' ) + 1 );
+
+                                if ( array_key_exists( $sector, $params[ 'sectors' ] ) ) {
+                                    $class[ 'locationShort' ] = $params[ 'sectors' ][ $sector ] . ' ' . $localNumber;
+                                } else {
+                                    $class[ 'locationShort' ] = $sector . ', local ' . $localNumber;
+                                }
+                            } else {
+                                $class[ 'locationShort' ] = '';
+                            }
+
+                            $class[ 'teacher' ] = str_replace( ' (P)', '', $class[ 'teacher' ] );
+
+                            $timetable[ $currentTime ][ $index ][ 'class' ] = $class;
+                            $timetable[ $currentTime ][ $index ][ 'length' ] = $classLength;
+
+                            if ( $classLength > 0.5 ) {
+                                for( $i = ( $currentTime + 0.5 ); $i < ( $currentTime + $classLength ); $i += 0.5 ) {
+                                    $i = str_replace( ',', '.', $i );
+                                    if ( !isset( $timetable[ $currentTime ][ $index ] ) ) {
+                                        $timetable[ $i ][ $index ] = array();
+                                    }
+
+                                    $timetable[ $i ][ $index ][ 'cellCollapse' ] = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Set textual dates for the current week
+            setlocale( LC_ALL, 'fr_FR.UTF-8' );
+            $datesText = '';
+            $firstDay = $currentWeekFirstDay;
+            $lastDay = date( 'Y-m-d', strtotime( '+5 days', strtotime( $currentWeekFirstDay ) ) );
+            
+            if ( substr( $firstDay, 5, 2 ) == substr( $lastDay, 5, 2 ) ) {
+                // Same month
+
+                $datesText = substr( $firstDay, 8, 2 ) . '&nbsp;&nbsp;&mdash;&nbsp;&nbsp;' . substr( $lastDay, 8, 2 ) . '&nbsp;&nbsp;' . date( 'M.', strtotime( $currentWeekFirstDay ) );
+            } else {
+                // Different month
+                $datesText = substr( $firstDay, 8, 2 ) . '&nbsp;&nbsp;' . date( 'M.', strtotime( $currentWeekFirstDay ) ) . '&nbsp;&nbsp;&mdash;&nbsp;&nbsp;' . substr( $lastDay, 8, 2 ) . '&nbsp;&nbsp;' . date( 'M.', strtotime( $lastDay ) );
+            }
+
+            $schedule[ 'weeks' ][] = array(
+                'dates'     =>  array( $firstDay, $lastDay ),
+                'datesText' =>  $datesText,
+                'timetable' =>  $timetable
+            );
+
+            // Increment current day
+            $currentWeekFirstDay = date( 'Y-m-d', strtotime( '+7 days', strtotime( $currentWeekFirstDay ) ) );
+            if ( $currentWeekFirstDay > $schedule[ 'endDate' ] ) break;
+        }
+
+        if ( $params[ 'semester' ] == CURRENT_SEMESTER ) {
+            $schedule[ 'startDay' ] = (int)date( 'd' );
+            $schedule[ 'startMonth' ] = (int)date( 'm' );
+            $schedule[ 'startYear' ] = date( 'Y' );
+        } else {
+            $schedule[ 'startDay' ] = (int)substr( $schedule[ 'startDate' ], 6, 2 );
+            $schedule[ 'startMonth' ] = (int)substr( $schedule[ 'startDate' ], 4, 2 );
+            $schedule[ 'startYear' ] = substr( $schedule[ 'startDate' ], 0, 4 );
+        }
+
+        return $schedule;
     }
 }

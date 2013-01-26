@@ -25,10 +25,16 @@ class StudiesController extends AppController {
         	array(
                 'action'=>  "app.Cache.reloadData( { name: 'studies', auto: 0 } );",
                 'type'  =>  'refresh'
+            ),
+            array(
+                'action'=>  "window.print();",
+                'type'  =>  'print'
             )
         ) );
 		$this->set( 'title_for_layout', 'Programme d\'études' );
+        $this->set( 'sidebar', 'studies' );
 		$this->set( 'dataObject', 'studies' );
+        $this->setAssets( null, array( '/css/studies.css' ) );
 
 		$programs = $this->StudentProgram->User->find( 'first', array(
 			'conditions'	=>	array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
@@ -72,10 +78,16 @@ class StudiesController extends AppController {
             array(
                 'action'=>  "app.Cache.reloadData( { name: 'studies-details', auto: 0 } );",
                 'type'  =>  'refresh'
+            ),
+            array(
+                'action'=>  "window.print();",
+                'type'  =>  'print'
             )
         ) );
         $this->set( 'title_for_layout', 'Rapport de cheminement' );
+        $this->set( 'sidebar', 'studies' );
         $this->set( 'dataObject', 'studies-details' );
+        $this->setAssets( null, array( '/css/studies.css' ) );
 
         $programs = $this->StudentProgram->User->find( 'first', array(
             'conditions'    =>  array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
@@ -200,11 +212,17 @@ EOD;
             array(
                 'action'=>  "app.Cache.reloadData( { name: 'studies-report', auto: 0 } );",
                 'type'  =>  'refresh'
+            ),
+            array(
+                'action'=>  "window.print();",
+                'type'  =>  'print'
             )
         ) );
         $this->set( 'title_for_layout', 'Relevé de notes' );
+        $this->set( 'sidebar', 'studies' );
         $this->set( 'dataObject', 'studies-report' );
-
+        $this->setAssets( null, array( '/css/studies.css' ) );
+        
         $programs = $this->StudentProgram->User->find( 'first', array(
             'conditions'    =>  array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
             'contain'       =>  array( 'Program' ),

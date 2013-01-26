@@ -1,0 +1,89 @@
+@import 'global';
+
+@media only screen and (-moz-min-device-pixel-ratio: 2) and (max-width: 1200px) and (orientation:landscape),
+    only screen and (-o-min-device-pixel-ratio: 2/1) and (max-width: 1200px) and (orientation:landscape),
+    only screen and (-webkit-min-device-pixel-ratio: 2) and (max-width: 1200px) and (orientation:landscape),
+    only screen and (min-device-pixel-ratio: 2) and (max-width: 1200px) and (orientation:landscape),
+    only screen and (max-width: 480px) {
+  .aside {
+    display: none;
+  }
+
+  .main {
+  	.panel {
+  		width: 130px;
+  		margin-bottom: 15px;
+  		margin-right: 15px;
+
+  		.top {
+  			padding: 20px;
+  		}
+
+      .bottom h5 {
+        font-weight: normal
+      }
+  	}
+
+    .panel:nth-child(even) {
+      margin-right: 0px;
+    }
+  }
+}
+
+@media only screen and (-moz-min-device-pixel-ratio: 2) and (max-width: 1200px) and (orientation:landscape),
+    only screen and (-o-min-device-pixel-ratio: 2/1) and (max-width: 1200px) and (orientation:landscape),
+    only screen and (-webkit-min-device-pixel-ratio: 2) and (max-width: 1200px) and (orientation:landscape),
+    only screen and (min-device-pixel-ratio: 2) and (max-width: 1200px) and (orientation:landscape)  {
+    .aside {
+      display: none;
+    }
+
+    .main {
+      .panel {
+        width: 120px;
+        margin-bottom: 15px;
+        margin-right: 12px;
+
+        .top {
+          padding: 20px;
+        }
+
+        .bottom {
+          h5 {
+            font-size: 9pt;
+            font-weight: normal
+          }
+        }
+      }
+
+      .panel:nth-child(4), .panel:nth-child(8), .panel:nth-child(12) {
+        margin-right: 0px;
+      }
+    }
+}
+
+@media only screen and (min-width: 1200px) {
+  .main {
+    .panel {
+      margin-bottom: 30px;
+      margin-right: 28px;
+    }
+
+    .panel:nth-child(7) {
+      margin-right: 0px;
+    }
+  }
+}
+
+@media only screen and (min-width: 980px) and (max-width: 1199px) {
+  .main {
+    .panel {
+      margin-bottom: 20px;
+      margin-right: 17px;
+    }
+
+    .panel:nth-child(6) {
+      margin-right: 0px;
+    }
+  }
+}

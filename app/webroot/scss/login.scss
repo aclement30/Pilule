@@ -176,12 +176,16 @@ footer {
 
     p.inside {
         padding: 0px 30px;
-        color: #aaa;
+        color: #eee;
         font-size: 8pt;
     }
 
+    .navbar {
+        margin-bottom: 0px;
+    }
+
     .navbar, .navbar-inner {
-        background: none;
+        background: none !important;
         border: 0px;
         box-shadow: none;
     }
@@ -209,10 +213,12 @@ footer {
             font-style: italic;
             font-size: 8pt;
             text-align: right;
+            color: gray;
 
             img {
                 padding-top: 6px;
                 padding-bottom: 5px;
+                height: 36px;
             }
         }
 
@@ -221,6 +227,7 @@ footer {
             text-align: right;
             float: right;
             font-size: 8pt;
+            color: gray;
 
             a {
                 font-size: 10pt;
@@ -231,8 +238,11 @@ footer {
 }
 
 /* Responsive design */
-
-@media (max-width: 480px) {
+@media only screen and (-moz-min-device-pixel-ratio: 2) and (max-width: 1200px) and (orientation: landscape),
+    only screen and (-o-min-device-pixel-ratio: 2/1) and (max-width: 1200px) and (orientation: landscape),
+    only screen and (-webkit-min-device-pixel-ratio: 2) and (max-width: 1200px) and (orientation: landscape),
+    only screen and (min-device-pixel-ratio: 2) and (max-width: 1200px) and (orientation: landscape),
+    only screen and (max-width: 480px) {
     body {
         background: url('../img/login-form-bg.gif');
         background-position: top;
@@ -283,6 +293,10 @@ footer {
                     margin-top: 35px;
                     margin-bottom: 35px;
                 }
+
+                .btn-group {
+                    margin: 25px;
+                }
             }
 
             .alert-error {
@@ -309,13 +323,16 @@ footer {
     }
 }
 
-@media (max-width: 660px) {
+@media only screen and (max-width: 730px) {
     footer .nav.credits {
         display: none;
     }
 
     footer .nav.menu {
         margin-top: 0px;
+        position: static;
+        float: none;
+        margin: 0 auto;
     }
 
     footer .navbar-inner {
@@ -323,7 +340,7 @@ footer {
     }
 }
 
-@media (max-width: 775px) {
+@media only screen and (max-width: 850px) {
     footer p.conception {
         display: none;
     }
@@ -333,7 +350,7 @@ footer {
     }
 }
 
-@media (max-width: 767px) {
+@media only screen and (max-width: 767px) {
     body {
         padding: 0
     }

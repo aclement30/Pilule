@@ -11,6 +11,8 @@ app.Users = {
 };
 
 app.Users.login = function ( e ) {
+    $( 'html, body' ).animate( { scrollTop: 0 }, 1 );
+
     var idul = $( '#login-form .idul' ).val();
     var password = $( '#login-form .password' ).val();
 
@@ -62,15 +64,8 @@ app.Users.login = function ( e ) {
                 if ( Modernizr.localstorage ) {
                     var idul = $( '#login-form .idul' ).val();
 
-                    // If user asked to save IDUL, save logged user IDUL in local storage
-                    if ( $( '.js-save-idul' ).is( ':checked' ) ) {
-                        localStorage.setItem( 'pilule-autologon-idul', idul );
-                    } else {
-                        // If user log in with different IDUL than the one saved, remove saved IDUL
-                        if ( localStorage.getItem( 'pilule-autologon-idul' ) != idul ) {
-                           localStorage.removeItem( 'pilule-autologon-idul' );
-                        }
-                    }
+                    // Save logged user IDUL in local storage
+                    localStorage.setItem( 'pilule-autologon-idul', idul );
                 }
 
                 if ( app.isMobile == 1 ) {
@@ -136,18 +131,18 @@ app.Users.login = function ( e ) {
 };
 
 app.Users.redirectToDashboard = function () {
-    if ( !app.Cache.isLoading ) {
-        var redirectURL = $( '#redirect_url' ).val();
+    //if ( !app.Cache.isLoading ) {
+    var redirectURL = $( '#redirect_url' ).val();
 
-        $( '#formContainer' ).fadeOut();
+    $( '#formContainer' ).fadeOut();
 
-        // Redirection à la page demandée, s'il y a lieu
-        if ( redirectURL != '' && redirectURL != undefined ) {
-            setTimeout( "document.location = redirectURL;", 100 );
-        } else {
-            setTimeout( "document.location = '/';", 100 );
-        }
+    // Redirection à la page demandée, s'il y a lieu
+    if ( redirectURL != '' && redirectURL != undefined ) {
+        setTimeout( "document.location = redirectURL;", 100 );
+    } else {
+        setTimeout( "document.location = '/';", 100 );
     }
+    //}
 };
 
 app.Users.retryLogin = function () {
