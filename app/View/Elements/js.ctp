@@ -11,22 +11,22 @@
 <script type='text/javascript' src="/js/libs/jquery.peity.min.js"></script>
 
 <script type='text/javascript' src="/js/libs/modernizr.custom.41742.js"></script>
-<script type='text/javascript' src="/js/ajax.js?ver=2.5"></script>
+<script type='text/javascript' src="/js/ajax-3.0.0.js"></script>
 
 <!-- Load Pilule-specific JS files -->
 <?php
     // Define site-wide scripts
-    $scripts = array( '/js/pilule.js', '/js/cache.js' );
+    $scripts = array( '/js/pilule-3.0.0.js', '/js/cache-3.0.0.js' );
 
     if ( isset( $assets ) && !empty( $assets[ 'js' ] ) ) {
         $scripts = array_merge( $scripts, $assets[ 'js' ] );
     }
 
     // Add version number to each JS path : clear old JS files in browser cache
-    $currentVersion = '2.5';
+    $currentVersion = '3.0.0';
 
     foreach ( $scripts as &$path ) {
-        $path .= '?ver=' . $currentVersion;
+        $path .= str_replace( '.js', '-' . $currentVersion . '.js' );
     }
 
     echo $this->Html->script( $scripts );
