@@ -239,11 +239,23 @@ app.Common.displayMessage = function ( message ) {
 
 // Display error message
 app.Common.displayError = function ( message, object, autoHide ) {
+    if ( object == null ) {
+        object = '.alert.alert-error';
+    }
+ 
+    $( object ).html( message );
+    $( object ).fadeIn();
+
+    if ( autoHide != false ) {
+        setTimeout( function(){ $( object ).fadeOut(); }, 2500 );
+    }
+    /*
     toastr.options = {
         positionClass: 'toast-bottom-left'
     };
 
     toastr.error( message );
+    */
 };
 
 app.Common.refreshPage = function () {
