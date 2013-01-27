@@ -95,7 +95,7 @@ class TuitionsController extends AppController {
 				$this->set( 'timestamp', $lastRequest[ 'timestamp' ] );
 
         	// No data exists for this page
-        	$this->viewPath = 'commons';
+        	$this->viewPath = 'Commons';
 			$this->render( 'no_data' );
 
             return (true);
@@ -165,7 +165,7 @@ class TuitionsController extends AppController {
                 $this->set( 'semestersList', $semestersList );
 
             // No data exists for this page
-            $this->viewPath = 'commons';
+            $this->viewPath = 'Commons';
             $this->render( 'no_data' );
 
             return (true);
