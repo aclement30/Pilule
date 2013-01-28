@@ -115,9 +115,9 @@ app.Users.login = function ( e ) {
 
                     // Redirection à la page demandée, s'il y a lieu
                     if ( redirectURL != '' && redirectURL != undefined ) {
-                        document.location = redirectURL;
+                        document.location = app.baseUrl + redirectURL.substr( 1 );
                     } else {
-                        document.location = '/';
+                        document.location = app.baseUrl;
                     }
                 }
             } else {
@@ -138,9 +138,9 @@ app.Users.redirectToDashboard = function () {
 
     // Redirection à la page demandée, s'il y a lieu
     if ( redirectURL != '' && redirectURL != undefined ) {
-        setTimeout( "document.location = redirectURL;", 100 );
+        setTimeout( "document.location = '" + app.baseUrl + redirectURL.substr( 1 ) + "';", 100 );
     } else {
-        setTimeout( "document.location = '/';", 100 );
+        setTimeout( "document.location = '" + app.baseUrl + "';", 100 );
     }
     //}
 };
