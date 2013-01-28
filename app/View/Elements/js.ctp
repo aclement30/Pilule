@@ -39,7 +39,7 @@
         ?>
 
         app.ipAddress = '<?php echo $this->request->clientIp(); ?>';
-
+        app.baseUrl = '<?php echo Router::url( '/', true ); ?>';
         app.init();
     });
 </script>

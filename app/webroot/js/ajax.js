@@ -29,7 +29,9 @@ ajax.request = function ( params ) {
 
 	if ( p.url == null ) {
 		// Define AJAX URL
-		p.url = p.controller + p.func + '.json';
+		p.url = app.baseUrl + p.controller + p.func + '.json';
+	} else if ( p.url.substr( 0, 1) == '/' ) {
+		p.url = app.baseUrl + p.url.substr( 1 );
 	}
 
     if (p.data != null) {

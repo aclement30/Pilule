@@ -224,7 +224,7 @@ app.Common.displaySubmenu = function ( e ) {
 app.Common.showModal = function ( params ) {
     if ( params.url ) {
         $( '#modal' ).removeClass( 'loading' );
-        $( '#modal' ).load( params.url, function() {
+        $( '#modal' ).load( app.baseUrl + params.url.substr( 1 ), function() {
             $( '#modal' ).modal( 'show' );
 
             // Execute callback, if needed
