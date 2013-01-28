@@ -158,8 +158,10 @@ class CacheController extends AppController {
 
                 if ( empty( $userPrograms ) ) break;
 
+                $semester = $this->Session->read( 'Registration.semester' );
+
                 // Load Rapport de cheminement détaillé
-                $result = $this->Capsule->getStudiesCourses( $md5Hash, CURRENT_SEMESTER, $userPrograms );
+                $result = $this->Capsule->getStudiesCourses( $md5Hash, $semester, $userPrograms );
 
                 if ( $result[ 'status' ] ) {
                     foreach ( $result[ 'md5Hash' ] as $name => $hash ) {
@@ -172,32 +174,56 @@ class CacheController extends AppController {
                     foreach ( $result[ 'programs' ] as &$program ) {
                         foreach ( $program[ 'Section' ] as &$section ) {
                             foreach ( $section[ 'Course' ] as $courseKey => &$sectionCourse ) {
-                                if ( empty( $sectionCourse[ 'title' ] ) && empty( $sectionCourse[ 'semester' ] ) ) {
-                                    // Find course in Pilule courses database
-                                    $course = $this->UniversityCourse->find( 'first', array(
-                                        'conditions'    =>  array( 'UniversityCourse.code' => $sectionCourse[ 'code' ] )
-                                    ) );
+                                // Find course in Pilule courses database
+                                $course = $this->UniversityCourse->find( 'first', array(
+                                    'conditions'    =>  array( 'UniversityCourse.code' => $sectionCourse[ 'code' ] )
+                                ) );
 
-                                    // Course found, use course info to complete student course
-                                    if ( !empty( $course ) ) {
+                                if ( !empty( $course ) ) {
+                                    if ( empty( $sectionCourse[ 'title' ] ) ) {
                                         $sectionCourse[ 'title' ] = $course[ 'UniversityCourse' ][ 'title' ];
                                         $sectionCourse[ 'credits' ] = $course[ 'UniversityCourse' ][ 'credits' ];
-                                    } else {
-                                        $course = $this->Capsule->fetchCourse( $sectionCourse[ 'code' ], CURRENT_SEMESTER, false );
+                                    }
 
-                                        if ( !empty( $course[ 'UniversityCourse' ][ 'title' ] ) ) {
-                                            $sectionCourse[ 'title' ] = $course[ 'UniversityCourse' ][ 'title' ];
-                                            if ( !empty( $course[ 'UniversityCourse' ][ 'credits' ] ) )
-                                                $sectionCourse[ 'credits' ] = $course[ 'UniversityCourse' ][ 'credits' ];
+                                    // Check if course availability info need to be updated
+                                    if ( $course[ 'UniversityCourse' ][ 'checkup_' . $semester ] < ( time() - 3600 * 24 * 7 ) ) {
+                                        // Delete all existing classes for this course
+                                        $this->UniversityCourse->Class->deleteAll( array( 'Class.course_id' => $course[ 'UniversityCourse' ][ 'id' ], 'Class.semester' => $semester ) );
 
-                                            // Save fetched course info
-                                            $this->UniversityCourse->create();
+                                        // Update course availability info
+                                        $classes = $this->Capsule->fetchClasses( $course[ 'UniversityCourse' ][ 'code' ], $semester );
+
+                                        if ( !empty( $classes[ 'Class' ] ) ) {
+                                            // Save newly fetched classes for this course
+                                            $course[ 'Class'] = $classes[ 'Class' ];
+                                            $course[ 'UniversityCourse' ][ 'checkup_' . $semester ] = time();
+                                            $course[ 'UniversityCourse' ][ 'av' . $semester ] = true;
                                             $this->UniversityCourse->set( $course );
                                             $this->UniversityCourse->saveAll( $course );
                                         } else {
-                                            // Course not found, remove it from student list
-                                            unset( $section[ 'Course' ][ $courseKey ] );
+                                            // Update course availability info
+                                            $course[ 'UniversityCourse' ][ 'checkup_' . $semester ] = time();
+                                            $course[ 'UniversityCourse' ][ 'av' . $semester ] = false;
+                                            $this->UniversityCourse->set( $course );
+                                            $this->UniversityCourse->saveAll( $course );
                                         }
+                                    }
+                                } else {
+                                    // Fetch course info from Capsule
+                                    $course = $this->Capsule->fetchCourse( $sectionCourse[ 'code' ], $semester );
+
+                                    if ( !empty( $course[ 'UniversityCourse' ][ 'title' ] ) ) {
+                                        $sectionCourse[ 'title' ] = $course[ 'UniversityCourse' ][ 'title' ];
+                                        if ( !empty( $course[ 'UniversityCourse' ][ 'credits' ] ) )
+                                            $sectionCourse[ 'credits' ] = $course[ 'UniversityCourse' ][ 'credits' ];
+
+                                        // Save fetched course info
+                                        $this->UniversityCourse->create();
+                                        $this->UniversityCourse->set( $course );
+                                        $this->UniversityCourse->saveAll( $course );
+                                    } else {
+                                        // Course not found, remove it from student list
+                                        unset( $section[ 'Course' ][ $courseKey ] );
                                     }
                                 }
                             }
