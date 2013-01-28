@@ -29,22 +29,5 @@
 
 <body>
     <?php echo $this->fetch('content'); ?>
-
-    <script language="javascript">
-        $( document ).ready( function() {
-            if ( $( 'form.js-login-form' ).length != 0 && $( '#loadingFrame' ).length == 0 ) {
-
-                <?php if ( $user['idul'] == 'demo' ) : ?>
-                	setTimeout( "$('form.js-login-form').submit()", 2000 );
-                <?php else: ?>
-                	$( 'form.js-login-form' ).submit();
-                <?php endif; ?>
-            }
-
-            $( 'form.js-login-form' ).on( 'submit', function( e ) {
-                $( 'form.js-login-form input[name=_method]' ).remove();
-            });
-        });
-    </script>
 </body>
 </html>

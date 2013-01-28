@@ -19,16 +19,41 @@
 </div>
 
 <!-- Hidden auto-login form -->
-<?php 
-	echo $this->Form->create( null, array( 'url' => $formUrl, 'class' => 'js-login-form', 'type' => 'POST' ) );
+<?php
+    if ( is_array( $formUrl ) ) {
+        // Multiple forms
+        foreach ( $formUrl as $index => $url ) {
+            if ( $index != ( count( $formUrl ) - 1 ) ) {
+                $target = 'loading-frame';
+            } else {
+                $target = '_self';
+            }
+            echo $this->Form->create( null, array( 'url' => $url, 'class' => 'js-external-frame-form js-form-' . $index, 'type' => 'POST', 'target' => $target ) );
 
-	foreach ( $fields as $name => $value ) :
-        ?><input type="hidden" name="<?php echo $name; ?>" value="<?php echo $value; ?>"><?php
-    endforeach;
+            foreach ( $fields[ $index ] as $name => $value ) :
+                ?><input type="hidden" name="<?php echo $name; ?>" value="<?php echo $value; ?>"><?php
+            endforeach;
 
-    echo $this->Form->end();
+            echo $this->Form->end();
+        }
+    } else {
+    	echo $this->Form->create( null, array( 'url' => $formUrl, 'class' => 'js-external-frame-form js-form-0', 'type' => 'POST' ) );
+
+    	foreach ( $fields as $name => $value ) :
+            ?><input type="hidden" name="<?php echo $name; ?>" value="<?php echo $value; ?>"><?php
+        endforeach;
+
+        echo $this->Form->end();
+    }
 ?>
 
 <?php if ( !empty( $loadingFrameUrl ) ) : ?>
-    <iframe id="loadingFrame" src="<?php echo $loadingFrameUrl; ?>" width="0" height="0" frameborder="0" onload="javascript:$( 'form.js-login-form' ).submit();"></iframe>
+    <iframe id="loadingFrame" name="loading-frame" src="<?php echo $loadingFrameUrl; ?>" width="0" height="0" frameborder="0"></iframe>
+    <script type="text/javascript">
+        $( document ).ready( function() {
+            $( '#loadingFrame' ).on( 'load', top.app.Common.loadExternalFrameForm );
+
+            $( 'form.js-external-frame-form input[name=_method]' ).remove();
+        } );
+    </script>
 <?php endif; ?>
