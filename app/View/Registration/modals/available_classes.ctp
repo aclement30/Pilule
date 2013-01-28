@@ -147,7 +147,7 @@
 								echo $this->Html->link( '<i class="icon-plus"></i>&nbsp;Ajouter', '#', array( 'class' => 'btn btn-mini js-select-btn', 'escape' => false ) );
 							}
 						?>
-						<img src="/img/loading-btn.gif" class="loading-img" />
+						<img src="<?php echo Router::url( '/' ) ?>img/loading-btn.gif" class="loading-img" />
 					</div>
 				</div>
 			</div>

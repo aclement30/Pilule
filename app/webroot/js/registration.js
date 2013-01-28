@@ -30,8 +30,30 @@ app.Registration.init = function ( params ) {
 
 	$( '#modal' ).on( 'click', '.js-select-btn', app.Registration.selectCourse );
 
-	$( '.aside .registered-courses' ).on( 'click', 'a.delete-link', app.Registration.unregisterCourse );
-	$( '.aside .selected-courses' ).on( 'click', 'a.delete-link', app.Registration.unselectCourse );
+	// Init courses popover
+	$( '.container' ).on( 'click', '.aside .registered-courses table tbody tr', app.Registration.togglePopover );
+	$( '.container' ).on( 'click', '.aside .selected-courses table tbody tr', app.Registration.togglePopover );
+
+	$( '.container' ).on( 'click', '.aside .registered-courses .popover-title button.remove-course', app.Registration.unregisterCourse );
+	$( '.container' ).on( 'click', '.aside .selected-courses .popover-title button.remove-course', app.Registration.unselectCourse );
+
+	$( '.aside .btn.register-courses' ).on( 'click', app.Registration.registerCourses );
+
+	$( '.aside a.js-capsule-link' ).on( 'click', function( e ) {
+		app.Common.openExternalWebsite( '/services/capsule-registration/' );
+
+		return false;
+	} );
+};
+
+app.Registration.togglePopover = function ( e ) {
+	$( e.currentTarget ).siblings( 'tr' ).popover( 'hide' );
+
+	if ( $( e.currentTarget ).parent().find( '.popover.in' ).length != 0 ) {
+		$( e.currentTarget ).popover( 'hide' );
+	} else {
+		$( e.currentTarget ).popover( 'show' );
+	}
 };
 
 app.Registration.getCourseInfo = function ( code ) {
@@ -130,7 +152,8 @@ app.Registration.addSelectedCourse = function ( response ) {
 };
 
 app.Registration.unselectCourse = function ( e ) {
-	var nrc = $( e.currentTarget ).closest( 'tr' ).data( 'nrc' );
+	var nrc = $( e.currentTarget ).data( 'nrc' );
+	$( e.currentTarget ).parent().addClass( 'loading' );
 
 	// Send AJAX request
     ajax.request( {
@@ -161,57 +184,86 @@ app.Registration.removeSelectedCourse = function ( response ) {
 		});
 	}
 };
+
 app.Registration.registerCourses = function () {
-	if (this.selectionTotal!=0) {
-		loading("Inscription aux cours sélectionnés...");
+	// Check if at least one course has been selected
+	if ( $( '.aside .table-panel.selected-courses table tbody tr' ).length != 0 ) {
+		app.Common.showLoadingModal({
+			title: 		'Inscription en cours',
+			message: 	'Veuillez patienter pendant que Pilule procède à l\'inscription des cours sélectionnés.'
+		});
 		
 		// Send AJAX request
-		ajax.request({
-		    controller:     app.Registration.controllerURL,
-		    method:         's_registercourses',
-		    data:           {
-		        semester:   app.Registration.registrationSemester
-		    },
-		    callback:       function ( response ) {
-		    	alert( response );
-		    }
-		});
+	    ajax.request( {
+	        url:     		'/registration/registerCourses.json',
+	        callback:       app.Registration.addRegisteredCourses
+	    } );
 	} else {
-		errorMessage("Vous devez d'abord ajouter un cours à votre sélection pour vous inscrire.");
+		errorMessage( "Vous devez d'abord ajouter un cours à votre sélection pour vous inscrire." );
+	}
+
+	return false;
+};
+
+app.Registration.addRegisteredCourses = function ( response ) {
+	$( '#modal' ).modal( 'hide' );
+
+	if ( response.status ) {				// Courses registration request has been successfull
+		document.location = '/choix-cours/resultats/' + response.token;
+	} else {
+		app.Common.dispatchError({
+			message: 	"L'inscription aux cours sélectionnés a échouée.",
+			context: 	'registration-error'
+		});
 	}
 };
 
-app.Registration.removeRegisteredCourse = function ( nrc ) {
+app.Registration.unregisterCourse = function ( e ) {
+	var nrc = $( e.currentTarget ).data( 'nrc' );
+	$( e.currentTarget ).parent().addClass( 'loading' );
+
 	var question = '';
 	if (app.Registration.currentDate > app.Registration.deadline_drop_nofee) {
 		question = "Si vous abandonnez le cours, vous payerez les droits de scolarité, mais vous n'aurez pas de mention d'échec.\nVoulez-vous continuer ?";
 	} else if (app.Registration.currentDate > app.Registration.deadline_edit_selection) {
 		question = "Si vous abandonnez le cours, vous ne payerez pas les droits de scolarité et n'aurez pas de mention d'échec.\nVoulez-vous continuer ?";
 	} else {
-		question = "Voulez-vous vraiment retirer ce cours de votre horaire ?";
+		question = "Êtes-vous certain de vouloir retirer ce cours de votre horaire ?\nCette modification est irréversible.";
 	}
 
 	if (confirm(question)) {
-		loading("Désinscription du cours...");
-		
+		app.Common.showLoadingModal({
+			title: 		'Désinscription en cours',
+			message: 	'Veuillez patienter pendant que Pilule procède à la désinscription du cours demandé.'
+		});
+
 		// Send AJAX request
-		ajax.request({
-		    controller:     app.Registration.controllerURL,
-		    method:         's_removeregisteredcourse',
-		    data:           {
-		        semester:   app.Registration.registrationSemester,
-		       	nrc: 		nrc
-		    },
-		    callback:       function ( response ) {
-		    	if ( response.status ) {
-					resultMessage("Vous avez été désinscrit du cours.");
-					
-					$( '#selected-courses .credits-total' ).html( response.credits + ' crédits' );
-					$( '#selected-courses .courses-total' ).html( response.total + ' cours' );
-				} else {
-					errorMessage( "La désinscription du cours a échouée." );
-				}
-		    }
+	    ajax.request( {
+	        url:     		'/registration/unregisterCourse.json',
+	        data:           {
+	           	nrc: 		nrc
+	        },
+	        callback:       app.Registration.removeRegisteredCourse
+	    } );
+	}
+};
+
+app.Registration.removeRegisteredCourse = function ( response ) {
+	$( '#modal' ).modal( 'hide' );
+
+	if ( response.status ) {				// Course has been successfully removed from selection
+		$( '.aside .table-panel.registered-courses' ).load( document.location + ' .aside .registered-courses table', function( e ) {
+	        app.Common.displayMessage( "Vous avez été désinscrit du cours " + response.nrc + '.' );
+
+	        // Flash the registered courses table to alert the user of the update
+	        $( '.aside .table-panel.registered-courses' ).fadeOut( 200, function(){
+	            $( '.aside .table-panel.registered-courses' ).fadeIn( 400 );
+	        } );
+	    } );
+	} else {
+		app.Common.dispatchError({
+			message: 	"La désinscription du cours a échouée.",
+			context: 	'registration-error'
 		});
 	}
 };

@@ -59,6 +59,7 @@
 	Router::connect( '/services/:service', array( 'controller' => 'services', 'action' => 'connect' ), array( 'pass' => array( 'service' ) ) );
 
 	Router::connect( '/choix-cours', array( 'controller' => 'registration', 'action' => 'index' ) );
+	Router::connect( '/choix-cours/resultats/:token', array( 'controller' => 'registration', 'action' => 'results' ), array( 'pass' => array( 'token' ) ) );
 	Router::connect( '/registration/getCourseInfo/:code', array( 'controller' => 'registration', 'action' => 'getCourseInfo' ), array( 'pass' => array( 'code' ) ) );
 
 /**

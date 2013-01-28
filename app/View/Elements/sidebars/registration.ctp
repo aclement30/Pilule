@@ -3,8 +3,8 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th style="font-weight: bold; text-align: left;">Cours</th>
-                <th style="font-weight: bold; text-align: center; width: 25%;">NRC</th>
+                <th>Cours</th>
+                <th>NRC</th>
             </tr>
         </thead>
         <tbody>
@@ -12,26 +12,8 @@
                 $credits = 0;
                 if ( is_array( $registeredCourses ) ):
                     foreach ( $registeredCourses as $course ):
-                        ?>
-                        <tr data-nrc="<?php echo $course[ 'nrc' ]; ?>">
-                            <td style="font-size: 8pt;">
-                                <?php
-                                    if ( strlen( $course[ 'title' ] ) > 35 ):
-                                        echo substr( $course[ 'title' ], 0, 30 ) . "...";
-                                    else:
-                                        echo $course[ 'title' ];
-                                    endif;
-                                ?>
-                                <br />
-                                NRC : <?php echo $course['nrc']; ?>
-                            </td>
-                            <td style="font-weight: bold; text-align: right;">
-                                <?php echo $course['code']; ?>
-                                <br />
-                                <a href="#" class="btn delete-link"><i class="icon-remove"></i></a>
-                            </td>
-                        </tr>
-                        <?php
+                        echo $this->element( 'registration/registered_course', array( 'course' => $course ) );
+
                         $credits += $course[ 'credits' ];
                     endforeach;
                 endif;
@@ -53,7 +35,7 @@
 
 <h4>Sélection de cours</h4>
 <div class="table-panel selected-courses">
-    <table class="table table-striped">
+    <table class="table">
         <thead>
             <tr>
                 <th style="font-weight: bold; text-align: left;">Cours</th>
@@ -65,7 +47,9 @@
                 $credits = 0;
                 if ( is_array( $selectedCourses ) ):
                     foreach ( $selectedCourses as $course ):
-                        echo $this->element( 'registration/selected_course', array( 'course' => $course ) );
+                        $course[ 'UniversityCourse' ] += $course[ 'SelectedCourse' ];
+
+                        echo $this->element( 'registration/selected_course', array( 'course' => $course[ 'UniversityCourse' ] ) );
             
                         $credits += $course[ 'UniversityCourse' ][ 'credits' ];
                     endforeach;
@@ -91,7 +75,10 @@
 <?php
     if ( date( 'Ymd' ) >= $deadlines[ $registrationSemester ][ 'registration_start' ]
       && date( 'Ymd' ) <= $deadlines[ $registrationSemester ][ 'edit_selection' ] ):
-        ?><div style="text-align: center;"><a href="javascript:app.Registration.registerCourses();" class='btn btn-success'><i class="icon-ok icon-white"></i> Inscription</a></div><?php
+        ?>
+        <div style="text-align: center;">
+            <?php echo $this->Html->link( '<i class="icon-ok icon-white"></i> Inscription', '#', array( 'class' => 'btn btn-success register-courses', 'escape' => false ) ); ?>
+        </div><?php
     elseif ( date( 'Ymd' ) >= $deadlines[ $registrationSemester ][ 'registration_start' ] 
            && date( 'Ymd' ) >= $deadlines[ $registrationSemester ][ 'edit_selection' ] ):
         ?>
@@ -107,3 +94,7 @@
         <?php
     endif;
 ?>
+
+<hr>
+
+<?php echo $this->Html->link( '<i class="icon-share"></i> Capsule - Inscription', '#', array( 'class' => 'btn js-capsule-link', 'escape' => false ) ); ?>

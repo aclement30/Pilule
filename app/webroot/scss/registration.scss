@@ -75,3 +75,74 @@ body .modal {
     	}
     }
 }
+
+.aside {
+    .registered-courses, .selected-courses {        
+        table thead tr th {
+            font-weight: bold;
+            text-align: left;
+        }
+
+        table tbody {
+            tr td {
+                cursor: pointer;
+
+                .code {
+                    font-weight: bold;
+                }
+
+                .title {
+                    font-size: 9pt;
+                }
+            }
+        }
+    }
+}
+
+.popover-title {
+    button.remove-course, img.loading-img {
+        float: right;
+        position: relative;
+        top: -2px;
+    }
+
+    img.loading-img {
+        display: none;
+        top: 0px;
+    }
+
+    &.loading {
+        button.remove-course {
+            display: none;
+        }
+
+        img.loading-img {
+            display: block;
+        }
+    }
+}
+
+.popover-content {
+    hr {
+        margin: 5px 0;
+    }
+}
+
+.aside .alert-info {
+    padding-right: 14px;
+    font-size: 12px;
+}
+
+.registration-results {
+    tr.registered td {
+        color: green;
+    }
+
+    tr.waiting td {
+        color: orange;
+    }
+
+    tr.error td {
+        color: red;
+    }
+}

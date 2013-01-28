@@ -127,6 +127,57 @@ class RegistrationController extends AppController {
         }
 	}
 
+	public function results ( $token = null ) {
+		// Get registration result from the session
+		$results = $this->Session->read( 'Registration.results.' . $token );
+
+		if ( !empty( $results ) ) {
+			$this->set( 'title_for_layout', 'Résultats de l\'inscription' );
+			$this->setAssets( array( '/js/registration.js' ), array( '/css/registration.css' ) );
+	    	$this->set( 'sidebar', 'registration-results' );
+	    	$this->set( 'dataObject', 'studies-courses' );
+	    	$this->set( 'results', $results );
+	    	$this->set( 'currentSemester', $this->currentSemester );
+			$this->set( 'registrationSemester', $this->registrationSemester );
+			$this->set( 'registrationSemesters', $this->registrationSemesters );
+			$this->set( 'deadlines', $this->deadlines );
+
+			$registeredCourses = array();
+			$selectedCourses = array();
+			$courses = array();
+
+			$schedule = $this->User->ScheduleSemester->find( 'first', array(
+				'conditions'	=>	array( 'ScheduleSemester.idul' => $this->Session->read( 'User.idul' ), 'ScheduleSemester.semester' => $this->registrationSemester  ),
+	        	'contain'		=>	array( 'Course' )
+	        ) );
+			
+			if ( !empty( $schedule[ 'Course' ] ) )
+				$registeredCourses = $schedule[ 'Course' ];
+
+			// Get student selected courses for registration semester
+			$selectedCourses = $this->User->SelectedCourse->find( 'all', array(
+				'conditions'	=>	array(
+					'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
+					'SelectedCourse.semester'	=>	$this->registrationSemester
+				),
+				'contain'		=>	array( 'UniversityCourse' )
+			) );
+
+			$this->set( 'registeredCourses', $registeredCourses );
+			$this->set( 'selectedCourses', $selectedCourses );
+
+			if ( !empty( $results ) ) {
+				$courses = $this->UniversityCourse->Class->find( 'all', array(
+					'conditions'	=>	array( 'Class.nrc' => array_keys( $results ) ),
+					'contain'		=>	'UniversityCourse'
+				) );
+				$this->set( 'courses', $courses );
+			}
+		} else {
+
+		}
+	}
+
 	public function getCourseInfo ( $code = null ) {
 		if ( $this->request->is( 'ajax' ) ) {
 			$semester = $this->registrationSemester;
@@ -357,5 +408,138 @@ class RegistrationController extends AppController {
 	            ) );
 			}
 		}
+	}
+
+	function registerCourses () {
+		if ( $this->request->is( 'ajax' ) ) {
+			$semester = $this->registrationSemester;
+
+			// Get student selected courses for registration semester
+			$selectedCourses = $this->User->SelectedCourse->find( 'list', array(
+				'conditions'	=>	array(
+					'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
+					'SelectedCourse.semester'	=>	$semester
+				),
+				'fields'	=>	array( 'id', 'nrc' )
+			) );
+
+			if ( empty( $selectedCourses ) ) {
+
+			}
+
+			// Test connection to Capsule server
+			$this->CapsuleAuth->testConnection();
+
+			// Send course registration request to Capsule
+			$registrationResults = $this->Capsule->registerCourses( array_values( $selectedCourses ), $semester );
+
+			if ( empty( $registrationResults ) || $registrationResults === false ) {
+				return new CakeResponse( array(
+	            	'body' => json_encode( array(
+	            		'status'    =>  false
+	            	) )
+	            ) );
+			} else {
+				$this->_reloadSemesterSchedule( $semester );
+				
+				foreach ( $selectedCourses as $id => $nrc ) {
+					if ( isset( $registrationResults[ $nrc ] ) && $registrationResults[ $nrc ][ 'registered' ] ) {
+						$this->User->SelectedCourse->delete( $id );
+
+						// Update classes spots
+						$this->Capsule->updateClassSpots( $nrc, $semester );
+					}
+				}
+				
+				// Save registration results in session
+				$token = md5( uniqid() );
+
+				if ( $this->Session->write( 'Registration.results.' . $token, $registrationResults ) ) {
+					return new CakeResponse( array(
+		            	'body' => json_encode( array(
+		            		'status'    =>  true,
+		            		'token'		=>	$token
+		            	) )
+		            ) );
+				} else {
+					return new CakeResponse( array(
+		            	'body' => json_encode( array(
+		            		'status'    =>  false
+		            	) )
+		            ) );
+				}
+			}
+		}
+	}
+
+	function unregisterCourse () {
+		if ( $this->request->is( 'ajax' ) ) {
+			$nrc = $this->request->data[ 'nrc' ];
+			$semester = $this->registrationSemester;
+
+			// Test connection to Capsule server
+			$this->CapsuleAuth->testConnection();
+
+			// Send course removal request to Capsule
+			if ( $this->Capsule->removeCourse( $nrc, $semester ) ) {
+				// Course removed successfully
+
+				$this->_reloadSemesterSchedule( $semester );
+
+                return new CakeResponse( array(
+	            	'body' => json_encode( array(
+	            		'status'    			=>  true,
+	            		'nrc'					=>	$nrc
+	            	) )
+	            ) );
+			} else {
+				return new CakeResponse( array(
+	            	'body' => json_encode( array(
+	            		'status'    			=>  false,
+	            		'nrc'					=>	$nrc
+	            	) )
+	            ) );
+			}
+		}
+	}
+
+	private function _reloadSemesterSchedule ( $semester ) {
+		// Get data request from DB
+        $request = $this->CacheRequest->find( 'first', array(
+            'conditions' => array( 'CacheRequest.idul' => $this->Session->read( 'User.idul' ), 'CacheRequest.name' => 'schedule-' . $semester )
+        ) );
+        if ( !empty( $request )) {
+            $md5Hash = array( $request[ 'CacheRequest' ][ 'name' ] => $request[ 'CacheRequest' ][ 'md5' ] );
+        } else {
+            $md5Hash = array();
+        }
+
+		// Reload schedule from Capsule
+		$this->Capsule->forceReload = true;
+		$result = $this->Capsule->getSchedule( $md5Hash );
+
+		// Similar data have been found in DB (not reloaded)
+        if ( !$result ) {
+            // Unknown error
+            return false;
+        } elseif ( $result[ 'status' ] ) {
+            // Delete user's schedule saved in DB for the registration semester
+            $this->User->ScheduleSemester->deleteAll( array(
+                'ScheduleSemester.idul'  	=>  $this->Session->read( 'User.idul' ),
+                'ScheduleSemester.semester'	=>	$semester
+            ) );
+
+            // Save schedule data
+            $this->User->ScheduleSemester->saveAll( $result[ 'schedule' ], array( 'deep' => true ) );
+
+            // Update last data checkup timestamp
+            foreach ( $result[ 'md5Hash' ] as $name => $hash ) {
+                $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), $name, $hash );
+            }
+
+            $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'schedule' );
+
+            return true;
+        }
 	}
 }

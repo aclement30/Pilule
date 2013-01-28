@@ -1289,615 +1289,191 @@ class Capsule {
         ) );
 	}
 	
-	public function registerCourses ($nrc_array, $semester) {
-		$this->fetcher->cookies = $_SESSION['cookies'];
-		$this->fetcher->debug = $this->debug;
-		
-		if ($_SESSION['referer']=='') {
-			$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_StuMainMnu';
-		} else {
-			$this->fetcher->referer = $_SESSION['referer'];
-		}
-		
-		$this->fetcher->protocol="https";
-		
-		$arguments['HostName'] = $this->host;
-		$arguments["RequestURI"] = "/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_RegMnu";
-		
-		$error=$this->fetcher->Open($arguments);
-	
-		if ($error!="") {
-			error_log(__LINE__);
-			return (false);
-		}
-		
-		$error = $this->fetcher->SendRequest($arguments);
-	
-		if ($error!="") {
-			error_log(__LINE__);
-			return (false);
-		}
-		
-		$headers=array();
-		$error=$this->fetcher->ReadReplyHeaders($headers);
-		if ($error!="") {
-			error_log(__LINE__);
-			return (false);
-		}
-		
-		$this->fetcher->Close();
-		
-		$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_RegMnu';
-		$arguments["RequestURI"] = "/pls/etprod7/bwskfreg.P_AltPin";
-		
-		$error=$this->fetcher->Open($arguments);
-	
-		if ($error!="") {
-			error_log(__LINE__);
-			return (false);
-		}
-		
-		$error = $this->fetcher->SendRequest($arguments);
-	
-		if ($error!="") {
-			error_log(__LINE__);
-			return (false);
-		}
-		
-		$headers=array();
-		$error=$this->fetcher->ReadReplyHeaders($headers);
-		if ($error!="") {
-			error_log(__LINE__);
-			return (false);
-		}
-		
-		$this->fetcher->Close();
-		
-		$this->fetcher->request_method="POST";
-		
-		$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/bwskfreg.P_AltPin';
-		
-		$this->fetcher->Open($arguments);
-		
-		// Envoi du formulaire
-		$arguments["PostValues"] = array(
-			  'term_in'				=>	$semester
-			  );
-		
-		$arguments["RequestURI"] = "/pls/etprod7/bwskfreg.P_AltPin";
-		
-		$error=$this->fetcher->SendRequest($arguments);
-		
-		if ($error!="") {
-			error_log(__LINE__);
-			return (false);
-		}
-		
-		$headers=array();
-		$error=$this->fetcher->ReadReplyHeaders($headers);
-		if ($error!="") {
-			error_log(__LINE__);
-			return (false);
-		}
-		
-		$error = $this->fetcher->ReadWholeReplyBody($body);
-		$response = utf8_encode(html_entity_decode($body));
-		
-		$this->fetcher->Close();
-		
-		if (!$this->checkPage($response)) return (false);
-				
-		// Analyse de la page
-		$data = substr($response, strpos($response, '<TABLE  CLASS="datadisplaytable" SUMMARY="Horaire actuel">')+20);
-		$data = substr($data, strpos($data, '</TR>')+5);
-		$data = substr($data, 0, strpos($data, '<TABLE  CLASS="datadisplaytable"'));
-		$data = explode("<TR>", $data);
-		
-		$arguments['PostString'] = "term_in=".$semester."&RSTS_IN=DUMMY&assoc_term_in=DUMMY&CRN_IN=DUMMY&start_date_in=DUMMY&end_date_in=DUMMY&SUBJ=DUMMY&CRSE=DUMMY&SEC=DUMMY&LEVL=DUMMY&CRED=DUMMY&GMOD=DUMMY&TITLE=DUMMY&MESG=DUMMY&REG_BTN=DUMMY";
-		
-		$number = 0;
-		foreach ($data as $line) {
-			if ($number!=0) {
-				$new = array();
-				
-				$field = substr($line, strpos($line, ' NAME="MESG"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['MESG'] = $field;
-				
-				$new['RSTS_IN'] = '';
-				
-				$field = substr($line, strpos($line, ' NAME="assoc_term_in"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['assoc_term_in'] = $field;
-				
-				$field = substr($line, strpos($line, ' NAME="CRN_IN"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['CRN_IN'] = $field;
-				
-				$field = substr($line, strpos($line, ' NAME="start_date_in"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['start_date_in'] = $field;
-				
-				$field = substr($line, strpos($line, ' NAME="end_date_in"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['end_date_in'] = $field;
-				
-				$field = substr($line, strpos($line, ' NAME="SUBJ"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['SUBJ'] = $field;
-				
-				$field = substr($line, strpos($line, ' NAME="CRSE"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['CRSE'] = $field;
-				
-				$field = substr($line, strpos($line, ' NAME="SEC"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['SEC'] = $field;
-				
-				$field = substr($line, strpos($line, ' NAME="LEVL"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['LEVL'] = $field;
-				
-				$field = substr($line, strpos($line, ' NAME="CRED"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['CRED'] = $field;
-				
-				$field = substr($line, strpos($line, ' NAME="GMOD"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['GMOD'] = $field;
-				
-				$field = substr($line, strpos($line, ' NAME="TITLE"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['TITLE'] = $field;
-				
-				foreach ($new as $name => $value) {
-					$arguments['PostString'] .= "&".$name."=".urlencode($value);
-				}
-			}
-			
-			$number++;
-		}
-		
-		// Ajout des nouveaux NRC
-		for ($n=1; $n<11; $n++) {
-			$arguments['PostString'] .= "&RSTS_IN=RW";
-			if (isset($nrc_array[($n-1)])) {
-				$arguments['PostString'] .= "&CRN_IN=".$nrc_array[($n-1)];
-			} else {
-				$arguments['PostString'] .= "&CRN_IN=";
-			}
-			$arguments['PostString'] .= "&assoc_term_in=";
-			$arguments['PostString'] .= "&start_date_in=";
-			$arguments['PostString'] .= "&end_date_in=";
-		}
-		
-		$data = substr($response, strpos($response, '<H3>Ajout de sections de cours à la feuille de travail</H3>'));
-		$data = substr($data, 0, strpos($data, '<!--  ** START OF twbkwbis.P_CloseDoc **  -->'));
-		$data = substr($data, strpos($data, '<INPUT TYPE="hidden" NAME="regs_row"'));
-				
-		$field = substr($data, strpos($data, ' NAME="regs_row"'), 200);
-		$field = substr($field, strpos($field, ' VALUE="')+8);
-		$field = substr($field, 0, strpos($field, '"'));
-		$arguments['PostString'] .= "&regs_row=".$field;
-		
-		$field = substr($data, strpos($data, ' NAME="wait_row"'), 200);
-		$field = substr($field, strpos($field, ' VALUE="')+8);
-		$field = substr($field, 0, strpos($field, '"'));
-		$arguments['PostString'] .= "&wait_row=".$field;
-		
-		$field = substr($data, strpos($data, ' NAME="add_row"'), 200);
-		$field = substr($field, strpos($field, ' VALUE="')+8);
-		$field = substr($field, 0, strpos($field, '"'));
-		$arguments['PostString'] .= "&add_row=".$field;
-		
-		$arguments['PostString'] .= "&REG_BTN=Soumettre les modifications";
-				
-		$this->fetcher->Close();
-		
-		$this->fetcher->request_method="POST";
-		$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/bwskfreg.P_AltPin';
-		
-		$this->fetcher->Open($arguments);
-		
-		// Envoi du formulaire
-		unset($arguments["PostValues"]);
-		
-		$arguments["RequestURI"] = "/pls/etprod7/bwckcoms.P_Regs";
+	public function registerCourses ( $nrcArray, $semester ) {
+        // Fetch registration page
+        $request = $this->_fetchPage( '/pls/etprod7/bwskfreg.P_AltPin', 'POST', array( 'term_in' => $semester ) );
 
-		$error=$this->fetcher->SendRequest($arguments);
-		
-		if ($error!="") {
-			error_log(__LINE__);
-			return (false);
-		}
-		
-		$headers=array();
-		$error=$this->fetcher->ReadReplyHeaders($headers);
-		if ($error!="") {
-			error_log(__LINE__);
-			return (false);
-		}
-		
-		$error = $this->fetcher->ReadWholeReplyBody($body);
-		$response = utf8_encode(html_entity_decode($body));
-		
-		$this->fetcher->Close();
-		
-		if (!$this->checkPage($response)) return (false);
-				
-		if ($this->fetcher->response_status==404) {
-			error_log(__LINE__);
-			return (false);
-		} else {
-			// Analyse de la réponse
-			$data = substr($response, strpos($response, '<TABLE  CLASS="datadisplaytable" SUMMARY="Horaire actuel">')+20);
-			$data = substr($data, strpos($data, '</TR>')+5);
-			$data = substr($data, 0, strpos($data, '<TABLE  CLASS="datadisplaytable"'));
-			
-			$data = explode("<TR>", $data);
-			
-			$coursesStatus = array();
-			$number = 0;
-			foreach ($data as $line) {
-				if ($number!=0) {
-					$field = substr($line, strpos($line, ' NAME="CRN_IN"'), 200);
-					$field = substr($field, strpos($field, ' VALUE="')+8);
-					$field = substr($field, 0, strpos($field, '"'));
-					$nrc = $field;
-					
-					reset($nrc_array);
-					foreach ($nrc_array as $nrc2) {
-						if ($nrc==$nrc2) {
-							$coursesStatus[] = array(
-													 'nrc'			=>	$nrc,
-													 'registered'	=>	1
-													 );
-							break;
-						}
-					}
-				}
-				
-				$number++;
-			}
-			
-			$data = substr($response, strpos($response, 'Nombre de crédits inscrits'));
-			$data = substr($data, 0, strpos($data, '<H3>Ajout de sections de cours à la feuille de travail</H3>'));
-			
-			if (strpos($data, '<TABLE  CLASS="datadisplaytable" SUMMARY="Cette table de disposition sert à présenter les erreurs d\'inscription.">')>1) {
-				// Analyse des erreurs d'inscription
-				$data = substr($data, strpos($data, '<TABLE  CLASS="datadisplaytable" SUMMARY="Cette table de disposition sert à présenter les erreurs d\'inscription.">'));
-				$data = substr($data, 0, strrpos($data, '</TABLE>'));
-				
-				$data = explode("<TR>", $data);
-			
-				$number = 0;
-				foreach ($data as $line) {
-					if ($number>1) {
-						$line = explode("</TD>", $line);
-						
-						$nrc = trim(strip_tags($line[1]));
-						$error_message = trim(strip_tags($line[0]));
-						
-						reset($nrc_array);
-						foreach ($nrc_array as $nrc2) {
-							if ($nrc==$nrc2) {
-								$coursesStatus[] = array(
-														 'nrc'			=>	$nrc,
-														 'registered'	=>	0,
-														 'error'		=>	$error_message
-														 );
-								break;
-							}
-						}
-					}
-					
-					$number++;
-				}
-			}
-			
-			return ($coursesStatus);
-		}
+        // Parse DOM structure from response
+        $this->domparser->load( $request[ 'response' ] );
+        $table = $this->domparser->find( 'table.datadisplaytable' );
+
+        $postString = "term_in=".$semester."&RSTS_IN=DUMMY&assoc_term_in=DUMMY&CRN_IN=DUMMY&start_date_in=DUMMY&end_date_in=DUMMY&SUBJ=DUMMY&CRSE=DUMMY&SEC=DUMMY&LEVL=DUMMY&CRED=DUMMY&GMOD=DUMMY&TITLE=DUMMY&MESG=DUMMY&REG_BTN=DUMMY";
+
+        if ( count ( $table ) != 0 ) {
+            $inputFields = $table[0]->find( 'input' );
+            // Parse all table input fields
+            foreach( $inputFields as $field ) {
+                if ( $field->name != '' )  {
+                    $postString .= '&' . $field->name . '=' . urlencode( $field->value );
+
+                    if ( $field->name == 'MESG' ) {
+                        $postString .= '&RSTS_IN=';
+                    }
+                }
+            }
+        }
+
+        // Add NRC of courses to be registered
+        for ( $n = 1; $n < 11; $n++ ) {
+            $postString .= '&RSTS_IN=RW';
+            if ( !empty( $nrcArray[ ( $n - 1 ) ] ) ) {
+                $postString .= '&CRN_IN=' . $nrcArray[ ( $n - 1 ) ];
+            } else {
+                $postString .= '&CRN_IN=';
+            }
+
+            $postString .= '&assoc_term_in=&start_date_in=&end_date_in=';
+        }
+
+        $form = $this->domparser->find( 'form' );
+        $inputFields = $form[1]->find( 'input' );
+        // Parse all form input fields
+        foreach( $inputFields as $field ) {
+            if ( $field->name == 'regs_row' || $field->name == 'wait_row' || $field->name == 'add_row' ) {
+                $postString .= '&' . $field->name . '=' . urlencode( $field->value );
+            }
+        }
+
+        $postString .= '&REG_BTN=' . urlencode( 'Soumettre les modifications' );
+
+        // Submit registration form
+        $request = $this->_fetchPage( '/pls/etprod7/bwckcoms.P_Regs', 'POST', array(), true, array( 'PostString' => $postString ) );
+
+        // Parse DOM structure from response
+        $this->domparser->load( $request[ 'response' ] );
+        $table = $this->domparser->find( 'table.datadisplaytable' );
+
+        $coursesStatus = array();
+
+        $inputFields = $table[0]->find( 'input' );
+        // Parse all table input fields
+        foreach( $inputFields as $field ) {
+            if ( $field->name == 'CRN_IN' && in_array( $field->value, $nrcArray ) )  {
+                $coursesStatus[ $field->value ] = array(
+                    'registered'    =>  true
+                );
+            }
+        }
+
+        if ( strpos( $request[ 'response' ], 'Erreur d\'ajout' ) > 1 ) {
+            // Parse registration errors
+            if ( isset( $table[ 2 ] ) ) {
+                $rows = $table[2]->find( 'tr' );
+            } else {
+                $rows = $table[0]->find( 'tr' );
+            }
+
+            foreach( $rows as $rowIndex => $row ) {
+                if ( $rowIndex != 0 ) {
+                    $errorMessage = $row->nodes[1]->text();
+                    $nrc = $row->nodes[3]->text();
+                    if ( in_array( $nrc, $nrcArray ) )  {
+                        $coursesStatus[ $nrc ] = array(
+                            'registered'   =>  false,
+                            'error'        =>  $errorMessage
+                        );
+                    }
+                }
+            }
+        }
+
+        return $coursesStatus;
 	}
 	
-	public function removeCourse ($nrc, $semester) {
-		$this->fetcher->cookies = $_SESSION['cookies'];
-		$this->fetcher->debug = $this->debug;
-		
-		if ($_SESSION['referer']=='') {
-			$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_StuMainMnu';
-		} else {
-			$this->fetcher->referer = $_SESSION['referer'];
-		}
-		
-		$this->fetcher->protocol="https";
-		
-		$arguments['HostName'] = $this->host;
-		$arguments["RequestURI"] = "/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_RegMnu";
-		
-		$error=$this->fetcher->Open($arguments);
-	
-		if ($error!="") {
-			error_log(__LINE__);
-			return (false);
-		}
-		
-		$error = $this->fetcher->SendRequest($arguments);
-	
-		if ($error!="") {
-			error_log(__LINE__);
-			return (false);
-		}
-		
-		$headers=array();
-		$error=$this->fetcher->ReadReplyHeaders($headers);
-		if ($error!="") {
-			error_log(__LINE__);
-			return (false);
-		}
-		
-		$this->fetcher->Close();
-		
-		$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_RegMnu';
-		$arguments["RequestURI"] = "/pls/etprod7/bwskfreg.P_AltPin";
-		
-		$error=$this->fetcher->Open($arguments);
-	
-		if ($error!="") {
-			error_log(__LINE__);
-			return (false);
-		}
-		
-		$error = $this->fetcher->SendRequest($arguments);
-	
-		if ($error!="") {
-			error_log(__LINE__);
-			return (false);
-		}
-		
-		$headers=array();
-		$error=$this->fetcher->ReadReplyHeaders($headers);
-		if ($error!="") {
-			error_log(__LINE__);
-			return (false);
-		}
-		
-		$this->fetcher->Close();
-		
-		$this->fetcher->request_method="POST";
-		
-		$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/bwskfreg.P_AltPin';
-		
-		$this->fetcher->Open($arguments);
-		
-		// Envoi du formulaire
-		$arguments["PostValues"] = array(
-			  'term_in'				=>	$semester
-			  );
-		
-		$arguments["RequestURI"] = "/pls/etprod7/bwskfreg.P_AltPin";
-		
-		$error=$this->fetcher->SendRequest($arguments);
-		
-		if ($error!="") {
-			error_log(__LINE__);
-			return (false);
-		}
-		
-		$headers=array();
-		$error=$this->fetcher->ReadReplyHeaders($headers);
-		if ($error!="") {
-			error_log(__LINE__);
-			return (false);
-		}
-		
-		$error = $this->fetcher->ReadWholeReplyBody($body);
-		$response = utf8_encode(html_entity_decode($body));
-		
-		$this->fetcher->Close();
-		
-		if (!$this->checkPage($response)) return (false);
-				
-		// Analyse de la page
-		$data = substr($response, strpos($response, '<TABLE  CLASS="datadisplaytable" SUMMARY="Horaire actuel">')+20);
-		$data = substr($data, strpos($data, '</TR>')+5);
-		$data = substr($data, 0, strpos($data, '<TABLE  CLASS="datadisplaytable"'));
-		
-		$data = explode("<TR>", $data);
-		
-		$arguments['PostString'] = "term_in=".$semester."&RSTS_IN=DUMMY&assoc_term_in=DUMMY&CRN_IN=DUMMY&start_date_in=DUMMY&end_date_in=DUMMY&SUBJ=DUMMY&CRSE=DUMMY&SEC=DUMMY&LEVL=DUMMY&CRED=DUMMY&GMOD=DUMMY&TITLE=DUMMY&MESG=DUMMY&REG_BTN=DUMMY";
-		
-		$number = 0;
-		foreach ($data as $line) {
-			if ($number!=0) {
-				$new = array();
-				
-				$field = substr($line, strpos($line, ' NAME="CRN_IN"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$current_nrc = $field;
-				
-				$field = substr($line, strpos($line, ' NAME="MESG"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['MESG'] = $field;
-				
-				if ($current_nrc!=$nrc) {
-					$new['RSTS_IN'] = '';
-				} else {
-					$new['RSTS_IN'] = 'DW';
-				}
-				
-				$field = substr($line, strpos($line, ' NAME="assoc_term_in"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['assoc_term_in'] = $field;
-				
-				$new['CRN_IN'] = $current_nrc;
-				
-				$field = substr($line, strpos($line, ' NAME="start_date_in"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['start_date_in'] = $field;
-				
-				$field = substr($line, strpos($line, ' NAME="end_date_in"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['end_date_in'] = $field;
-				
-				$field = substr($line, strpos($line, ' NAME="SUBJ"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['SUBJ'] = $field;
-				
-				$field = substr($line, strpos($line, ' NAME="CRSE"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['CRSE'] = $field;
-				
-				$field = substr($line, strpos($line, ' NAME="SEC"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['SEC'] = $field;
-				
-				$field = substr($line, strpos($line, ' NAME="LEVL"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['LEVL'] = $field;
-				
-				$field = substr($line, strpos($line, ' NAME="CRED"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['CRED'] = $field;
-				
-				$field = substr($line, strpos($line, ' NAME="GMOD"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['GMOD'] = $field;
-				
-				$field = substr($line, strpos($line, ' NAME="TITLE"'), 200);
-				$field = substr($field, strpos($field, ' VALUE="')+8);
-				$field = substr($field, 0, strpos($field, '"'));
-				$new['TITLE'] = $field;
-				
-				foreach ($new as $name => $value) {
-					$arguments['PostString'] .= "&".$name."=".urlencode($value);
-				}
-			}
-			
-			$number++;
-		}
-		
-		// Ajout des nouveaux NRC
-		for ($n=1; $n<11; $n++) {
-			$arguments['PostString'] .= "&RSTS_IN=RW";
-			$arguments['PostString'] .= "&CRN_IN=";
-			$arguments['PostString'] .= "&assoc_term_in=";
-			$arguments['PostString'] .= "&start_date_in=";
-			$arguments['PostString'] .= "&end_date_in=";
-		}
-		
-		$data = substr($response, strpos($response, '<H3>Ajout de sections de cours à la feuille de travail</H3>'));
-		$data = substr($data, 0, strpos($data, '<!--  ** START OF twbkwbis.P_CloseDoc **  -->'));
-		$data = substr($data, strpos($data, '<INPUT TYPE="hidden" NAME="regs_row"'));
-				
-		$field = substr($data, strpos($data, ' NAME="regs_row"'), 200);
-		$field = substr($field, strpos($field, ' VALUE="')+8);
-		$field = substr($field, 0, strpos($field, '"'));
-		$arguments['PostString'] .= "&regs_row=".$field;
-		
-		$field = substr($data, strpos($data, ' NAME="wait_row"'), 200);
-		$field = substr($field, strpos($field, ' VALUE="')+8);
-		$field = substr($field, 0, strpos($field, '"'));
-		$arguments['PostString'] .= "&wait_row=".$field;
-		
-		$field = substr($data, strpos($data, ' NAME="add_row"'), 200);
-		$field = substr($field, strpos($field, ' VALUE="')+8);
-		$field = substr($field, 0, strpos($field, '"'));
-		$arguments['PostString'] .= "&add_row=".$field;
+	public function removeCourse ( $nrc, $semester ) {
+        // Fetch registration page
+        $request = $this->_fetchPage( '/pls/etprod7/bwskfreg.P_AltPin', 'POST', array( 'term_in' => $semester ) );
 
-		$arguments['PostString'] .= "&REG_BTN=Soumettre les modifications";
-				
-		$this->fetcher->Close();
-		
-		$this->fetcher->request_method="POST";
-		
-		$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/bwskfreg.P_AltPin';
-		
-		$this->fetcher->Open($arguments);
-		
-		// Envoi du formulaire
-		unset($arguments["PostValues"]);
-		
-		$arguments["RequestURI"] = "/pls/etprod7/bwckcoms.P_Regs";
+        // Parse DOM structure from response
+        $this->domparser->load( $request[ 'response' ] );
+        $table = $this->domparser->find( 'table.datadisplaytable' );
 
-		$error=$this->fetcher->SendRequest($arguments);
-		
-		if ($error!="") {
-			error_log(__LINE__);
-			return (false);
-		}
-		
-		$headers=array();
-		$error=$this->fetcher->ReadReplyHeaders($headers);
-		if ($error!="") {
-			error_log(__LINE__);
-			return (false);
-		}
-		
-		$error = $this->fetcher->ReadWholeReplyBody($body);
-		$response = utf8_encode(html_entity_decode($body));
-		
-		$this->fetcher->Close();
-		
-		if (!$this->checkPage($response)) return (false);
-				
-		if ($this->fetcher->response_status==404) {
-			error_log(__LINE__);
-			return (false);
-		} else {
-			// Analyse de la réponse
-			$data = substr($response, strpos($response, '<TABLE  CLASS="datadisplaytable" SUMMARY="Horaire actuel">')+20);
-			$data = substr($data, strpos($data, '</TR>')+5);
-			$data = substr($data, 0, strpos($data, '<TABLE  CLASS="datadisplaytable"'));
-			
-			$data = explode("<TR>", $data);
-			
-			$number = 0;
-			$found = 0;
-			foreach ($data as $line) {
-				if ($number!=0) {
-					$field = substr($line, strpos($line, ' NAME="CRN_IN"'), 200);
-					$field = substr($field, strpos($field, ' VALUE="')+8);
-					$field = substr($field, 0, strpos($field, '"'));
-					$current_nrc = $field;
-					
-					if ($current_nrc==$nrc) {
-						$found = 1;
-						break;
-					}
-				}
-				
-				$number++;
-			}
-			
-			if ($found==0) {
-				return (true);
-			} else {
-				return (false);
-			}
-		}
+        $postString = "term_in=".$semester."&RSTS_IN=DUMMY&assoc_term_in=DUMMY&CRN_IN=DUMMY&start_date_in=DUMMY&end_date_in=DUMMY&SUBJ=DUMMY&CRSE=DUMMY&SEC=DUMMY&LEVL=DUMMY&CRED=DUMMY&GMOD=DUMMY&TITLE=DUMMY&MESG=DUMMY&REG_BTN=DUMMY";
+
+        $rows = $table[0]->find( 'tr' );
+        foreach ( $rows as $rowIndex => $row ) {
+            if ( $rowIndex != 0 ) {
+                $inputFields = $row->find( 'input' );
+
+                foreach( $inputFields as $field ) {
+                    $postString .= '&' . $field->name . '=' . urlencode( $field->value );
+
+                    if ( $field->name == 'CRN_IN' ) {
+                        if ( $field->value == $nrc ) {
+                            $postString .= '&RSTS_IN=DW';
+                        } else {
+                            $postString .= '&RSTS_IN=';
+                        }
+                    }
+                }
+            }
+        }
+        /*
+        $table = $this->domparser->find( 'table.dataentrytable' );
+        $inputFields = $table[0]->find( 'input' );
+
+        foreach( $inputFields as $field ) {
+            if ( $field->name != '' )  {
+                $postString .= '&' . $field->name . '=' . urlencode( $field->value );
+            }
+        }
+
+        $form = $this->domparser->find( 'form' );
+        $inputFields = $form[1]->find( 'input' );
+
+        $postString = '';
+
+        // Parse all form input fields
+        foreach( $inputFields as $field ) {
+            if ( $field->name != '' )  {
+                $postString .= '&' . $field->name . '=' . urlencode( $field->value );
+
+                // If field contains NRC : check if current NRC is the one to be removed
+                if ( $field->name == 'CRN_IN' ) {
+                    if ( $field->value == $nrc ) {
+                        // Add remove course action
+                        $postString = substr( $postString, 0, strrpos( $postString, '&' ) ) . '&RSTS_IN=DW' . substr( $postString, strrpos( $postString, '&' ) );
+                    } elseif ( $field->value != '' ) {
+                        // Do nothing
+                        $postString = substr( $postString, 0, strrpos( $postString, '&' ) ) . '&RSTS_IN=' . substr( $postString, strrpos( $postString, '&' ) );
+                    }
+                }
+            }
+        }
+*/
+        for ( $n = 1; $n < 11; $n++ ) {
+            $postString .= '&RSTS_IN=RW&CRN_IN=&assoc_term_in=&start_date_in=&end_date_in=';
+        }
+
+        $form = $this->domparser->find( 'form' );
+        $inputFields = $form[1]->find( 'input' );
+        // Parse all form input fields
+        foreach( $inputFields as $field ) {
+            if ( $field->name == 'regs_row' || $field->name == 'wait_row' || $field->name == 'add_row' ) {
+                $postString .= '&' . $field->name . '=' . urlencode( $field->value );
+            }
+        }
+
+        $postString .= '&REG_BTN=' . urlencode( 'Soumettre les modifications' );
+
+        // Submit registration form
+        $request = $this->_fetchPage( '/pls/etprod7/bwckcoms.P_Regs', 'POST', array(), true, array( 'PostString' => $postString ) );
+
+         // Parse DOM structure from response
+        $this->domparser->load( $request[ 'response' ] );
+
+        $form = $this->domparser->find( 'form' );
+        $inputFields = $form[1]->find( 'input' );
+
+         // Parse all form input fields
+        foreach( $inputFields as $field ) {
+            if ( $field->name == 'CRN_IN' && $field->value == $nrc ) {
+                // NRC found in response page content : course has not been removed
+                return false;
+            }
+        }
+
+        return true;
 	}
 	
 	public function fetchCourse ( $code, $semester, $fetchClasses = true ) {
@@ -2213,7 +1789,7 @@ class Capsule {
         return $spots;
 	}
 	
-    private function _fetchPage ( $url, $method = 'GET', $postVars = array(), $checkPage = true ) {
+    private function _fetchPage ( $url, $method = 'GET', $postVars = array(), $checkPage = true, $otherArguments = array() ) {
         // Define request parameters
         $this->fetcher->set( array(
             'cookies'       =>  $this->cookies,
@@ -2230,6 +1806,10 @@ class Capsule {
 
         if ( !empty( $postVars ) )
             $arguments[ 'PostValues' ] = $postVars;
+
+        if ( !empty( $otherArguments ) ) {
+            $arguments += $otherArguments;
+        }
 
         // Open connection to remote server
         $error = $this->fetcher->Open( $arguments );
