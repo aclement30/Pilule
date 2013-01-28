@@ -1330,3 +1330,25 @@ ul.stat-list {
       display: inline;
     }
 }
+
+#modal.loading {
+  width: 350px;
+  margin-top: 25%;
+  margin-left: -150px;
+
+  h4 {
+    margin-top: 30px;
+    text-align: center;
+  }
+
+  p {
+    padding: 30px 25px 20px;
+    color: gray;
+    text-align: center;
+
+    img {
+      display: inline-block;
+      margin: 10px 0 30px;
+    }
+  }
+}

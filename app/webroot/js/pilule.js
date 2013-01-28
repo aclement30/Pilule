@@ -164,6 +164,21 @@ app.Common.openExternalWebsite = function ( url ) {
     $( '#in-nav .external-frame' ).fadeIn();
 };
 
+app.Common.loadExternalFrameForm = function() {
+    var forms = $( '.js-external-frame-form', frames[ 'external-frame' ].document );
+
+    $.each( forms, function( index, formElement ) {
+        if ( !$( formElement ).hasClass( 'submitted' ) ) {
+            $( formElement ).submit().addClass( 'submitted' );
+            if ( index == ( forms.length - 1 ) ) {
+                $( '#loadingForm' ).off( 'load' );
+            }
+
+            return false;
+        }
+    });
+};
+
 app.Common.closeExternalFrame = function () {
     // Hide external view frame
     $( '#external-frame' ).fadeOut().attr( 'src', 'blank.html' );
@@ -207,16 +222,23 @@ app.Common.displaySubmenu = function ( e ) {
 
 // Show modal
 app.Common.showModal = function ( params ) {
-    $( '#modal' ).load( params.url, function() {
-        $( '#modal' ).modal( 'show' );
+    if ( params.url ) {
+        $( '#modal' ).removeClass( 'loading' );
+        $( '#modal' ).load( params.url, function() {
+            $( '#modal' ).modal( 'show' );
 
-        // Execute callback, if needed
-        if ( params.callback ) {
-            ( params.callback )();
-        }
-    } );
+            // Execute callback, if needed
+            if ( params.callback ) {
+                ( params.callback )();
+            }
+        } );
+    }
 };
 
+// Show loading modal
+app.Common.showLoadingModal = function ( params ) {
+    $( '#modal' ).addClass( 'loading' ).html( '<div class="modal-body loading-content"><h4>' + params.title + '</h4><p><img src="/img/redirect-loading.gif" alt="Chargement" /><br />' + params.message + '</p></div>' ).modal( { keyboard: false, backdrop: 'static' } ).modal( 'show' );
+};
 // Display loading message
 app.Common.loading = function ( object, message ) {
 
