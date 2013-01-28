@@ -1,7 +1,10 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang='fr'>
 <meta charset='utf-8'>
-<head>    
+<head>
+    
+    <base href="<?php echo Router::url( '/', true ); ?>" />
+
     <?php echo $this->element( 'metas' ); ?>
     
     <title><?php if ( isset( $title_for_layout ) ) echo $title_for_layout . ' | '; ?>Pilule - Gestion des études</title>
@@ -50,15 +53,15 @@
             <div class="navbar">
                 <div class="navbar-inner">
                     <ul class="nav menu">
-                        <li><a href="/support/terms">Conditions d'utilisation</a></li>
-                        <li><a href="/support/privacy">Confidentialité des données</a></li>
-                        <li><a href="/support/faq">F.A.Q.</a></li>
-                        <li><a href="/support/contact">Contact</a></li>
+                        <li><a href="<?php echo Router::url( '/' ); ?>support/terms">Conditions d'utilisation</a></li>
+                        <li><a href="<?php echo Router::url( '/' ); ?>support/privacy">Confidentialité des données</a></li>
+                        <li><a href="<?php echo Router::url( '/' ); ?>support/faq">F.A.Q.</a></li>
+                        <li><a href="<?php echo Router::url( '/' ); ?>support/contact">Contact</a></li>
                     </ul>
                     <div class="nav credits clearfix">
                         <p class="hosting">
                             Projet hébergé par<br />
-                            <img src="/img/ulaval-white.png" />
+                            <img src="<?php echo Router::url( '/' ); ?>img/ulaval-white.png" />
                         </p>
                         <p class="conception">
                             Conception<br />

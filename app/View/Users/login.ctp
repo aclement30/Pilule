@@ -1,7 +1,7 @@
 <div id="formContainer">
     <div id="login-form">
-        <div class="ulaval-ribbon"><img src="/img/approbation-ulaval.png" alt="Approuvé par l'Université Laval" style="border: 0px;" /></div>
-        <h1><img src="/img/logo.png" alt="Pilule - Gestion des études - Université Laval" /></h1>
+        <div class="ulaval-ribbon"><img src="<?php echo Router::url( '/' ); ?>img/approbation-ulaval.png" alt="Approuvé par l'Université Laval" style="border: 0px;" /></div>
+        <h1><img src="<?php echo Router::url( '/' ); ?>img/logo.png" alt="Pilule - Gestion des études - Université Laval" /></h1>
         <div class="alert-error alert"></div>
         <?php echo $this->Form->create( 'User', array( 'type' => 'post', 'target' => 'frame', 'class' => 'clearfix', 'inputDefaults' => array( 'div' => false ) ) ); ?>
             <div class="control-group">
@@ -23,7 +23,7 @@
     <div id="loading-panel">
             <div class="message">
                 <span>Connexion en cours</span><br /><br />
-                <img src="/img/loading-login.gif" />
+                <img src="<?php echo Router::url( '/' ); ?>img/loading-login.gif" />
             </div>
             <div class="waiting-notice">Cette étape peut prendre jusqu'à une minute.<br />Merci de patienter.</div>
     </div>
