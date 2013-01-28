@@ -186,7 +186,7 @@ class ScheduleController extends AppController {
                 $this->set( 'semestersList', $semestersList );
 
         	// No data exists for this page
-        	$this->viewPath = 'commons';
+        	$this->viewPath = 'Commons';
 			$this->render( 'no_data' );
 
             return (true);

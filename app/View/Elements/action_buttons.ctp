@@ -5,7 +5,7 @@
 
         switch ( $button[ 'type' ] ) {
             case 'refresh':
-                $content = '<div class="btn-refresh"><i class="icon-refresh"></i><img src="./img/loading-btn.gif" style="position: relative; height:  14px; top: -3px;" /></div>';
+                $content = '<div class="btn-refresh"><i class="icon-refresh"></i><img src="' . Router::url( '/' ) . 'img/loading-btn.gif" style="position: relative; height:  14px; top: -3px;" /></div>';
                 $toolTip = 'Actualiser les données';
                 break;
             case 'print':
