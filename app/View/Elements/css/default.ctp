@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic" />
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic" />
 <?php
 	// Add version number to each CSS path : clear old CSS files in browser cache
 	$currentVersion = '2.5';
