@@ -69,7 +69,7 @@ app.Registration.getCourseInfo = function ( code ) {
 };
 
 app.Registration.getAvailableClasses = function ( code ) {
-	$( '#modal .classes-list' ).load( '/registration/getAvailableClasses/' + code, function() {
+	$( '#modal .classes-list' ).load( app.baseUrl + 'registration/getAvailableClasses/' + code, function() {
 		$( '#modal .loading-classes' ).hide();
 	} );
 };
@@ -209,7 +209,7 @@ app.Registration.addRegisteredCourses = function ( response ) {
 	$( '#modal' ).modal( 'hide' );
 
 	if ( response.status ) {				// Courses registration request has been successfull
-		document.location = '/choix-cours/resultats/' + response.token;
+		document.location = app.baseUrl + 'choix-cours/resultats/' + response.token;
 	} else {
 		app.Common.dispatchError({
 			message: 	"L'inscription aux cours sélectionnés a échouée.",
