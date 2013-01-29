@@ -120,7 +120,7 @@ class RegistrationController extends AppController {
 			}
 
         	// No data exists for this page
-        	$this->viewPath = 'commons';
+        	$this->viewPath = 'Commons';
 			$this->render( 'searching_courses' );
 
             return (true);
