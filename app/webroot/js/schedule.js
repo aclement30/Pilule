@@ -73,7 +73,7 @@ app.Schedule.download = function ( semester ) {
 };
 
 app.Schedule.init = function () {
-	$( '.semesters-dropdown ul li a' ).on( 'click', app.Schedule.displaySemester );
+	$( '.main' ).on( 'click', '.semesters-dropdown ul li a', app.Schedule.displaySemester );
 
 	$( '.calendar-header .semesters-dropdown.compact' ).appendTo( '.main .action-buttons .buttons' );
 
@@ -86,8 +86,8 @@ app.Schedule.init = function () {
 
 	$( '#agenda table tbody td.class .inside' ).popover();
 
-	$( '.calendar-header .js-prec-calendar' ).on( 'click', app.Schedule.displayPreviousWeek );
-	$( '.calendar-header .js-next-calendar' ).on( 'click', app.Schedule.displayNextWeek );
+	$( '.main' ).on( 'click', '.calendar-header .js-prec-calendar', app.Schedule.displayPreviousWeek );
+	$( '.main' ).on( 'click', '.calendar-header .js-next-calendar', app.Schedule.displayNextWeek );
 };
 
 $( document ).ready( app.Schedule.init );
