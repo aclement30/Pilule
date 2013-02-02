@@ -551,6 +551,28 @@ footer {
     li.selected a {
       font-weight: bold;
     }
+
+    select {
+      display: none;
+    }
+}
+
+@media only screen and (-moz-min-device-pixel-ratio: 2) and (max-width: 1200px) and (orientation: landscape),
+    only screen and (-o-min-device-pixel-ratio: 2/1) and (max-width: 1200px) and (orientation: landscape),
+    only screen and (-webkit-min-device-pixel-ratio: 2) and (max-width: 1200px) and (orientation: landscape),
+    only screen and (min-device-pixel-ratio: 2) and (max-width: 1200px) and (orientation: landscape),
+    only screen and (max-width: 480px) {
+  .semesters-dropdown, .programs-dropdown {
+    .btn-group {
+      display: none;
+    }
+
+    select {
+      display: block;
+      float: right;
+      clear: none;
+    }
+  }
 }
 
 #external-frame {
