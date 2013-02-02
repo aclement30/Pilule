@@ -91,13 +91,14 @@
                 </tr>
             <?php endif; ?>
             <?php
-                if ( !empty( $program[ 'concentrations' ] ) && !is_array( $program[ 'concentrations' ] ) )
+                if ( !empty( $program[ 'concentrations' ] ) && !is_array( $program[ 'concentrations' ] ) ) {
                     $program[ 'concentrations' ] = unserialize( $program[ 'concentrations' ] );
-                
+                }
+
                 if ( !empty( $program[ 'concentrations' ] ) ) : ?>
                 <tr>
                     <th>Concentration(s)</th>
-                    <td><?php echo implode( ', ', unserialize( $program[ 'concentrations' ] ) ); ?></td>
+                    <td><?php echo implode( ', ', $program[ 'concentrations' ] ); ?></td>
                 </tr>
             <?php endif; ?>
             <?php if ( !empty( $program[ 'session_repertoire' ] ) ) : ?>
@@ -206,6 +207,12 @@
 <hr style="page-break-after: always;">
 
 <h4 class="formation">Formation</h4>
+
+<?php if ( !empty( $programsList ) && empty( $sections[ 'Section' ] ) ) : ?>
+    <div class="row-fluid">
+        <?php echo $this->element( 'empty_data', array( 'message' => 'Votre dossier Capsule ne contient aucun cours pour ce programme d\'études.' ) ); ?>
+    </div>
+<?php endif; ?>
 
 <?php
     foreach ( $sections[ 'Section' ] as $section ) :
