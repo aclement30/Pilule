@@ -14,9 +14,9 @@ app.Studies.displayProgram = function ( e ) {
 
 		// Param is an event, retrieve the program id
 		if ( $( e.currentTarget ).is( 'select' ) ) {
-            document.location = '/dossier-scolaire/rapport-cheminement/' + $( e.currentTarget ).val();
+            document.location = app.baseUrl + 'dossier-scolaire/rapport-cheminement/' + $( e.currentTarget ).val();
         } else {
-			document.location = '/dossier-scolaire/rapport-cheminement/' + $( this ).data( 'program' );
+			document.location = app.baseUrl + 'dossier-scolaire/rapport-cheminement/' + $( this ).data( 'program' );
 		}
 	}
 

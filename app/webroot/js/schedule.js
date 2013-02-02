@@ -14,12 +14,12 @@ app.Schedule.displaySemester = function ( e ) {
 
 		// Param is an event, retrieve the semester
 		if ( $( e.currentTarget ).is( 'select' ) ) {
-            document.location = '/horaire/' + $( e.currentTarget ).val();
+            document.location = app.baseUrl + 'horaire/' + $( e.currentTarget ).val();
         } else {
-			document.location = '/horaire/' + $( this ).data( 'semester' );
+			document.location = app.baseUrl + 'horaire/' + $( this ).data( 'semester' );
 		}
 	} else {
-    	document.location = '/horaire/' + semester;
+    	document.location = app.baseUrl + 'horaire/' + semester;
     }
 
     return false;
@@ -73,7 +73,7 @@ app.Schedule.download = function ( semester ) {
     _gaq.push(['_trackEvent', 'Schedule', 'Download', 'Téléchargement de l\'horaire']);
 
     // Download schedule iCal file
-    $( '#external-frame' ).attr( 'src', app.Schedule.controllerURL + 'ical_download/' + semester );
+    $( '#external-frame' ).attr( 'src', app.baseUrl + 'schedule/ical_download/' + semester );
 };
 
 app.Schedule.init = function () {

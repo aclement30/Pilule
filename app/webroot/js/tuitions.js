@@ -13,9 +13,9 @@ app.Tuitions.displaySemester = function ( e ) {
 
         // Param is an event, retrieve the semester
         if ( $( e.currentTarget ).is( 'select' ) ) {
-            document.location = '/tuitions/details/' + $( e.currentTarget ).val();
+            document.location = app.baseUrl + 'tuitions/details/' + $( e.currentTarget ).val();
         } else {
-            document.location = '/tuitions/details/' + $( this ).data( 'semester' );
+            document.location = app.baseUrl + 'tuitions/details/' + $( this ).data( 'semester' );
         }
     }
 

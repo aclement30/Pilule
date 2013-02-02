@@ -85,7 +85,7 @@ app.init = function () {
 
     $( '#in-sub-nav li.exchange a' ).on( 'click', function(){
         if ( $( window ).width() > 660 ) {
-            app.Common.openExternalWebsite( $( '#in-sub-nav li.exchange a' ).data( 'url' ) );
+            app.Common.openExternalWebsite( app.baseUrl + $( '#in-sub-nav li.exchange a' ).data( 'url' ) );
         } else {
             document.location = $( '#in-sub-nav li.exchange a' ).data( 'url' );
         }
