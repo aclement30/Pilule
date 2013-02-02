@@ -14,8 +14,8 @@ class Capsule {
     public $userName;
 
     // Private vars (used for relogin if server connection is lost)
-    private $idul = 'alcle8';
-    private $password = 'intelliweb30';
+    private $idul;
+    private $password;
 
 	public function __construct( &$fetcher, &$domparser ) {
         $this->fetcher = $fetcher;
@@ -211,7 +211,10 @@ class Capsule {
 	// Test connection to Capsule server
 	public function testConnection () {
         $this->cookies = SessionComponent::read( 'Capsule.cookies' );
-
+        if ( empty( $this->idul ) ) {
+            $this->idul = SessionComponent::read( 'User.idul' );
+            $this->password = SessionComponent::read( 'User.password' );
+        }
         $request = $this->_fetchPage( '/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_AdminMnu' );
 
         // Retry user login if request fails
@@ -414,7 +417,7 @@ class Capsule {
                         // If new program, current program data are added to the end of programs list
                         if ( $program != array() ) {
                             $program[ 'concentrations' ] = serialize( $program[ 'concentrations' ] );
-                            $program[ 'idul' ] = SessionComponent::read( 'User.idul' );
+                            $program[ 'idul' ] = $this->idul;
                             $programs[] = array( 'Program' => $program );
                         }
                         $program = array();
