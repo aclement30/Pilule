@@ -97,7 +97,7 @@ class StudiesController extends AppController {
         if ( empty( $id ) ) {
             $program = $this->StudentProgram->User->find( 'first', array(
                 'conditions'    =>  array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
-                'contain'       =>  array( 'Program' => array( 'limit' => 1 ) ),
+                'contain'       =>  array( 'Program' => array( 'limit' => 1, 'order' => 'Program.adm_semester DESC' ) ),
                 'fields'        =>  array( 'User.idul' )
             ) );
         } else {
