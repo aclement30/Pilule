@@ -2,6 +2,11 @@
 
 <div class="row-fluid">
     <div class="span8">
+        <?php
+            if ( empty( $programs[ 'Program' ] ) ) :
+                echo $this->element( 'empty_data', array( 'message' => 'Votre dossier Capsule ne contient aucun programme d\'études.', 'small' => true ) );
+            endif;
+        ?>
         <?php foreach ( $programs[ 'Program' ] as $program ) : ?>
             <div class="table-panel">
                 <h4> <i class="icon-user"></i>Dossier de l'étudiant</h4>

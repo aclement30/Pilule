@@ -610,7 +610,7 @@ footer {
       padding: 30px;
 
       p.lead {
-        margin-top: 0px;
+        margin-top: 30px;
       }
 
       .image {
@@ -634,6 +634,36 @@ footer {
       .span1 {
           display: none;
       }
+  }
+}
+
+@media (min-width: 760px) and (max-width: 979px) {
+  .hero-unit.no-data.small {
+    .span7 {
+      width: 100%;
+    }
+
+    p.lead {
+      margin-top: 0px;
+    }
+
+    .image {
+      display: none;
+    }
+  }
+}
+
+.hero-unit.no-data.small {
+  .span7 {
+    width: 100%;
+  }
+  
+  p.lead {
+    margin-top: 0px;
+  }
+
+  .image {
+    display: none;
   }
 }
 
