@@ -11,6 +11,9 @@ app.Users = {
 };
 
 app.Users.login = function ( e ) {
+    // Move focus away from text fields (hide on-screen keyboard on mobile)
+    $( '#login-form .idul, #login-form .password' ).blur();
+
     $( 'html, body' ).animate( { scrollTop: 0 }, 1 );
 
     var idul = $( '#login-form .idul' ).val();
@@ -50,7 +53,6 @@ app.Users.login = function ( e ) {
     
     // Send login request
     ajax.request({
-        controller:     app.Users.controllerURL,
         url:            '/users/login.json',
         data:           {
             idul:       idul,
