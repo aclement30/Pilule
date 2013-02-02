@@ -31,7 +31,7 @@ ajax.request = function ( params ) {
 		// Define AJAX URL
 		p.url = app.baseUrl + p.controller + p.func + '.json';
 	} else if ( p.url.substr( 0, 1) == '/' ) {
-		p.url = 'https://www.pilule.ulaval.ca/cake/' + p.url.substr( 1 );
+		p.url = app.baseUrl + p.url.substr( 1 );
 	}
 
     if (p.data != null) {

@@ -21,6 +21,10 @@
         // Define Capsule availability
         app.isCapsuleOffline = <?php if ( $isCapsuleOffline ) echo 'true'; else echo 'false'; ?>;
 
+        app.ipAddress = '<?php echo $this->request->clientIp(); ?>';
+        app.baseUrl = '<?php echo Router::url( '/', true ); ?>';
+        app.init();
+        
         // Define data expiration delay
         <?php
             if ( empty( $userParams[ 'data-expiration-delay' ] ) ) {
@@ -37,9 +41,5 @@
                 ?>app.Cache.reloadData( { name: '<?php echo $dataObject; ?>', auto: 1 } );<?php
             }
         ?>
-
-        app.ipAddress = '<?php echo $this->request->clientIp(); ?>';
-        app.baseUrl = '<?php echo Router::url( '/', true ); ?>';
-        app.init();
     });
 </script>
