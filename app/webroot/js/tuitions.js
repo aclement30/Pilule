@@ -57,7 +57,7 @@ app.Tuitions.init = function () {
 		app.Tuitions.displaySummaryGraph( chartData );
 	}
 
-    $( '.semesters-dropdown ul li a' ).on( 'click', app.Tuitions.displaySemester );
+    $( '.main' ).on( 'click', '.semesters-dropdown ul li a', app.Tuitions.displaySemester );
 };
 
 $( document ).ready( app.Tuitions.init );
