@@ -111,6 +111,23 @@ app.Dashboard.init = function () {
 	app.Dashboard.initModules();
 
 	$('.action-buttons a.js-save-btn' ).hide();
+
+	// Init sidebar links
+	$( '.aside a.link-capsule-address' ).on( 'click', function( e ) {
+		app.Common.openExternalWebsite( app.baseUrl + 'services/capsule-address/' );
+
+		return false;
+	} );
+	$( '.aside a.link-capsule-password' ).on( 'click', function( e ) {
+		app.Common.openExternalWebsite( 'https://oraweb.ulaval.ca/pls/prv/prv_changement_nip.changer_nip_personnel_1?' );
+
+		return false;
+	} );
+	$( '.aside a.link-capsule-fiscal-statement' ).on( 'click', function( e ) {
+		app.Common.openExternalWebsite( app.baseUrl + 'services/capsule-fiscal-statement/' );
+
+		return false;
+	} );
 };
 
 $( document ).ready( function() { app.Dashboard.init(); } );

@@ -46,6 +46,38 @@ class ServicesController extends AppController {
 					)
 				);
 				break;
+			case 'capsule-address':
+				$title_for_layout = 'Capsule';
+				$formUrl = array( 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_ValLogin', 'https://capsuleweb.ulaval.ca/pls/etprod7/bwgkogad.P_SelectAtypUpdate');
+				$loadingFrameUrl = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_WWWLogin';
+				$insideIframe = true;
+				$fields = array(
+					// Login form
+					array(
+						'sid'		=>	$this->Session->read( 'User.idul' ),
+						'PIN'		=>	$this->Session->read( 'User.password' )
+					),
+					// Address page
+					array(
+					)
+				);
+				break;
+			case 'capsule-fiscal-statement':
+				$title_for_layout = 'Capsule';
+				$formUrl = array( 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_ValLogin', 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_CanTaxMnu');
+				$loadingFrameUrl = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_WWWLogin';
+				$insideIframe = true;
+				$fields = array(
+					// Login form
+					array(
+						'sid'		=>	$this->Session->read( 'User.idul' ),
+						'PIN'		=>	$this->Session->read( 'User.password' )
+					),
+					// Fiscal statement page
+					array(
+					)
+				);
+				break;
 			case 'elluminate':
 				$title_for_layout = 'Elluminate';
 				$formUrl = 'https://classevirtuelle.ulaval.ca/elm_login.event?loginPage=index.html';
