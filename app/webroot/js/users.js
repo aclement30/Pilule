@@ -161,7 +161,11 @@ app.Users.loginError = function ( error ) {
                 $( '#login-form' ).fadeIn();
             });
 
-            app.Common.displayError( error.message, $( '#login-form .alert-error' ), false );
+            if ( error.context == 'ajax-server-error' ) {
+                error.message = 'Erreur lors de la connexion au serveur.';
+            }
+
+            $( '#login-form .alert-error' ).html( error.message ).fadeIn();
             break;
         case 1:         // User is actually logged in, but an error happens during remote data fetching
             // Hide loading panel
