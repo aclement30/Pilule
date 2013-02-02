@@ -20,7 +20,7 @@
 <div class="request-description">Données extraites du système de gestion des études de l'Université Laval, le <?php echo date( 'd/m/Y, à H:i', $timestamp ); ?>.</div>
 
 <div class="row-fluid">
-    <div class="span7">
+    <div class="span6">
         <div class="table-panel not-expandable">
             <h4> <i class="icon-list"></i>Frais de scolarité - <?php echo $this->App->convertSemester( CURRENT_SEMESTER ); ?></h4>
             <table class="table table-striped fees">
@@ -58,7 +58,7 @@
         </div>
     </div>
 
-    <div class="span5">
+    <div class="span6">
         <div class="table-panel not-expandable">
             <h4> <i class="icon-th"></i>Sommaire du compte</h4>
             <table class="table table-striped">
