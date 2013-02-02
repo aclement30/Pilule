@@ -13,7 +13,11 @@ app.Schedule.displaySemester = function ( e ) {
 		e.preventDefault;
 
 		// Param is an event, retrieve the semester
-		document.location = '/horaire/' + $( this ).data( 'semester' );
+		if ( $( e.currentTarget ).is( 'select' ) ) {
+            document.location = '/horaire/' + $( e.currentTarget ).val();
+        } else {
+			document.location = '/horaire/' + $( this ).data( 'semester' );
+		}
 	} else {
     	document.location = '/horaire/' + semester;
     }
@@ -74,6 +78,7 @@ app.Schedule.download = function ( semester ) {
 
 app.Schedule.init = function () {
 	$( '.main' ).on( 'click', '.semesters-dropdown ul li a', app.Schedule.displaySemester );
+    $( '.main ' ).on( 'blur', '.semesters-dropdown select', app.Schedule.displaySemester );
 
 	$( '.calendar-header .semesters-dropdown.compact' ).appendTo( '.main .action-buttons .buttons' );
 

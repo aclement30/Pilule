@@ -14,6 +14,15 @@
             <?php endforeach; ?>
         </ul>
     </div>
+    <select class="input-<?php if ( !empty( $compact) && $compact ) echo 'small'; else echo 'medium'; ?>">
+            <?php foreach ( $programsList as $id => $programName ) : ?>
+                <option value="<?php echo $id; ?>"<?php if ( $id == $selectedProgram ) echo ' selected="selected"'; ?>> 
+                    <?php
+                        echo $programName;
+                    ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
     <div class="select-label"><?php if ( isset( $label ) ) echo $label; else echo 'Programme : '; ?></div>
     <div style="clear: both;"></div>
 </div>

@@ -13,7 +13,11 @@ app.Studies.displayProgram = function ( e ) {
 		e.preventDefault;
 
 		// Param is an event, retrieve the program id
-		document.location = '/dossier-scolaire/rapport-cheminement/' + $( this ).data( 'program' );
+		if ( $( e.currentTarget ).is( 'select' ) ) {
+            document.location = '/dossier-scolaire/rapport-cheminement/' + $( e.currentTarget ).val();
+        } else {
+			document.location = '/dossier-scolaire/rapport-cheminement/' + $( this ).data( 'program' );
+		}
 	}
 
     return false;
@@ -21,6 +25,7 @@ app.Studies.displayProgram = function ( e ) {
 
 app.Studies.init = function () {
 	$( '.main' ).on( 'click', '.programs-dropdown ul li a', app.Studies.displayProgram );
+    $( '.main ' ).on( 'blur', '.programs-dropdown select', app.Studies.displayProgram );
 };
 
 $( document ).ready( app.Studies.init );

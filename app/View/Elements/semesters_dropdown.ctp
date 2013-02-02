@@ -21,14 +21,19 @@
                 <?php endforeach; ?>
             </ul>
         </div>
-        <div class="select-label"><?php if ( isset( $label ) ) echo $label; else echo 'Session affichée : '; ?></div>
-    <?php /* else : ?>
-        <select class="input-medium">
+        <select class="input-<?php if ( !empty( $compact) && $compact ) echo 'small'; else echo 'medium'; ?>">
             <?php foreach ( $semestersList as $semester ) : ?>
-                <option value="<?php echo $semester; ?>"> <?php echo $this->App->convertSemester( $semester ); ?></option>
+                <option value="<?php echo $semester; ?>"<?php if ( $semester == $selectedSemester ) echo ' selected="selected"'; ?>> 
+                        <?php
+                        if ( !empty( $compact) && $compact ):
+                            echo $this->App->convertSemester( $semester, true );
+                        else:
+                            echo $this->App->convertSemester( $semester );
+                        endif;
+                    ?>
+                </option>
             <?php endforeach; ?>
         </select>
-        <div class="label">Session affichée : </div>
-    <?php endif; */ ?>
+        <div class="select-label"><?php if ( isset( $label ) ) echo $label; else echo 'Session affichée : '; ?></div>
     <div style="clear: both;"></div>
 </div>
