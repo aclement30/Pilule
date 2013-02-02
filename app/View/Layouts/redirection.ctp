@@ -2,7 +2,7 @@
 <html lang='en'>
 <meta charset='utf-8'>
 <head>
-    <base href="http://www.pilule.ulaval.ca" />
+    <base href="<?php echo Router::url( '/', true ); ?>" />
 
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Connexion à <?php echo $title_for_layout; ?></title>

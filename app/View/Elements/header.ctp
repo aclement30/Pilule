@@ -30,7 +30,7 @@
                     </li>
                 </ul>
 
-                <a id="logo" href="<?php echo Router::url( '/' ) ?>"><img src="<?php echo Router::url( '/' ) ?>img/logo-h1.png"><img src="/img/logo-h1@2x.png" class="hi-res"></a>
+                <a id="logo" href="<?php echo Router::url( '/' ) ?>"><img src="<?php echo Router::url( '/' ) ?>img/logo-h1.png"><img src="<?php echo Router::url( '/' ) ?>img/logo-h1@2x.png" class="hi-res"></a>
             </div>
         </div>
     </div>

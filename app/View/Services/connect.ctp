@@ -2,7 +2,7 @@
 	<div class="span4">&nbsp;</div>
     <div class="hero-unit span4" style="text-align: center;">
     	<div style="margin-bottom: 30px;">
-    		<img src="/img/redirect-loading.gif" alt="Chargement" />
+    		<img src="<?php echo Router::url( '/' ) ?>img/redirect-loading.gif" alt="Chargement" />
     	</div>
     	<p class="lead">
     		<?php

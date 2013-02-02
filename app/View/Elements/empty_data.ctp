@@ -1,7 +1,7 @@
 <div class="hero-unit no-data span12<?php if ( isset( $small ) ) echo ' small'; ?>">
     <div class="span1">&nbsp;</div>
     <div class="span3 image">
-        <img src="./img/lego-man.png" alt="Lego Man" />
+        <img src="<?php echo Router::url( '/' ) ?>img/lego-man.png" alt="Lego Man" />
     </div>
     <div class="span7">
         <p class="lead">
