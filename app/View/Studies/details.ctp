@@ -1,25 +1,23 @@
 <div class="request-description">Données extraites du système de gestion des études de l'Université Laval, le <?php echo date( 'd/m/Y, à H:i', $timestamp ); ?>.</div>
 
-<?php if ( empty( $programs[ 'Program' ] ) ) : ?>
+<?php if ( empty( $programsList ) ) : ?>
     <div class="row-fluid">
         <?php echo $this->element( 'empty_data', array( 'message' => 'Votre dossier Capsule ne contient aucun programme d\'études.' ) ); ?>
     </div>
 <?php endif; ?>
 
-<?php if ( count( $programs[ 'Program' ] ) > 1 ) : ?>
-    <p style="margin-top: 20px; margin-bottom: 0px; text-align: right;">Programme : <select onchange="javascript:app.studies.displayProgramPanel(this.options[this.selectedIndex].value);">
-        <?php
-        foreach ( $programs[ 'Program' ] as $program ) :
-            ?><option value="<?php echo $program[ 'id' ]; ?>"> <?php echo $program[ 'name' ]; ?></option><?php
-        endforeach;
-    ?></select></p>
-    <?php
-endif;
-$program_number = 1;
+<?php
+    if ( count( $programsList ) > 1 ) :
+        ?><div class="no-print"><?php
+            // Display programs dropdown
+            echo $this->element( 'programs_dropdown', array( 'programsList' => $programsList, 'selectedProgram' => $program[ 'Program' ][ 0 ][ 'id' ] ) );
 
-foreach ($programs[ 'Program' ] as $program) :
-    ?>
-<div class="program-panel" id="program-<?php echo $program['id']; ?>"<?php if ($program_number != 1) echo ' style="display: none;"'; ?>>
+            echo '<hr>';
+        ?></div><?php
+    endif;
+?>
+
+<?php $program = $program[ 'Program' ][ 0 ]; ?>
 
 <div class="stats no-print">
     <div class="row-fluid">
@@ -91,10 +89,15 @@ foreach ($programs[ 'Program' ] as $program) :
                     <th>Mineure(s)</th>
                     <td><?php echo $program['minor']; ?></td>
                 </tr>
-            <?php endif; if ( !empty( $program[ 'concentrations' ] ) ) : ?>
+            <?php endif; ?>
+            <?php
+                if ( !empty( $program[ 'concentrations' ] ) && !is_array( $program[ 'concentrations' ] ) )
+                    $program[ 'concentrations' ] = unserialize( $program[ 'concentrations' ] );
+                
+                if ( !empty( $program[ 'concentrations' ] ) ) : ?>
                 <tr>
                     <th>Concentration(s)</th>
-                    <td><?php echo implode( ', ', $program[ 'concentrations' ] ); ?></td>
+                    <td><?php echo implode( ', ', unserialize( $program[ 'concentrations' ] ) ); ?></td>
                 </tr>
             <?php endif; ?>
             <?php if ( !empty( $program[ 'session_repertoire' ] ) ) : ?>
@@ -371,7 +374,3 @@ foreach ($programs[ 'Program' ] as $program) :
     }
     */
      ?>
-        <?php
-        $program_number++;
-    endforeach;
-?>

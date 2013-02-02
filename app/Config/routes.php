@@ -33,6 +33,7 @@
 
 	Router::connect( '/dossier-scolaire', array( 'controller' => 'studies', 'action' => 'index' ) );
 	Router::connect( '/dossier-scolaire/rapport-cheminement', array( 'controller' => 'studies', 'action' => 'details' ) );
+	Router::connect( '/dossier-scolaire/rapport-cheminement/:id', array( 'controller' => 'studies', 'action' => 'details' ), array( 'pass' => array( 'id' ) ) );
 	Router::connect( '/dossier-scolaire/releve-notes', array( 'controller' => 'studies', 'action' => 'report' ) );
 
 	Router::connect( '/frais-scolarite', array( 'controller' => 'tuitions', 'action' => 'index' ) );
