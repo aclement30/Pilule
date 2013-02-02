@@ -40,7 +40,7 @@ app.Registration.init = function ( params ) {
 	$( '.aside .btn.register-courses' ).on( 'click', app.Registration.registerCourses );
 
 	$( '.aside a.js-capsule-link' ).on( 'click', function( e ) {
-		app.Common.openExternalWebsite( '/services/capsule-registration/' );
+		app.Common.openExternalWebsite( app.baseUrl + 'services/capsule-registration/' );
 
 		return false;
 	} );
