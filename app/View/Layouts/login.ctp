@@ -101,14 +101,31 @@
 
             $( '#login-form .help-btn' ).tooltip();
 
+            var hash = document.location.hash.substr( 1 );
+
             if ( Modernizr.localstorage ) {
-                if ( localStorage.getItem( 'pilule-autologon-idul' ) == null ) {
-                    if ( !app.ipAddress.match( /132\.203\.[0-9]{1,3}\.[0-9]{1,3}/g ) ) {
-                        $( '.js-save-idul' ).parent().show();
+                if ( hash == 'logout' ) {
+                    // If user logged out, delete saved password
+                    if ( localStorage.getItem( 'pilule-autologon-password' ) != null ) {
+                        localStorage.removeItem( 'pilule-autologon-password' );
+
+                        if ( localStorage.getItem( 'pilule-autologon-idul' ) != null ) {
+                            var idul = localStorage.getItem( 'pilule-autologon-idul' );
+                            localStorage.removeItem( 'pilule-ask-autologon-'+idul );
+                        }
                     }
-                } else {
+                }
+                if ( localStorage.getItem( 'pilule-autologon-idul' ) != null ) {
+                    // Get IDUL from local storage
                     $( '#login-form input.idul' ).val( localStorage.getItem( 'pilule-autologon-idul' ) );
-                    $( '#login-form input.password' ).focus();
+
+                    if ( localStorage.getItem( 'pilule-autologon-password' ) != null ) {
+                        // Get password from local storage and auto login user
+                        $( '#login-form input.password' ).val( localStorage.getItem( 'pilule-autologon-password' ) );
+                        app.Users.login();
+                    } else {
+                        $( '#login-form input.password' ).focus();
+                    }
                 }
             }
 

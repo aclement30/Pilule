@@ -87,7 +87,7 @@ class UsersController extends AppController {
 	public function logout() {
 		$this->Session->destroy();
 
-	    $this->redirect( $this->CapsuleAuth->logout() );
+	    $this->redirect( $this->CapsuleAuth->logout() . '#logout' );
 	}
 
 	public function dashboard () {

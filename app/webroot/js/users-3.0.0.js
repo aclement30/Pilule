@@ -32,7 +32,7 @@ app.Users.login = function ( e ) {
         }
     });
     
-    var autoLogon = 0;
+    var autoLogon = false;
     
     if ( app.isMobile ) {
         // Si le visiteur accède au site depuis un navigateur mobile et que le stockage local est disponible,
@@ -41,11 +41,12 @@ app.Users.login = function ( e ) {
         if ( Modernizr.localstorage ) {
             if ( localStorage.getItem( 'pilule-ask-autologon-' + idul ) == null ) {
                 if ( confirm( "Voulez-vous que Pilule vous connecte automatiquement lors de votre prochaine visite depuis cet appareil ?" ) ) {
-                    autoLogon = 1;
+                    localStorage.setItem( 'pilule-ask-autologon-'+idul, 'yes' );
+                    autoLogon = true;
                 } else {
                     // Mémorisation de la réponse
                     localStorage.setItem( 'pilule-ask-autologon-'+idul, 'no' );
-                    autoLogon = 0;
+                    autoLogon = false;
                 }
             }
         }
@@ -70,17 +71,13 @@ app.Users.login = function ( e ) {
                     localStorage.setItem( 'pilule-autologon-idul', idul );
                 }
 
-                if ( app.isMobile == 1 ) {
-                    // Si l'utilisateur a choisi de mémoriser son mot de passe, l'IDUL et le mot de passe sont mémorisés sur l'appareil
-                    if ( autoLogon == 1 ) {
-                        if ( Modernizr.localstorage ) {
-                            var idul = $( '#login-form .idul' ).val();
-                            var password = $( '#login-form .password' ).val();
-                            
-                            localStorage.setItem( 'pilule-autologon-idul', idul );
-                            localStorage.setItem( 'pilule-autologon-password', password );
-                        }
-                    }
+                if ( app.isMobile && Modernizr.localstorage && autoLogon ) {
+                    // If user asked to save the password, save IDUL and password on the device
+                    var idul = $( '#login-form .idul' ).val();
+                    var password = $( '#login-form .password' ).val();
+                    
+                    localStorage.setItem( 'pilule-autologon-idul', idul );
+                    localStorage.setItem( 'pilule-autologon-password', password );
                 }
                 
                 if ( !response.userDataFetched ) {
