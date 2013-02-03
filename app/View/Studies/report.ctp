@@ -51,7 +51,7 @@
                             <th class="left">
                                 <?php if ( !$mobile_browser ) echo 'Université'; else echo 'U.'; ?> Laval
                             </th>
-                            <td><?php echo $report[ 'Report' ][ 'credits_registered' ]; ?></td>
+                            <td><?php echo $report[ 'Report' ][ 'credits_done' ]; ?></td>
                             <td><?php echo $report[ 'Report' ][ 'points' ]; ?></td>
                             <td><?php echo $report[ 'Report' ][ 'ulaval_gpa' ]; ?></td>
                         </tr>
@@ -64,7 +64,7 @@
                         <tr>
                             <th class="left">Total</th>
                             <td>
-                                <?php echo ( $report[ 'Report' ][ 'credits_registered' ] + $report[ 'Report' ][ 'credits_admitted' ] ); ?>
+                                <?php echo ( $report[ 'Report' ][ 'credits_done' ] + $report[ 'Report' ][ 'credits_admitted' ] ); ?>
                             </td>
                             <td>
                                 <?php echo number_format( $report[ 'Report' ][ 'points' ] + $report[ 'Report' ][ 'credits_admitted_points' ], 2 ); ?>
