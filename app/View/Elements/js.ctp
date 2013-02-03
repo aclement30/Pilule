@@ -10,7 +10,9 @@
     $currentVersion = '3.0.0';
 
     foreach ( $scripts as &$path ) {
-        $path = str_replace( '.js', '-' . $currentVersion . '.js', $path );
+        if ( strpos( $path, '/libs/' ) < 1 ) {
+            $path = str_replace( '.js', '-' . $currentVersion . '.js', $path );
+        }
     }
 
     echo $this->Html->script( $scripts );
@@ -23,6 +25,7 @@
 
         app.ipAddress = '<?php echo $this->request->clientIp(); ?>';
         app.baseUrl = '<?php echo Router::url( '/', true ); ?>';
+        app.isMobile = <?php if ( $isMobile ) echo 'true'; else echo 'false'; ?>;
         app.init();
         
         // Define data expiration delay
