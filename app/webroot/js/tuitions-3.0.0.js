@@ -12,9 +12,11 @@ app.Tuitions.displaySemester = function ( e ) {
         e.preventDefault;
 
         // Param is an event, retrieve the semester
-        document.location = '/tuitions/details/' + $( this ).data( 'semester' );
-    } else {
-        document.location = '/tuitions/details/' + semester;
+        if ( $( e.currentTarget ).is( 'select' ) ) {
+            document.location = app.baseUrl + 'tuitions/details/' + $( e.currentTarget ).val();
+        } else {
+            document.location = app.baseUrl + 'tuitions/details/' + $( this ).data( 'semester' );
+        }
     }
 
     return false;
@@ -57,7 +59,8 @@ app.Tuitions.init = function () {
 		app.Tuitions.displaySummaryGraph( chartData );
 	}
 
-    $( '.semesters-dropdown ul li a' ).on( 'click', app.Tuitions.displaySemester );
+    $( '.main' ).on( 'click', '.semesters-dropdown ul li a', app.Tuitions.displaySemester );
+    $( '.main ' ).on( 'blur', '.semesters-dropdown select', app.Tuitions.displaySemester );
 };
 
 $( document ).ready( app.Tuitions.init );

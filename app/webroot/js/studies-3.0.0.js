@@ -7,7 +7,25 @@ app.Studies = {
     object:        'studies'
 };
 
-app.Studies.displayProgramPanel = function ( id ) {
-    $('.program-panel').hide();
-    $('#program-'+id+'.program-panel').fadeIn();
+// Display program info
+app.Studies.displayProgram = function ( e ) {
+	if ( e.currentTarget ) {
+		e.preventDefault;
+
+		// Param is an event, retrieve the program id
+		if ( $( e.currentTarget ).is( 'select' ) ) {
+            document.location = app.baseUrl + 'dossier-scolaire/rapport-cheminement/' + $( e.currentTarget ).val();
+        } else {
+			document.location = app.baseUrl + 'dossier-scolaire/rapport-cheminement/' + $( this ).data( 'program' );
+		}
+	}
+
+    return false;
 };
+
+app.Studies.init = function () {
+	$( '.main' ).on( 'click', '.programs-dropdown ul li a', app.Studies.displayProgram );
+    $( '.main ' ).on( 'blur', '.programs-dropdown select', app.Studies.displayProgram );
+};
+
+$( document ).ready( app.Studies.init );

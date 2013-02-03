@@ -1,40 +1,50 @@
 <div class="request-description">Données extraites du système de gestion des études de l'Université Laval, le <?php echo date( 'd/m/Y, à H:i', $timestamp ); ?>.</div>
 
-<?php if ( count( $programs[ 'Program' ] ) > 1 ) : ?>
-    <p style="margin-top: 20px; margin-bottom: 0px; text-align: right;">Programme : <select onchange="javascript:app.studies.displayProgramPanel(this.options[this.selectedIndex].value);">
-        <?php
-        foreach ( $programs[ 'Program' ] as $program ) :
-            ?><option value="<?php echo $program[ 'id' ]; ?>"> <?php echo $program[ 'name' ]; ?></option><?php
-        endforeach;
-    ?></select></p>
-    <?php
-endif;
-$program_number = 1;
+<?php if ( empty( $programsList ) ) : ?>
+    <div class="row-fluid">
+        <?php echo $this->element( 'empty_data', array( 'message' => 'Votre dossier Capsule ne contient aucun programme d\'études.' ) ); ?>
+    </div>
+<?php endif; ?>
 
-foreach ($programs[ 'Program' ] as $program) :
-    ?>
-<div class="program-panel" id="program-<?php echo $program['id']; ?>"<?php if ($program_number != 1) echo ' style="display: none;"'; ?>>
+<?php
+    if ( count( $programsList ) > 1 ) :
+        ?><div class="no-print"><?php
+            // Display programs dropdown
+            echo $this->element( 'programs_dropdown', array( 'programsList' => $programsList, 'selectedProgram' => $program[ 'Program' ][ 0 ][ 'id' ] ) );
+
+            echo '<hr>';
+        ?></div><?php
+    endif;
+?>
+
+<?php $program = $program[ 'Program' ][ 0 ]; ?>
 
 <div class="stats no-print">
     <div class="row-fluid">
-        <div class="span4">
-            <div class="stat">
-                <h2><?php echo $program['gpa_program']; ?></h2>
-                <h6>Moyenne de programme</h6>
+        <?php if ( !empty( $program[ 'gpa_program' ] ) ) : ?>
+            <div class="span4">
+                <div class="stat">
+                    <h2><?php echo $program['gpa_program']; ?></h2>
+                    <h6>Moyenne de programme</h6>
+                </div>
             </div>
-        </div>
-        <div class="span4">
-            <div class="stat">
-                <h2><?php echo ($program['credits_used']+$program['credits_admitted']); ?></h2>
-                <h6>Crédits accumulés</h6>
+        <?php endif; ?>
+        <?php if ( $program[ 'credits_used' ] != 0 ) : ?>
+            <div class="span4">
+                <div class="stat">
+                    <h2><?php echo $program[ 'credits_used' ]; ?></h2>
+                    <h6>Crédits accumulés</h6>
+                </div>
             </div>
-        </div>
-        <div class="span4">
-            <div class="stat">
-                <h2><?php echo ($program['courses_used']+$program['courses_admitted']); ?></h2>
-                <h6>Cours complétés/reconnus</h6>
+        <?php endif; ?>
+        <?php if ( ( $program[ 'courses_used' ] + $program[ 'courses_admitted' ] ) != 0 ) : ?>
+            <div class="span4">
+                <div class="stat">
+                    <h2><?php echo ( $program[ 'courses_used' ] + $program[ 'courses_admitted' ] ); ?></h2>
+                    <h6>Cours complétés/reconnus</h6>
+                </div>
             </div>
-        </div>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -46,10 +56,12 @@ foreach ($programs[ 'Program' ] as $program) :
                 <th>Étudiant</th>
                 <td><?php echo $user['name']; ?></td>
             </tr>
-            <tr>
-                <th>Code permanent</th>
-                <td><?php echo $user['code_permanent'] ; ?></td>
-            </tr>
+            <?php if ( !empty( $user[ 'code_permanent' ] ) ) : ?>
+                <tr>
+                    <th>Code permanent</th>
+                    <td><?php echo $user['code_permanent'] ; ?></td>
+                </tr>
+            <?php endif; ?>
             <tr>
                 <th>Programme</th>
                 <td><?php echo $program['name'] ; ?> (<?php echo $program['diploma'] ; ?>)</td>
@@ -72,35 +84,47 @@ foreach ($programs[ 'Program' ] as $program) :
                 <th>Majeure</th>
                 <td><?php echo $program['major'] ; ?></td>
             </tr>
-            <?php if (!empty($program['minor'])) { ?>
-            <tr>
-                <th>Mineure(s)</th>
-                <td><?php echo $program['minor']; ?></td>
-            </tr>
-            <?php } if ($program['concentrations']!=array()) { ?>
-            <tr>
-                <th>Concentration(s)</th>
-                <td><?php echo implode(', ', $program['concentrations']); ?></td>
-            </tr>
-                <?php } ?>
-            <tr>
-                <th>Session de répertoire</th>
-                <td><?php echo $this->App->convertSemester($program['session_repertoire']); ?></td>
-            </tr>
-            <tr>
-                <th>Session d'évaluation</th>
-                <td><?php echo $this->App->convertSemester($program['session_evaluation']); ?></td>
-            </tr>
-            <?php if (strlen($program['date_diplome'])>2) { ?>
-            <tr>
-                <th>Date obtention du diplôme</th>
-                <td><?php echo $program['date_diplome'] ; ?></td>
-            </tr>
-            <?php } ?>
-            <tr>
-                <th>Date de l'attestation</th>
-                <td><?php echo $program['date_attestation'] ; ?></td>
-            </tr>
+            <?php if ( !empty( $program[ 'minor' ] ) ) : ?>
+                <tr>
+                    <th>Mineure(s)</th>
+                    <td><?php echo $program['minor']; ?></td>
+                </tr>
+            <?php endif; ?>
+            <?php
+                if ( !empty( $program[ 'concentrations' ] ) && !is_array( $program[ 'concentrations' ] ) ) {
+                    $program[ 'concentrations' ] = unserialize( $program[ 'concentrations' ] );
+                }
+
+                if ( !empty( $program[ 'concentrations' ] ) ) : ?>
+                <tr>
+                    <th>Concentration(s)</th>
+                    <td><?php echo implode( ', ', $program[ 'concentrations' ] ); ?></td>
+                </tr>
+            <?php endif; ?>
+            <?php if ( !empty( $program[ 'session_repertoire' ] ) ) : ?>
+                <tr>
+                    <th>Session de répertoire</th>
+                    <td><?php echo $this->App->convertSemester($program['session_repertoire']); ?></td>
+                </tr>
+            <?php endif; ?>
+            <?php if ( !empty( $program[ 'session_evaluation' ] ) ) : ?>
+                <tr>
+                    <th>Session d'évaluation</th>
+                    <td><?php echo $this->App->convertSemester($program['session_evaluation']); ?></td>
+                </tr>
+            <?php endif; ?>
+            <?php if ( !empty( $program[ 'date_diplome' ] ) ) : ?>
+                <tr>
+                    <th>Date obtention du diplôme</th>
+                    <td><?php echo $program['date_diplome'] ; ?></td>
+                </tr>
+            <?php endif; ?>
+            <?php if ( !empty( $program[ 'date_attestation' ] ) ) : ?>
+                <tr>
+                    <th>Date de l'attestation</th>
+                    <td><?php echo substr( $program[ 'date_attestation' ], 6, 2 ) . '-' . substr( $program[ 'date_attestation' ], 4, 2 ) . '-' . substr( $program[ 'date_attestation' ], 0, 4 ); ?></td>
+                </tr>
+            <?php endif; ?>
         </tbody>
     </table>
 </div>
@@ -183,6 +207,12 @@ foreach ($programs[ 'Program' ] as $program) :
 <hr style="page-break-after: always;">
 
 <h4 class="formation">Formation</h4>
+
+<?php if ( !empty( $programsList ) && empty( $sections[ 'Section' ] ) ) : ?>
+    <div class="row-fluid">
+        <?php echo $this->element( 'empty_data', array( 'message' => 'Votre dossier Capsule ne contient aucun cours pour ce programme d\'études.' ) ); ?>
+    </div>
+<?php endif; ?>
 
 <?php
     foreach ( $sections[ 'Section' ] as $section ) :
@@ -351,7 +381,3 @@ foreach ($programs[ 'Program' ] as $program) :
     }
     */
      ?>
-        <?php
-        $program_number++;
-    endforeach;
-?>

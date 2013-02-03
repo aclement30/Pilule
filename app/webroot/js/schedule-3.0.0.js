@@ -13,9 +13,13 @@ app.Schedule.displaySemester = function ( e ) {
 		e.preventDefault;
 
 		// Param is an event, retrieve the semester
-		document.location = '/horaire/' + $( this ).data( 'semester' );
+		if ( $( e.currentTarget ).is( 'select' ) ) {
+            document.location = app.baseUrl + 'horaire/' + $( e.currentTarget ).val();
+        } else {
+			document.location = app.baseUrl + 'horaire/' + $( this ).data( 'semester' );
+		}
 	} else {
-    	document.location = '/horaire/' + semester;
+    	document.location = app.baseUrl + 'horaire/' + semester;
     }
 
     return false;
@@ -69,11 +73,12 @@ app.Schedule.download = function ( semester ) {
     _gaq.push(['_trackEvent', 'Schedule', 'Download', 'Téléchargement de l\'horaire']);
 
     // Download schedule iCal file
-    $( '#external-frame' ).attr( 'src', app.Schedule.controllerURL + 'ical_download/' + semester );
+    $( '#external-frame' ).attr( 'src', app.baseUrl + 'schedule/ical_download/' + semester );
 };
 
 app.Schedule.init = function () {
-	$( '.semesters-dropdown ul li a' ).on( 'click', app.Schedule.displaySemester );
+	$( '.main' ).on( 'click', '.semesters-dropdown ul li a', app.Schedule.displaySemester );
+    $( '.main ' ).on( 'blur', '.semesters-dropdown select', app.Schedule.displaySemester );
 
 	$( '.calendar-header .semesters-dropdown.compact' ).appendTo( '.main .action-buttons .buttons' );
 
@@ -86,8 +91,8 @@ app.Schedule.init = function () {
 
 	$( '#agenda table tbody td.class .inside' ).popover();
 
-	$( '.calendar-header .js-prec-calendar' ).on( 'click', app.Schedule.displayPreviousWeek );
-	$( '.calendar-header .js-next-calendar' ).on( 'click', app.Schedule.displayNextWeek );
+	$( '.main' ).on( 'click', '.calendar-header .js-prec-calendar', app.Schedule.displayPreviousWeek );
+	$( '.main' ).on( 'click', '.calendar-header .js-next-calendar', app.Schedule.displayNextWeek );
 };
 
 $( document ).ready( app.Schedule.init );

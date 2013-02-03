@@ -101,25 +101,18 @@
 }
 
 /*Responsive Design*/
-
-@media all and (max-width: 240px) {
+@media only screen and (-moz-min-device-pixel-ratio: 2) and (max-width: 1200px) and (orientation: landscape),
+    only screen and (-o-min-device-pixel-ratio: 2/1) and (max-width: 1200px) and (orientation: landscape),
+    only screen and (-webkit-min-device-pixel-ratio: 2) and (max-width: 1200px) and (orientation: landscape),
+    only screen and (min-device-pixel-ratio: 2) and (max-width: 1200px) and (orientation: landscape),
+    only screen and (max-width: 480px) {
   #toast-container > div {
+    box-sizing:border-box;
+    -moz-box-sizing:border-box; /* Firefox */
+    -webkit-box-sizing:border-box; /* Safari */
     padding: 8px 8px 8px 50px;
-    width: 108px;
-  }
-}
-
-@media all and (min-width: 241px) and (max-width: 320px) {
-  #toast-container > div {
-    padding: 8px 8px 8px 50px;
-    width: 128px;
-  }
-}
-
-@media all and (min-width: 321px) and (max-width: 480px) {
-  #toast-container > div {
-    padding: 8px 8px 8px 50px;
-    width: 192px;
+    margin: 0px;
+    width: 95%;
   }
 }
 

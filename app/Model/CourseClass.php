@@ -2,7 +2,7 @@
 
 class CourseClass extends AppModel {
 	public $useTable = 'classes';
-	public $order = 'nrc';
+	//public $order = 'nrc';
 
 	public $belongsTo = array(
 		'UniversityCourse'	=>	array(

@@ -15,10 +15,10 @@
     	echo $this->Html->css( '/css/global.css?ver=' . $currentVersion );
     }
 ?>
-<link rel="stylesheet" href="/css/toastr.css?v=2.5" />
-<link rel="stylesheet" href="/css/fullcalendar.css?v=2.5" />
-<link rel="stylesheet" href="/css/fullcalendar.print.css?v=2.5" media="print" />
-<link rel="stylesheet" href="/css/print.css?v=2.5" media="print" />
+<link rel="stylesheet" href="<?php echo Router::url( '/' ) ?>css/toastr.css?v=2.5" />
+<link rel="stylesheet" href="<?php echo Router::url( '/' ) ?>css/fullcalendar.css?v=2.5" />
+<link rel="stylesheet" href="<?php echo Router::url( '/' ) ?>css/fullcalendar.print.css?v=2.5" media="print" />
+<link rel="stylesheet" href="<?php echo Router::url( '/' ) ?>css/print.css?v=2.5" media="print" />
 <!--[if lt IE 10]>
-<link href="/css/ie.css?v=2.5" media="screen, projection" rel="stylesheet" type="text/css" />
+<link href="<?php echo Router::url( '/' ) ?>css/ie.css?v=2.5" media="screen, projection" rel="stylesheet" type="text/css" />
  <![endif]-->

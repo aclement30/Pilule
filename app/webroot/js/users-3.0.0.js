@@ -11,6 +11,9 @@ app.Users = {
 };
 
 app.Users.login = function ( e ) {
+    // Move focus away from text fields (hide on-screen keyboard on mobile)
+    $( '#login-form .idul, #login-form .password' ).blur();
+
     $( 'html, body' ).animate( { scrollTop: 0 }, 1 );
 
     var idul = $( '#login-form .idul' ).val();
@@ -50,7 +53,6 @@ app.Users.login = function ( e ) {
     
     // Send login request
     ajax.request({
-        controller:     app.Users.controllerURL,
         url:            '/users/login.json',
         data:           {
             idul:       idul,
@@ -115,9 +117,9 @@ app.Users.login = function ( e ) {
 
                     // Redirection à la page demandée, s'il y a lieu
                     if ( redirectURL != '' && redirectURL != undefined ) {
-                        document.location = redirectURL;
+                        document.location = app.baseUrl + redirectURL.substr( 1 );
                     } else {
-                        document.location = '/';
+                        document.location = app.baseUrl;
                     }
                 }
             } else {
@@ -138,9 +140,9 @@ app.Users.redirectToDashboard = function () {
 
     // Redirection à la page demandée, s'il y a lieu
     if ( redirectURL != '' && redirectURL != undefined ) {
-        setTimeout( "document.location = redirectURL;", 100 );
+        setTimeout( "document.location = '" + app.baseUrl + redirectURL.substr( 1 ) + "';", 100 );
     } else {
-        setTimeout( "document.location = '/';", 100 );
+        setTimeout( "document.location = '" + app.baseUrl + "';", 100 );
     }
     //}
 };
@@ -161,7 +163,11 @@ app.Users.loginError = function ( error ) {
                 $( '#login-form' ).fadeIn();
             });
 
-            app.Common.displayError( error.message, $( '#login-form .alert-error' ), false );
+            if ( error.context == 'ajax-server-error' ) {
+                error.message = 'Erreur lors de la connexion au serveur.';
+            }
+
+            $( '#login-form .alert-error' ).html( error.message ).fadeIn();
             break;
         case 1:         // User is actually logged in, but an error happens during remote data fetching
             // Hide loading panel

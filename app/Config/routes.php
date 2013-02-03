@@ -33,6 +33,7 @@
 
 	Router::connect( '/dossier-scolaire', array( 'controller' => 'studies', 'action' => 'index' ) );
 	Router::connect( '/dossier-scolaire/rapport-cheminement', array( 'controller' => 'studies', 'action' => 'details' ) );
+	Router::connect( '/dossier-scolaire/rapport-cheminement/:id', array( 'controller' => 'studies', 'action' => 'details' ), array( 'pass' => array( 'id' ) ) );
 	Router::connect( '/dossier-scolaire/releve-notes', array( 'controller' => 'studies', 'action' => 'report' ) );
 
 	Router::connect( '/frais-scolarite', array( 'controller' => 'tuitions', 'action' => 'index' ) );
@@ -59,6 +60,7 @@
 	Router::connect( '/services/:service', array( 'controller' => 'services', 'action' => 'connect' ), array( 'pass' => array( 'service' ) ) );
 
 	Router::connect( '/choix-cours', array( 'controller' => 'registration', 'action' => 'index' ) );
+	Router::connect( '/choix-cours/resultats/:token', array( 'controller' => 'registration', 'action' => 'results' ), array( 'pass' => array( 'token' ) ) );
 	Router::connect( '/registration/getCourseInfo/:code', array( 'controller' => 'registration', 'action' => 'getCourseInfo' ), array( 'pass' => array( 'code' ) ) );
 
 /**

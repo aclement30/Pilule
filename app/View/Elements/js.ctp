@@ -1,22 +1,6 @@
-<!-- Load external libraries -->
-<script type='text/javascript' src="/js/libs/bootstrap.min.js"></script>
-<script type='text/javascript' src="/js/libs/fullcalendar.min.js"></script>
-
-<script type='text/javascript' src="/js/libs/jquery.knob.js"></script>
-<!--<script type='text/javascript' src="http://d3js.org/d3.v3.min.js"></script>-->
-<!--script type='text/javascript' src="/js/d3-setup.js"></script>-->
-<script type='text/javascript' src="/js/libs/jquery.sparkline.min.js"></script>
-<script type='text/javascript' src="/js/libs/toastr.js"></script>
-<script type='text/javascript' src="/js/libs/jquery.tablesorter.min.js"></script>
-<script type='text/javascript' src="/js/libs/jquery.peity.min.js"></script>
-
-<script type='text/javascript' src="/js/libs/modernizr.custom.41742.js"></script>
-<script type='text/javascript' src="/js/ajax-3.0.0.js"></script>
-
-<!-- Load Pilule-specific JS files -->
 <?php
     // Define site-wide scripts
-    $scripts = array( '/js/pilule.js', '/js/cache.js' );
+    $scripts = array( '/js/pilule.js', '/js/cache.js', '/js/libs/bootstrap.min.js', '/js/libs/fullcalendar.min.js', '/js/libs/jquery.knob.js', '/js/libs/jquery.sparkline.min.js', '/js/libs/toastr.js', '/js/libs/jquery.tablesorter.min.js', '/js/libs/jquery.peity.min.js', '/js/libs/modernizr.custom.41742.js', '/js/ajax.js' );
 
     if ( isset( $assets ) && !empty( $assets[ 'js' ] ) ) {
         $scripts = array_merge( $scripts, $assets[ 'js' ] );
@@ -37,6 +21,10 @@
         // Define Capsule availability
         app.isCapsuleOffline = <?php if ( $isCapsuleOffline ) echo 'true'; else echo 'false'; ?>;
 
+        app.ipAddress = '<?php echo $this->request->clientIp(); ?>';
+        app.baseUrl = '<?php echo Router::url( '/', true ); ?>';
+        app.init();
+        
         // Define data expiration delay
         <?php
             if ( empty( $userParams[ 'data-expiration-delay' ] ) ) {
@@ -53,9 +41,5 @@
                 ?>app.Cache.reloadData( { name: '<?php echo $dataObject; ?>', auto: 1 } );<?php
             }
         ?>
-
-        app.ipAddress = '<?php echo $this->request->clientIp(); ?>';
-
-        app.init();
     });
 </script>

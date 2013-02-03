@@ -47,11 +47,14 @@
 			}
 
 			if ( $allowed ) :
+				// Add base URL to module URL, if internal URL
+				if ( substr( $module[ 'url' ], 0, 5 ) != 'http:' ) $module[ 'url' ] = Router::url( '/' ) . substr( $module[ 'url' ], 1 );
+
 				?>
 				<div class="<?php echo implode( ' ', $classNames ); ?>" data-id="<?php echo $module[ 'id' ]; ?>" data-url="<?php echo $module[ 'url' ]; ?>">
 					<a href="#"<?php if (isset($module['target'])) echo ' target="'.$module['target'].'"'; ?>>
 						<div class="top primary">
-							<img src="/img/modules/<?php echo $module[ 'alias' ]; ?>.png" />
+							<img src="<?php echo Router::url( '/' ) ?>img/modules/<?php echo $module[ 'alias' ]; ?>.png" />
 							<!--<i class="batch-big b-database"></i>-->
 						</div>
 						<div class="bottom">

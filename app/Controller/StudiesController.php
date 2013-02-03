@@ -31,16 +31,21 @@ class StudiesController extends AppController {
                 'type'  =>  'print'
             )
         ) );
-		$this->set( 'title_for_layout', 'Programme d\'études' );
         $this->set( 'sidebar', 'studies' );
 		$this->set( 'dataObject', 'studies' );
         $this->setAssets( null, array( '/css/studies.css' ) );
 
 		$programs = $this->StudentProgram->User->find( 'first', array(
 			'conditions'	=>	array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
-        	'contain'		=>	array( 'Program' ),
+        	'contain'		=>	array( 'Program' => array( 'order' => 'Program.adm_semester DESC' ) ),
         	'fields'		=> 	array( 'User.idul' )
         ) );
+
+        if ( count( $programs[ 'Program' ] ) == 1 ) {
+            $this->set( 'title_for_layout', 'Programme d\'études' );
+        } else {
+            $this->set( 'title_for_layout', 'Programmes d\'études' );
+        }
 
 		// Check is data exists in DB
         if ( ( $lastRequest = $this->CacheRequest->requestExists( 'studies-summary' ) ) && ( !empty( $programs ) ) ) {
@@ -58,7 +63,7 @@ class StudiesController extends AppController {
         }
 	}
 
-    function details () {
+    function details ( $id = null ) {
         // Set basic page parameters
         $this->set( 'breadcrumb', array(
             array(
@@ -87,17 +92,30 @@ class StudiesController extends AppController {
         $this->set( 'title_for_layout', 'Rapport de cheminement' );
         $this->set( 'sidebar', 'studies' );
         $this->set( 'dataObject', 'studies-details' );
-        $this->setAssets( null, array( '/css/studies.css' ) );
+        $this->setAssets( array( '/js/studies.js' ), array( '/css/studies.css' ) );
 
-        $programs = $this->StudentProgram->User->find( 'first', array(
-            'conditions'    =>  array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
-            'contain'       =>  array( 'Program' ),
-            'fields'        =>  array( 'User.idul' )
+        if ( empty( $id ) ) {
+            $program = $this->StudentProgram->User->find( 'first', array(
+                'conditions'    =>  array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
+                'contain'       =>  array( 'Program' => array( 'limit' => 1, 'order' => 'Program.adm_semester DESC' ) ),
+                'fields'        =>  array( 'User.idul' )
+            ) );
+        } else {
+            $program = $this->StudentProgram->User->find( 'first', array(
+                'conditions'    =>  array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
+                'contain'       =>  array( 'Program' => array( 'conditions' => array( 'Program.id' => $id, 'Program.idul' => $this->Session->read( 'User.idul' ) ) ) ),
+                'fields'        =>  array( 'User.idul' )
+            ) );
+        }
+
+        $programsList = $this->StudentProgram->find( 'list', array(
+            'conditions'    =>  array( 'StudentProgram.idul' => $this->Session->read( 'User.idul' ) ),
+            'order'         =>  'StudentProgram.adm_semester DESC'
         ) );
 
         $sections = $this->StudentProgramSection->User->find( 'first', array(
             'conditions'    =>  array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
-            'contain'       =>  array( 'Section' => array( 'Course' => array( 'conditions' => array( 'Course.semester !=' => 'NULL' ) ) ) ),
+            'contain'       =>  array( 'Section' => array( 'conditions' => array( 'Section.program_id' => $program[ 'Program' ][0][ 'id' ] ), 'Course' => array( 'conditions' => array( 'Course.semester !=' => 'NULL' ) ) ) ),
             'fields'        =>  array( 'User.idul' )
         ) );
 
@@ -177,7 +195,8 @@ EOD;
 
         // Check is data exists in DB
         if ( ( $lastRequest = $this->CacheRequest->requestExists( 'studies-details' ) ) && ( !empty( $sections ) ) ) {
-            $this->set( 'programs', $programs );
+            $this->set( 'program', $program );
+            $this->set( 'programsList', $programsList );
             $this->set( 'sections', $sections );
             $this->set( 'timestamp', $lastRequest[ 'timestamp' ] );
         } else {

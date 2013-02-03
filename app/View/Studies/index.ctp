@@ -2,22 +2,22 @@
 
 <div class="row-fluid">
     <div class="span8">
-        <?php foreach ( $programs[ 'Program' ] as $program ) : ?>
-            <div class="table-panel">
-                <h4> <i class="icon-user"></i>Dossier de l'étudiant</h4>
+        <?php
+            if ( empty( $programs[ 'Program' ] ) ) :
+                echo $this->element( 'empty_data', array( 'message' => 'Votre dossier Capsule ne contient aucun programme d\'études.', 'small' => true ) );
+            endif;
+        ?>
+        <?php foreach ( $programs[ 'Program' ] as $index => $program ) : ?>
+            <div class="table-panel program-info">
+                <h4> <i class="icon-user"></i><?php echo $program[ 'name' ]; ?></h4>
                 <table class="table table-striped sortable">
                     <tbody>
-                        <tr>
-                            <th>Programme</th>
-                            <td>
-                                <?php
-                                    echo $program[ 'name' ];
-
-                                    if ( !empty( $program['diploma'] ) )
-                                        echo ' (' . $program[ 'diploma' ] . ')' ;
-                                ?>
-                            </td>
-                        </tr>
+                        <?php if ( !empty( $program['diploma'] ) ): ?>
+                            <tr>
+                                <th>Diplôme</th>
+                                <td><?php echo $program[ 'diploma' ]; ?></td>
+                            </tr>
+                        <?php endif; ?>
                         <tr>
                             <th>Cycle</th>
                             <td>

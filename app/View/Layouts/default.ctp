@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang='fr'>
 <meta charset='utf-8'>
 <head>
     
-    <base href="http://www.pilule.ulaval.ca" />
+    <base href="<?php echo Router::url( '/', true ); ?>" />
 
     <?php echo $this->element( 'metas' ); ?>
 	

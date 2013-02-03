@@ -525,7 +525,7 @@ footer {
   }
 }
 
-.semesters-dropdown {
+.semesters-dropdown, .programs-dropdown {
     margin-top: 20px;
 
     .btn-group {
@@ -551,6 +551,28 @@ footer {
     li.selected a {
       font-weight: bold;
     }
+
+    select {
+      display: none;
+    }
+}
+
+@media only screen and (-moz-min-device-pixel-ratio: 2) and (max-width: 1200px) and (orientation: landscape),
+    only screen and (-o-min-device-pixel-ratio: 2/1) and (max-width: 1200px) and (orientation: landscape),
+    only screen and (-webkit-min-device-pixel-ratio: 2) and (max-width: 1200px) and (orientation: landscape),
+    only screen and (min-device-pixel-ratio: 2) and (max-width: 1200px) and (orientation: landscape),
+    only screen and (max-width: 480px) {
+  .semesters-dropdown, .programs-dropdown {
+    .btn-group {
+      display: none;
+    }
+
+    select {
+      display: block;
+      float: right;
+      clear: none;
+    }
+  }
 }
 
 #external-frame {
@@ -610,7 +632,7 @@ footer {
       padding: 30px;
 
       p.lead {
-        margin-top: 0px;
+        margin-top: 30px;
       }
 
       .image {
@@ -634,6 +656,36 @@ footer {
       .span1 {
           display: none;
       }
+  }
+}
+
+@media (min-width: 760px) and (max-width: 979px) {
+  .hero-unit.no-data.small {
+    .span7 {
+      width: 100%;
+    }
+
+    p.lead {
+      margin-top: 0px;
+    }
+
+    .image {
+      display: none;
+    }
+  }
+}
+
+.hero-unit.no-data.small {
+  .span7 {
+    width: 100%;
+  }
+
+  p.lead {
+    margin-top: 0px;
+  }
+
+  .image {
+    display: none;
   }
 }
 
@@ -1329,4 +1381,26 @@ ul.stat-list {
     #logo img.hi-res {
       display: inline;
     }
+}
+
+#modal.loading {
+  width: 350px;
+  margin-top: 25%;
+  margin-left: -150px;
+
+  h4 {
+    margin-top: 30px;
+    text-align: center;
+  }
+
+  p {
+    padding: 30px 25px 20px;
+    color: gray;
+    text-align: center;
+
+    img {
+      display: inline-block;
+      margin: 10px 0 30px;
+    }
+  }
 }
