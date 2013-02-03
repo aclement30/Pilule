@@ -13,9 +13,27 @@ app.init = function () {
 
     $( '#sidebar ul li.submenu>a' ).on( 'click', app.Common.displaySubmenu );
 
-    if ( !app.isMobile ) {
-        $( '<iframe id="external-frame" name="external-frame" frameborder="0" src="blank.html" style="width: 0px; height: 0px;">' ).appendTo( 'body' );
+    if ( app.isMobile ) {
+        // If in standalone app mode, prevent links from opening in Safari
+        if ( ( 'standalone' in window.navigator ) && window.navigator.standalone ) {
+            var curnode, location = document.location, stop = /^(a|html)$/i;
+            document.addEventListener( 'click', function(e) {
+                curnode = e.target;
+                while ( !( stop ).test( curnode.nodeName ) ) {
+                    curnode = curnode.parentNode;
+                }
+                // Condidions to do this only on links to your own app
+                // if you want all links, use if('href' in curnode) instead.
+                if( 'href' in curnode && ( curnode.href.indexOf( 'http' ) || ~curnode.href.indexOf( location.host ) ) && curnode.href != '#' && !$( curnode ).parent().hasClass( 'external' ) ) {
+                    e.preventDefault();
+                    location.href = curnode.href;
+                }
+            }, false );
+        }
     }
+    
+    // Create iframe to display external websites (Capsule, Exchange)
+    $( '<iframe id="external-frame" name="external-frame" frameborder="0" src="blank.html" style="width: 0px; height: 0px;">' ).appendTo( 'body' );
 
     // Responsive design
     if ( $( window ).width() <= 660 ) {
