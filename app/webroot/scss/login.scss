@@ -220,6 +220,10 @@ footer {
                 padding-bottom: 5px;
                 height: 36px;
             }
+
+            &.ie-only {
+                display: none;
+            }
         }
 
         p.conception {

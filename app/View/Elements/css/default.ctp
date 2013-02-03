@@ -19,6 +19,6 @@
 <link rel="stylesheet" href="<?php echo Router::url( '/' ) ?>css/fullcalendar.css?v=2.5" />
 <link rel="stylesheet" href="<?php echo Router::url( '/' ) ?>css/fullcalendar.print.css?v=2.5" media="print" />
 <link rel="stylesheet" href="<?php echo Router::url( '/' ) ?>css/print.css?v=2.5" media="print" />
-<!--[if lt IE 10]>
-<link href="<?php echo Router::url( '/' ) ?>css/ie.css?v=2.5" media="screen, projection" rel="stylesheet" type="text/css" />
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="<?php echo Router::url( '/' ) ?>css/ie.css?v=2.5" media="screen" type="text/css" />
  <![endif]-->

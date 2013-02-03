@@ -55,9 +55,9 @@ app.Tuitions.displaySummaryGraph = function ( data ) {
 
 app.Tuitions.init = function () {
 	// Check if chart data exists
-	if ( typeof chartData != 'undefined' ) {
-		app.Tuitions.displaySummaryGraph( chartData );
-	}
+	//if ( typeof chartData != 'undefined' ) {
+	//	app.Tuitions.displaySummaryGraph( chartData );
+	//}
 
     $( '.main' ).on( 'click', '.semesters-dropdown ul li a', app.Tuitions.displaySemester );
     $( '.main ' ).on( 'blur', '.semesters-dropdown select', app.Tuitions.displaySemester );

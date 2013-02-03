@@ -13,7 +13,13 @@
     <?php echo $this->element( 'css/login' ); ?>
 
     <!--[if lt IE 9]>
+    <link rel="stylesheet" href="<?php echo Router::url( '/' ) ?>css/ie.css?v=2.5" media="screen" type="text/css" />
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <style type="text/css">
+        body { background: none; }
+        footer .hosting { display: none; }
+        footer .hosting.ie-only { display: block; }
+    </style>
     <![endif]-->
 
     <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
@@ -63,6 +69,10 @@
                             Projet hébergé par<br />
                             <img src="<?php echo Router::url( '/' ); ?>img/ulaval-white.png" />
                         </p>
+                        <p class="hosting ie-only">
+                            Projet hébergé par<br />
+                            <img src="<?php echo Router::url( '/' ); ?>img/ulaval-black.png" />
+                        </p>
                         <p class="conception">
                             Conception<br />
                             <a href="http://www.alexandreclement.com" target="_blank">Alexandre Clément</a>
@@ -101,10 +111,10 @@
 
             $( '#login-form .help-btn' ).tooltip();
 
-            var hash = document.location.hash.substr( 1 );
+            var hash = document.location.hash;
 
             if ( Modernizr.localstorage ) {
-                if ( hash == 'logout' ) {
+                if ( hash == '#logout' ) {
                     // If user logged out, delete saved password
                     if ( localStorage.getItem( 'pilule-autologon-password' ) != null ) {
                         localStorage.removeItem( 'pilule-autologon-password' );
