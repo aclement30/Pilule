@@ -29,10 +29,10 @@
                 </div>
             </div>
         <?php endif; ?>
-        <?php if ( ( $program[ 'credits_used' ] + $program[ 'credits_admitted' ] ) != 0 ) : ?>
+        <?php if ( $program[ 'credits_used' ] != 0 ) : ?>
             <div class="span4">
                 <div class="stat">
-                    <h2><?php echo ($program['credits_used']+$program['credits_admitted']); ?></h2>
+                    <h2><?php echo $program[ 'credits_used' ]; ?></h2>
                     <h6>Crédits accumulés</h6>
                 </div>
             </div>
