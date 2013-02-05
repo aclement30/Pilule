@@ -51,8 +51,15 @@
 				if ( substr( $module[ 'url' ], 0, 5 ) != 'http:' ) $module[ 'url' ] = Router::url( '/' ) . substr( $module[ 'url' ], 1 );
 
 				?>
-				<div class="<?php echo implode( ' ', $classNames ); ?>" data-id="<?php echo $module[ 'id' ]; ?>" data-url="<?php echo $module[ 'url' ]; ?>">
-					<a href="#"<?php if (isset($module['target'])) echo ' target="'.$module['target'].'"'; ?>>
+				<div class="<?php echo implode( ' ', $classNames ); ?>" data-id="<?php echo $module[ 'id' ]; ?>" data-url="<?php echo $module[ 'url' ]; ?>" data-target="<?php echo $module[ 'target' ]; ?>">
+					<?php
+						// If link is external with _blank target, display a normal link
+						if ( $module[ 'external' ] && $module[ 'target' ] == '_blank' ) :
+							echo '<a href="' . $module[ 'url' ] . '" target="_blank">';
+						else:
+							echo '<a href="#">';
+						endif;
+					?>
 						<div class="top primary">
 							<img src="<?php echo Router::url( '/' ) ?>img/modules/<?php echo $module[ 'alias' ]; ?>.png" />
 							<!--<i class="batch-big b-database"></i>-->

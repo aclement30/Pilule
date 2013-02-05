@@ -183,7 +183,13 @@ app.Common.openExternalWebsite = function ( url ) {
 };
 
 app.Common.loadExternalFrameForm = function() {
-    var forms = $( '.js-external-frame-form', frames[ 'external-frame' ].document );
+    // Check if form exists in current document
+    if ( $( '.js-external-frame-form' ).length != 0 ) {
+        var forms = $( '.js-external-frame-form' );
+    } else {
+        // Get forms from external frame
+        var forms = $( '.js-external-frame-form', frames[ 'external-frame' ].document );
+    }
 
     $.each( forms, function( index, formElement ) {
         if ( !$( formElement ).hasClass( 'submitted' ) ) {

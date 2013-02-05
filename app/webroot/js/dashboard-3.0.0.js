@@ -92,11 +92,19 @@ app.Dashboard.initModules = function () {
 
 	$.each( modules, function( index, module ) {
 		if ( $( module ).hasClass( 'external' ) ) {
-			$( module ).find( 'a' ).on( 'click', function( e ) {
-				app.Common.openExternalWebsite( $( module ).data( 'url' ) );
+			var link = $( module ).find( 'a' );
+			
+			if ( $( module ).data( 'target' ) == '_blank' ) {
+				// Do nothing
+				return true;
+			} else {
+				// Open external website in an iframe on the current page
+				$( module ).find( 'a' ).on( 'click', function( e ) {
+					app.Common.openExternalWebsite( $( module ).data( 'url' ) );
 
-				return false;
-			} );
+					return false;
+				} );
+			}
 		} else {
 			$( module ).find( 'a' ).on( 'click', function( e ) {
 				document.location = $( module ).data( 'url' );
