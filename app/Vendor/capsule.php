@@ -1045,10 +1045,7 @@ class Capsule {
                 date( 'Y' ) . "01",
                 ( date( 'Y' ) - 1 ) . "09",
                 ( date( 'Y' ) - 1 ) . "05",
-                ( date( 'Y' ) - 1 ) . "01",
-                ( date( 'Y' ) - 2 ) . "09",
-                ( date( 'Y' ) - 2 ) . "05",
-                ( date( 'Y' ) - 2 ) . "01"
+                ( date( 'Y' ) - 1 ) . "01"
             );
 
             $semesters = array();
