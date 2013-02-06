@@ -7,7 +7,7 @@
 
     <?php echo $this->element( 'metas' ); ?>
     
-    <title><?php if ( isset( $title_for_layout ) ) echo $title_for_layout . ' | '; ?>Pilule - Gestion des études</title>
+    <title><?php if ( isset( $title_for_layout ) && $title_for_layout != 'Pilule - Gestion des études' ) echo $title_for_layout . ' | '; ?>Pilule - Gestion des études</title>
 
     <?php echo $this->element( 'css/bootstrap' ); ?>
     <?php echo $this->element( 'css/login' ); ?>
@@ -97,8 +97,6 @@
             $( '#loading-error .btn-redirect-dashboard' ).on( 'click', app.Users.redirectToDashboard );
             $( '#loading-error .btn-retry-login' ).on( 'click', app.Users.retryLogin );
 
-            $( '#login-form input.idul' ).focus();
-
             $( '#login-form .help-btn' ).on( 'mouseover', function( e ) {
                 $( this ).addClass( 'btn-danger' );
                 $( this ).find( 'i' ).addClass( 'icon-white' );
@@ -124,6 +122,8 @@
                             localStorage.removeItem( 'pilule-ask-autologon-'+idul );
                         }
                     }
+
+                    $( '#login-form input.idul' ).focus();
                 }
                 if ( localStorage.getItem( 'pilule-autologon-idul' ) != null ) {
                     // Get IDUL from local storage
@@ -136,7 +136,11 @@
                     } else {
                         $( '#login-form input.password' ).focus();
                     }
+                } else {
+                    $( '#login-form input.idul' ).focus();
                 }
+            } else {
+                $( '#login-form input.idul' ).focus();
             }
 
             var updateResponsive = function () {
