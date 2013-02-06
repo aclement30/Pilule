@@ -1,10 +1,10 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="description" content="Pilule est un système de gestion des études pour les étudiants de l'Université Laval, conçu pour être simple et ergonomique. Vous pouvez l'utiliser pour consulter votre cheminement scolaire, votre relevé de notes, votre horaire de cours, votre boîte Exchange et vos frais de scolarité." />
 
-<meta property="og:image" content="/images/thumbnail.jpg"/>
+<meta property="og:image" content="https://www.pilule.ulaval.ca/cake/img/thumbnail.jpg"/>
 <meta property="og:title" content="Pilule - Gestion des études"/>
 <meta property="og:description" content="Pilule est un système de gestion des études pour les étudiants de l'Université Laval, conçu pour être simple et ergonomique. Vous pouvez l'utiliser pour consulter votre cheminement scolaire, votre relevé de notes, votre horaire de cours, votre boîte Exchange et vos frais de scolarité."/>
-<meta property="og:url" content="https://www.pilule.ulaval.ca"/>
+<meta property="og:url" content="https://www.pilule.ulaval.ca/cake/"/>
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="Pilule - Gestion des études"/>
 <meta property="fb:app_id" content="102086416558659"/>
