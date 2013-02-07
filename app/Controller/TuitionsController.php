@@ -52,11 +52,20 @@ class TuitionsController extends AppController {
         if ( ( $lastRequest = $this->CacheRequest->requestExists( 'tuition-fees' ) ) && ( !empty( $tuitions[ 'TuitionAccount' ] ) ) ) {
             // Define tuition fees payment deadlines
             if ( substr( CURRENT_SEMESTER, 4, 2 ) == '01' ) {
-                $deadline = array(
-                    'long'  =>  '15 février ' . substr( CURRENT_SEMESTER, 0, 4 ),
-                    'small' =>  '15 fév.',
-                    'date'  =>  substr( CURRENT_SEMESTER, 0, 4 ) . '0215'
-                );
+                if ( CURRENT_SEMESTER == 201301 ) {
+                    // Exception for H-2013 semester
+                    $deadline = array(
+                        'long'  =>  '1er mars ' . substr( CURRENT_SEMESTER, 0, 4 ),
+                        'small' =>  '1er mars',
+                        'date'  =>  substr( CURRENT_SEMESTER, 0, 4 ) . '0301'
+                    );
+                } else {
+                    $deadline = array(
+                        'long'  =>  '15 février ' . substr( CURRENT_SEMESTER, 0, 4 ),
+                        'small' =>  '15 fév.',
+                        'date'  =>  substr( CURRENT_SEMESTER, 0, 4 ) . '0215'
+                    );
+                }
             } elseif ( substr( CURRENT_SEMESTER, 4, 2 ) == '09' ) {
                 $deadline = array(
                     'long'  =>  '15 octobre ' . substr( CURRENT_SEMESTER, 0, 4 ),
