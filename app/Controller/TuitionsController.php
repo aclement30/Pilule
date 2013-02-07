@@ -56,7 +56,7 @@ class TuitionsController extends AppController {
                     // Exception for H-2013 semester
                     $deadline = array(
                         'long'  =>  '1er mars ' . substr( CURRENT_SEMESTER, 0, 4 ),
-                        'small' =>  '1er mars',
+                        'small' =>  '1<sup>er</sup> mars',
                         'date'  =>  substr( CURRENT_SEMESTER, 0, 4 ) . '0301'
                     );
                 } else {

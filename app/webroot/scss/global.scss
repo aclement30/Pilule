@@ -1087,6 +1087,11 @@ ul.stat-list {
     text-align: center;
     h2 {
       font-weight: 600;
+
+      sup {
+        font-size: 9pt;
+        top: -15px;
+      }
     }
     h6 {
       margin-top: -10px;
