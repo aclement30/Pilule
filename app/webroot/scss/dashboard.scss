@@ -87,3 +87,9 @@
     }
   }
 }
+
+@media only screen and (max-width: 780px) {
+  .aside .mobile-devices-message {
+    display: none;
+  }
+}

@@ -19,3 +19,14 @@
         </li>
     </ul>
 </div>
+<?php if ( !$isMobile ) : ?>
+    <div class="mobile-devices-message">
+        <br />
+        <h4>Version mobile</h4>
+        <div class="sidebar" style="padding-top: 10px;">
+            <p style="margin-bottom: 15px;">Saviez-vous qu'il existe une <strong>version mobile</strong> de Pilule ? Pour la découvrir, visitez le site depuis votre téléphone intelligent ou votre tablette.</p>
+            <img src="<?php echo Router::url( '/' ); ?>img/mobile-devices.png" />
+            <hr>
+        </div>
+    </div>
+<?php endif; ?>
