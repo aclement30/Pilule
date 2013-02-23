@@ -7,11 +7,23 @@ class RegistrationController extends AppController {
 	private $registrationSemester = '201301';
 	private $currentSemester = CURRENT_SEMESTER;
 	private $deadlines = array(
+							'201309'	=> array(
+								'registration_start'=>	'20130402',
+								'edit_selection'	=>	'20130910',
+								'drop_nofee'		=>	'20130917',
+								'drop_fee'			=>	'20131112'
+							),
+							'201305'	=> array(
+								'registration_start'=>	'20130311',
+								'edit_selection'	=>	'20130430',
+								'drop_nofee'		=>	'20130823',
+								'drop_fee'			=>	'20130823'
+							),
 						   '201301'	=> array(
 								'registration_start'=>	'20121105',
-								'edit_selection'	=>	'20130128', // TODO : to be updated
-								'drop_nofee'		=>	'20130223', // TODO : to be updated
-								'drop_fee'			=>	'20130319'	// TODO : to be updated
+								'edit_selection'	=>	'20130129',
+								'drop_nofee'		=>	'20130204',
+								'drop_fee'			=>	'20130401'
 							),
 						   '201205'	=> array(
 								'registration_start'=>	'20120305',
