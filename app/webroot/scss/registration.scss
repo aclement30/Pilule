@@ -35,6 +35,10 @@ body .modal {
     width: 800px;
     margin-left: -400px;
 
+    .modal-body {
+        max-height: 475px;
+    }
+
     .classes-list {
     	.class {
     		background-color: #ddd;
@@ -73,6 +77,29 @@ body .modal {
     			}
     		}
     	}
+    }
+
+    .loading-classes {
+        .img {
+            margin-left: 150px;
+            float: left;
+            margin-right: 40px;
+        }
+
+        .lead {
+            float: left;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+    }
+}
+
+.searching-courses .image {
+    margin-top: 20px;
+    text-align: right;
+
+    img {
+        padding-right: 30px;
     }
 }
 

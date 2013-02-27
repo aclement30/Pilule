@@ -22,7 +22,7 @@ app.Registration.init = function ( params ) {
 	if ( params.deadline_drop_nofee ) app.Registration.deadline_drop_nofee = params.deadline_drop_nofee;
 	if ( params.deadline_edit_selection ) app.Registration.deadline_edit_selection = params.deadline_edit_selection;
 
-	$( 'table.courses-list tr td' ).bind( 'click', function ( e ) {
+	$( '.main' ).on( 'click', 'table.courses-list tr td', function ( e ) {
 		var code = $( e.currentTarget ).parent().data( 'code' );
 
 		if ( code != '' && code != undefined ) app.Registration.getCourseInfo( code );
@@ -44,6 +44,9 @@ app.Registration.init = function ( params ) {
 
 		return false;
 	} );
+
+	$( '.main' ).on( 'click', '.semesters-dropdown ul li a', app.Registration.changeSemester );
+    $( '.main ' ).on( 'blur', '.semesters-dropdown select', app.Registration.changeSemester );
 };
 
 app.Registration.togglePopover = function ( e ) {
@@ -297,10 +300,21 @@ app.Registration.changeDisplay = function ( type ) {
 	});
 };
 
-app.Registration.selectSemester = function ( semester ) {
-	loading('Chargement des cours au programme...');
-	
-	document.location.hash = '#!/registration/courses/semester/' + semester;
+app.Registration.changeSemester = function ( e ) {
+	if ( e.currentTarget ) {
+		e.preventDefault;
+
+		// Param is an event, retrieve the semester
+		if ( $( e.currentTarget ).is( 'select' ) ) {
+            document.location = app.baseUrl + 'choix-cours/' + $( e.currentTarget ).val();
+        } else {
+			document.location = app.baseUrl + 'choix-cours/' + $( this ).data( 'semester' );
+		}
+	} else {
+    	document.location = app.baseUrl + 'choix-cours/' + semester;
+    }
+
+    return false;
 };
 
 app.Registration.displayHelp = function ( step ) {

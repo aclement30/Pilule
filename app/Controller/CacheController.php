@@ -137,9 +137,11 @@ class CacheController extends AppController {
 				}
 			break;
             case 'studies-courses':
+                $semester = $this->Session->read( 'Registration.semester' );
+
                 // Get data request from DB
                 $requests = $this->CacheRequest->find( 'all', array(
-                    'conditions' => array( 'CacheRequest.idul' => $this->Session->read( 'User.idul' ), 'CacheRequest.name LIKE' => 'studies-courses-program-%' )
+                    'conditions' => array( 'CacheRequest.idul' => $this->Session->read( 'User.idul' ), 'CacheRequest.name LIKE' => 'studies-courses-' . $semester . '-program-%' )
                 ) );
                 if ( !empty( $requests )) {
                     $md5Hash = array();
@@ -157,8 +159,6 @@ class CacheController extends AppController {
                 ) );
 
                 if ( empty( $userPrograms ) ) break;
-
-                $semester = $this->Session->read( 'Registration.semester' );
 
                 // Load Rapport de cheminement détaillé
                 $result = $this->Capsule->getStudiesCourses( $md5Hash, $semester, $userPrograms );
@@ -233,7 +233,7 @@ class CacheController extends AppController {
                     // Save programs courses data
                     $this->User->Program->saveAll( $result[ 'programs' ], array( 'deep' => true ) );
                     
-                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-courses' );
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-courses-' . $semester );
                 } else {
                     // Enregistrement de l'erreur
                     //$this->mErrors->addError('reload-data', 'studies-details : parsing error');

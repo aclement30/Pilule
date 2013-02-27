@@ -1,6 +1,6 @@
 <?php
 class RegistrationController extends AppController {
-	public $uses = array( 'User', 'UniversityCourse' );
+	public $uses = array( 'User', 'UniversityCourse', 'StudentProgram' );
 
 	public $helpers = array( 'Time' );
 
@@ -39,7 +39,7 @@ class RegistrationController extends AppController {
 							)
 						   );
 	
-	private $registrationSemesters = array( '201209', '201301' );
+	private $registrationSemesters = array( '201209', '201301', '201305' );
 
 	public function beforeFilter () {
 		parent::beforeFilter();
@@ -59,7 +59,7 @@ class RegistrationController extends AppController {
 		$this->Session->write( 'Registration.semester', $this->registrationSemester );
 	}
 
-	public function index ( $semester = null ) {
+	public function index ( $semester = null, $programId = null ) {
 		// If user selected a different semester, use it for registration
 		if ( !empty( $semester ) ) {
 			$newSemester = $semester;
@@ -76,6 +76,26 @@ class RegistrationController extends AppController {
 		$registeredCourses = array();
 		$selectedCourses = array();
 
+		if ( empty( $programId ) ) {
+            $program = $this->StudentProgram->User->find( 'first', array(
+                'conditions'    =>  array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
+                'contain'       =>  array( 'Program' => array( 'limit' => 1, 'order' => 'Program.adm_semester DESC' ) ),
+                'fields'        =>  array( 'User.idul' )
+            ) );
+        } else {
+            $program = $this->StudentProgram->User->find( 'first', array(
+                'conditions'    =>  array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
+                'contain'       =>  array( 'Program' => array( 'conditions' => array( 'Program.id' => $programId, 'Program.idul' => $this->Session->read( 'User.idul' ) ) ) ),
+                'fields'        =>  array( 'User.idul' )
+            ) );
+        }
+
+        $programsList = $this->StudentProgram->find( 'list', array(
+            'conditions'    =>  array( 'StudentProgram.idul' => $this->Session->read( 'User.idul' ) ),
+            'order'         =>  'StudentProgram.adm_semester DESC'
+        ) );
+
+        // Retrieve courses already registered by the student
 		$schedule = $this->User->ScheduleSemester->find( 'first', array(
 			'conditions'	=>	array( 'ScheduleSemester.idul' => $this->Session->read( 'User.idul' ), 'ScheduleSemester.semester' => $this->registrationSemester  ),
         	'contain'		=>	array( 'Course' )
@@ -84,23 +104,15 @@ class RegistrationController extends AppController {
 		if ( !empty( $schedule[ 'Course' ] ) )
 			$registeredCourses = $schedule[ 'Course' ];
 
+		// Retrieve program sections & courses
 		$sections = $this->User->Section->find( 'all', array(
-            'conditions'    =>  array( 'Section.idul' => $this->Session->read( 'User.idul' ) ),
+            'conditions'    =>  array( 'Section.idul' => $this->Session->read( 'User.idul' ), 'program_id' => $program[ 'Program' ][ 'id' ] ),
             'contain'       =>  array( 'Course' => array(
             	'conditions'	=> 	array( 'Course.code !=' => 'EHE-1899' )
             ) )
         ) );
 
-		// Get student selected courses for registration semester
-		$selectedCourses = $this->User->SelectedCourse->find( 'all', array(
-			'conditions'	=>	array(
-				'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
-				'SelectedCourse.semester'	=>	$this->registrationSemester
-			),
-			'contain'		=>	array( 'UniversityCourse' )
-		) );
-
-		// Extract courses codes
+		// Extract courses codes from program sections' courses
 		$coursesCodes = Set::extract( '/Course/code', $sections );
 		
 		$availableCourses = $this->UniversityCourse->find( 'list', array(
@@ -108,8 +120,18 @@ class RegistrationController extends AppController {
 			'fields'		=>	array( 'id', 'code' )
 		) );
 
-		if ( !empty( $availableCourses ) )
+		if ( !empty( $availableCourses ) ) {
 			$availableCourses = array_values( $availableCourses );
+		}
+
+		// Retrieve student selected courses for registration semester
+		$selectedCourses = $this->User->SelectedCourse->find( 'all', array(
+			'conditions'	=>	array(
+				'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
+				'SelectedCourse.semester'	=>	$this->registrationSemester
+			),
+			'contain'		=>	array( 'UniversityCourse' )
+		) );
 
 		$this->set( 'sections', $sections );
 		$this->set( 'registeredCourses', $registeredCourses );
@@ -121,7 +143,7 @@ class RegistrationController extends AppController {
     	$this->set( 'dataObject', 'studies-courses' );
 
     	// Check is data exists in DB
-        if ( ( $lastRequest = $this->CacheRequest->requestExists( 'studies-courses' ) ) ) {
+        if ( ( $lastRequest = $this->CacheRequest->requestExists( 'studies-courses-' . $this->registrationSemester ) ) ) {
         	$this->set( 'timestamp', $lastRequest[ 'timestamp' ] );
         	$this->render( 'limited' );
         } else {

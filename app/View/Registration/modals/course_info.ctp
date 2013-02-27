@@ -42,10 +42,9 @@
   <!-- Available classes for this course -->
   <h4>Cours disponibles</h4>
   <?php if ( $course[ 'UniversityCourse' ][ 'av' . $semester ] ): ?>
-    <div class="hero-unit loading-classes">
-      <div><img src="/img/redirect-loading.gif" alt="Chargement" /></div>
-      <p class="lead">Recherche de cours offerts</p>
-      <span>Veuillez patienter un instant...</span>
+    <div class="hero-unit loading-classes clearfix">
+      <div class="img"><img src="/img/redirect-loading.gif" alt="Chargement" /></div>
+      <p class="lead">Recherche de cours offerts...</p>
     </div>
     <div class="classes-list"></div>
   <?php else : ?>

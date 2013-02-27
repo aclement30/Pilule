@@ -89,7 +89,7 @@
     elseif ( date( 'Ymd' ) <= $deadlines[ $registrationSemester ][ 'registration_start' ] ):
         ?>
         <div style="margin-top: 35px; line-height: 12px; text-align: center; width: 180px; margin-left: auto; margin-right: auto; margin-bottom: 10px; color: gray; font-size: 8pt;">
-            La période d'inscription <?php echo $this->App->convertSemester( $registrationSemester, true ); ?> commencera le <?php echo currentDate( $deadlines[ $registrationSemester ][ 'registration_start' ], "j F Y" ); ?>.
+            La période d'inscription <?php echo $this->App->convertSemester( $registrationSemester, true ); ?> commencera le <?php echo substr( $deadlines[ $registrationSemester ][ 'registration_start' ], 6, 2 ) . '-' . substr( $deadlines[ $registrationSemester ][ 'registration_start' ], 4, 2 ) . '-' . substr( $deadlines[ $registrationSemester ][ 'registration_start' ], 0, 4 ); ?>.
         </div>
         <?php
     endif;
