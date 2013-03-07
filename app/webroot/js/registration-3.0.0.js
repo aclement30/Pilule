@@ -47,6 +47,9 @@ app.Registration.init = function ( params ) {
 
 	$( '.main' ).on( 'click', '.semesters-dropdown ul li a', app.Registration.changeSemester );
     $( '.main ' ).on( 'blur', '.semesters-dropdown select', app.Registration.changeSemester );
+
+    $( '.main' ).on( 'click', '.programs-dropdown ul li a', app.Registration.changeProgram );
+    $( '.main ' ).on( 'blur', '.programs-dropdown select', app.Registration.changeProgram );
 };
 
 app.Registration.togglePopover = function ( e ) {
@@ -312,6 +315,25 @@ app.Registration.changeSemester = function ( e ) {
 		}
 	} else {
     	document.location = app.baseUrl + 'choix-cours/' + semester;
+    }
+
+    return false;
+};
+
+app.Registration.changeProgram = function ( e ) {
+	var semester = $( '.semesters-dropdown select' ).val();
+
+	if ( e.currentTarget ) {
+		e.preventDefault;
+
+		// Param is an event, retrieve the semester
+		if ( $( e.currentTarget ).is( 'select' ) ) {
+            document.location = app.baseUrl + 'choix-cours/' + semester + '/' + $( e.currentTarget ).val();
+        } else {
+			document.location = app.baseUrl + 'choix-cours/' + semester + '/' + $( this ).data( 'program' );
+		}
+	} else {
+    	document.location = app.baseUrl + 'choix-cours/' + semester + '/' + e;
     }
 
     return false;

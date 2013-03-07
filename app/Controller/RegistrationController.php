@@ -4,7 +4,7 @@ class RegistrationController extends AppController {
 
 	public $helpers = array( 'Time' );
 
-	private $registrationSemester = '201301';
+	private $registrationSemester;
 	private $currentSemester = CURRENT_SEMESTER;
 	private $deadlines = array(
 							'201309'	=> array(
@@ -56,7 +56,12 @@ class RegistrationController extends AppController {
 			$this->currentSemester = date( 'Y' ) . '09';
 		}
 
-		$this->Session->write( 'Registration.semester', $this->registrationSemester );
+		if ( $this->Session->read( 'Registration.semester' ) != '' ) {
+			$this->registrationSemester = $this->Session->read( 'Registration.semester' );
+		} else {
+			$this->registrationSemester = '201301';
+			$this->Session->write( 'Registration.semester', $this->registrationSemester );
+		}
 	}
 
 	public function index ( $semester = null, $programId = null ) {
@@ -82,12 +87,16 @@ class RegistrationController extends AppController {
                 'contain'       =>  array( 'Program' => array( 'limit' => 1, 'order' => 'Program.adm_semester DESC' ) ),
                 'fields'        =>  array( 'User.idul' )
             ) );
+
+            $program[ 'Program' ] = array_shift( $program[ 'Program' ] );
         } else {
             $program = $this->StudentProgram->User->find( 'first', array(
                 'conditions'    =>  array( 'User.idul' => $this->Session->read( 'User.idul' ) ),
                 'contain'       =>  array( 'Program' => array( 'conditions' => array( 'Program.id' => $programId, 'Program.idul' => $this->Session->read( 'User.idul' ) ) ) ),
                 'fields'        =>  array( 'User.idul' )
             ) );
+
+            $program[ 'Program' ] = array_shift( $program[ 'Program' ] );
         }
 
         $programsList = $this->StudentProgram->find( 'list', array(
@@ -133,6 +142,8 @@ class RegistrationController extends AppController {
 			'contain'		=>	array( 'UniversityCourse' )
 		) );
 
+		$this->set( 'programsList', $programsList );
+		$this->set( 'program', $program );
 		$this->set( 'sections', $sections );
 		$this->set( 'registeredCourses', $registeredCourses );
 		$this->set( 'selectedCourses', $selectedCourses );
@@ -238,7 +249,7 @@ class RegistrationController extends AppController {
 			// Get requested course info
 			$course = $this->UniversityCourse->find( 'first', array(
                 'conditions'    =>  array( 'UniversityCourse.code' => $code ),
-                'contain'		=>	array( 'Class' => array( 'Spot' ) )
+                'contain'		=>	array( 'Class' => array( 'conditions' => array( 'Class.semester' => $this->registrationSemester ), 'Spot' ) )
             ) );
 
 			foreach ( $course[ 'Class' ] as &$class ) {
