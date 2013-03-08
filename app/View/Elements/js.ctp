@@ -7,7 +7,7 @@
     }
 
     // Add version number to each JS path : clear old JS files in browser cache
-    $currentVersion = '3.0.0';
+    $currentVersion = '3.0.5';
 
     foreach ( $scripts as &$path ) {
         if ( strpos( $path, '/libs/' ) < 1 ) {
