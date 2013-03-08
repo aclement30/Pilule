@@ -50,6 +50,34 @@ app.Registration.init = function ( params ) {
 
     $( '.main' ).on( 'click', '.programs-dropdown ul li a', app.Registration.changeProgram );
     $( '.main ' ).on( 'blur', '.programs-dropdown select', app.Registration.changeProgram );
+
+    $( '.main' ).on( 'click', '.courses-display ul li a', app.Registration.toggleCoursesDisplay );
+
+    $( '.courses-list tbody tr.not-available' ).hide( 'fast' ).promise().done( app.Registration.repaintTableRows );
+};
+
+app.Registration.repaintTableRows = function () {
+	$( '.main .courses-list tbody' ).each( function( index, tbody ) {
+		$( tbody ).find( 'tr' ).css( 'backgroundColor', '#fff' );
+		$( tbody ).find( 'tr:visible:even' ).css( 'backgroundColor', '#f9f9f9' );
+	});
+};
+
+app.Registration.toggleCoursesDisplay = function ( e ) {
+	var displayMode = $( e.currentTarget ).data( 'list' );
+
+	if ( displayMode == 'all' ) {
+		$( '.courses-list tbody tr.not-available' ).show( 'fast' ).promise().done( app.Registration.repaintTableRows );
+	} else {
+		$( '.courses-list tbody tr.not-available' ).hide( 'fast' ).promise().done( app.Registration.repaintTableRows );
+	}
+
+	$( e.currentTarget ).closest( 'ul' ).find( 'li' ).removeClass( 'selected' );
+	$( e.currentTarget ).parent().addClass( 'selected' );
+	$( e.currentTarget ).closest( '.courses-display' ).find( '.dropdown-toggle' ).html( $( e.currentTarget ).html() + ' <span class="caret"></span>' );
+	$( e.currentTarget ).closest( '.courses-display' ).removeClass( 'open' );
+
+	return false;
 };
 
 app.Registration.togglePopover = function ( e ) {

@@ -437,9 +437,14 @@ footer {
 .action-buttons {
   position: relative;
   top: -10px;
+
+  .btn-group {
+    margin-left: 0px;
+    margin-top: 1px;
+  }
 }
 
-.action-buttons .btn {
+.action-buttons .btn, .btn-group>.btn:first-child {
   margin-left: 10px;
 
   &:focus {
@@ -449,6 +454,21 @@ footer {
 
 .btn-refresh img {
   display: none;
+}
+
+.modal-backdrop {
+  background: -webkit-radial-gradient(50% 50%, ellipse closest-corner, rgba(0,0,0,0.45) 1%, rgba(0,0,0,0.8) 100%);
+  background: -moz-radial-gradient(50% 50%, ellipse closest-corner, rgba(0,0,0,0.45) 1%, rgba(0,0,0,0.8) 100%);
+  background: -ms-radial-gradient(50% 50%, ellipse closest-corner, rgba(0,0,0,0.45) 1%, rgba(0,0,0,0.8) 100%);
+  background: radial-gradient(50% 50%, ellipse closest-corner, rgba(0,0,0,0.45) 1%, rgba(0,0,0,0.8) 100%);
+  -webkit-transition: 400ms opacity ease;
+  -moz-transition: 400ms opacity ease;
+  transition: 400ms opacity ease;
+  -webkit-transform: translate3d(0, 0, 0);
+  -moz-transform: translate3d(0, 0, 0);
+  -ms-transform: translate3d(0, 0, 0);
+  -o-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
 }
 
 /* ============== messages ============== */

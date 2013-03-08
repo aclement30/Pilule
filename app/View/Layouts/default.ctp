@@ -78,7 +78,7 @@
         </div>
     </div>
 
-    <div id="modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true"></div>
+    <div id="modal" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true"></div>
 
 	<?php echo $this->element( 'footer' ); ?>
 

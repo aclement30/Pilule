@@ -1923,7 +1923,7 @@ form {
         display: none;
     }
 
-    a.btn {
+    a.btn, .btn-group>.btn:first-child {
         margin-left: 10px;
     }
 }

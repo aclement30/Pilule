@@ -77,6 +77,17 @@ class RegistrationController extends AppController {
 		$this->set( 'registrationSemesters', $this->registrationSemesters );
 		$this->set( 'deadlines', $this->deadlines );
 		$this->set( 'title_for_layout', 'Choix de cours' );
+		$this->set( 'buttons', array(
+        	array(
+                'element'	=>  'registration_dropdowns',
+                'type'  	=>  'dropdown',
+                'vars'		=>	array( 'semestersList' => $this->registrationSemesters, 'selectedSemester' => $this->registrationSemester )
+            ),
+            array(
+                'action'=>  "app.Cache.reloadData( { name: 'studies-courses', auto: 0, callback: function(){ app.Common.refreshPageContent( false, function(){ $( '.courses-list tbody tr.not-available' ).hide( 'fast' ).promise().done( app.Registration.repaintTableRows ); } ); } } );",
+                'type'  =>  'refresh'
+            )
+        ) );
 
 		$registeredCourses = array();
 		$selectedCourses = array();

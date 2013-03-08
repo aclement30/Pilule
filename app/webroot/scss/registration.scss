@@ -15,11 +15,6 @@ table.courses-list {
 			color: gray;
 		}
 
-		tr.not-available {
-			:not(.done) {
-				display: none;
-			}
-		}
 		tr.done td {
 			color: black;
 		}
@@ -172,4 +167,8 @@ body .modal {
     tr.error td {
         color: red;
     }
+}
+
+.courses-display ul li.selected a {
+    font-weight: bold;
 }

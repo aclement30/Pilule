@@ -296,7 +296,7 @@ app.Common.refreshPage = function () {
     location.reload();
 };
 
-app.Common.refreshPageContent = function ( auto ) {
+app.Common.refreshPageContent = function ( auto, callback ) {
     // Reload the page content
     $( '.main' ).load( document.location + ' .inner-content', function( e ) {
         // If cache reload request was not automatic, display a success message
@@ -310,7 +310,11 @@ app.Common.refreshPageContent = function ( auto ) {
 
         // Flash the content to alert the user of the update
         $( '.container .main' ).fadeOut( 200, function(){
-            $( '.container .main' ).fadeIn( 400 );
+            $( '.container .main' ).fadeIn( 400, function() {
+                if ( callback != undefined && callback != '' ) {
+                    ( callback )();
+                }
+            } );
         } );
     } );
 };

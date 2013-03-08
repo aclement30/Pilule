@@ -10,12 +10,6 @@
 ?>
 
 <?php
-    if ( !empty( $registrationSemesters ) ) :
-        echo $this->element( 'semesters_dropdown', array( 'semestersList' => $registrationSemesters, 'selectedSemester' => $registrationSemester ) );
-    endif;
-?>
-
-<?php
     foreach ( $sections as $section ) :
         $creditsCompleted = 0;
         $isCompleted = false;
@@ -33,7 +27,7 @@
         ?>
         <div class="table-panel<?php if ( $isCompleted ) echo ' completed'; ?> not-expandable">
         <h5> <?php if ( $isCompleted ) echo '<i class="icon-ok"></i>'; else echo '<i class="icon-th"></i>'; echo $section[ 'Section' ][ 'title' ]; ?></h5>
-        <table class="table table-striped sortable courses-list">
+        <table class="table sortable courses-list">
             <thead>
                 <tr>
                     <th class="course-code">Cours</th>
@@ -117,5 +111,3 @@
     </div>
 
 <?php endforeach; ?>
-
-<div id="modal-course" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true"></div>

@@ -24,20 +24,29 @@
             case 'save':
                 $content = '<div><i class="icon-ok"></i></div>';
                 break;
+            case 'dropdown':
+                if ( !empty( $button[ 'element' ] ) ) {
+                    echo $this->element( $button[ 'element' ], $button[ 'vars' ] );
+                }
+                break;
         }
 
         // Don't display the refresh button if Capsule is offline
-        if ( $button[ 'type' ] == 'refresh' && $isCapsuleOffline ) continue; 
-        ?>
-        <a class="btn js-<?php echo $button[ 'type' ]; ?>-btn" href="javascript:<?php echo $button[ 'action' ]; ?>"<?php
-        	if ( $toolTip ) {
-    	        if ( $index == ( count( $buttons ) - 1 ) ) {
-    	            echo ' data-placement="left"';
-    	        } else {
-    	            echo ' data-placement="bottom"';
-    	        }
-    	        echo ' data-title="' + $toolTip + '"';
-    	    } ?>><?php echo $content; ?></a>
-    	<?php
+        if ( $button[ 'type' ] == 'refresh' && $isCapsuleOffline ) continue;
+
+        if ( !empty( $content ) ) :
+            ?>
+            <a class="btn js-<?php echo $button[ 'type' ]; ?>-btn" href="javascript:<?php echo $button[ 'action' ]; ?>"<?php
+            	if ( $toolTip ) {
+        	        if ( $index == ( count( $buttons ) - 1 ) ) {
+        	            echo ' data-placement="left"';
+        	        } else {
+        	            echo ' data-placement="bottom"';
+        	        }
+        	        echo ' data-title="' + $toolTip + '"';
+        	    } ?>><?php echo $content; ?></a>
+        	<?php
+        endif;
+
     endforeach;
 ?>

@@ -135,6 +135,75 @@ class CacheController extends AppController {
 					
 					$error = true;
 				}
+
+                $semester = $this->Session->read( 'Registration.semester' );
+                if ( empty( $semester ) ) $semester = CURRENT_SEMESTER;
+
+                // Get data request from DB
+                $requests = $this->CacheRequest->find( 'all', array(
+                    'conditions' => array( 'CacheRequest.idul' => $this->Session->read( 'User.idul' ), 'CacheRequest.name LIKE' => 'studies-courses-' . $semester . '-program-%' )
+                ) );
+                if ( !empty( $requests )) {
+                    $md5Hash = array();
+                    foreach ( $requests as $request ) {
+                        $md5Hash[ $request[ 'CacheRequest' ][ 'name' ] ] = $request[ 'CacheRequest' ][ 'md5' ];
+                    }
+                } else {
+                    $md5Hash = array();
+                }
+
+                // Check if user has programs, if not skip the next part
+                $userPrograms = $this->User->Program->find( 'all', array(
+                    'conditions'    =>  array( 'Program.idul' => $this->Session->read( 'User.idul' ) ),
+                    'contain'       =>  array( 'Section' => array( 'Course' ) )
+                ) );
+
+                if ( empty( $userPrograms ) ) break;
+
+                // Load Rapport de cheminement détaillé
+                $result = $this->Capsule->getStudiesCourses( $md5Hash, $semester, $userPrograms );
+
+                if ( $result[ 'status' ] ) {
+                    $this->loadModel( 'UniversityCourse' );
+
+                    foreach ( $result[ 'programs' ] as &$program ) {
+                        foreach ( $program[ 'Section' ] as &$section ) {
+                            foreach ( $section[ 'Course' ] as $courseKey => &$sectionCourse ) {
+                                // Find course in Pilule courses database
+                                $course = $this->UniversityCourse->find( 'first', array(
+                                    'conditions'    =>  array( 'UniversityCourse.code' => $sectionCourse[ 'code' ] )
+                                ) );
+
+                                if ( !empty( $course ) ) {
+                                    if ( empty( $sectionCourse[ 'title' ] ) ) {
+                                        $sectionCourse[ 'title' ] = $course[ 'UniversityCourse' ][ 'title' ];
+                                        $sectionCourse[ 'credits' ] = $course[ 'UniversityCourse' ][ 'credits' ];
+                                    }
+                                } else {
+                                    // Fetch course info from Capsule
+                                    $course = $this->Capsule->fetchCourse( $sectionCourse[ 'code' ], $semester );
+
+                                    if ( !empty( $course[ 'UniversityCourse' ][ 'title' ] ) ) {
+                                        $sectionCourse[ 'title' ] = $course[ 'UniversityCourse' ][ 'title' ];
+                                        if ( !empty( $course[ 'UniversityCourse' ][ 'credits' ] ) )
+                                            $sectionCourse[ 'credits' ] = $course[ 'UniversityCourse' ][ 'credits' ];
+
+                                        // Save fetched course info
+                                        $this->UniversityCourse->create();
+                                        $this->UniversityCourse->set( $course );
+                                        $this->UniversityCourse->saveAll( $course );
+                                    } else {
+                                        // Course not found, remove it from student list
+                                        unset( $section[ 'Course' ][ $courseKey ] );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Save programs courses data
+                    $this->User->Program->saveAll( $result[ 'programs' ], array( 'deep' => true ) );
+                }
 			break;
             case 'studies-courses':
                 $semester = $this->Session->read( 'Registration.semester' );
