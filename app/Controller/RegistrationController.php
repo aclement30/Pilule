@@ -2,7 +2,7 @@
 class RegistrationController extends AppController {
 	public $uses = array( 'User', 'UniversityCourse', 'StudentProgram' );
 
-	public $helpers = array( 'Time' );
+	public $helpers = array( 'Time', 'Text' );
 
 	private $registrationSemester;
 	private $currentSemester = CURRENT_SEMESTER;
