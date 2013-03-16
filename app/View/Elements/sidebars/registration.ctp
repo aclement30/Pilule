@@ -4,7 +4,7 @@
         <li class="<?php if ( $this->request->params[ 'action' ] == 'index' ) echo 'active'; ?>">
             <?php echo $this->Html->link( 'Choix de cours', '/choix-cours' ); ?>
         </li>
-        <li class="<?php if ( $this->request->params[ 'action' ] == 'search' ) echo 'active'; ?>">
+        <li class="<?php if ( $this->request->params[ 'action' ] == 'search' ) echo 'active'; ?>" style="display: none;">
             <?php echo $this->Html->link( 'Recherche de cours', '/choix-cours/recherche' ); ?>
         </li>
     </ul>
