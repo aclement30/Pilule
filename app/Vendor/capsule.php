@@ -1564,7 +1564,7 @@ class Capsule {
                 $classes = $this->fetchClasses( $course[ 'code' ], $semester, $request[ 'response' ] );
 
                 if ( $classes && !empty( $classes ) ) {
-                    $course[ 'Class' ] += $classes;
+                    $course[ 'Class' ] += $classes[ 'Class' ];
                     $course[ 'av' . $semester ] = true;
                 } else {
                     $course[ 'av' . $semester ] = false;
@@ -1767,7 +1767,7 @@ class Capsule {
 	}
 	
     public function searchCourses ( $searchRequest ) {
-        if ( $searchRequest[ 'target' ] == 'code' ) {
+        if ( !empty( $searchRequest[ 'code' ] ) ) {
             $code = strtoupper( trim( str_replace( '-', '', str_replace( ' ', '', $searchRequest[ 'code' ] ) ) ) );
 
             $postString = (
