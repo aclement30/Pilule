@@ -49,7 +49,7 @@ class TuitionsController extends AppController {
         ) );
 
 		// Check is data exists in DB
-        if ( ( $lastRequest = $this->CacheRequest->requestExists( 'tuition-fees' ) ) && ( !empty( $tuitions[ 'TuitionAccount' ] ) ) ) {
+        if ( ( $lastRequest = $this->CacheRequest->requestExists( 'tuition-fees' ) ) && ( !empty( $tuitions[ 'TuitionAccount' ][ 'Semester' ] ) ) ) {
             // Define tuition fees payment deadlines
             if ( substr( CURRENT_SEMESTER, 4, 2 ) == '01' ) {
                 if ( CURRENT_SEMESTER == 201301 ) {
@@ -84,7 +84,7 @@ class TuitionsController extends AppController {
             $chartData = array();
 
             $tuitionFees = 0;
-            foreach ( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ]['fees'] as $fee ) {
+            foreach ( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'fees' ] as $fee ) {
                 if ( strpos( $fee[ 'name' ], 'Droits de scolarité' ) !== false )
                     $tuitionFees = $fee[ 'amount' ];
 
