@@ -54,6 +54,24 @@ app.Registration.init = function ( params ) {
     $( '.main' ).on( 'click', '.courses-display ul li a', app.Registration.toggleCoursesDisplay );
 
     $( '.courses-list tbody tr.not-available' ).hide( 'fast' ).promise().done( app.Registration.repaintTableRows );
+
+    // Init search form
+    $( 'form.search #search-target' ).on( 'click', app.Registration.focusSearchField );
+    $( 'form.search .span11 input, form.search .span5 input' ).on( 'focus', app.Registration.setSearchField );
+    if ( typeof coursesSubjects != 'undefined' ) {
+    	$( 'form.search input#RegistrationSubject' ).typeahead( {
+    		source: 	coursesSubjects
+    	} );
+    }
+};
+
+app.Registration.focusSearchField = function ( e ) {
+	$( 'form.search input#' + $( e.currentTarget ).data( 'focus' ) ).focus();
+};
+
+app.Registration.setSearchField = function ( e ) {
+	$( 'form.search #search-target' ).removeAttr( 'checked' );
+	$( e.currentTarget ).closest( '.row-fluid' ).find( 'input#search-target' ).attr( 'checked', 'checked' );
 };
 
 app.Registration.repaintTableRows = function () {

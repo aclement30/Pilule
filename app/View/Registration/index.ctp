@@ -1,246 +1,113 @@
-<div style="float: left; font-weight: bold; padding-top: 7px;"><?php echo $user['program']; ?></div>
+<div class="user-program"><?php echo $user[ 'program' ]; ?></div>
 
-<div class="buttons semester-select">
-	<div class="btn-group" style="float: right;">
-	    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-	        <?php echo convertSemester( $registrationSemester ); ?>
-	        <span class="caret"></span>
-	    </a>
-	    <ul class="dropdown-menu pull-right">
-	        <?php
-	        	foreach ( $registrationSemesters as $semester ):
-	        		?><li><a href="javascript:app.Registration.displaySemester(<?php echo $semester; ?>);"<?php if ( $semester == $registrationSemester) echo ' style="font-weight: bold;"'; ?>><?php echo convertSemester( $semester ); ?></a></li><?php
-	    		endforeach;
-	    	?>
-	    </ul>
-	</div>
-	<div style="float: right; margin-top: 5px; color: grey; margin-right: 5px;">Session : </div>
-</div>
+<?php
+    if ( count( $programsList ) > 1 ) :
+        ?><div class="no-print" style="float: left;"><?php
+            // Display programs dropdown
+            echo $this->element( 'programs_dropdown', array( 'programsList' => $programsList, 'selectedProgram' => $program[ 'Program' ][ 'id' ], 'float' => 'left' ) );
+        ?></div><?php
+    endif;
+?>
 
-<div style="clear: both; height: 10px;"></div>
+<?php
+    foreach ( $sections as $section ) :
+        $creditsCompleted = 0;
+        $isCompleted = false;
 
-<div class="row-fluid">
-	<div class="span8">
-		<?php
-		foreach ($sections as $section) {
-			if (in_array($section['id'], $userSections) || $section['compulsory'] == '1') {
-				?><h3><?php echo $section['title'];
-				if ($section['children'] != array()) {
-					foreach ($section['children'] as $subsection) {
-						if (in_array($subsection['id'], $userSections)) {
-							echo ' : '.$subsection['title'];
-							break;
-						}
-					}
-				}
-				?></h3><?php
-				if (isset($programCourses[$section['code']]) and $programCourses[$section['code']]!=array()) {
-					if ($section['notes'] != '') {
-						?><div class="notes"><?php echo str_replace("\n", "<br />", $section['notes']); ?></div><?php
-					}
-					?>
-					<div class="row-fluid">
+        if ( empty( $section[ 'Course' ] ) || $section[ 'Section' ][ 'title' ] == 'Cours échoués' ) continue;
 
-				    <div class="span12">
-				        <div class="widget-box" style="margin-bottom: 0px;">
-				            <div class="widget-content nopadding">
-				                <table class="table courses table-bordered table-striped">
-									<thead>
-										<tr>
-											<th style="font-weight: bold; text-align: left; width: 15%;">Cours</th>
-											<th style="font-weight: bold; text-align: left; width: 45%;">Titre</th>
-											<th style="font-weight: bold; text-align: center;">Session</th>
-											<th style="font-weight: bold; text-align: center;">Crédits</th>
-											<th style="font-weight: bold; text-align: center;">Note</th>
-										</tr>
-									</thead>
-									<tbody
-										<?php
-											for ( $n = 1; $n < 5; $n++ ):
-												foreach ( $programCourses[ $section[ 'code' ] ] as $course ):
-													if ($course['level']==$n):
-														?>
-														<tr data-code="<?php echo $course['code']; ?>" class="<?php if (!$course[ 'av' . $registrationSemester ]) echo 'unavailable'; ?>">
-															<td class="level<?php echo $course[ 'level' ]; ?>"><?php echo $course['code']; ?></td>
-															<td class="level<?php echo $course[ 'level' ]; ?>"><?php echo $course['title']; ?></td>
-															<td class="level<?php echo $course[ 'level' ]; ?>" style="text-align: center;">
-																<?php
-																	if ( isset( $course[ 'semester' ] ) ):
-																		if ( strlen( $course[ 'semester' ] ) == 4 ):
-																			echo $course['semester'];
-																		else:
-																			echo convertSemester( $course[ 'semester' ], true );
-																		endif;
-																	endif;
-																?>
-															</td>
-															<td class="level<?php echo $course[ 'level' ]; ?>" style="text-align: center;"><?php echo $course[ 'credits' ]; ?></td>
-															<td class="level<?php echo $course[ 'level' ]; ?>" style="text-align: center;"><?php if ( isset( $course[ 'note' ] ) ) echo $course[ 'note' ]; ?></td>				
-														</tr>
-														<?php
-													endif;
-												endforeach;
-											endfor;
-										?>
-									</tbody>
-								</table>
-								</div>
-					        </div>
-					    </div>
-					</div><!-- End of row-fluid -->
-					<?php
-				}
-				
-				foreach ($section['children'] as $subsection) {
-					if (in_array($subsection['id'], $userSections) || $subsection['compulsory'] == '1') {
-						if ($subsection['notes'] != '') {
-							?><div class="notes"><?php echo str_replace("\n", "<br />", $subsection['notes']); ?></div><?php
-						}
-						
-						if (isset($programCourses[$subsection['code']]) and $programCourses[$subsection['code']]!=array()) { ?>
-								<div class="row-fluid">
+        foreach ( $section[ 'Course' ] as $course ) {
+            if ( !empty( $course[ 'note' ] ) )
+                $creditsCompleted += $course[ 'credits' ];
+        }
 
-							    <div class="span12">
-							        <div class="widget-box" style="margin-bottom: 0px;">
-							            <div class="widget-title">
-							                                    <span class="icon">
-							                                        <i class="icon-th"></i>
-							                                    </span>
-							                <?php if (isset($programCourses[$subsection['code']]) and $programCourses[$subsection['code']]!=array() and $subsection['credits'] == '') {
-												?><h5 style="margin-bottom: 5px; float: left;"><?php if ($subsection['compulsory'] == '1') echo $subsection['title']; else echo 'Cours obligatoires'; ?></h5><?php
-												if ($subsection['credits'] != '') {
-													?><h5 style="margin-bottom: 5px; float: right;"><?php if (is_int($subsection['credits'])) echo $subsection['credits']; else echo str_replace("/", " à ", $subsection['credits']); ?> crédits</h5><?php
-												}
-												?><div style="clear: both;"></div><?php
-											} elseif ($subsection['credits'] != '') {
-												?><h5 style="margin-bottom: 5px; float: left;"><?php if ($subsection['compulsory'] == '1') echo $subsection['title']; else echo 'Cours disponibles'; ?></h5><?php
-												if ($subsection['credits'] != '') {
-													?><h5 style="margin-bottom: 5px; float: right;"><?php if (is_int($subsection['credits'])) echo $subsection['credits']; else echo str_replace("/", " à ", $subsection['credits']); ?> crédits</h5><?php
-												}
-												?><div style="clear: both;"></div><?php
-											} ?>
-							            </div>
-							            <div class="widget-content nopadding">
-							                <table class="table courses table-bordered table-striped">
-							                    <thead>
-								                    <tr>
-														<th style="font-weight: bold; text-align: left; width: 15%;">Cours</th>
-														<th style="font-weight: bold; text-align: left; width: 45%;">Titre</th>
-														<th style="font-weight: bold; text-align: center;">Session</th>
-														<th style="font-weight: bold; text-align: center;">Crédits</th>
-														<th style="font-weight: bold; text-align: center;">Note</th>
-													</tr>
-												</thead>
-												<tbody>
-										<?php
-											for ( $n = 1; $n < 5; $n++ ):
-												foreach ( $programCourses[ $subsection[ 'code' ] ] as $course ):
-													if ($course['level']==$n):
-														?>
-														<tr data-code="<?php echo $course['code']; ?>" class="<?php if (!$course[ 'av' . $registrationSemester ]) echo 'unavailable'; ?>">
-															<td class="level<?php echo $course[ 'level' ]; ?>"><?php echo $course['code']; ?></td>
-															<td class="level<?php echo $course[ 'level' ]; ?>"><?php echo $course['title']; ?></td>
-															<td class="level<?php echo $course[ 'level' ]; ?>" style="text-align: center;">
-																<?php
-																	if ( isset( $course[ 'semester' ] ) ):
-																		if ( strlen( $course[ 'semester' ] ) == 4 ):
-																			echo $course['semester'];
-																		else:
-																			echo convertSemester( $course[ 'semester' ], true );
-																		endif;
-																	endif;
-																?>
-															</td>
-															<td class="level<?php echo $course[ 'level' ]; ?>" style="text-align: center;"><?php echo $course[ 'credits' ]; ?></td>
-															<td class="level<?php echo $course[ 'level' ]; ?>" style="text-align: center;"><?php if ( isset( $course[ 'note' ] ) ) echo $course[ 'note' ]; ?></td>				
-														</tr>
-														<?php
-													endif;
-												endforeach;
-											endfor;
-										?>
-									</tbody>
-								</table>
-								</div>
-					        </div>
-					    </div>
-					</div><!-- End of row-fluid -->
-							<?php
-						}
-						
-						foreach ($subsection['children'] as $subsection2) {
-								if ($subsection2['notes'] != '') {
-									?><div class="notes"><?php echo str_replace("\n", "<br />", $subsection2['notes']); ?></div><?php
-								}
-								
-								if ($programCourses[$subsection2['code']]!=array()) { ?>
-									<div class="row-fluid">
+        if ( $creditsCompleted == $section[ 'Section' ][ 'credits' ] )
+            $isCompleted = true;
 
-								    <div class="span12">
-								        <div class="widget-box" style="margin-bottom: 0px;">
-								            <div class="widget-title">
-								                                    <span class="icon">
-								                                        <i class="icon-th"></i>
-								                                    </span>
-								                <h5 style="margin-bottom: 5px; float: left;"><?php echo $subsection2['title']; ?></h5><?php
-												if ($subsection2['credits'] != '') {
-													?><h5 style="margin-bottom: 5px; float: right;"><?php if (is_int($subsection2['credits'])) echo $subsection2['credits']; else echo str_replace("/", " à ", $subsection2['credits']); ?> crédits</h5><?php
-												}
-												?><div style="clear: both;"></div>
-								            </div>
-								            <div class="widget-content nopadding">
-								                <table class="table courses table-bordered table-striped">
-								                    <thead>
-														<tr>
-															<th style="font-weight: bold; text-align: left; width: 15%;">Cours</th>
-															<th style="font-weight: bold; text-align: left; width: 45%;">Titre</th>
-															<th style="font-weight: bold; text-align: center;">Session</th>
-															<th style="font-weight: bold; text-align: center;">Crédits</th>
-															<th style="font-weight: bold; text-align: center;">Note</th>
-														</tr>
-													</thead>
-													<tbody>
-														<?php
-															for ( $n = 1; $n < 5; $n++ ):
-																foreach ( $programCourses[ $subsection2[ 'code' ] ] as $course ):
-																	if ($course['level']==$n):
-																		?>
-																		<tr data-code="<?php echo $course['code']; ?>" class="<?php if (!$course[ 'av' . $registrationSemester ]) echo 'unavailable'; ?>">
-																			<td class="level<?php echo $course[ 'level' ]; ?>"><?php echo $course['code']; ?></td>
-																			<td class="level<?php echo $course[ 'level' ]; ?>"><?php echo $course['title']; ?></td>
-																			<td class="level<?php echo $course[ 'level' ]; ?>" style="text-align: center;">
-																				<?php
-																					if ( isset( $course[ 'semester' ] ) ):
-																						if ( strlen( $course[ 'semester' ] ) == 4 ):
-																							echo $course['semester'];
-																						else:
-																							echo convertSemester( $course[ 'semester' ], true );
-																						endif;
-																					endif;
-																				?>
-																			</td>
-																			<td class="level<?php echo $course[ 'level' ]; ?>" style="text-align: center;"><?php echo $course[ 'credits' ]; ?></td>
-																			<td class="level<?php echo $course[ 'level' ]; ?>" style="text-align: center;"><?php if ( isset( $course[ 'note' ] ) ) echo $course[ 'note' ]; ?></td>				
-																		</tr>
-																		<?php
-																	endif;
-																endforeach;
-															endfor;
-														?>
-													</tbody>
-												</table>
-											</div>
-								        </div>
-								    </div>
-								</div><!-- End of row-fluid -->
-								<?php
-							}
-						}
-					}
-				}
-			}
-		}
-		?>
-	</div>
-</div>
-<div id="modal-course" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true"></div>
+        ?>
+        <div class="table-panel<?php if ( $isCompleted ) echo ' completed'; ?> not-expandable">
+        <h5> <?php if ( $isCompleted ) echo '<i class="icon-ok"></i>'; else echo '<i class="icon-th"></i>'; echo $section[ 'Section' ][ 'title' ]; ?></h5>
+        <table class="table sortable courses-list">
+            <thead>
+                <tr>
+                    <th class="course-code">Cours</th>
+                    <th class="title">Titre</th>
+                    <th class="semester">Session</th>
+                    <th class="credits">Crédits</th>
+                    <th class="note">Note</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ( $section[ 'Course' ] as $course ) : ?>
+                	<?php
+                		$courseClassnames = array();
+
+                		if ( !empty( $course[ 'note' ] ) )
+                			$courseClassnames[] = 'done';
+                		
+                		if ( empty( $course[ 'note' ] ) && !empty( $course[ 'semester' ] ) )
+                			$courseClassnames[] = 'current';
+                		
+                		if ( in_array( $course[ 'code' ], $availableCourses ) ) {
+                			$courseClassnames[] = 'available';
+                		} else {
+                			$courseClassnames[] = 'not-available';
+                		}
+                	?>
+                    <tr class="<?php echo implode( ' ', $courseClassnames ); ?>" data-code="<?php echo $course[ 'code' ]; ?>">
+						<td class="code">
+                            <span class="course-code"><?php echo $course[ 'code' ]; ?></span><br />
+                            <span class="mobile-title"><?php echo $course[ 'title' ]; ?></span>
+                        </td>
+                        <td class="title"><?php echo $course[ 'title' ]; ?></td>
+                        <td class="semester"><?php if ( !empty( $course[ 'semester' ] ) ) echo $this->App->convertSemester( $course[ 'semester' ], true ); ?></td>
+                        <td class="credits"><?php echo $course[ 'credits' ]; ?></td>
+                        <td class="note">
+                            <?php
+                                switch ( $course[ 'note' ] ) {
+                                    case 'AUD':
+                                        echo '<span class="label">Auditeur</span>';
+                                        break;
+                                    case 'NA':
+                                        echo '<span class="label">Non évalué</span>';
+                                        break;
+                                    case 'V':
+                                        echo '<span class="label label-info">Équivalence</span>';
+                                        break;
+                                    case 'X':
+                                        echo '<span class="label" title="Abandon sans échec">Abandon</span>';
+                                        break;
+                                    case 'N':
+                                        echo '<span class="label" title="Échec non contributoire">Échec (N)</span>';
+                                        break;
+                                    case 'W':
+                                        echo '<span class="label label-important">Échec (W)</span>';
+                                        break;
+                                    case 'E':
+                                        echo '<span class="label label-important">Échec</span>';
+                                        break;
+                                    default:
+                                        echo $course[ 'note' ];
+                                }
+                            ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th class="left" colspan="3">Total</th>
+                    <td class="total-credits">
+                        <?php
+                            echo $creditsCompleted;
+                            
+                            if ( !empty( $section[ 'Section' ][ 'credits' ] ) ) echo ' / ' . $section[ 'Section' ][ 'credits' ];
+                        ?>
+                    </td>
+                    <td>&nbsp;</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+<?php endforeach; ?>

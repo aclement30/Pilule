@@ -23,6 +23,14 @@ table.courses-list {
 			color: orange;
 		}
 	}
+
+    &.search-results {
+        thead {
+            th.semester {
+                width: 20%;
+            }
+        }
+    }
 }
 
 body .modal {
@@ -119,6 +127,48 @@ body .modal {
             }
         }
     }
+
+    .sidebar {
+        margin-bottom: 30px;
+    }
+
+    .courses-selection {
+        color: black;
+        padding: 10px;
+
+        h4 {
+            color: black;
+            border-bottom: 0px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+
+        table tbody td {
+            border-top: 1px solid #fbeed5;
+        }
+
+        table tbody tr:hover {
+            background-color: #fbeed5;
+            border-radius: 5px;
+        }
+
+        hr {
+            margin: 10px 0;
+        }
+
+        .registration-notice {
+            margin-top: 20px; line-height: 12px; text-align: center; width: 180px; margin-left: auto; margin-right: auto; margin-bottom: 10px; color: #c09853; font-size: 8pt;
+        }
+
+        .registration-button {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .selected-courses table {
+            margin-bottom: 10px;
+        }
+    }
 }
 
 .popover-title {
@@ -153,6 +203,18 @@ body .modal {
 .aside .alert-info {
     padding-right: 14px;
     font-size: 12px;
+}
+
+form.search {
+    .input-radio {
+        text-align: right;
+        margin-top: 25px;
+    }
+
+    .error {
+        color: red !important;
+        margin-bottom: 15px;
+    }
 }
 
 .registration-results {

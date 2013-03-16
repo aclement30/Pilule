@@ -1556,48 +1556,21 @@ class Capsule {
                 } elseif ( strpos( $part, "Préalables:" ) ) {
                     $checkPrerequisites = true;
                 }
+            }
 
-                /*
+            if ( $fetchClasses ) {
+                $course[ 'Class' ] = array();
 
-                if ( date( 'm' ) < 3 ) {
-                    $suggestedSemesters = array(
-                        date( 'Y' ) . "01"
-                    );
-                } elseif ( date( 'm' ) > 2 && date( 'm' ) > 6 ) {
-                    $suggestedSemesters = array(
-                        date( 'Y' ) . "09",
-                        date( 'Y' ) . "05"
-                    );
-                } elseif ( date( 'm' ) > 5 && date( 'm' ) < 9 ) {
-                    $suggestedSemesters = array(
-                        date( 'Y' ) . "09",
-                        date( 'Y' ) . "05"
-                    );
-                } elseif ( date( 'm' ) > 8 && date( 'm' ) < 11 ) {
-                    $suggestedSemesters = array(
-                        date( 'Y' ) . "09"
-                    );
-                } elseif ( date( 'm' ) > 10 ) {
-                    $suggestedSemesters = array(
-                        ( date( 'Y' ) + 1 ) . "01"
-                    );
+                $classes = $this->fetchClasses( $course[ 'code' ], $semester, $request[ 'response' ] );
+
+                if ( $classes && !empty( $classes ) ) {
+                    $course[ 'Class' ] += $classes;
+                    $course[ 'av' . $semester ] = true;
+                } else {
+                    $course[ 'av' . $semester ] = false;
                 }
-                */
 
-                if ( $fetchClasses ) {
-                    $course[ 'Class' ] = array();
-
-                    $classes = $this->fetchClasses( $course[ 'code' ], $semester );
-
-                    if ( $classes && !empty( $classes ) ) {
-                        $course[ 'Class' ] += $classes;
-                        $course[ 'av' . $semester ] = true;
-                    } else {
-                        $course[ 'av' . $semester ] = false;
-                    }
-
-                    $course[ 'checkup_' . $semester ] = time();
-                }
+                $course[ 'checkup_' . $semester ] = time();
             }
 
             return array( 'UniversityCourse' => $course );
@@ -1606,12 +1579,16 @@ class Capsule {
         }
     }
 	
-    public function fetchClasses ( $code, $semester ) {
+    public function fetchClasses ( $code, $semester, $requestContent = '' ) {
         $code = explode( '-', strtoupper( $code ) );
         $classes = array();
 
-        // Fetch course page
-        $request = $this->_fetchPage( '/pls/etprod7/bwckctlg.p_disp_course_detail?cat_term_in=' . $semester . '&subj_code_in=' . $code[0] . '&crse_numb_in=' . $code[1] );
+        if ( empty( $request[ 'content' ] ) ) {
+            // Fetch course page
+            $request = $this->_fetchPage( '/pls/etprod7/bwckctlg.p_disp_course_detail?cat_term_in=' . $semester . '&subj_code_in=' . $code[0] . '&crse_numb_in=' . $code[1] );
+        } else {
+            $request[ 'response' ] = $request[ 'content' ];
+        }
 
         if ( !strpos( $request[ 'response' ], "Aucun cours à afficher" ) ) {
             $part = substr( $request[ 'response' ], strpos( $request[ 'response' ], 'Mode d\'enseignement:' ), 1000 );
@@ -1789,6 +1766,103 @@ class Capsule {
         return $spots;
 	}
 	
+    public function searchCourses ( $searchRequest ) {
+        if ( $searchRequest[ 'target' ] == 'code' ) {
+            $code = strtoupper( trim( str_replace( '-', '', str_replace( ' ', '', $searchRequest[ 'code' ] ) ) ) );
+
+            $postString = (
+                'term_in=' . $searchRequest[ 'semester' ] . 
+                '&sel_subj=dummy' .
+                '&sel_day=dummy' .
+                '&sel_schd=dummy' .
+                '&sel_insm=dummy' .
+                '&sel_camp=dummy' .
+                '&sel_levl=dummy' .
+                '&sel_sess=dummy' .
+                '&sel_instr=dummy' .
+                '&sel_ptrm=dummy' .
+                '&sel_attr=dummy' .
+                '&sel_subj=' . substr( $code, 0, 3 ) .
+                '&sel_crse=' . substr( $code, 3, 4 ) .
+                '&sel_title=' .
+                '&sel_schd=%25' .
+                '&sel_from_cred=' .
+                '&sel_to_cred=' .
+                '&sel_camp=%25' .
+                '&sel_levl=%25' .
+                '&sel_ptrm=%25' .
+                '&sel_instr=%25' .
+                '&sel_sess=%25' .
+                '&sel_attr=%25' .
+                '&begin_hh=0' .
+                '&begin_mi=0' .
+                '&begin_ap=x' .
+                '&end_hh=23' .
+                '&end_mi=59' .
+                '&end_ap=x'
+            );
+        } else {
+            $postString = (
+                'term_in=' . $searchRequest[ 'semester' ] . 
+                '&sel_subj=dummy' .
+                '&sel_day=dummy' .
+                '&sel_schd=dummy' .
+                '&sel_insm=dummy' .
+                '&sel_camp=dummy' .
+                '&sel_levl=dummy' .
+                '&sel_sess=dummy' .
+                '&sel_instr=dummy' .
+                '&sel_ptrm=dummy' .
+                '&sel_attr=dummy' .
+                '&sel_subj=' . strtoupper( $searchRequest[ 'subject' ] ) .
+                '&sel_crse=' .
+                '&sel_title=' . urlencode( $searchRequest[ 'keywords' ] ) .
+                '&sel_schd=%25' .
+                '&sel_from_cred=' .
+                '&sel_to_cred=' .
+                '&sel_camp=%25' .
+                '&sel_levl=%25' .
+                '&sel_ptrm=%25' .
+                '&sel_instr=%25' .
+                '&sel_sess=%25' .
+                '&sel_attr=%25' .
+                '&begin_hh=0' .
+                '&begin_mi=0' .
+                '&begin_ap=x' .
+                '&end_hh=23' .
+                '&end_mi=59' .
+                '&end_ap=x'
+            );
+        }
+
+        // Fetch search page
+        $request = $this->_fetchPage( '/pls/etprod7/bwskfcls.P_GetCrse', 'POST', array(), true, array( 'PostString' => $postString ) );
+
+        // Check if courses have been found
+        if ( strpos( $request[ 'response' ], 'Aucun cours ne correspond' ) ) {
+            return array();
+        } else {
+            $courses = array();
+
+            // Parse DOM structure from response
+            $this->domparser->load( $request[ 'response' ] );
+            $tables = $this->domparser->find( 'table.datadisplaytable' );
+
+            $rows = $tables[ 0 ]->find('tr');
+            foreach ( $rows as $rowIndex => $row ) {
+                if ( $rowIndex > 1 ) {
+                    // Check if course is available
+                    if ( strlen( trim( $row->nodes[ 3 ]->text() ) ) > 4 ) {
+                        // Add course NRC and code to results list
+                        $courses[ trim( $row->nodes[ 3 ]->text() ) ] = strtoupper( trim( $row->nodes[ 5 ]->text() ) ) . '-' . trim( $row->nodes[ 7 ]->text() );
+                    }
+                }
+            }
+
+            return $courses;
+        }
+    }
+
     private function _fetchPage ( $url, $method = 'GET', $postVars = array(), $checkPage = true, $otherArguments = array() ) {
         // Define request parameters
         $this->fetcher->set( array(
