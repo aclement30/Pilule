@@ -189,29 +189,19 @@ class RegistrationController extends AppController {
 		$this->set( 'registrationSemester', $this->registrationSemester );
 		$this->set( 'registrationSemesters', $this->registrationSemesters );
 		$this->setAssets( array( '/js/registration.js' ), array( '/css/registration.css' ) );
-		$validationErrors = array();
-		$code = '';
-		$searchResults = array();
+		$validationErrors = '';
 		$searchResultsCodes = array();
-		$loadingSearchResults = false;
 
 		if ( $this->request->is( 'post' ) ) {
 			// Validate search request
-			if ( $this->request->data[ 'Registration' ][ 'target' ] == 'code' ) {
-				if ( empty( $this->request->data[ 'Registration' ][ 'code' ] ) ) {
-					$validationErrors[ 'code' ] = 'Veuillez indiquer le code du cours';
-				} else {
-					$code = strtoupper( trim( str_replace( '-', '', str_replace( ' ', '', $this->request->data[ 'Registration' ][ 'code' ] ) ) ) );
-					if ( !preg_match( '/([a-zA-Z]{3})([0-9]{4})/', $code ) ) {
-						$validationErrors[ 'code' ] = 'Le code de cours est invalide (format : XYZ-1234)';
-					}
+			if ( !empty( $this->request->data[ 'Registration' ][ 'code' ] ) ) {
+				$code = strtoupper( trim( str_replace( '-', '', str_replace( ' ', '', $this->request->data[ 'Registration' ][ 'code' ] ) ) ) );
+				if ( !preg_match( '/([a-zA-Z]{3})([0-9]{4})/', $code ) ) {
+					$validationErrors = 'Le code de cours est invalide (format : XYZ-1234)';
 				}
-			} else {
-				if ( empty( $this->request->data[ 'Registration' ][ 'keywords' ] ) ) {
-					$validationErrors[ 'keywords' ] = 'Veuillez indiquer un mot-clé à rechercher';
-				}
+			} elseif ( !empty( $this->request->data[ 'Registration' ][ 'keywords' ] ) ) {
 				if ( empty( $this->request->data[ 'Registration' ][ 'subject' ] ) ) {
-					$validationErrors[ 'subject' ] = 'Veuillez indiquer la matière du cours';
+					$validationErrors = 'Veuillez indiquer la matière du cours';
 				}
 
 				// Try to find the subject
@@ -223,12 +213,111 @@ class RegistrationController extends AppController {
 				if ( !empty( $subject ) ) {
 					$subject = $subject[ 'CourseSubject' ][ 'code' ];
 				} else {
-					$validationErrors[ 'subject' ] = 'La matière du cours est introuvable';
+					$validationErrors= 'La matière du cours est introuvable';
 				}
+			} else {
+				$validationErrors = 'Veuillez indiquer le code du cours ou un mot-clé pour la recherche.';
 			}
 
 			if ( empty( $validationErrors ) ) {
-				$loadingSearchResults = true;
+				if ( !empty( $this->request->data[ 'Registration' ][ 'code' ] ) ) {
+					// Attempt to find the course in database first
+					$searchResults = $this->UniversityCourse->find( 'all', array(
+						'conditions'	=>	array( 'UniversityCourse.code' => $this->request->data[ 'Registration' ][ 'code' ], 'UniversityCourse.av' . $this->request->data[ 'Registration' ][ 'semester' ] => true )
+					) );
+				}
+
+				if ( !empty( $searchResults ) ) {
+					// Check if course availability info need to be updated
+                    if ( $searchResults[ 0 ][ 'UniversityCourse' ][ 'checkup_' . $this->request->data[ 'Registration' ][ 'semester' ] ] < ( time() - 3600 * 24 * 7 ) ) {
+                        // Delete all existing classes for this course
+                        $this->UniversityCourse->Class->deleteAll( array( 'Class.course_id' => $searchResults[ 0 ][ 'UniversityCourse' ][ 'id' ], 'Class.semester' => $this->request->data[ 'Registration' ][ 'semester' ] ) );
+
+                        // Update course availability info
+                        $classes = $this->Capsule->fetchClasses( $searchResults[ 0 ][ 'UniversityCourse' ][ 'code' ], $this->request->data[ 'Registration' ][ 'semester' ] );
+
+                        if ( !empty( $classes[ 'Class' ] ) ) {
+                            // Save newly fetched classes for this course
+                            $searchResults[ 0 ][ 'Class'] = $classes[ 'Class' ];
+                            $searchResults[ 0 ][ 'UniversityCourse' ][ 'checkup_' . $this->request->data[ 'Registration' ][ 'semester' ] ] = time();
+                            $searchResults[ 0 ][ 'UniversityCourse' ][ 'av' . $this->request->data[ 'Registration' ][ 'semester' ] ] = true;
+                            $this->UniversityCourse->set( $searchResults[ 0 ] );
+                            $this->UniversityCourse->saveAll( $searchResults[ 0 ] );
+                        } else {
+                            // Update course availability info
+                            $searchResults[ 0 ][ 'UniversityCourse' ][ 'checkup_' . $this->request->data[ 'Registration' ][ 'semester' ] ] = time();
+                            $searchResults[ 0 ][ 'UniversityCourse' ][ 'av' . $this->request->data[ 'Registration' ][ 'semester' ] ] = false;
+                            $this->UniversityCourse->set( $searchResults[ 0 ] );
+                            $this->UniversityCourse->saveAll( $searchResults[ 0 ] );
+                        }
+                    }
+				} else {
+					// Test connection to Capsule server
+					$this->CapsuleAuth->testConnection();
+
+					$searchRequest = $this->request->data[ 'Registration' ];
+
+					if ( !empty( $searchRequest[ 'keywords' ] ) ) {
+						$searchRequest[ 'subject' ] = $subject;
+					}
+
+					// Send course search request to Capsule
+					$resultCourses = $this->Capsule->searchCourses( $searchRequest );
+
+					if ( !empty( $resultCourses ) ) {
+						// Parse found NRC and fetch courses not already existing in database
+						foreach ( $resultCourses as $nrc => $code ) {
+							// Check if course already exists in database
+							$course = $this->UniversityCourse->find( 'first', array(
+								'conditions'	=>	array( 'UniversityCourse.code' => $code )
+							) );
+
+							if ( empty( $course ) ) {
+								// Fetch course info from Capsule
+		                        $course = $this->Capsule->fetchCourse( $code, $this->request->data[ 'Registration' ][ 'semester' ] );
+
+		                        if ( !empty( $course[ 'UniversityCourse' ][ 'title' ] ) ) {
+									// Save fetched course info
+			                        $this->UniversityCourse->create();
+			                        $this->UniversityCourse->set( $course );
+			                        $this->UniversityCourse->saveAll( $course, array( 'deep' => true ) );
+			                    }
+							} else {
+								// Check if course availability info need to be updated
+		                        if ( $course[ 'UniversityCourse' ][ 'checkup_' . $this->request->data[ 'Registration' ][ 'semester' ] ] < ( time() - 3600 * 24 * 7 ) ) {
+		                            // Delete all existing classes for this course
+		                            $this->UniversityCourse->Class->deleteAll( array( 'Class.course_id' => $course[ 'UniversityCourse' ][ 'id' ], 'Class.semester' => $this->request->data[ 'Registration' ][ 'semester' ] ) );
+
+		                            // Update course availability info
+		                            $classes = $this->Capsule->fetchClasses( $course[ 'UniversityCourse' ][ 'code' ], $this->request->data[ 'Registration' ][ 'semester' ] );
+
+		                            if ( !empty( $classes[ 'Class' ] ) ) {
+		                                // Save newly fetched classes for this course
+		                                $course[ 'Class'] = $classes[ 'Class' ];
+		                                $course[ 'UniversityCourse' ][ 'checkup_' . $this->request->data[ 'Registration' ][ 'semester' ] ] = time();
+		                                $course[ 'UniversityCourse' ][ 'av' . $this->request->data[ 'Registration' ][ 'semester' ] ] = true;
+		                                $this->UniversityCourse->set( $course );
+		                                $this->UniversityCourse->saveAll( $course );
+		                            } else {
+		                                // Update course availability info
+		                                $course[ 'UniversityCourse' ][ 'checkup_' . $this->request->data[ 'Registration' ][ 'semester' ] ] = time();
+		                                $course[ 'UniversityCourse' ][ 'av' . $this->request->data[ 'Registration' ][ 'semester' ] ] = false;
+		                                $this->UniversityCourse->set( $course );
+		                                $this->UniversityCourse->saveAll( $course );
+		                            }
+		                        }
+							}
+
+							$searchResultsCodes[] = $code;
+		                }
+					}
+
+					$searchResults = $this->UniversityCourse->find( 'all', array(
+						'conditions'	=>	array( 'UniversityCourse.code' => $searchResultsCodes, 'UniversityCourse.av' . $this->request->data[ 'Registration' ][ 'semester' ] => true ),
+					) );
+				}
+
+				$this->set( 'searchResults', $searchResults );
 			}
 		}
 
@@ -237,81 +326,7 @@ class RegistrationController extends AppController {
 		) );
 
 		$this->set( 'coursesSubjects', $coursesSubjects );
-		$this->set( 'loadingSearchResults', $loadingSearchResults );
 		$this->set( 'validationErrors', $validationErrors );
-	}
-
-	public function getSearchResults() {
-		pr($this->request->data);
-		if ( $this->request->is( 'get' ) ) {
-			// Test connection to Capsule server
-			$this->CapsuleAuth->testConnection();
-
-			$searchRequest = $this->request->data[ 'Registration' ];
-
-			if ( $searchRequest[ 'target' ] == 'keywords' ) {
-				$searchRequest[ 'subject' ] = $subject;
-			}
-
-			// Send course search request to Capsule
-			$resultCourses = $this->Capsule->searchCourses( $searchRequest );
-
-			if ( !empty( $resultCourses ) ) {
-				// Parse found NRC and fetch courses not already existing in database
-				foreach ( $resultCourses as $nrc => $code ) {
-					// Check if course already exists in database
-					$course = $this->UniversityCourse->find( 'first', array(
-						'conditions'	=>	array( 'UniversityCourse.code' => $code )
-					) );
-
-					if ( empty( $course ) ) {
-						// Fetch course info from Capsule
-                        $course = $this->Capsule->fetchCourse( $code, $this->request->data[ 'Registration' ][ 'semester' ] );
-
-                        if ( !empty( $course[ 'UniversityCourse' ][ 'title' ] ) ) {
-							// Save fetched course info
-	                        $this->UniversityCourse->create();
-	                        $this->UniversityCourse->set( $course );
-	                        $this->UniversityCourse->saveAll( $course );
-	                    }
-					} else {
-						// Check if course availability info need to be updated
-                        if ( $course[ 'UniversityCourse' ][ 'checkup_' . $this->request->data[ 'Registration' ][ 'semester' ] ] < ( time() - 3600 * 24 * 7 ) ) {
-                            // Delete all existing classes for this course
-                            $this->UniversityCourse->Class->deleteAll( array( 'Class.course_id' => $course[ 'UniversityCourse' ][ 'id' ], 'Class.semester' => $this->request->data[ 'Registration' ][ 'semester' ] ) );
-
-                            // Update course availability info
-                            $classes = $this->Capsule->fetchClasses( $course[ 'UniversityCourse' ][ 'code' ], $this->request->data[ 'Registration' ][ 'semester' ] );
-
-                            if ( !empty( $classes[ 'Class' ] ) ) {
-                                // Save newly fetched classes for this course
-                                $course[ 'Class'] = $classes[ 'Class' ];
-                                $course[ 'UniversityCourse' ][ 'checkup_' . $this->request->data[ 'Registration' ][ 'semester' ] ] = time();
-                                $course[ 'UniversityCourse' ][ 'av' . $this->request->data[ 'Registration' ][ 'semester' ] ] = true;
-                                $this->UniversityCourse->set( $course );
-                                $this->UniversityCourse->saveAll( $course );
-                            } else {
-                                // Update course availability info
-                                $course[ 'UniversityCourse' ][ 'checkup_' . $this->request->data[ 'Registration' ][ 'semester' ] ] = time();
-                                $course[ 'UniversityCourse' ][ 'av' . $this->request->data[ 'Registration' ][ 'semester' ] ] = false;
-                                $this->UniversityCourse->set( $course );
-                                $this->UniversityCourse->saveAll( $course );
-                            }
-                        }
-					}
-
-					$searchResultsCodes[] = $code;
-                }
-			}
-
-			$searchResults = $this->UniversityCourse->find( 'all', array(
-				'conditions'	=>	array( 'UniversityCourse.code' => $searchResultsCodes, 'UniversityCourse.av' . $this->request->data[ 'Registration' ][ 'semester' ] => true ),
-			) );
-
-			$this->set( 'searchResults', $searchResults );
-
-			$this->render( 'search_results' );
-		}
 	}
 
 	public function results ( $token = null ) {

@@ -97,12 +97,42 @@ body .modal {
     }
 }
 
-.searching-courses .image {
-    margin-top: 20px;
-    text-align: right;
+.searching-courses {
+    padding: 20px 30px 50px;
 
-    img {
-        padding-right: 30px;
+    .image {
+        margin-top: 20px;
+        text-align: right;
+
+        img {
+            padding-right: 30px;
+        }
+    }
+}
+
+form.search {
+    margin-bottom: 0px;
+
+    .input-radio {
+        text-align: right;
+        margin-top: 25px;
+    }
+
+    .error {
+        color: red !important;
+        margin-bottom: 15px;
+    }
+}
+
+.search-results-container {
+    display: none;
+
+    hr {
+        margin: 10px 0 0;
+    }
+
+    .results {
+        display: none;
     }
 }
 
@@ -203,18 +233,6 @@ body .modal {
 .aside .alert-info {
     padding-right: 14px;
     font-size: 12px;
-}
-
-form.search {
-    .input-radio {
-        text-align: right;
-        margin-top: 25px;
-    }
-
-    .error {
-        color: red !important;
-        margin-bottom: 15px;
-    }
 }
 
 .registration-results {

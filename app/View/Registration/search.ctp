@@ -1,31 +1,37 @@
-<p>Utilisez le formulaire suivant pour chercher un cours qui ne figure pas dans votre choix de cours.<br /><strong>Vous pouvez rechercher par code de cours ou par mots-clés. Dans le deuxième cas, il vous faut aussi indiquer la matière du cours.</strong></p>
-<hr>
-<?php echo $this->Form->create( 'Registration', array( 'class' => 'search', 'method' => 'post' ) ); ?>
+<div class="explanation">
+	<p>Utilisez le formulaire suivant pour chercher un cours qui ne figure pas dans votre choix de cours.<br /><strong>Vous pouvez rechercher par code de cours ou par mots-clés. Dans le deuxième cas, il vous faut aussi indiquer la matière du cours.</strong></p>
+	<hr>
+</div>
+
+<?php if ( !empty( $validationErrors ) ) : ?>
+	<div class="alert alert-error"><?php echo $validationErrors; ?></div>
+<?php endif; ?>
+
+<?php echo $this->Form->create( 'Registration', array( 'class' => 'search' ) ); ?>
 	<div class="row-fluid">
-		<div class="span1 input-radio">
-			<input type="radio" id="search-target" name="data[Registration][target]" value="code" checked="checked" data-focus="RegistrationCode">
-		</div>
-		<div class="span11">
-			<?php echo $this->Form->input( 'code', array( 'label' => 'Code de cours', 'class' => 'input-small', 'style' => 'text-transform: uppercase;', 'maxlength' => 8 ) ); ?>
+		<div class="span3 well">
+			<?php echo $this->Form->input( 'code', array( 'label' => 'Code de cours', 'class' => 'span12 code', 'style' => 'text-transform: uppercase;', 'maxlength' => 8 ) ); ?>
 			<?php if ( !empty( $validationErrors[ 'code' ] ) ) echo '<div class="error">' . $validationErrors[ 'code' ] . '</div>'; ?>
 		</div>
+		<div class="span9 well">
+			<div class="row-fluid">
+				<div class="span6">
+					<?php echo $this->Form->input( 'keywords', array( 'label' => 'Mots-clés', 'class' => 'span12 keywords' ) ); ?>
+					<?php if ( !empty( $validationErrors[ 'keywords' ] ) ) echo '<div class="error">' . $validationErrors[ 'keywords' ] . '</div>'; ?>
+				</div>
+				<div class="span6">
+					<?php echo $this->Form->input( 'subject', array( 'label' => 'Matière *', 'class' => 'span12 subject', 'autocomplete' => 'off' ) ); ?>
+					<?php if ( !empty( $validationErrors[ 'subject' ] ) ) echo '<div class="error">' . $validationErrors[ 'subject' ] . '</div>'; ?>
+				</div>
+			</div>
+		</div>
 	</div>
 	<div class="row-fluid">
-		<div class="span1 input-radio">
-			<input type="radio" id="search-target" name="data[Registration][target]" value="keywords" data-focus="RegistrationKeywords">
+		<div class="span3" style="text-align: right;">
+			<?php //echo $this->Form->submit( 'Trouver', array( 'class' => 'btn btn-success', 'escape' => false ) ); ?>
+			<?php echo $this->Html->link( 'Trouver', '#', array( 'class' => 'btn btn-success', 'escape' => false ) ); ?>
 		</div>
-		<div class="span5">
-			<?php echo $this->Form->input( 'keywords', array( 'label' => 'Mots-clés', 'class' => 'input-xlarge' ) ); ?>
-			<?php if ( !empty( $validationErrors[ 'keywords' ] ) ) echo '<div class="error">' . $validationErrors[ 'keywords' ] . '</div>'; ?>
-		</div>
-		<div class="span6">
-			<?php echo $this->Form->input( 'subject', array( 'label' => 'Matière *', 'class' => 'input-xlarge', 'autocomplete' => 'off' ) ); ?>
-			<?php if ( !empty( $validationErrors[ 'subject' ] ) ) echo '<div class="error">' . $validationErrors[ 'subject' ] . '</div>'; ?>
-		</div>
-	</div>
-	<div class="row-fluid">
-		<div class="span1"></div>
-		<div class="span11">
+		<div class="span9">
 			<?php
 				$semestersList = array();
 
@@ -33,21 +39,67 @@
 					$semestersList[ $semester ] = $this->App->convertSemester( $semester );
 				}
 
-				echo $this->Form->input( 'semester', array( 'label' => 'Session', 'class' => 'input-medium', 'options' => $semestersList, 'selected' => $registrationSemester ) );
+				echo $this->Form->input( 'semester', array( 'label' => false, 'class' => 'input-medium', 'options' => $semestersList, 'selected' => $registrationSemester ) );
 			?>
-		</div>
-	</div>
-	<div class="row-fluid">
-		<div class="span1"></div>
-		<div class="span11" style="margin-top: 15px;">
-			<?php echo $this->Form->submit( 'Trouver', array( 'class' => 'btn btn-success', 'escape' => false ) ); ?>
+			
 		</div>
 	</div>
 <?php echo $this->Form->end(); ?>
 
-<?php if ( $loadingSearchResults ) echo $this->element( 'registration/searching_courses' ); ?>
+<div class="search-results-container">
+	<?php echo $this->element( 'registration/searching_courses' ); ?>
+
+	<div class="results">
+		<?php if ( !empty( $this->data) && empty( $searchResults ) ) : ?>
+			<div class="table-panel alert alert-warning">Aucun cours ne correspond aux critères de recherche.</div>
+		<?php endif; ?>
+		
+		<?php if ( !empty( $searchResults ) ) : ?>
+			<div class="table-panel not-expandable">
+		    <table class="table sortable courses-list search-results">
+		        <thead>
+		            <tr>
+		                <th class="course-code">Cours</th>
+		                <th class="title">Titre</th>
+		                <th class="semester">Session <?php echo $this->App->convertSemester( $this->request->data[ 'Registration' ][ 'semester' ], true ); ?></th>
+		                <th class="credits">Crédits</th>
+		            </tr>
+		        </thead>
+		        <tbody>
+		            <?php foreach ( $searchResults as $course ) : ?>
+		            	<?php
+		                    $course = $course[ 'UniversityCourse' ];
+		            		$courseClassnames = array();
+
+		            		if ( !empty( $course[ 'note' ] ) )
+		            			$courseClassnames[] = 'done';
+		            		
+		            		if ( empty( $course[ 'note' ] ) && !empty( $course[ 'semester' ] ) )
+		            			$courseClassnames[] = 'current';
+		            		
+		            		if ( $course[ 'av' . $this->request->data[ 'Registration' ][ 'semester' ] ] ) {
+		            			$courseClassnames[] = 'available';
+		            		} else {
+		            			$courseClassnames[] = 'not-available';
+		            		}
+		            	?>
+		                <tr class="<?php echo implode( ' ', $courseClassnames ); ?>" data-code="<?php echo $course[ 'code' ]; ?>">
+							<td class="code">
+		                        <span class="course-code"><?php echo $course[ 'code' ]; ?></span><br />
+		                        <span class="mobile-title"><?php echo $course[ 'title' ]; ?></span>
+		                    </td>
+		                    <td class="title"><?php echo $course[ 'title' ]; ?></td>
+		                    <td class="semester"><?php if ( $course[ 'av' . $this->request->data[ 'Registration' ][ 'semester' ] ] ) echo 'Oui'; else echo 'Non'; ?></td>
+		                    <td class="credits"><?php echo $course[ 'credits' ]; ?></td>
+		                </tr>
+		            <?php endforeach; ?>
+		        </tbody>
+		    </table>
+		</div>
+		<?php endif; ?>
+	</div>
+</div>
 
 <script type="text/javascript">
 	var coursesSubjects = new Array( "<?php echo implode( '","', $coursesSubjects ); ?>" );
-	var launchSearch = <?php if ( $loadingSearchResults ) echo true; else echo false; ?>;
 </script>

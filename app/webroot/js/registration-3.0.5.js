@@ -56,8 +56,7 @@ app.Registration.init = function ( params ) {
     $( '.courses-list tbody tr.not-available' ).hide( 'fast' ).promise().done( app.Registration.repaintTableRows );
 
     // Init search form
-    $( 'form.search #search-target' ).on( 'click', app.Registration.focusSearchField );
-    $( 'form.search .span11 input, form.search .span5 input' ).on( 'focus', app.Registration.setSearchField );
+    $( 'form.search .btn-success' ).on( 'click', app.Registration.searchCourses );
     if ( typeof coursesSubjects != 'undefined' ) {
     	$( 'form.search input#RegistrationSubject' ).typeahead( {
     		source: 	coursesSubjects
@@ -65,13 +64,57 @@ app.Registration.init = function ( params ) {
     }
 };
 
-app.Registration.focusSearchField = function ( e ) {
-	$( 'form.search input#' + $( e.currentTarget ).data( 'focus' ) ).focus();
-};
+app.Registration.searchCourses = function() {
+	// Remove error messages, if any
+	$( '.inner-content .alert.alert-error' ).hide();
 
-app.Registration.setSearchField = function ( e ) {
-	$( 'form.search #search-target' ).removeAttr( 'checked' );
-	$( e.currentTarget ).closest( '.row-fluid' ).find( 'input#search-target' ).attr( 'checked', 'checked' );
+	// Retrieve search params
+	var code = $( 'form.search .code' ).val();
+	var keywords = $( 'form.search .keywords' ).val();
+	var subject = $( 'form.search .subject' ).val();
+	
+	var validationErrors = null;
+
+	// Validate search request params
+	if ( code != '' ) {
+		code = code.toUpperCase().replace( '-', '' ).replace( ' ', '' );
+
+		if ( !code.match( /([a-zA-Z]{3})([0-9]{4})/ ) ) {
+			validationErrors = 'Le code de cours est invalide (format : XYZ-1234).' ;
+		}
+
+		$( 'form.search .keywords, form.search .subject' ).val( '' );
+	} else if ( keywords != '' ) {
+		if ( subject == '' ) {
+			validationErrors = 'Veuillez indiquer la matière du cours.';
+		}
+
+		$( 'form.search .code' ).val( '' );
+	} else {
+		validationErrors = 'Veuillez indiquer le code du cours ou un mot-clé pour la recherche.';
+	}
+
+	if ( validationErrors != null ) {
+		if ( $( '.inner-content .alert.alert-error' ).length != 0 ) {
+			$( '.inner-content .alert.alert-error' ).html( validationErrors ).fadeIn();
+		} else {
+			$( 'form.search' ).before( '<div class="alert alert-error">' + validationErrors + '</div>' );
+		}
+	} else {
+		$( '.main .explanation' ).slideUp();
+		$( '.search-results-container .results' ).hide();
+		$( '.main .search-results-container .no-data.searching-courses' ).show();
+		$( '.main .search-results-container' ).slideDown();
+
+		// Send AJAX request
+		$( '.search-results-container .results' ).load( '/registration/search .search-results-container .results .table-panel', $( 'form.search' ).serializeArray(), function ( responseText, textStatus, XMLHttpRequest ) {
+			$( '.main .search-results-container .no-data.searching-courses' ).fadeOut( 'fast', function(){
+				$( '.main .search-results-container .results' ).fadeIn();
+			} );
+		} );
+	}
+
+	return false;
 };
 
 app.Registration.repaintTableRows = function () {
