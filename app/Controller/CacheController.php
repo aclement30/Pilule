@@ -20,7 +20,7 @@ class CacheController extends AppController {
 
 	public function fetchData() {
 		// Increase memory limit
-		ini_set( 'memory_limit', '50M' );
+		ini_set( 'memory_limit', '60M' );
 
         ob_start();
 
