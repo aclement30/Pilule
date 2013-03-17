@@ -30,5 +30,5 @@
         </div>
     </div>
 
-    <div class="fb-like" data-href="<?php echo Router::url( '/', true ); ?>" data-send="false" data-width="270" data-show-faces="true"></div>
+    <div class="fb-like" data-href="https://www.facebook.com/pages/Pilule-Gestion-des-études/201700133216838" data-send="false" data-width="270" data-show-faces="true"></div>
 <?php endif; ?>
