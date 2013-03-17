@@ -67,9 +67,13 @@ class RegistrationController extends AppController {
 	public function index ( $semester = null, $programId = null ) {
 		// If user selected a different semester, use it for registration
 		if ( !empty( $semester ) ) {
-			$newSemester = $semester;
-			$this->Session->write( 'Registration.semester', $semester );
-			$this->registrationSemester = $semester;
+			if ( in_array( $semester, $this->registrationSemesters ) ) {
+				$newSemester = $semester;
+				$this->Session->write( 'Registration.semester', $semester );
+				$this->registrationSemester = $semester;
+			} else {
+				$semester = $this->registrationSemester;
+			}
 		}
 
 		$this->set( 'currentSemester', $this->currentSemester );
@@ -186,11 +190,32 @@ class RegistrationController extends AppController {
 	public function search () {
 		$this->set( 'title_for_layout', 'Recherche de cours' );
 		$this->set( 'sidebar', 'registration' );
+		$this->set( 'deadlines', $this->deadlines );
 		$this->set( 'registrationSemester', $this->registrationSemester );
 		$this->set( 'registrationSemesters', $this->registrationSemesters );
 		$this->setAssets( array( '/js/registration.js' ), array( '/css/registration.css' ) );
 		$validationErrors = '';
 		$searchResultsCodes = array();
+		$selectedCourses = array();
+		$registeredCourses = array();
+
+		// Retrieve student selected courses for registration semester
+		$selectedCourses = $this->User->SelectedCourse->find( 'all', array(
+			'conditions'	=>	array(
+				'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
+				'SelectedCourse.semester'	=>	$this->registrationSemester
+			),
+			'contain'		=>	array( 'UniversityCourse' )
+		) );
+
+		// Retrieve courses already registered by the student
+		$schedule = $this->User->ScheduleSemester->find( 'first', array(
+			'conditions'	=>	array( 'ScheduleSemester.idul' => $this->Session->read( 'User.idul' ), 'ScheduleSemester.semester' => $this->registrationSemester  ),
+        	'contain'		=>	array( 'Course' )
+        ) );
+		
+		if ( !empty( $schedule[ 'Course' ] ) )
+			$registeredCourses = $schedule[ 'Course' ];
 
 		if ( $this->request->is( 'post' ) ) {
 			// Validate search request
@@ -325,6 +350,8 @@ class RegistrationController extends AppController {
 			'fields'	=>	array( 'code', 'title' )
 		) );
 
+		$this->set( 'registeredCourses', $registeredCourses );
+		$this->set( 'selectedCourses', $selectedCourses );
 		$this->set( 'coursesSubjects', $coursesSubjects );
 		$this->set( 'validationErrors', $validationErrors );
 	}

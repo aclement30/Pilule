@@ -1297,6 +1297,10 @@ class Capsule {
         $this->domparser->load( $request[ 'response' ] );
         $table = $this->domparser->find( 'table.datadisplaytable' );
 
+        if ( strpos( $request[ 'response' ], 'Il vous est impossible de vous inscrire dans Capsule' ) > 1 ) {
+            return false;
+        }
+        
         $postString = "term_in=".$semester."&RSTS_IN=DUMMY&assoc_term_in=DUMMY&CRN_IN=DUMMY&start_date_in=DUMMY&end_date_in=DUMMY&SUBJ=DUMMY&CRSE=DUMMY&SEC=DUMMY&LEVL=DUMMY&CRED=DUMMY&GMOD=DUMMY&TITLE=DUMMY&MESG=DUMMY&REG_BTN=DUMMY";
 
         if ( count ( $table ) != 0 ) {
