@@ -1326,6 +1326,11 @@ class Capsule {
         }
 
         $form = $this->domparser->find( 'form' );
+
+        if ( empty( $form ) || !is_array( $form ) ) {
+            return false;
+        }
+        
         $inputFields = $form[1]->find( 'input' );
         // Parse all form input fields
         foreach( $inputFields as $field ) {
