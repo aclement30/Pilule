@@ -43,7 +43,7 @@
 
             // Check if data need to be fetched automatically because timestamp is expired
             if ( !empty( $timestamp ) && $timestamp < ( time() - $expirationDelay ) ) {
-                ?>app.Cache.reloadData( { name: '<?php echo $dataObject; ?>', auto: 1, callback: <?php echo $reloadDataCallback; ?> } );<?php
+                ?>app.Cache.reloadData( { name: '<?php echo $dataObject; ?>', auto: 1<?php if ( !empty( $reloadDataCallback ) ) echo ', callback: ' . $reloadDataCallback; ?> } );<?php
             }
         ?>
     });
