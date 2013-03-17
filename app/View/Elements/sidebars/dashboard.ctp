@@ -29,4 +29,6 @@
             <hr>
         </div>
     </div>
+
+    <div class="fb-like" data-href="<?php echo Router::url( '/', true ); ?>" data-send="false" data-width="270" data-show-faces="true" data-font="arial" data-action="recommend"></div>
 <?php endif; ?>
