@@ -107,7 +107,7 @@ app.Registration.searchCourses = function() {
 		$( '.main .search-results-container' ).slideDown();
 
 		// Send AJAX request
-		$( '.search-results-container .results' ).load( '/registration/search .search-results-container .results .table-panel', $( 'form.search' ).serializeArray(), function ( responseText, textStatus, XMLHttpRequest ) {
+		$( '.search-results-container .results' ).load( app.baseUrl + 'registration/search .search-results-container .results .table-panel', $( 'form.search' ).serializeArray(), function ( responseText, textStatus, XMLHttpRequest ) {
 			$( '.main .search-results-container .no-data.searching-courses' ).fadeOut( 'fast', function(){
 				$( '.main .search-results-container .results' ).fadeIn();
 			} );
