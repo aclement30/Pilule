@@ -29,6 +29,6 @@
             <hr>
         </div>
     </div>
-    
-    <div class="fb-like" data-href="https://www.facebook.com/pages/Pilule-Gestion-des-études/201700133216838" data-send="false" data-width="270" data-show-faces="true" data-font="arial" data-action="recommend"></div>
+
+    <div class="fb-like" data-href="https://www.facebook.com/pages/Pilule-Gestion-des-études/201700133216838" data-send="false" data-width="270" data-show-faces="true"></div>
 <?php endif; ?>
