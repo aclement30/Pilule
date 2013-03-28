@@ -4,3 +4,7 @@
 <br>
 <br>
 <?php echo $message[ 'Feedback' ][ 'name' ], ', ' . $message[ 'Feedback' ][ 'email' ]; ?>
+<hr>
+<pre>
+	<?php pr( $_SERVER ); ?>
+</pre>
