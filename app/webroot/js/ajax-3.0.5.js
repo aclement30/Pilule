@@ -87,7 +87,7 @@ ajax.request = function ( params ) {
 				}
 			}
 		},
-		timeout: 60000,
+		timeout: 120000,
 		error: function ( request, status, message ) {
 			clearTimeout( ajax.loadingDisplayTimeout );
 			stopLoading();
