@@ -24,10 +24,12 @@ class FeedbackController extends AppController {
                 $Email->from( 'web@alexandreclement.com' );
             }
             $Email->to( 'web@alexandreclement.com' );
+            $Email->config( 'smtp' );
             $Email->subject( 'Pilule - Commentaires' );
             $Email->template( 'feedback' );
             $Email->emailFormat( 'html' );
             $Email->viewVars( array( 'message' => $this->request->data ) );
+            $Email->transport( 'Smtp' );
             if ( $Email->send() ) {
                 return new CakeResponse( array(
                     'body' => json_encode( array(
