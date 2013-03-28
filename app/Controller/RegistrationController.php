@@ -39,7 +39,7 @@ class RegistrationController extends AppController {
 							)
 						   );
 	
-	private $registrationSemesters = array( '201301', '201305' );
+	private $registrationSemesters = array( '201301', '201305', '201309' );
 
 	public function beforeFilter () {
 		parent::beforeFilter();
@@ -59,7 +59,7 @@ class RegistrationController extends AppController {
 		if ( $this->Session->read( 'Registration.semester' ) != '' ) {
 			$this->registrationSemester = $this->Session->read( 'Registration.semester' );
 		} else {
-			$this->registrationSemester = '201305';
+			$this->registrationSemester = '201309';
 			$this->Session->write( 'Registration.semester', $this->registrationSemester );
 		}
 	}
