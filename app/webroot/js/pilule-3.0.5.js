@@ -110,6 +110,8 @@ app.init = function () {
 
         return false;
     } );
+
+    $( '#in-nav .link-feedback a' ).on( 'click', app.Common.feedback );
 };
 
 app.Layout = {};
@@ -290,6 +292,49 @@ app.Common.displayError = function ( message, object, autoHide ) {
     };
 
     toastr.error( message );
+};
+
+app.Common.feedback = function () {
+    app.Common.showModal( {
+        url:        '/feedback/send',
+        callback:   function() {
+            $( '#modal form.feedback input.url' ).val( document.location );
+            $( '#modal form.feedback input.token' ).val( '!pilule$' );
+            $( '#modal form.feedback .btn-success' ).on( 'click', app.Common.sendFeedback );
+        }
+    } );
+
+    return false;
+};
+
+app.Common.sendFeedback = function () {
+    $( '#modal form.feedback .btn-success' ).attr( 'disabled', 'disabled' ).addClass( 'disabled' );
+    $( '#modal form.feedback .loading-btn' ).fadeIn();
+
+    // Send AJAX request
+    ajax.request( {
+        url:            '/feedback/send.json',
+        type:           'POST',
+        data:           $( '#modal form.feedback' ).serializeArray(),
+        callback:       function( response ) {
+            $( '#modal form.feedback .btn-success' ).removeAttr( 'disabled' ).removeClass( 'disabled' );
+            $( '#modal form.feedback .loading-btn' ).hide();
+
+            if ( response.status ) {
+                // Close modal
+                $( '#modal' ).modal( 'hide' );
+
+                app.Common.displayMessage( "Nous avons bien reçu vos commentaires ! Merci." );
+            } else {
+                app.Common.dispatchError({
+                    message:    "Une erreur est survenue durant l'envoi du message.",
+                    context:    'feedback-error'
+                });
+            }
+        }
+    } );
+
+    return false;
 };
 
 app.Common.refreshPage = function () {

@@ -14,6 +14,9 @@
                         <li class="menu">
                             <a href="#"><img src="<?php echo Router::url( '/', true ) ?>img/icons/menu.png"></a>
                         </li>
+                        <li class="link-feedback">
+                            <?php echo $this->Html->link( '<img src="' . Router::url( '/', true ) . 'img/icons/feedback.png"> <span>Commentaires</span>', '#', array( 'escape' => false ) ); ?>
+                        </li>
                         <li class="link-settings">
                             <?php echo $this->Html->link( '<img src="' . Router::url( '/', true ) . 'img/icons/settings.png"> <span>Préférences</span>', array( 'controller' => 'settings' ), array( 'escape' => false ) ); ?>
                         </li>

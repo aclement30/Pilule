@@ -471,6 +471,38 @@ footer {
   transform: translate3d(0, 0, 0);
 }
 
+#modal form.feedback {
+  div.input {
+    margin-bottom: 15px;
+  }
+
+  input, label {
+    display: block;
+  }
+
+  .include-page-content {
+    float: right;
+
+    input, label {
+      display: inline-block;
+    }
+
+    input {
+      margin-top: 0px;
+    }
+    
+    label {
+      margin-left: 5px;
+      margin-top: 5px;
+      margin-bottom: 0px;
+    }
+  }
+
+  img.loading-btn {
+    margin-left: 10px;
+    display: none;
+  }
+}
 /* ============== messages ============== */
 
 .message-sidebar {
