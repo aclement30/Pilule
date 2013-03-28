@@ -114,7 +114,7 @@ class PostmarkTransport extends AbstractTransport {
 		$message['ReplyTo'] = $this->_headers['Reply-To'];
 
 		// Subject
-		$message['Subject'] = mb_decode_mimeheader($this->_headers['Subject']);
+		$message['Subject'] = iconv_mime_decode($this->_headers['Subject']);
 
 		// Tag
 		if (isset($this->_headers['Tag'])) {
