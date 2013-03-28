@@ -1,7 +1,7 @@
 <?php
-class FeedbackController extends AppController {
+App::uses( 'CakeEmail', 'Network/Email' );
 
-    public $components = array( 'Email' );
+class FeedbackController extends AppController {
 
     public $uses = array( );
 
