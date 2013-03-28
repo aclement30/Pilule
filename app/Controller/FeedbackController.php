@@ -19,17 +19,15 @@ class FeedbackController extends AppController {
             // Send feedback via email
             $Email = new CakeEmail();
             if ( !empty( $this->request->data[ 'Feedback' ][ 'name' ] ) && !empty( $this->request->data[ 'Feedback' ][ 'email' ] ) ) {
-                $Email->from( array( $this->request->data[ 'Feedback' ][ 'email' ] => $this->request->data[ 'Feedback' ][ 'name' ] ) );
-            } else {
-                $Email->from( 'web@alexandreclement.com' );
+                $Email->replyTo( array( $this->request->data[ 'Feedback' ][ 'email' ] => $this->request->data[ 'Feedback' ][ 'name' ] ) );
             }
+            $Email->from( 'web@alexandreclement.com' );
             $Email->to( 'web@alexandreclement.com' );
-            $Email->config( 'smtp' );
+            $Email->config( 'postmark' );
             $Email->subject( 'Pilule - Commentaires' );
             $Email->template( 'feedback' );
             $Email->emailFormat( 'html' );
             $Email->viewVars( array( 'message' => $this->request->data ) );
-            $Email->transport( 'Smtp' );
             if ( $Email->send() ) {
                 return new CakeResponse( array(
                     'body' => json_encode( array(
