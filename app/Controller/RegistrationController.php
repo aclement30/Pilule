@@ -225,20 +225,23 @@ class RegistrationController extends AppController {
 					$validationErrors = 'Le code de cours est invalide (format : XYZ-1234)';
 				}
 			} elseif ( !empty( $this->request->data[ 'Registration' ][ 'keywords' ] ) ) {
-				if ( empty( $this->request->data[ 'Registration' ][ 'subject' ] ) ) {
-					$validationErrors = 'Veuillez indiquer la matière du cours';
-				}
+				if ( !empty( $this->request->data[ 'Registration' ][ 'subject' ] ) ) {
+					// Try to find the subject
+					$subject = $this->CourseSubject->find( 'first', array(
+						'conditions'	=>	array( 'CourseSubject.title' => $this->request->data[ 'Registration' ][ 'subject' ] ),
+						'fields'		=>	array( 'code' )
+					) );
 
-				// Try to find the subject
-				$subject = $this->CourseSubject->find( 'first', array(
-					'conditions'	=>	array( 'CourseSubject.title' => $this->request->data[ 'Registration' ][ 'subject' ] ),
-					'fields'		=>	array( 'code' )
-				) );
-
-				if ( !empty( $subject ) ) {
-					$subject = $subject[ 'CourseSubject' ][ 'code' ];
+					if ( !empty( $subject ) ) {
+						$subject = $subject[ 'CourseSubject' ][ 'code' ];
+					} else {
+						$validationErrors= 'La matière du cours est introuvable';
+					}
 				} else {
-					$validationErrors= 'La matière du cours est introuvable';
+					// Search in all subjects
+					$subject = array_keys( $this->CourseSubject->find( 'list', array(
+						'fields'	=>	array( 'code', 'title' )
+					) ) );
 				}
 			} else {
 				$validationErrors = 'Veuillez indiquer le code du cours ou un mot-clé pour la recherche.';

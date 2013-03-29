@@ -1811,37 +1811,75 @@ class Capsule {
                 '&end_ap=x'
             );
         } else {
-            $postString = (
-                'term_in=' . $searchRequest[ 'semester' ] . 
-                '&sel_subj=dummy' .
-                '&sel_day=dummy' .
-                '&sel_schd=dummy' .
-                '&sel_insm=dummy' .
-                '&sel_camp=dummy' .
-                '&sel_levl=dummy' .
-                '&sel_sess=dummy' .
-                '&sel_instr=dummy' .
-                '&sel_ptrm=dummy' .
-                '&sel_attr=dummy' .
-                '&sel_subj=' . strtoupper( $searchRequest[ 'subject' ] ) .
-                '&sel_crse=' .
-                '&sel_title=' . urlencode( $searchRequest[ 'keywords' ] ) .
-                '&sel_schd=%25' .
-                '&sel_from_cred=' .
-                '&sel_to_cred=' .
-                '&sel_camp=%25' .
-                '&sel_levl=%25' .
-                '&sel_ptrm=%25' .
-                '&sel_instr=%25' .
-                '&sel_sess=%25' .
-                '&sel_attr=%25' .
-                '&begin_hh=0' .
-                '&begin_mi=0' .
-                '&begin_ap=x' .
-                '&end_hh=23' .
-                '&end_mi=59' .
-                '&end_ap=x'
-            );
+            if ( is_array( $searchRequest[ 'subject' ] ) ) {
+                $postString =
+                    'term_in=' . $searchRequest[ 'semester' ] . 
+                    '&sel_subj=dummy' .
+                    '&sel_day=dummy' .
+                    '&sel_schd=dummy' .
+                    '&sel_insm=dummy' .
+                    '&sel_camp=dummy' .
+                    '&sel_levl=dummy' .
+                    '&sel_sess=dummy' .
+                    '&sel_instr=dummy' .
+                    '&sel_ptrm=dummy' .
+                    '&sel_attr=dummy';
+
+                foreach ( $searchRequest[ 'subject' ] as $subject ) {
+                    $postString .= '&sel_subj=' . $subject;
+                }
+
+                $postString .=
+                    '&sel_crse=' .
+                    '&sel_title=' . urlencode( utf8_decode( $searchRequest[ 'keywords' ] ) ) .
+                    '&sel_schd=%25' .
+                    '&sel_from_cred=' .
+                    '&sel_to_cred=' .
+                    '&sel_camp=%25' .
+                    '&sel_levl=%25' .
+                    '&sel_ptrm=%25' .
+                    '&sel_instr=%25' .
+                    '&sel_sess=%25' .
+                    '&sel_attr=%25' .
+                    '&begin_hh=0' .
+                    '&begin_mi=0' .
+                    '&begin_ap=x' .
+                    '&end_hh=23' .
+                    '&end_mi=59' .
+                    '&end_ap=x';
+            } else {
+                $postString = (
+                    'term_in=' . $searchRequest[ 'semester' ] . 
+                    '&sel_subj=dummy' .
+                    '&sel_day=dummy' .
+                    '&sel_schd=dummy' .
+                    '&sel_insm=dummy' .
+                    '&sel_camp=dummy' .
+                    '&sel_levl=dummy' .
+                    '&sel_sess=dummy' .
+                    '&sel_instr=dummy' .
+                    '&sel_ptrm=dummy' .
+                    '&sel_attr=dummy' .
+                    '&sel_subj=' . strtoupper( $searchRequest[ 'subject' ] ) .
+                    '&sel_crse=' .
+                    '&sel_title=' . urlencode( utf8_decode( $searchRequest[ 'keywords' ] ) ) .
+                    '&sel_schd=%25' .
+                    '&sel_from_cred=' .
+                    '&sel_to_cred=' .
+                    '&sel_camp=%25' .
+                    '&sel_levl=%25' .
+                    '&sel_ptrm=%25' .
+                    '&sel_instr=%25' .
+                    '&sel_sess=%25' .
+                    '&sel_attr=%25' .
+                    '&begin_hh=0' .
+                    '&begin_mi=0' .
+                    '&begin_ap=x' .
+                    '&end_hh=23' .
+                    '&end_mi=59' .
+                    '&end_ap=x'
+                );
+            }
         }
 
         // Fetch search page
@@ -1861,7 +1899,7 @@ class Capsule {
             foreach ( $rows as $rowIndex => $row ) {
                 if ( $rowIndex > 1 ) {
                     // Check if course is available
-                    if ( strlen( trim( $row->nodes[ 3 ]->text() ) ) > 4 ) {
+                    if ( count( $row->nodes ) > 5 and strlen( trim( $row->nodes[ 3 ]->text() ) ) > 4 ) {
                         // Add course NRC and code to results list
                         $courses[ trim( $row->nodes[ 3 ]->text() ) ] = strtoupper( trim( $row->nodes[ 5 ]->text() ) ) . '-' . trim( $row->nodes[ 7 ]->text() );
                     }

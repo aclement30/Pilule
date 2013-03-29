@@ -85,10 +85,6 @@ app.Registration.searchCourses = function() {
 
 		$( 'form.search .keywords, form.search .subject' ).val( '' );
 	} else if ( keywords != '' ) {
-		if ( subject == '' ) {
-			validationErrors = 'Veuillez indiquer la matière du cours.';
-		}
-
 		$( 'form.search .code' ).val( '' );
 	} else {
 		validationErrors = 'Veuillez indiquer le code du cours ou un mot-clé pour la recherche.';

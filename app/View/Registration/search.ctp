@@ -1,5 +1,5 @@
 <div class="explanation">
-	<p>Utilisez le formulaire suivant pour chercher un cours qui ne figure pas dans votre choix de cours.<br /><strong>Vous pouvez rechercher par code de cours ou par mots-clés. Dans le deuxième cas, il vous faut aussi indiquer la matière du cours.</strong></p>
+	<p>Utilisez le formulaire suivant pour chercher un cours qui ne figure pas dans votre choix de cours.<br /><strong>Vous pouvez rechercher par sigle de cours ou par mots-clés.</strong> Note : la recherche s'effectue via Capsule.</p>
 	<hr>
 </div>
 
@@ -10,7 +10,7 @@
 <?php echo $this->Form->create( 'Registration', array( 'class' => 'search' ) ); ?>
 	<div class="row-fluid">
 		<div class="span3 well">
-			<?php echo $this->Form->input( 'code', array( 'label' => 'Code de cours', 'class' => 'span12 code', 'style' => 'text-transform: uppercase;', 'maxlength' => 8 ) ); ?>
+			<?php echo $this->Form->input( 'code', array( 'label' => 'Sigle de cours', 'class' => 'span12 code', 'style' => 'text-transform: uppercase;', 'maxlength' => 8, 'placeholder' => 'ABC-1000' ) ); ?>
 			<?php if ( !empty( $validationErrors[ 'code' ] ) ) echo '<div class="error">' . $validationErrors[ 'code' ] . '</div>'; ?>
 		</div>
 		<div class="span9 well">
@@ -20,7 +20,7 @@
 					<?php if ( !empty( $validationErrors[ 'keywords' ] ) ) echo '<div class="error">' . $validationErrors[ 'keywords' ] . '</div>'; ?>
 				</div>
 				<div class="span6">
-					<?php echo $this->Form->input( 'subject', array( 'label' => 'Matière *', 'class' => 'span12 subject', 'autocomplete' => 'off' ) ); ?>
+					<?php echo $this->Form->input( 'subject', array( 'label' => 'Matière', 'class' => 'span12 subject', 'autocomplete' => 'off' ) ); ?>
 					<?php if ( !empty( $validationErrors[ 'subject' ] ) ) echo '<div class="error">' . $validationErrors[ 'subject' ] . '</div>'; ?>
 				</div>
 			</div>
