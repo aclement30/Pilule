@@ -65,6 +65,7 @@
 	Router::connect( '/choix-cours/:semester', array( 'controller' => 'registration', 'action' => 'index' ), array( 'pass' => array( 'semester' ) ) );
 	Router::connect( '/choix-cours', array( 'controller' => 'registration', 'action' => 'index' ) );
 	Router::connect( '/registration/getCourseInfo/:code', array( 'controller' => 'registration', 'action' => 'getCourseInfo' ), array( 'pass' => array( 'code' ) ) );
+	Router::connect( '/inscription', array( 'controller' => 'registration', 'action' => 'enableBetaRegistration' ) );
 
 /**
  * Load all plugin routes.  See the CakePlugin documentation on 

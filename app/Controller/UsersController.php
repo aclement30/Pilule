@@ -3,6 +3,8 @@ class UsersController extends AppController {
 
 	public $uses = array( 'CacheRequest', 'Module', 'User' );
 
+	public $components = array( 'Cookie' );
+
 	public function beforeFilter() {
 		parent::beforeFilter();
 
@@ -130,6 +132,14 @@ class UsersController extends AppController {
 	        )
         ) );
         */
+
+		// Check if registration is allowed
+		if ( $this->Cookie->read( 'pilule-registration-temp' ) == 'yes' ) {
+			$this->set( 'isRegistrationAllowed', true );
+		} else {
+			$this->set( 'isRegistrationAllowed', false );
+		}
+
         $this->set( 'modules', $modules );
         $this->set( 'userModules', $userModules );
 

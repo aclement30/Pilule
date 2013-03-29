@@ -2,6 +2,8 @@
 class RegistrationController extends AppController {
 	public $uses = array( 'CourseSubject', 'User', 'UniversityCourse', 'StudentProgram' );
 
+	public $components = array( 'Cookie' );
+
 	public $helpers = array( 'Time', 'Text' );
 
 	private $registrationSemester;
@@ -62,6 +64,15 @@ class RegistrationController extends AppController {
 			$this->registrationSemester = '201309';
 			$this->Session->write( 'Registration.semester', $this->registrationSemester );
 		}
+
+		$this->CapsuleAuth->allow( 'enableBetaRegistration' );
+	}
+
+	public function enableBetaRegistration() {
+		// Save temporary cookie
+		$this->Cookie->write( 'pilule-registration-temp', 'yes', false, '30 days' );
+
+		$this->redirect( array( 'action' => 'index' ) );
 	}
 
 	public function index ( $semester = null, $programId = null ) {
