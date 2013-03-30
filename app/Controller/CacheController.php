@@ -391,6 +391,8 @@ class CacheController extends AppController {
                     // Save schedule data
                     $this->User->ScheduleSemester->saveAll( $result[ 'schedule' ], array( 'deep' => true ) );
 
+                    Configure::write('debug', 2);
+
                     debug($this->User->ScheduleSemester->getDataSource()->getLog(false, false));
 
                     // Update last data checkup timestamp
