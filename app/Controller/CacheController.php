@@ -37,7 +37,7 @@ class CacheController extends AppController {
             $dataObject = $this->request->query[ 'name' ];
 
             $this->debugMode = true;
-           // $this->Capsule->debug = 1;
+            $this->Capsule->debug = 1;
         }
 
         // Force data reload if request has been called by the user (by clicking Reload data button)
@@ -387,11 +387,9 @@ class CacheController extends AppController {
                     $this->User->ScheduleSemester->deleteAll( array(
                         'ScheduleSemester.idul'  =>  $this->Session->read( 'User.idul' )
                     ) );
-                    //pr($result[ 'schedule' ]);
+
                     // Save schedule data
                     $this->User->ScheduleSemester->saveAll( $result[ 'schedule' ], array( 'deep' => true ) );
-
-                    debug($this->User->ScheduleSemester->getDataSource()->getLog(false, false));
 
                     // Update last data checkup timestamp
                     foreach ( $result[ 'md5Hash' ] as $name => $hash ) {
