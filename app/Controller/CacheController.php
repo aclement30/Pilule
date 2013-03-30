@@ -36,6 +36,7 @@ class CacheController extends AppController {
             $auto = $this->request->query[ 'auto' ];
             $dataObject = $this->request->query[ 'name' ];
 
+            $this->debugMode = true;
             $this->Capsule->debug = 1;
         }
 
