@@ -47,6 +47,11 @@
 	//Router::connect( '/logout', array( 'controller' => 'users', 'action' => 'logout' ) );
 	Router::connect( '/deconnexion', array( 'controller' => 'users', 'action' => 'logout' ) );
 
+	// Redirection for old routes
+	Router::redirect( '/welcome', array( 'controller' => 'users', 'action' => 'dashboard' ) );
+	Router::redirect( '/login', array( 'controller' => 'users', 'action' => 'login' ) );
+	Router::redirect( '/schedule', array( 'controller' => 'schedule', 'action' => 'index' ) );
+	Router::redirect( '/schedule/timetable', array( 'controller' => 'schedule', 'action' => 'index' ) );
 /**
  * ...and connect the rest of 'Pages' controller's urls.
  */
