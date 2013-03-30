@@ -1,7 +1,7 @@
 <?php
 
 class Capsule {
-	private $debug = 0;
+	public $debug = 0;
     private $fetcher;
     private $domparser;
     public $Cache;

@@ -14,6 +14,8 @@ class CacheController extends AppController {
 	public $domparser;
 	public $authResponse;
 
+    private $debugMode = false;
+
 	public function beforeFilter() {
 		parent::beforeFilter();
 	}
@@ -25,8 +27,17 @@ class CacheController extends AppController {
         ob_start();
 
 		$error = false;
-		$auto = $this->request->data[ 'auto' ];				    // TODO : rename query to data
-		$dataObject = $this->request->data[ 'name' ];			// TODO : rename query to data
+
+		$auto = $this->request->data[ 'auto' ];
+		$dataObject = $this->request->data[ 'name' ];
+
+        // Check if debug mode is ON
+        if ( !empty( $this->request->query[ 'debug' ] ) and $this->request->query[ 'debug' ] == 1 ) {
+            $auto = $this->request->query[ 'auto' ];
+            $dataObject = $this->request->query[ 'name' ];
+
+            $this->Capsule->debug = 1;
+        }
 
         // Force data reload if request has been called by the user (by clicking Reload data button)
         if ( $auto == 0 ) {
@@ -441,8 +452,12 @@ class CacheController extends AppController {
                 break;
 		}
 		
-        CakeLog::write( 'loading-data', ob_get_clean() );
-        
+        if ( $this->debugMode ) {
+            print ob_get_clean();
+        } else {
+            CakeLog::write( 'loading-data', ob_get_clean() );
+        }
+
         if ( $error ) {
     		return new CakeResponse( array(
             	'body' => json_encode( array(
