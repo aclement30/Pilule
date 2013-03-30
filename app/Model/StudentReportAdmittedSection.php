@@ -7,7 +7,9 @@ class StudentReportAdmittedSection extends AppModel {
 		'User'		=>	array(
 			'foreignKey'	=>	'idul'
 		),
-		'Report'
+		'Report'	=>	array(
+			'foreignKey'	=>	'report_id'
+		)
 	);
 
 	public $hasMany = array(
