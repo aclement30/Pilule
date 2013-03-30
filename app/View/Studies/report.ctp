@@ -222,7 +222,7 @@
         <?php echo $this->element( 'empty_data', array( 'message' => 'Votre relevé de notes ne contient aucun résultat.' ) ); ?>
     </div>
 <?php endif; ?>
-
+    
 <?php if ( !empty( $report[ 'Report' ][ 'AdmittedSection' ] ) ) : ?>
     <h4 class="formation">Cours reconnus</h4>
 
@@ -252,9 +252,6 @@
                                         <span class="mobile-title"><?php echo $course[ 'title' ]; ?></span>
                                     </td>
                                     <td class="title"><?php echo $course[ 'title' ]; ?></td>
-                                    <td class="semester">
-                                        <?php if ( !empty( $course[ 'semester' ] ) ) echo $this->App->convertSemester( $course[ 'semester' ], true ); ?>
-                                    </td>
                                     <td class="reprise"><?php echo $course[ 'reprise' ]; ?></td>
                                     <td class="credits"><?php echo $course[ 'credits' ]; ?></td>
                                     <td class="note">
