@@ -383,6 +383,7 @@ class CacheController extends AppController {
                     // Unknown error
                     $error = true;
                 } elseif ( $result[ 'status' ] ) {
+                    Configure::write('debug', 2);
                     // Delete user's schedule saved in DB
                     $this->User->ScheduleSemester->deleteAll( array(
                         'ScheduleSemester.idul'  =>  $this->Session->read( 'User.idul' )
@@ -390,8 +391,6 @@ class CacheController extends AppController {
                     //pr($result[ 'schedule' ]);
                     // Save schedule data
                     $this->User->ScheduleSemester->saveAll( $result[ 'schedule' ], array( 'deep' => true ) );
-
-                    Configure::write('debug', 2);
 
                     debug($this->User->ScheduleSemester->getDataSource()->getLog(false, false));
 
