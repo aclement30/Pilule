@@ -24,6 +24,10 @@ class AppController extends Controller {
 	}
 
 	public function beforeRender() {
+		if ($this->name == 'CakeError') {
+			$this->set( 'title_for_layout', 'Page non trouvée');
+		}
+
 		// Set mobile browser property
 		if ( $this->isMobile ) {
 			$this->set( 'isMobile', true );
