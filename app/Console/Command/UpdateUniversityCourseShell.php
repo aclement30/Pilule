@@ -33,7 +33,7 @@ class UpdateUniversityCourseShell extends AppShell {
 
     	$courses = $this->UniversityCourse->find( 'all', array(
     		'conditions'	=>	array( 'OR' => array( 'checkup_' . $semester . ' <=' => time() - 3600 * 24 * 7, 'checkup_' . $semester . ' IS NULL' ) ),
-    		'limit'			=>	100
+    		'limit'			=>	500
     	) );
 
         $this->out( 'Analyse de ' . count( $courses ) . ' cours' );
@@ -54,7 +54,7 @@ class UpdateUniversityCourseShell extends AppShell {
                 $this->UniversityCourse->set( $course );
                 $this->UniversityCourse->saveAll( $course );
 
-                $this->out( $index .  '. ' . $course[ 'UniversityCourse' ][ 'title' ] . ' | <success>OUI</success>' );
+                $this->out( $index .  '. [' . $course[ 'UniversityCourse' ][ 'code' ] . '] ' . $course[ 'UniversityCourse' ][ 'title' ] . ' | <success>OUI</success>' );
             } else {
                 // Update course availability info
                 $course[ 'UniversityCourse' ][ 'checkup_' . $semester ] = time();
@@ -62,7 +62,7 @@ class UpdateUniversityCourseShell extends AppShell {
                 $this->UniversityCourse->set( $course );
                 $this->UniversityCourse->saveAll( $course );
 
-                $this->out( $index . '. ' . $course[ 'UniversityCourse' ][ 'title' ] . ' | <error>NON</error>' );
+                $this->out( $index . '. [' . $course[ 'UniversityCourse' ][ 'code' ] . '] ' . $course[ 'UniversityCourse' ][ 'title' ] . ' | <error>NON</error>' );
             }
         }
 
