@@ -16,3 +16,7 @@
     </div>
 
 </div>
+
+<script language="javascript">
+    var displayHelpModal = <?php if ( $displayHelpModal ) echo 'true'; else echo 'false'; ?>;
+</script>

@@ -180,6 +180,13 @@ class RegistrationController extends AppController {
     	$this->set( 'sidebar', 'registration' );
     	$this->set( 'dataObject', 'studies-courses' );
 
+    	// Check if registration help modal need to be displayed (first visit)
+    	if ( $this->Cookie->read( 'pilule-registration-help' ) == 'completed' ) {
+    		$this->set( 'displayHelpModal', false );
+    	} else {
+    		$this->set( 'displayHelpModal', true );
+    	}
+
     	// Check is data exists in DB
         if ( ( $lastRequest = $this->CacheRequest->requestExists( 'studies-courses-' . $this->registrationSemester ) ) ) {
         	$this->set( 'timestamp', $lastRequest[ 'timestamp' ] );
@@ -193,8 +200,6 @@ class RegistrationController extends AppController {
         	// No data exists for this page
         	$this->viewPath = 'Commons';
 			$this->render( 'fetching_courses' );
-
-            return (true);
         }
 	}
 
@@ -506,6 +511,51 @@ class RegistrationController extends AppController {
 			$this->layout = 'ajax';
 			$this->render( 'modals/available_classes' );
 		//}
+	}
+
+	public function help ( $step = 1 ) {
+		if ( $this->request->is( 'ajax' ) ) {
+			$this->set( 'step', $step );
+
+			if ( $step == 5 ) {
+				// Save cookie
+				$this->Cookie->write( 'pilule-registration-help', 'completed', false, '1 year' );
+			}
+
+			$this->layout = 'ajax';
+			$this->render( 'modals/help' );
+		} else {
+			$this->set( 'title_for_layout', 'Aide' );
+			$this->set( 'sidebar', 'registration' );
+			$this->setAssets( array( '/js/registration.js' ), array( '/css/registration.css' ) );
+			
+			$selectedCourses = array();
+			$registeredCourses = array();
+
+			// Retrieve student selected courses for registration semester
+			$selectedCourses = $this->User->SelectedCourse->find( 'all', array(
+				'conditions'	=>	array(
+					'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
+					'SelectedCourse.semester'	=>	$this->registrationSemester
+				),
+				'contain'		=>	array( 'UniversityCourse' )
+			) );
+
+			// Retrieve courses already registered by the student
+			$schedule = $this->User->ScheduleSemester->find( 'first', array(
+				'conditions'	=>	array( 'ScheduleSemester.idul' => $this->Session->read( 'User.idul' ), 'ScheduleSemester.semester' => $this->registrationSemester  ),
+		    	'contain'		=>	array( 'Course' )
+		    ) );
+			
+			if ( !empty( $schedule[ 'Course' ] ) )
+				$registeredCourses = $schedule[ 'Course' ];
+
+			$this->set( 'registeredCourses', $registeredCourses );
+			$this->set( 'selectedCourses', $selectedCourses );
+			$this->set( 'deadlines', $this->deadlines );
+			$this->set( 'registrationSemester', $this->registrationSemester );
+			$this->set( 'registrationSemesters', $this->registrationSemesters );
+		}
 	}
 
 	function selectCourse () {

@@ -38,6 +38,17 @@ body .modal {
     width: 800px;
     margin-left: -400px;
 
+    .modal-header {
+        h3 {
+            .left {
+                float: left;
+            }
+
+            .right {
+                float: right;
+            }
+        }
+    }
     .modal-body {
         max-height: 475px;
     }

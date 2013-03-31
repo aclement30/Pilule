@@ -1,24 +1,8 @@
-<?php
-    // Define site-wide scripts
-    $scripts = array( '/js/pilule.js', '/js/cache.js', '/js/libs/bootstrap.min.js', '/js/libs/fullcalendar.min.js', '/js/libs/jquery.knob.js', '/js/libs/jquery.sparkline.min.js', '/js/libs/toastr.js', '/js/libs/jquery.tablesorter.min.js', '/js/libs/jquery.peity.min.js', '/js/libs/modernizr.custom.41742.js', '/js/ajax.js' );
-
-    if ( isset( $assets ) && !empty( $assets[ 'js' ] ) ) {
-        $scripts = array_merge( $scripts, $assets[ 'js' ] );
-    }
-
-    // Add version number to each JS path : clear old JS files in browser cache
-    $currentVersion = '3.0.6';
-
-    foreach ( $scripts as &$path ) {
-        if ( strpos( $path, '/libs/' ) < 1 ) {
-            $path = str_replace( '.js', '-' . $currentVersion . '.js', $path );
-        }
-    }
-
-    echo $this->Html->script( $scripts );
-?>
-
 <script language="javascript">
+    if ( !app ) {
+        var app = {};
+    }
+
     $( document ).ready( function() {
         // Define Capsule availability
         app.isCapsuleOffline = <?php if ( $isCapsuleOffline ) echo 'true'; else echo 'false'; ?>;
@@ -48,6 +32,26 @@
         ?>
     });
 </script>
+
+<?php
+    // Define site-wide scripts
+    $scripts = array( '/js/pilule.js', '/js/cache.js', '/js/libs/bootstrap.min.js', '/js/libs/fullcalendar.min.js', '/js/libs/jquery.knob.js', '/js/libs/jquery.sparkline.min.js', '/js/libs/toastr.js', '/js/libs/jquery.tablesorter.min.js', '/js/libs/jquery.peity.min.js', '/js/libs/modernizr.custom.41742.js', '/js/ajax.js' );
+
+    if ( isset( $assets ) && !empty( $assets[ 'js' ] ) ) {
+        $scripts = array_merge( $scripts, $assets[ 'js' ] );
+    }
+
+    // Add version number to each JS path : clear old JS files in browser cache
+    $currentVersion = '3.0.6';
+
+    foreach ( $scripts as &$path ) {
+        if ( strpos( $path, '/libs/' ) < 1 ) {
+            $path = str_replace( '.js', '-' . $currentVersion . '.js', $path );
+        }
+    }
+
+    echo $this->Html->script( $scripts );
+?>
 <div id="fb-root"></div>
 <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];

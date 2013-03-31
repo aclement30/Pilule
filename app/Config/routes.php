@@ -64,6 +64,7 @@
 
 	Router::connect( '/services/:service', array( 'controller' => 'services', 'action' => 'connect' ), array( 'pass' => array( 'service' ) ) );
 
+	Router::connect( '/choix-cours/aide', array( 'controller' => 'registration', 'action' => 'help' ) );
 	Router::connect( '/choix-cours/recherche', array( 'controller' => 'registration', 'action' => 'search' ) );
 	Router::connect( '/choix-cours/resultats/:token', array( 'controller' => 'registration', 'action' => 'results' ), array( 'pass' => array( 'token' ) ) );
 	Router::connect( '/choix-cours/:semester/:programId', array( 'controller' => 'registration', 'action' => 'index' ), array( 'pass' => array( 'semester', 'programId' ) ) );

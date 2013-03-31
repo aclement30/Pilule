@@ -7,6 +7,10 @@
         <li class="<?php if ( $this->request->params[ 'action' ] == 'search' ) echo 'active'; ?>">
             <?php echo $this->Html->link( 'Recherche de cours', '/choix-cours/recherche' ); ?>
         </li>
+        <li class="<?php if ( $this->request->params[ 'action' ] == 'help' ) echo 'active'; ?>">
+            <?php echo $this->Html->link( 'Aide', '/choix-cours/aide' ); ?>
+        </li>
+        
     </ul>
 </div>
 

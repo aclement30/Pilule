@@ -62,6 +62,9 @@ app.Registration.init = function ( params ) {
     		source: 	coursesSubjects
     	} );
     }
+
+    if ( typeof displayHelpModal != 'undefined' && displayHelpModal )
+    	app.Registration.displayHelp( 1 );
 };
 
 app.Registration.searchCourses = function() {
@@ -361,22 +364,6 @@ app.Registration.removeRegisteredCourse = function ( response ) {
 	}
 };
 
-app.Registration.configure = function () {
-	loading("Enregistrement en cours...");
-	
-	$('#form-configure').submit();
-};
-
-app.Registration.configureCallback = function ( response ) {
-	if ( response.status ) {
-		resultMessage('Les paramètres ont été enregistrés.');
-		
-		document.location.hash = '#!/registration/courses';
-	} else {
-		errorMessage("Une erreur est survenue durant l'enregistrement des paramètres...");
-	}
-};
-
 app.Registration.changeDisplay = function ( type ) {
 	if (type == 'all') {
 		$('.courses tr.unavailable').show();
@@ -427,27 +414,37 @@ app.Registration.changeProgram = function ( e ) {
 };
 
 app.Registration.displayHelp = function ( step ) {
-	loading();
-	
-	if ($(window).height()<570) {
-		var popupHeight = $(window).height() - 50;
-	} else {
-		var popupHeight = 520;
-	}
+	app.Common.showModal( {
+		url: 		'/registration/help/' + step,
+		callback: 	function(){
+			$( '#modal .modal-footer .btn' ).hide();
 
-	loading();
+			$( '#modal .modal-footer .btn.js-prev' ).on( 'click', function(){
+				app.Registration.displayHelp( step - 1 );
+				return false;
+			});
+			$( '#modal .modal-footer .btn.js-next' ).on( 'click', function(){
+				app.Registration.displayHelp( step + 1 );
+				return false;
+			});
+			$( '#modal .modal-footer .btn.js-close' ).on( 'click', function(){
+				// Close modal
+				$( '#modal' ).modal( 'hide' );
 
-	var src = './registration/w_help/';
-	$.modal('<iframe src="' + src + '" height="'+popupHeight+'" width="700" style="border:0;" onload="javascript:stopLoading();">', {
-		containerCss:{
-			backgroundColor:"#fff",
-			borderColor:"#fff",
-			height: popupHeight,
-			padding: 0,
-			width: 700
-		},
-		overlayClose:true
-	});
+				return false;
+			});
+
+			if ( step == 1 ) {
+				$( '#modal .modal-footer .btn.js-next' ).fadeIn();
+			} else if ( step == 5 ) {
+				$( '#modal .modal-footer .btn.js-prev' ).fadeIn();
+				$( '#modal .modal-footer .btn.js-close' ).fadeIn();
+			} else {
+				$( '#modal .modal-footer .btn.js-prev' ).fadeIn();
+				$( '#modal .modal-footer .btn.js-next' ).fadeIn();
+			}
+		}
+	} );
 };
 
 app.Registration.formatFieldCode = function ( input ) {
