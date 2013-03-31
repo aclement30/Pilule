@@ -19,7 +19,18 @@
         </li>
     </ul>
 </div>
+
+<br />
+<h4>Inscription A-2013</h4>
+<div class="sidebar" style="padding-top: 10px;">
+    <p style="margin-bottom: 15px;">Vous pouvez maintenant faire votre choix de cours et votre inscription pour l'automne 2013 directement sur Pilule. </p>
+    <div style="text-align: center;">
+        <a href="<?php echo Router::url( '/' ); ?>choix-cours"><img src="<?php echo Router::url( '/' ); ?>img/registration-module.png" /></a>
+    </div>
+    <hr>
+</div>
 <?php if ( !$isMobile ) : ?>
+<!--
     <div class="mobile-devices-message">
         <br />
         <h4>Version mobile</h4>
@@ -29,6 +40,6 @@
             <hr>
         </div>
     </div>
-
+-->
     <div class="fb-like" data-href="https://www.facebook.com/pages/Pilule-Gestion-des-études/201700133216838" data-send="false" data-width="270" data-show-faces="true"></div>
 <?php endif; ?>

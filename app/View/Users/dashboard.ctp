@@ -10,14 +10,6 @@
 			$classNames = array( 'panel module' );
 
 			switch ( $module[ 'alias' ] ):
-				case 'registration':
-					if ( $isRegistrationAllowed ) {
-						$allowed = true;
-					} else {
-						$allowed = false;
-					}
-					//if ( !$user[ 'registration' ] ) $allowed = false;
-					break;
 				case 'admin':
 					if ( !$user[ 'admin' ] ) $allowed = false;
 					break;
