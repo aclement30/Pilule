@@ -101,14 +101,14 @@ app.init = function () {
 
     $( '#in-nav .external-frame a' ).on( 'click', app.Common.closeExternalFrame );
 
-    $( '#in-sub-nav li.exchange a' ).on( 'click', function(){
+    $( '#in-sub-nav li.exchange a' ).on( 'click', function( e ){
         if ( $( window ).width() > 660 ) {
             app.Common.openExternalWebsite( app.baseUrl + $( '#in-sub-nav li.exchange a' ).data( 'url' ) );
-        } else {
-            document.location = $( '#in-sub-nav li.exchange a' ).data( 'url' );
-        }
 
-        return false;
+            return false;
+        } else {
+            $( this ).attr( 'href', $( '#in-sub-nav li.exchange a' ).data( 'url' ) ).attr( 'target', '_blank' );
+        }
     } );
 
     $( '#in-nav .link-feedback a' ).on( 'click', app.Common.feedback );
