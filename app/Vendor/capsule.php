@@ -1308,7 +1308,7 @@ class Capsule {
             // Parse all table input fields
             foreach( $inputFields as $field ) {
                 if ( $field->name != '' )  {
-                    $postString .= '&' . $field->name . '=' . urlencode( $field->value );
+                    $postString .= '&' . $field->name . '=' . urlencode( utf8_decode( $field->value ) );
 
                     if ( $field->name == 'MESG' ) {
                         $postString .= '&RSTS_IN=';
@@ -1339,19 +1339,39 @@ class Capsule {
         // Parse all form input fields
         foreach( $inputFields as $field ) {
             if ( $field->name == 'regs_row' || $field->name == 'wait_row' || $field->name == 'add_row' ) {
-                $postString .= '&' . $field->name . '=' . urlencode( $field->value );
+                $postString .= '&' . $field->name . '=' . urlencode( utf8_decode( $field->value ) );
             }
         }
 
-        $postString .= '&REG_BTN=' . urlencode( 'Soumettre les modifications' );
+        $postString .= '&REG_BTN=' . urlencode( utf8_decode( 'Soumettre les modifications' ) );
 
         // Submit registration form
         $request = $this->_fetchPage( '/pls/etprod7/bwckcoms.P_Regs', 'POST', array(), true, array( 'PostString' => $postString ) );
 
         // Parse DOM structure from response
         $this->domparser->load( $request[ 'response' ] );
+        $forms = $this->domparser->find( 'form' );
+        $inputFields = $forms[1]->find( 'input' );
+        $table = $this->domparser->find( 'table.datadisplaytable' );
+        $postString = array();
+        
+        // Parse all form input fields
+        foreach( $inputFields as $field ) {
+            if ( !empty( $field->name ) ) {
+                $postString[] = $field->name . '=' . urlencode( $field->value );
+            }
+        }
+
+        $postString = implode( '&', $postString );
+
+        // Submit 2nd of registration form
+        $request = $this->_fetchPage( '/pls/etprod7/bwckcoms.p_proc_start_date_confirm', 'POST', array(), true, array( 'PostString' => $postString ) );
+
+        // Parse DOM structure from response
+        $this->domparser->load( $request[ 'response' ] );
         $table = $this->domparser->find( 'table.datadisplaytable' );
 
+        CakeLog::write( 'error', $request[ 'response' ] );
         $coursesStatus = array();
 
         $inputFields = $table[0]->find( 'input' );
