@@ -78,6 +78,22 @@ class ServicesController extends AppController {
 					)
 				);
 				break;
+			case 'capsule-admission':
+				$title_for_layout = 'Capsule';
+				$formUrl = array( 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_ValLogin', 'https://capsuleweb.ulaval.ca/pls/etprod7/bwzkappl.P_Offer');
+				$loadingFrameUrl = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_WWWLogin';
+				$insideIframe = true;
+				$fields = array(
+					// Login form
+					array(
+						'sid'		=>	$this->Session->read( 'User.idul' ),
+						'PIN'		=>	$this->Session->read( 'User.password' )
+					),
+					// Admission page
+					array(
+					)
+				);
+				break;
 			case 'elluminate':
 				$title_for_layout = 'Elluminate';
 				$formUrl = 'https://classevirtuelle.ulaval.ca/elm_login.event?loginPage=index.html';

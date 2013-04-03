@@ -358,11 +358,11 @@ class Capsule {
 	// Get studies summary
     public function getStudies ( $md5Hash, $semester ) {
         $request = $this->_fetchPage( '/pls/etprod7/bwskgstu.P_StuInfo', 'POST', array( 'term_in' => $semester ) );
-
+        
         // Check if student has studies info
         if ( strpos( $request[ 'response' ], "Il n'existe pas d'informations étudiantes disponibles" ) )
             return ( array( 'status' => false ) );
-
+        
         // Parse studies data
         if ( strpos( $request[ 'response' ], "tudes en cours" ) ) {
             // Parse DOM structure from response
