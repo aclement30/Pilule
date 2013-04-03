@@ -731,10 +731,11 @@ class RegistrationController extends AppController {
 			// Send course registration request to Capsule
 			$registrationResults = $this->Capsule->registerCourses( array_values( $selectedCourses ), $semester );
 
-			if ( empty( $registrationResults ) || $registrationResults === false ) {
+			if ( empty( $registrationResults ) || substr( $registrationResults, 0, 6 ) == 'error:' ) {
 				return new CakeResponse( array(
 	            	'body' => json_encode( array(
-	            		'status'    =>  false
+	            		'status'    	=>  false,
+	            		'errorMessage'	=>	substr( $registrationResults, 6 )
 	            	) )
 	            ) );
 			} else {

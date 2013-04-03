@@ -1298,7 +1298,8 @@ class Capsule {
         $table = $this->domparser->find( 'table.datadisplaytable' );
 
         if ( strpos( $request[ 'response' ], 'Il vous est impossible' ) > 1 && strpos( $request[ 'response' ], 'de vous inscrire dans Capsule, car aucune' ) > 1 ) {
-            return false;
+            // Return error message
+            return 'error:Inscription impossible puisque vous n\'avez pas de période d\'inscription accordée. Veuillez communiquer avec votre direction de programme.';
         }
         
         // Log registration data
@@ -1338,7 +1339,7 @@ class Capsule {
         $form = $this->domparser->find( 'form' );
 
         if ( empty( $form ) || !is_array( $form ) ) {
-            return false;
+            return 'error:Réponse invalide du serveur Capsule'
         }
         
         $inputFields = $form[1]->find( 'input' );
