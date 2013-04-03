@@ -1339,7 +1339,7 @@ class Capsule {
         $form = $this->domparser->find( 'form' );
 
         if ( empty( $form ) || !is_array( $form ) ) {
-            return 'error:Réponse invalide du serveur Capsule'
+            return 'error:Réponse invalide du serveur Capsule';
         }
         
         $inputFields = $form[1]->find( 'input' );
