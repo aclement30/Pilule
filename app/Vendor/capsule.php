@@ -1299,7 +1299,7 @@ class Capsule {
 
         if ( strpos( $request[ 'response' ], 'Il vous est impossible' ) > 1 && strpos( $request[ 'response' ], 'de vous inscrire dans Capsule, car aucune' ) > 1 ) {
             // Return error message
-            return 'error:Inscription impossible puisque vous n\'avez pas de période d\'inscription accordée. Veuillez communiquer avec votre direction de programme.';
+            return 'error:Inscription impossible puisque vous n\'avez pas de période d\'inscription accordée. <br>Veuillez communiquer avec votre direction de programme.';
         }
         
         // Log registration data
