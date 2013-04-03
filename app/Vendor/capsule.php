@@ -1301,6 +1301,12 @@ class Capsule {
             return false;
         }
         
+        // Log registration data
+        CakeLog::write( 'registration', '------------------------------------------------------------------' );
+        CakeLog::write( 'registration', '1ère requête [ IDUL : ' . $this->idul . ' ]' );
+        CakeLog::write( 'registration', $request[ 'response' ] );
+        CakeLog::write( 'registration', '------------------------------------------------------------------' );
+
         $postString = "term_in=".$semester."&RSTS_IN=DUMMY&assoc_term_in=DUMMY&CRN_IN=DUMMY&start_date_in=DUMMY&end_date_in=DUMMY&SUBJ=DUMMY&CRSE=DUMMY&SEC=DUMMY&LEVL=DUMMY&CRED=DUMMY&GMOD=DUMMY&TITLE=DUMMY&MESG=DUMMY&REG_BTN=DUMMY";
 
         if ( count ( $table ) != 0 ) {
@@ -1348,6 +1354,11 @@ class Capsule {
         // Submit registration form
         $request = $this->_fetchPage( '/pls/etprod7/bwckcoms.P_Regs', 'POST', array(), true, array( 'PostString' => $postString ) );
 
+        // Log registration data
+        CakeLog::write( 'registration', '2e requête [ IDUL : ' . $this->idul . ' ]' );
+        CakeLog::write( 'registration', $request[ 'response' ] );
+        CakeLog::write( 'registration', '------------------------------------------------------------------' );
+
         // Parse DOM structure from response
         $this->domparser->load( $request[ 'response' ] );
         $forms = $this->domparser->find( 'form' );
@@ -1366,6 +1377,11 @@ class Capsule {
 
         // Submit 2nd of registration form
         $request = $this->_fetchPage( '/pls/etprod7/bwckcoms.p_proc_start_date_confirm', 'POST', array(), true, array( 'PostString' => $postString ) );
+
+        // Log registration data
+        CakeLog::write( 'registration', '3e requête [ IDUL : ' . $this->idul . ' ]' );
+        CakeLog::write( 'registration', $request[ 'response' ] );
+        CakeLog::write( 'registration', '------------------------------------------------------------------' );
 
         // Parse DOM structure from response
         $this->domparser->load( $request[ 'response' ] );
