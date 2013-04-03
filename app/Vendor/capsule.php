@@ -1371,7 +1371,6 @@ class Capsule {
         $this->domparser->load( $request[ 'response' ] );
         $table = $this->domparser->find( 'table.datadisplaytable' );
 
-        CakeLog::write( 'error', $request[ 'response' ] );
         $coursesStatus = array();
 
         $inputFields = $table[0]->find( 'input' );
@@ -1383,6 +1382,9 @@ class Capsule {
                 );
             }
         }
+
+        // Log registration results
+        CakeLog::write( 'registration', $this->idul . ' : ' . implode( ', ', $nrcArray ) );
 
         if ( strpos( $request[ 'response' ], 'Erreur d\'ajout' ) > 1 ) {
             // Parse registration errors
