@@ -1297,7 +1297,7 @@ class Capsule {
         $this->domparser->load( $request[ 'response' ] );
         $table = $this->domparser->find( 'table.datadisplaytable' );
 
-        if ( strpos( $request[ 'response' ], 'Il vous est impossible de vous inscrire dans Capsule' ) > 1 ) {
+        if ( strpos( $request[ 'response' ], 'Il vous est impossible' ) > 1 && strpos( $request[ 'response' ], 'de vous inscrire dans Capsule, car aucune' ) > 1 ) {
             return false;
         }
         
