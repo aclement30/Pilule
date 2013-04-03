@@ -234,6 +234,11 @@ class RegistrationController extends AppController {
 			$registeredCourses = $schedule[ 'Course' ];
 
 		if ( $this->request->is( 'post' ) ) {
+			if ( in_array( $this->request->data[ 'Registration' ][ 'semester' ], $this->registrationSemesters ) ) {
+				$this->Session->write( 'Registration.semester', $this->request->data[ 'Registration' ][ 'semester' ] );
+				$this->registrationSemester = $this->request->data[ 'Registration' ][ 'semester' ];
+			}
+
 			// Validate search request
 			if ( !empty( $this->request->data[ 'Registration' ][ 'code' ] ) ) {
 				$code = strtoupper( trim( str_replace( '-', '', str_replace( ' ', '', $this->request->data[ 'Registration' ][ 'code' ] ) ) ) );
