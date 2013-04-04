@@ -466,7 +466,7 @@ class RegistrationController extends AppController {
 			$this->set( 'classes', $course[ 'Class' ] );
 			$this->set( 'registeredCourses', $registeredCourses );
 			$this->set( 'selectedCourses', $selectedCourses );
-			
+
 			$this->layout = 'ajax';
 			$this->render( 'modals/course_info' );
 		}
@@ -755,7 +755,7 @@ class RegistrationController extends AppController {
 			// Send course registration request to Capsule
 			$registrationResults = $this->Capsule->registerCourses( array_values( $selectedCourses ), $semester );
 
-			if ( empty( $registrationResults ) || substr( $registrationResults, 0, 6 ) == 'error:' ) {
+			if ( empty( $registrationResults ) || ( !is_array( $registrationResults ) && substr( $registrationResults, 0, 6 ) == 'error:' ) ) {
 				return new CakeResponse( array(
 	            	'body' => json_encode( array(
 	            		'status'    	=>  false,
