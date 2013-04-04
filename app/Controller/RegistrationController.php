@@ -434,14 +434,38 @@ class RegistrationController extends AppController {
 	public function getCourseInfo ( $code = null ) {
 		if ( $this->request->is( 'ajax' ) ) {
 			$semester = $this->registrationSemester;
+			$registeredCourses = array();
+			$selectedCourses = array();
 
 			// Get requested course info
 			$course = $this->UniversityCourse->find( 'first', array(
-                'conditions'    =>  array( 'UniversityCourse.code' => $code )
+                'conditions'    =>  array( 'UniversityCourse.code' => $code ),
+                'contain'		=>	array( 'Class' => array( 'conditions' => array( 'Class.semester' => $this->registrationSemester ), 'Spot' ) )
             ) );
+
+			// Get student registered courses for registration semester
+			$registeredCourses = $this->User->ScheduleSemester->Course->find( 'list', array(
+				'conditions'	=>	array(
+					'Course.idul' 		=>	$this->Session->read( 'User.idul' ),
+					'Course.semester'	=>	$semester
+				),
+				'fields'	=>	array( 'id', 'nrc' )
+			) );
+			
+			// Get student selected courses for registration semester
+			$selectedCourses = $this->User->SelectedCourse->find( 'list', array(
+				'conditions'	=>	array(
+					'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
+					'SelectedCourse.semester'	=>	$semester
+				),
+				'fields'	=>	array( 'id', 'nrc' )
+			) );
 
 			$this->set( 'course', $course );
 			$this->set( 'semester', $semester );
+			$this->set( 'classes', $course[ 'Class' ] );
+			$this->set( 'registeredCourses', $registeredCourses );
+			$this->set( 'selectedCourses', $selectedCourses );
 			
 			$this->layout = 'ajax';
 			$this->render( 'modals/course_info' );

@@ -42,11 +42,16 @@
   <!-- Available classes for this course -->
   <h4>Cours disponibles</h4>
   <?php if ( $course[ 'UniversityCourse' ][ 'av' . $semester ] ): ?>
-    <div class="hero-unit loading-classes clearfix">
-      <div class="img"><img src="/img/redirect-loading.gif" alt="Chargement" /></div>
-      <p class="lead">Recherche de cours offerts...</p>
-    </div>
-    <div class="classes-list"></div>
+    <?php if ( empty( $classes ) ) : ?>
+      <div class="hero-unit loading-classes clearfix">
+        <div class="img"><img src="/img/redirect-loading.gif" alt="Chargement" /></div>
+        <p class="lead">Recherche de cours offerts...</p>
+      </div>
+      <div class="classes-list"></div>
+    <?php else: ?>
+      <div class="loading-classes"></div>
+      <div class="classes-list"><?php echo $this->element( 'registration/available_classes', array( 'classes' => $classes ) ); ?></div>
+    <?php endif; ?>
   <?php else : ?>
     <p>Ce cours n'est pas offert pour la session d'inscription.</p>
   <?php endif; ?>
