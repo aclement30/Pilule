@@ -1297,16 +1297,27 @@ class Capsule {
         $this->domparser->load( $request[ 'response' ] );
         $table = $this->domparser->find( 'table.datadisplaytable' );
 
-        if ( strpos( $request[ 'response' ], 'Il vous est impossible' ) > 1 && strpos( $request[ 'response' ], 'de vous inscrire dans Capsule, car aucune' ) > 1 ) {
-            // Return error message
-            return 'error:Inscription impossible puisque vous n\'avez pas de période d\'inscription accordée. <br>Veuillez communiquer avec votre direction de programme.';
-        }
-        
         // Log registration data
         CakeLog::write( 'registration', '------------------------------------------------------------------' );
         CakeLog::write( 'registration', '1ère requête [ IDUL : ' . $this->idul . ' ]' );
         CakeLog::write( 'registration', $request[ 'response' ] );
         CakeLog::write( 'registration', '------------------------------------------------------------------' );
+
+        // Check for error messages in the page
+        if ( preg_match( '/Il vous est impossible\sde vous inscrire dans Capsule, car aucune période/', $request[ 'response' ] ) ) {
+            // Return error message
+            return 'error:Inscription impossible puisque vous n\'avez pas de période d\'inscription accordée. <br>Veuillez communiquer avec votre direction de programme.';
+        } elseif ( preg_match( '/Désolé ce service est présentement\sinaccessible/', $request[ 'response' ] ) ) {
+            // Return error message
+            return 'error:Erreur lors de l\'inscription : Capsule est hors service. Veuillez réessayer plus tard.';
+        } elseif( preg_match( '/Vous pouvez vous\sinscrire durant la période suivante/', $request[ 'response' ] ) ) {
+            // Detect start of registration period for this user
+            $cells = $table[0]->find( 'td.dddefault' );
+            $initialDate = implode( '-', array_reverse( explode( '/', $cells[0]->text() ) ) ) . ' à ' . $cells[1]->text();
+
+            // Return error message
+            return 'error:Erreur lors de l\'inscription : votre période d\'inscription commencera le ' . $initialDate;
+        }
 
         $postString = "term_in=".$semester."&RSTS_IN=DUMMY&assoc_term_in=DUMMY&CRN_IN=DUMMY&start_date_in=DUMMY&end_date_in=DUMMY&SUBJ=DUMMY&CRSE=DUMMY&SEC=DUMMY&LEVL=DUMMY&CRED=DUMMY&GMOD=DUMMY&TITLE=DUMMY&MESG=DUMMY&REG_BTN=DUMMY";
 
@@ -1360,29 +1371,34 @@ class Capsule {
         CakeLog::write( 'registration', $request[ 'response' ] );
         CakeLog::write( 'registration', '------------------------------------------------------------------' );
 
-        // Parse DOM structure from response
-        $this->domparser->load( $request[ 'response' ] );
-        $forms = $this->domparser->find( 'form' );
-        $inputFields = $forms[1]->find( 'input' );
-        $table = $this->domparser->find( 'table.datadisplaytable' );
-        $postString = array();
-        
-        // Parse all form input fields
-        foreach( $inputFields as $field ) {
-            if ( !empty( $field->name ) ) {
-                $postString[] = $field->name . '=' . urlencode( $field->value );
+        // Check if dates need to be confirmed
+        if ( preg_match( '/p_proc_start_date_confirm/', $request[ 'response' ] ) ) {
+            // Confirm dates
+
+            // Parse DOM structure from response
+            $this->domparser->load( $request[ 'response' ] );
+            $forms = $this->domparser->find( 'form' );
+            $inputFields = $forms[1]->find( 'input' );
+            $table = $this->domparser->find( 'table.datadisplaytable' );
+            $postString = array();
+            
+            // Parse all form input fields
+            foreach( $inputFields as $field ) {
+                if ( !empty( $field->name ) ) {
+                    $postString[] = $field->name . '=' . urlencode( $field->value );
+                }
             }
+
+            $postString = implode( '&', $postString );
+
+            // Submit 2nd of registration form
+            $request = $this->_fetchPage( '/pls/etprod7/bwckcoms.p_proc_start_date_confirm', 'POST', array(), true, array( 'PostString' => $postString ) );
+
+            // Log registration data
+            CakeLog::write( 'registration', '3e requête [ IDUL : ' . $this->idul . ' ]' );
+            CakeLog::write( 'registration', $request[ 'response' ] );
+            CakeLog::write( 'registration', '------------------------------------------------------------------' );
         }
-
-        $postString = implode( '&', $postString );
-
-        // Submit 2nd of registration form
-        $request = $this->_fetchPage( '/pls/etprod7/bwckcoms.p_proc_start_date_confirm', 'POST', array(), true, array( 'PostString' => $postString ) );
-
-        // Log registration data
-        CakeLog::write( 'registration', '3e requête [ IDUL : ' . $this->idul . ' ]' );
-        CakeLog::write( 'registration', $request[ 'response' ] );
-        CakeLog::write( 'registration', '------------------------------------------------------------------' );
 
         // Parse DOM structure from response
         $this->domparser->load( $request[ 'response' ] );
@@ -1401,7 +1417,7 @@ class Capsule {
         }
 
         // Log registration results
-        CakeLog::write( 'registration', $this->idul . ' : ' . implode( ', ', $nrcArray ) );
+        CakeLog::write( 'registration-success', $this->idul . ' : ' . implode( ', ', $nrcArray ) );
 
         if ( strpos( $request[ 'response' ], 'Erreur d\'ajout' ) > 1 ) {
             // Parse registration errors
