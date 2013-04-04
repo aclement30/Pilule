@@ -101,8 +101,11 @@
 								$className = 'almost-full';
 							}
 							?>
-							<div class="spots">
+							<div class="spots clearfix">
 								Places disponibles : <span class="<?php echo $className; ?>"><?php echo $class[ 'Spot' ][ 'remaining' ]; ?></span>
+								<?php if ( empty( $updated ) ) : ?>
+									<img src="<?php echo Router::url( '/' ) ?>img/loading-btn.gif" style="float: right;" />
+								<?php endif; ?>
 							</div>
 							<?php
 						elseif ( $class[ 'Spot' ][ 'waiting_total' ] > 0 && $class[ 'Spot' ][ 'remaining' ] == 0 ):
@@ -114,6 +117,9 @@
 							?>
 							<div class="spots">
 								Liste d'attente : <span class="<?php echo $className; ?>"><?php echo $class[ 'Spot' ][ 'waiting_remaining' ]; ?></span>
+								<?php if ( empty( $updated ) ) : ?>
+									<img src="<?php echo Router::url( '/' ) ?>img/loading-btn.gif" style="float: right;" />
+								<?php endif; ?>
 							</div>
 							<?php
 						endif;

@@ -1,1 +1,1 @@
-<?php echo $this->element( 'registration/available_classes', array( 'classes' => $classes ) ); ?>
+<?php echo $this->element( 'registration/available_classes', array( 'classes' => $classes, 'updated' => true ) ); ?>
