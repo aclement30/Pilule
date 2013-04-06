@@ -22,7 +22,7 @@
 <div class="row-fluid">
     <div class="span6">
         <div class="table-panel not-expandable">
-            <h4> <i class="icon-list"></i>Frais de scolarité - <?php echo $this->App->convertSemester( CURRENT_SEMESTER ); ?></h4>
+            <h4> <i class="icon-list"></i>Frais de scolarité - <?php echo $this->App->convertSemester( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ] ); ?></h4>
             <table class="table table-striped fees">
                 <thead>
                     <tr>
