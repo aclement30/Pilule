@@ -1371,6 +1371,12 @@ class Capsule {
         CakeLog::write( 'registration', $request[ 'response' ] );
         CakeLog::write( 'registration', '------------------------------------------------------------------' );
 
+        // Check for error messages in the page
+        if ( preg_match( '/Une erreur s\'est\sproduite empêchant l\'exécution de votre\sopération/', $request[ 'response' ] ) ) {
+            // Return error message
+            return 'error:Erreur lors de l\'inscription. Veuillez réessayer.';
+        }
+
         // Check if dates need to be confirmed
         if ( preg_match( '/p_proc_start_date_confirm/', $request[ 'response' ] ) ) {
             // Confirm dates
@@ -1963,6 +1969,77 @@ class Capsule {
 
             return $courses;
         }
+    }
+
+    public function fetchPortailCours() {
+        $this->host = 'www.portaildescours.ulaval.ca';
+        $this->debug = 1;
+        //$this->fetcher->follow_redirect = 0;
+
+        // Define request parameters
+        $this->fetcher->set( array(
+            'debug'             =>  $this->debug,
+            'protocol'          =>  'https',
+            'request_method'    =>  'GET'
+        ) );
+
+        // Define Host name
+        $arguments = array(
+            'HostName'      =>  $this->host,
+            'RequestURI'    =>  '/login.jsp?_js=true',
+        );
+
+        // Open connection to remote server
+        $error = $this->fetcher->Open( $arguments );
+        if ( !empty( $error ) ) return false;
+
+        // Send request data to remote server
+        $error = $this->fetcher->SendRequest( $arguments );
+        if ( !empty( $error ) ) return false;
+
+        // Read response headers from remote server
+        $error = $this->fetcher->ReadReplyHeaders( $headers );
+        if ( !empty( $error ) ) return false;
+
+        // Read response content from remote server
+        $this->fetcher->ReadWholeReplyBody( $response );
+        $response = $response;
+
+        // Close remote server connection
+        $this->fetcher->Close();
+
+         // Get class page
+        //$this->fetcher->SaveCookies( $cookies );
+        //$this->fetcher->cookies = $cookies;
+        /*
+        // Define Host name
+        $arguments = array(
+            'HostName'      =>  'www.portaildescours.ulaval.ca',
+            'RequestURI'    =>  substr( $headers[ 'location' ], strpos( $headers[ 'location' ], ':443/' ) + 4 ),
+        );
+
+        // Open connection to remote server
+        $error = $this->fetcher->Open( $arguments );
+        if ( !empty( $error ) ) return false;
+
+        // Send request data to remote server
+        $error = $this->fetcher->SendRequest( $arguments );
+        if ( !empty( $error ) ) return false;
+
+        // Read response headers from remote server
+        $error = $this->fetcher->ReadReplyHeaders( $headers );
+        if ( !empty( $error ) ) return false;
+
+        // Read response content from remote server
+        $this->fetcher->ReadWholeReplyBody( $response );
+        $response = $response;
+
+        // Close remote server connection
+        $this->fetcher->Close();
+        */
+        // Parse DOM structure from response
+        //$this->domparser->load( $request[ 'response' ] );
+        //$tables = $this->domparser->find( '.pagebodydiv>table.datadisplaytable table.datadisplaytable' );
     }
 
     private function _fetchPage ( $url, $method = 'GET', $postVars = array(), $checkPage = true, $otherArguments = array() ) {
