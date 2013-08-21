@@ -1,39 +1,47 @@
-CakePHP
+PILULE
 =======
 
-[![CakePHP](http://cakephp.org/img/cake-logo.png)](http://www.cakephp.org)
+Pilule est un système de gestion des études pour les étudiants de l'Université Laval, conçu pour être simple et ergonomique. Vous pouvez l'utiliser pour consulter votre cheminement scolaire, votre relevé de notes, votre horaire de cours, votre boîte Exchange et vos frais de scolarité.
 
-CakePHP is a rapid development framework for PHP which uses commonly known design patterns like Active Record, Association Data Mapping, Front Controller and MVC.
-Our primary goal is to provide a structured framework that enables PHP users at all levels to rapidly develop robust web applications, without any loss to flexibility.
+Configuration du serveur
+----------
 
-Some Handy Links
+- Apache 2
+- PHP 5.3+
+    - Librairies nécessaires : [Tidy](http://php.net/manual/fr/book.tidy.php), [Iconv](http://php.net/manual/fr/book.iconv.php), [Curl](http://php.net/manual/fr/book.curl.php)
+- MySQL 5.5+
+
+Installation
 ----------------
 
-[CakePHP](http://www.cakephp.org) - The rapid development PHP framework
+1. Copier les fichiers dans le répertoire racine de votre site (**/htdocs** ou équivalent)
+1. Créer une base de données et y importer le fichier SQL contenu dans le répertoire **/sql**.
+1. Modifier le fichier **/app/Config/core.php** pour basculer en mode développement :
+   - Ligne 35 : **Configure::write('debug', 2);**
+1. Modifier le fichier **/app/Config/database.php** :
+   - Ligne 62-71, entrer les informations de connexion à votre base de données
 
-[Cookbook](http://book.cakephp.org) - THE Cake user documentation; start learning here!
+Liens utiles
+----------------
 
-[Plugins](http://plugins.cakephp.org/) - A repository of extensions to the framework
+[CakePHP](http://book.cakephp.org/2.0/fr/contributing/documentation.html) - Documentation du frameworkPHP
 
-[The Bakery](http://bakery.cakephp.org) - Tips, tutorials and articles
+[DOM Parser](http://sourceforge.net/projects/simplehtmldom/)
 
-[API](http://api.cakephp.org) - A reference to Cake's classes
+Notes
+--------
 
-[CakePHP TV](http://tv.cakephp.org) - Screen casts from events and video tutorials
+Toute collaboration externe est appréciée, que ce soit pour la recherche et la correction de bugs, l'ajout de nouvelles fonctionnalités ou l'amélioration de fonctionnalités existantes. Les noms des éventuels collaborateurs seront affichés sur le site.
 
-[The Cake Software Foundation](http://cakefoundation.org/) - promoting development related to CakePHP
+Pour tout demande d'ajout/modification au code source, utiliser la fonction **Pull Request** de GitHub.
 
-Get Support!
-------------
+Mentions légales
+------------------------
 
-[Our Google Group](http://groups.google.com/group/cake-php) - community mailing list and forum
+Le code source de Pilule est offert à titre gracieux pour permettre l'analyse du code et les collaborations externes. La base de données fournie ne contient aucune donnée personnelle. L'utilisation du code source dans sa forme actuelle ne permet l'accès qu'aux données des utilisateurs Capsule dûment identifiés via l'interface.
 
-[#cakephp](http://webchat.freenode.net/?channels=#cakephp) on irc.freenode.net - Come chat with us, we have cake.
+L'utilisateur qui télécharge et utilise le code source est le seul responsable de son utilisation personnelle du code source et des conséquences qui pourraient en découler. Le service Pilule, ses créateurs et l'Université Laval se dégagent de toute responsabilité concernant l'utilisation et la modification de ce code source par un tiers.
 
-[Q & A](http://ask.cakephp.org/) - Ask questions here, all questions welcome
-
-[Lighthouse](http://cakephp.lighthouseapp.com/) - Got issues? Please tell us!
-
-[![Bake Status](https://secure.travis-ci.org/cakephp/cakephp.png?branch=master)](http://travis-ci.org/cakephp/cakephp)
+Le stockage permanent des données nominales provenant de Capsule (ex : dossier scolaire de l'étudiant) sur des serveurs externes situés hors du campus de l'Université Laval est restreint aux données exclusives de l'utilisateur et uniquement à des fins de test local et de développement. Autrement dit, il n'est pas permis d'opérer un service concurrent stockant une copie des données des étudiants de façon permanente (ex : mise en cache de l'horaire).
 
 ![Cake Power](https://raw.github.com/cakephp/cakephp/master/lib/Cake/Console/Templates/skel/webroot/img/cake.power.gif)
