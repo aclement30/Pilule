@@ -234,6 +234,11 @@ class RegistrationController extends AppController {
 			$registeredCourses = $schedule[ 'Course' ];
 
 		if ( $this->request->is( 'post' ) ) {
+			if ( in_array( $this->request->data[ 'Registration' ][ 'semester' ], $this->registrationSemesters ) ) {
+				$this->Session->write( 'Registration.semester', $this->request->data[ 'Registration' ][ 'semester' ] );
+				$this->registrationSemester = $this->request->data[ 'Registration' ][ 'semester' ];
+			}
+
 			// Validate search request
 			if ( !empty( $this->request->data[ 'Registration' ][ 'code' ] ) ) {
 				$code = strtoupper( trim( str_replace( '-', '', str_replace( ' ', '', $this->request->data[ 'Registration' ][ 'code' ] ) ) ) );
@@ -429,15 +434,39 @@ class RegistrationController extends AppController {
 	public function getCourseInfo ( $code = null ) {
 		if ( $this->request->is( 'ajax' ) ) {
 			$semester = $this->registrationSemester;
+			$registeredCourses = array();
+			$selectedCourses = array();
 
 			// Get requested course info
 			$course = $this->UniversityCourse->find( 'first', array(
-                'conditions'    =>  array( 'UniversityCourse.code' => $code )
+                'conditions'    =>  array( 'UniversityCourse.code' => $code ),
+                'contain'		=>	array( 'Class' => array( 'conditions' => array( 'Class.semester' => $this->registrationSemester ), 'Spot' ) )
             ) );
+
+			// Get student registered courses for registration semester
+			$registeredCourses = $this->User->ScheduleSemester->Course->find( 'list', array(
+				'conditions'	=>	array(
+					'Course.idul' 		=>	$this->Session->read( 'User.idul' ),
+					'Course.semester'	=>	$semester
+				),
+				'fields'	=>	array( 'id', 'nrc' )
+			) );
+			
+			// Get student selected courses for registration semester
+			$selectedCourses = $this->User->SelectedCourse->find( 'list', array(
+				'conditions'	=>	array(
+					'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
+					'SelectedCourse.semester'	=>	$semester
+				),
+				'fields'	=>	array( 'id', 'nrc' )
+			) );
 
 			$this->set( 'course', $course );
 			$this->set( 'semester', $semester );
-			
+			$this->set( 'classes', $course[ 'Class' ] );
+			$this->set( 'registeredCourses', $registeredCourses );
+			$this->set( 'selectedCourses', $selectedCourses );
+
 			$this->layout = 'ajax';
 			$this->render( 'modals/course_info' );
 		}
@@ -726,10 +755,11 @@ class RegistrationController extends AppController {
 			// Send course registration request to Capsule
 			$registrationResults = $this->Capsule->registerCourses( array_values( $selectedCourses ), $semester );
 
-			if ( empty( $registrationResults ) || $registrationResults === false ) {
+			if ( empty( $registrationResults ) || ( !is_array( $registrationResults ) && substr( $registrationResults, 0, 6 ) == 'error:' ) ) {
 				return new CakeResponse( array(
 	            	'body' => json_encode( array(
-	            		'status'    =>  false
+	            		'status'    	=>  false,
+	            		'errorMessage'	=>	substr( $registrationResults, 6 )
 	            	) )
 	            ) );
 			} else {

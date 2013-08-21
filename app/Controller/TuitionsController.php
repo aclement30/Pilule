@@ -51,32 +51,32 @@ class TuitionsController extends AppController {
 		// Check is data exists in DB
         if ( ( $lastRequest = $this->CacheRequest->requestExists( 'tuition-fees' ) ) && ( !empty( $tuitions[ 'TuitionAccount' ][ 'Semester' ] ) ) ) {
             // Define tuition fees payment deadlines
-            if ( substr( CURRENT_SEMESTER, 4, 2 ) == '01' ) {
-                if ( CURRENT_SEMESTER == 201301 ) {
+            if ( substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 4, 2 ) == '01' ) {
+                if ( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ] == 201301 ) {
                     // Exception for H-2013 semester
                     $deadline = array(
-                        'long'  =>  '1er mars ' . substr( CURRENT_SEMESTER, 0, 4 ),
+                        'long'  =>  '1er mars ' . substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 0, 4 ),
                         'small' =>  '1<sup>er</sup> mars',
-                        'date'  =>  substr( CURRENT_SEMESTER, 0, 4 ) . '0301'
+                        'date'  =>  substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 0, 4 ) . '0301'
                     );
                 } else {
                     $deadline = array(
-                        'long'  =>  '15 février ' . substr( CURRENT_SEMESTER, 0, 4 ),
+                        'long'  =>  '15 février ' . substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 0, 4 ),
                         'small' =>  '15 fév.',
-                        'date'  =>  substr( CURRENT_SEMESTER, 0, 4 ) . '0215'
+                        'date'  =>  substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 0, 4 ) . '0215'
                     );
                 }
-            } elseif ( substr( CURRENT_SEMESTER, 4, 2 ) == '09' ) {
+            } elseif ( substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 4, 2 ) == '09' ) {
                 $deadline = array(
-                    'long'  =>  '15 octobre ' . substr( CURRENT_SEMESTER, 0, 4 ),
+                    'long'  =>  '15 octobre ' . substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 0, 4 ),
                     'small' =>  '15 oct.',
-                    'date'  =>  substr( CURRENT_SEMESTER, 0, 4 ) . '1015'
+                    'date'  =>  substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 0, 4 ) . '1015'
                 );
-            } elseif ( substr( CURRENT_SEMESTER, 4, 2 ) == '05' ) {
+            } elseif ( substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 4, 2 ) == '05' ) {
                 $deadline = array(
-                    'long'  =>  '15 juin ' . substr( CURRENT_SEMESTER, 0, 4 ),
+                    'long'  =>  '15 juin ' . substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 0, 4 ),
                     'small' =>  '15 juin',
-                    'date'  =>  substr( CURRENT_SEMESTER, 0, 4 ) . '0615'
+                    'date'  =>  substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 0, 4 ) . '0615'
                 );
             }
 

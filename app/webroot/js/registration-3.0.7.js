@@ -307,10 +307,17 @@ app.Registration.addRegisteredCourses = function ( response ) {
 	if ( response.status ) {				// Courses registration request has been successfull
 		document.location = app.baseUrl + 'choix-cours/resultats/' + response.token;
 	} else {
-		app.Common.dispatchError({
-			message: 	"L'inscription aux cours sélectionnés a échouée.",
-			context: 	'registration-error'
-		});
+		if ( response.errorMessage ) {
+			app.Common.dispatchError({
+				message: 	response.errorMessage,
+				context: 	'registration-error'
+			});
+		} else {
+			app.Common.dispatchError({
+				message: 	"L'inscription aux cours sélectionnés a échouée.",
+				context: 	'registration-error'
+			});
+		}
 	}
 };
 

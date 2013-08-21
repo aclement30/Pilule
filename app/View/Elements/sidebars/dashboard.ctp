@@ -17,6 +17,9 @@
         <li>
             <?php echo $this->Html->link( '<i class="icon-share"></i> Relevés fiscaux', '#', array( 'class' => 'link-capsule-fiscal-statement', 'escape' => false ) ); ?>
         </li>
+        <li>
+            <?php echo $this->Html->link( '<i class="icon-share"></i> Demande d\'admission', '#', array( 'class' => 'link-capsule-admission', 'escape' => false ) ); ?>
+        </li>
     </ul>
 </div>
 

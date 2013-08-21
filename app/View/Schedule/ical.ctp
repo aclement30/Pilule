@@ -19,14 +19,28 @@ METHOD:PUBLISH
 PRODID:-//Pilule //NONSGML iCalendar Template//EN
 X-WR-CALNAME;VALUE=TEXT:Université Laval
 VERSION:2.0
-<?php foreach ( $timetable[ 'events' ] as $event ) : ?>
+<?php
+	foreach ( $timetable[ 'events' ] as $event ) :
+		// Format start/end times
+		if ( floor( $event[ 'startTime' ] ) != $event[ 'startTime' ] ) {
+			$event[ 'startTime' ] = str_replace( '.5', ':30', $event[ 'startTime' ] );
+		} else {
+			$event[ 'startTime' ] .= ':00';
+		}
+
+		if ( floor( $event[ 'endTime' ] ) != $event[ 'endTime' ] ) {
+			$event[ 'endTime' ] = str_replace( '.5', ':30', $event[ 'endTime' ] );
+		} else {
+			$event[ 'endTime' ] .= ':00';
+		}
+	?>
 BEGIN:VEVENT
 SEQUENCE:1
-DTSTART;TZID=Canada/Eastern:<?php echo str_replace( ':', '', str_replace( '-', '', str_replace( ' ', 'T', $event[ 'start' ] ) ) ); ?>
+DTSTART;TZID=Canada/Eastern:<?php echo str_replace( ':', '', str_replace( '-', '', str_replace( ' ', 'T', $event[ 'startDay' ] . ' ' . $event[ 'startTime' ] . '00' ) ) ); ?>
 
 SUMMARY:<?php echo $event[ 'title' ]; ?>
 
-DTEND;TZID=Canada/Eastern:<?php echo str_replace( ':', '', str_replace( '-', '', str_replace( ' ', 'T', $event[ 'end' ] ) ) ); ?>
+DTEND;TZID=Canada/Eastern:<?php echo str_replace( ':', '', str_replace( '-', '', str_replace( ' ', 'T', $event[ 'endDay' ] . ' ' . $event[ 'endTime' ] . '00' ) ) ); ?>
 
 LOCATION:<?php echo $event[ 'location' ]; ?>
 

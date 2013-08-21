@@ -136,6 +136,11 @@ app.Dashboard.init = function () {
 
 		return false;
 	} );
+	$( '.aside a.link-capsule-admission' ).on( 'click', function( e ) {
+		app.Common.openExternalWebsite( app.baseUrl + 'services/capsule-admission/' );
+
+		return false;
+	} );
 };
 
 $( document ).ready( function() { app.Dashboard.init(); } );

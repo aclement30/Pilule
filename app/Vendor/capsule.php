@@ -358,11 +358,11 @@ class Capsule {
 	// Get studies summary
     public function getStudies ( $md5Hash, $semester ) {
         $request = $this->_fetchPage( '/pls/etprod7/bwskgstu.P_StuInfo', 'POST', array( 'term_in' => $semester ) );
-
+        
         // Check if student has studies info
         if ( strpos( $request[ 'response' ], "Il n'existe pas d'informations étudiantes disponibles" ) )
             return ( array( 'status' => false ) );
-
+        
         // Parse studies data
         if ( strpos( $request[ 'response' ], "tudes en cours" ) ) {
             // Parse DOM structure from response
@@ -1297,10 +1297,28 @@ class Capsule {
         $this->domparser->load( $request[ 'response' ] );
         $table = $this->domparser->find( 'table.datadisplaytable' );
 
-        if ( strpos( $request[ 'response' ], 'Il vous est impossible de vous inscrire dans Capsule' ) > 1 ) {
-            return false;
+        // Log registration data
+        CakeLog::write( 'registration', '------------------------------------------------------------------' );
+        CakeLog::write( 'registration', '1ère requête [ IDUL : ' . $this->idul . ' ]' );
+        CakeLog::write( 'registration', $request[ 'response' ] );
+        CakeLog::write( 'registration', '------------------------------------------------------------------' );
+
+        // Check for error messages in the page
+        if ( preg_match( '/Il vous est impossible\sde vous inscrire dans Capsule, car aucune période/', $request[ 'response' ] ) ) {
+            // Return error message
+            return 'error:Inscription impossible puisque vous n\'avez pas de période d\'inscription accordée. <br>Veuillez communiquer avec votre direction de programme.';
+        } elseif ( preg_match( '/Désolé ce service est présentement\sinaccessible/', $request[ 'response' ] ) ) {
+            // Return error message
+            return 'error:Erreur lors de l\'inscription : Capsule est hors service. Veuillez réessayer plus tard.';
+        } elseif( preg_match( '/Vous pouvez vous\sinscrire durant la période suivante/', $request[ 'response' ] ) ) {
+            // Detect start of registration period for this user
+            $cells = $table[0]->find( 'td.dddefault' );
+            $initialDate = implode( '-', array_reverse( explode( '/', $cells[0]->text() ) ) ) . ' à ' . $cells[1]->text();
+
+            // Return error message
+            return 'error:Erreur lors de l\'inscription : votre période d\'inscription commencera le ' . $initialDate;
         }
-        
+
         $postString = "term_in=".$semester."&RSTS_IN=DUMMY&assoc_term_in=DUMMY&CRN_IN=DUMMY&start_date_in=DUMMY&end_date_in=DUMMY&SUBJ=DUMMY&CRSE=DUMMY&SEC=DUMMY&LEVL=DUMMY&CRED=DUMMY&GMOD=DUMMY&TITLE=DUMMY&MESG=DUMMY&REG_BTN=DUMMY";
 
         if ( count ( $table ) != 0 ) {
@@ -1308,7 +1326,7 @@ class Capsule {
             // Parse all table input fields
             foreach( $inputFields as $field ) {
                 if ( $field->name != '' )  {
-                    $postString .= '&' . $field->name . '=' . urlencode( $field->value );
+                    $postString .= '&' . $field->name . '=' . urlencode( utf8_decode( $field->value ) );
 
                     if ( $field->name == 'MESG' ) {
                         $postString .= '&RSTS_IN=';
@@ -1332,21 +1350,61 @@ class Capsule {
         $form = $this->domparser->find( 'form' );
 
         if ( empty( $form ) || !is_array( $form ) ) {
-            return false;
+            return 'error:Réponse invalide du serveur Capsule';
         }
         
         $inputFields = $form[1]->find( 'input' );
         // Parse all form input fields
         foreach( $inputFields as $field ) {
             if ( $field->name == 'regs_row' || $field->name == 'wait_row' || $field->name == 'add_row' ) {
-                $postString .= '&' . $field->name . '=' . urlencode( $field->value );
+                $postString .= '&' . $field->name . '=' . urlencode( utf8_decode( $field->value ) );
             }
         }
 
-        $postString .= '&REG_BTN=' . urlencode( 'Soumettre les modifications' );
+        $postString .= '&REG_BTN=' . urlencode( utf8_decode( 'Soumettre les modifications' ) );
 
         // Submit registration form
         $request = $this->_fetchPage( '/pls/etprod7/bwckcoms.P_Regs', 'POST', array(), true, array( 'PostString' => $postString ) );
+
+        // Log registration data
+        CakeLog::write( 'registration', '2e requête [ IDUL : ' . $this->idul . ' ]' );
+        CakeLog::write( 'registration', $request[ 'response' ] );
+        CakeLog::write( 'registration', '------------------------------------------------------------------' );
+
+        // Check for error messages in the page
+        if ( preg_match( '/Une erreur s\'est\sproduite empêchant l\'exécution de votre\sopération/', $request[ 'response' ] ) ) {
+            // Return error message
+            return 'error:Erreur lors de l\'inscription. Veuillez réessayer.';
+        }
+
+        // Check if dates need to be confirmed
+        if ( preg_match( '/p_proc_start_date_confirm/', $request[ 'response' ] ) ) {
+            // Confirm dates
+
+            // Parse DOM structure from response
+            $this->domparser->load( $request[ 'response' ] );
+            $forms = $this->domparser->find( 'form' );
+            $inputFields = $forms[1]->find( 'input' );
+            $table = $this->domparser->find( 'table.datadisplaytable' );
+            $postString = array();
+            
+            // Parse all form input fields
+            foreach( $inputFields as $field ) {
+                if ( !empty( $field->name ) ) {
+                    $postString[] = $field->name . '=' . urlencode( $field->value );
+                }
+            }
+
+            $postString = implode( '&', $postString );
+
+            // Submit 2nd of registration form
+            $request = $this->_fetchPage( '/pls/etprod7/bwckcoms.p_proc_start_date_confirm', 'POST', array(), true, array( 'PostString' => $postString ) );
+
+            // Log registration data
+            CakeLog::write( 'registration', '3e requête [ IDUL : ' . $this->idul . ' ]' );
+            CakeLog::write( 'registration', $request[ 'response' ] );
+            CakeLog::write( 'registration', '------------------------------------------------------------------' );
+        }
 
         // Parse DOM structure from response
         $this->domparser->load( $request[ 'response' ] );
@@ -1363,6 +1421,9 @@ class Capsule {
                 );
             }
         }
+
+        // Log registration results
+        CakeLog::write( 'registration-success', $this->idul . ' : ' . implode( ', ', $nrcArray ) );
 
         if ( strpos( $request[ 'response' ], 'Erreur d\'ajout' ) > 1 ) {
             // Parse registration errors
@@ -1908,6 +1969,77 @@ class Capsule {
 
             return $courses;
         }
+    }
+
+    public function fetchPortailCours() {
+        $this->host = 'www.portaildescours.ulaval.ca';
+        $this->debug = 1;
+        //$this->fetcher->follow_redirect = 0;
+
+        // Define request parameters
+        $this->fetcher->set( array(
+            'debug'             =>  $this->debug,
+            'protocol'          =>  'https',
+            'request_method'    =>  'GET'
+        ) );
+
+        // Define Host name
+        $arguments = array(
+            'HostName'      =>  $this->host,
+            'RequestURI'    =>  '/login.jsp?_js=true',
+        );
+
+        // Open connection to remote server
+        $error = $this->fetcher->Open( $arguments );
+        if ( !empty( $error ) ) return false;
+
+        // Send request data to remote server
+        $error = $this->fetcher->SendRequest( $arguments );
+        if ( !empty( $error ) ) return false;
+
+        // Read response headers from remote server
+        $error = $this->fetcher->ReadReplyHeaders( $headers );
+        if ( !empty( $error ) ) return false;
+
+        // Read response content from remote server
+        $this->fetcher->ReadWholeReplyBody( $response );
+        $response = $response;
+
+        // Close remote server connection
+        $this->fetcher->Close();
+
+         // Get class page
+        //$this->fetcher->SaveCookies( $cookies );
+        //$this->fetcher->cookies = $cookies;
+        /*
+        // Define Host name
+        $arguments = array(
+            'HostName'      =>  'www.portaildescours.ulaval.ca',
+            'RequestURI'    =>  substr( $headers[ 'location' ], strpos( $headers[ 'location' ], ':443/' ) + 4 ),
+        );
+
+        // Open connection to remote server
+        $error = $this->fetcher->Open( $arguments );
+        if ( !empty( $error ) ) return false;
+
+        // Send request data to remote server
+        $error = $this->fetcher->SendRequest( $arguments );
+        if ( !empty( $error ) ) return false;
+
+        // Read response headers from remote server
+        $error = $this->fetcher->ReadReplyHeaders( $headers );
+        if ( !empty( $error ) ) return false;
+
+        // Read response content from remote server
+        $this->fetcher->ReadWholeReplyBody( $response );
+        $response = $response;
+
+        // Close remote server connection
+        $this->fetcher->Close();
+        */
+        // Parse DOM structure from response
+        //$this->domparser->load( $request[ 'response' ] );
+        //$tables = $this->domparser->find( '.pagebodydiv>table.datadisplaytable table.datadisplaytable' );
     }
 
     private function _fetchPage ( $url, $method = 'GET', $postVars = array(), $checkPage = true, $otherArguments = array() ) {

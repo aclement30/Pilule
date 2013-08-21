@@ -90,6 +90,17 @@ body .modal {
     				display: none;
     			}
     		}
+
+            .timetable {
+                background-color: #fff;
+                padding: 5px;
+                border-radius: 5px;
+                margin-bottom: 5px;
+
+                .dates {
+                    font-weight: bold;
+                }
+            }
     	}
     }
 

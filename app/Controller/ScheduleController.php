@@ -137,13 +137,11 @@ class ScheduleController extends AppController {
                 'action'=>  "app.Cache.reloadData( { name: 'schedule', auto: 0 } );",
                 'type'  =>  'refresh'
             ),
-            /*
             array(
                 'action'=>  "app.Schedule.download( '" . $semester . "' );",
                 'tip'   =>  "Télécharger l'horaire",
                 'type'  =>  'download'
             ),
-            */
             array(
                 'action'=>  "window.print();",
                 'type'  =>  'print'
@@ -291,7 +289,7 @@ class ScheduleController extends AppController {
 
             // Set timetable params
             $view->set( 'semester', $semester );
-            $this->set( 'semesterDates', $this->semesterDates[ $semester ] );
+            $view->set( 'semesterDates', $this->semesterDates[ $semester ] );
             $view->set( 'schedule', $schedule );
             $view->set( 'sectors', $this->sectors );
             $view->set( 'weekdays', $this->weekdays );
@@ -313,11 +311,11 @@ class ScheduleController extends AppController {
                     break;
             }
 
+
             // Define filetype and send result as iCal file
             $this->response->type( array( 'ics' => 'text/calendar' ) );
             $this->response->body( $output );
             $this->response->download( 'horaire-' . $semesterName . '.ics' );
-            $this->response->send();
         }
     }
 }
