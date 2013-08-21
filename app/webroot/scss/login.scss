@@ -200,6 +200,15 @@ footer {
 
     .nav.menu {
         margin-top: 20px;
+
+        li {
+            vertical-align: top;
+
+            &.github {
+                padding-top: 10px;
+                margin-left: 20px;
+            }
+        }
     }
 
     .nav.credits {
