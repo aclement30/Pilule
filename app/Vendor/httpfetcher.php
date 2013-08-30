@@ -44,7 +44,7 @@ class HttpFetcher
 	var $request_body="";
 	var $request_arguments=array();
 	var $protocol_version="1.1";
-	var $timeout=0;
+	var $timeout=3;
 	var $data_timeout=0;
 	var $debug=0;
 	var $log_debug=0;
