@@ -54,7 +54,7 @@ class Capsule {
 
         // Send request data to remote server
         $error = $this->fetcher->SendRequest( $arguments );
-        if ( !empty( $error ) ) return false;
+        if ( !empty( $error ) ) return ( 'server-connection' );
 
         // Read response content from remote server
         $this->fetcher->ReadWholeReplyBody( $response );
@@ -167,7 +167,7 @@ class Capsule {
 
         // Send request data to remote server
         $error = $this->fetcher->SendRequest( $arguments );
-        if ( !empty( $error ) ) return false;
+        if ( !empty( $error ) ) return ( 'server-connection' );
 
         // Read response content from remote server
         $this->fetcher->ReadWholeReplyBody( $response );
