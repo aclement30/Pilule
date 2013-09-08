@@ -6,8 +6,8 @@ class Capsule {
     private $domparser;
     public $Cache;
 	public $forceReload = false;
-    //private $host = "132.203.189.178";
-    private $host = "capsuleweb.ulaval.ca";
+    private $host = "132.203.189.178";
+    //private $host = "capsuleweb.ulaval.ca";
     
     public $cookies;
     public $referer;
