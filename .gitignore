@@ -23,7 +23,8 @@
 # Logs and databases #
 ######################
 *.log
-*.sql
+app/Config/Schema/*.sql
+lib/Cake/Console/Templates/skel/Config/Schema/*.sql
 *.sqlite
 
 # OS generated files #

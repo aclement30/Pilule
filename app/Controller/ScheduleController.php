@@ -187,7 +187,7 @@ class ScheduleController extends AppController {
         	$this->viewPath = 'Commons';
 			$this->render( 'no_data' );
 
-            return (true);
+            return ( true );
         }
 
         /*
@@ -303,7 +303,7 @@ class ScheduleController extends AppController {
                 case '01':
                     $semesterName = 'hiver-' . substr( $semester, 0, 4 );
                     break;
-                case '01':
+                case '09':
                     $semesterName = 'automne-' . substr( $semester, 0, 4 );
                     break;
                 default:
