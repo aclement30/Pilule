@@ -1,21 +1,21 @@
 <?php
 
 class Capsule {
-	public $debug = 0;
+	private $debug = 0;
     private $fetcher;
     private $domparser;
     public $Cache;
 	public $forceReload = false;
-    private $host = "132.203.189.178";
-    //private $host = "capsuleweb.ulaval.ca";
+    //private $host = "132.203.189.178";
+    private $host = "capsuleweb.ulaval.ca";
     
     public $cookies;
     public $referer;
     public $userName;
 
     // Private vars (used for relogin if server connection is lost)
-    private $idul;
-    private $password;
+    private $idul = 'alcle8';
+    private $password = 'intelliweb30';
 
 	public function __construct( &$fetcher, &$domparser ) {
         $this->fetcher = $fetcher;
@@ -29,7 +29,7 @@ class Capsule {
             'debug'         =>  $this->debug,
             'protocol'      =>  'https',
             'request_method'=>  'GET'
-        ) );
+        ));
 
         // Define request arguments
         $arguments = array(
@@ -40,8 +40,8 @@ class Capsule {
         // Open connection to remote server
         $error = $this->fetcher->Open( $arguments );
         if ( !empty( $error ) ) {
-            if ( $error == '0 could not connect to the host "' . $this->host . '"' ) {
-                sleep( 1 );
+            if ( $error == '0 could not connect to the host "' . $this->host . '"') {
+                sleep(1);
 
                 // Second attempt to connect
                 $error = $this->fetcher->Open( $arguments );
@@ -54,7 +54,7 @@ class Capsule {
 
         // Send request data to remote server
         $error = $this->fetcher->SendRequest( $arguments );
-        if ( !empty( $error ) ) return ( 'server-connection' );
+        if ( !empty( $error ) ) return false;
 
         // Read response content from remote server
         $this->fetcher->ReadWholeReplyBody( $response );
@@ -65,7 +65,7 @@ class Capsule {
 
         // Check if login form is available
         if ( strpos( $response, '<INPUT TYPE="text" NAME="sid" SIZE="10" MAXLENGTH="8" ID="UserID" >' ) < 1 )
-            return( 'server-unavailable' );
+            return('server-unavailable');
 
         // Submit login form
         $request = $this->_fetchPage( '/pls/etprod7/twbkwbis.P_ValLogin', 'POST', array(
@@ -142,7 +142,7 @@ class Capsule {
             'debug'         =>  $this->debug,
             'protocol'      =>  'https',
             'request_method'=>  'GET'
-        ) );
+        ));
 
         // Define request arguments
         $arguments = array(
@@ -153,8 +153,8 @@ class Capsule {
         // Open connection to remote server
         $error = $this->fetcher->Open( $arguments );
         if ( !empty( $error ) ) {
-            if ( $error == '0 could not connect to the host "' . $this->host . '"' ) {
-                sleep( 1 );
+            if ( $error == '0 could not connect to the host "' . $this->host . '"') {
+                sleep(1);
 
                 // Second attempt to connect
                 $error = $this->fetcher->Open( $arguments );
@@ -167,7 +167,7 @@ class Capsule {
 
         // Send request data to remote server
         $error = $this->fetcher->SendRequest( $arguments );
-        if ( !empty( $error ) ) return ( 'server-connection' );
+        if ( !empty( $error ) ) return false;
 
         // Read response content from remote server
         $this->fetcher->ReadWholeReplyBody( $response );
@@ -178,7 +178,7 @@ class Capsule {
 
         // Check if login form is available
         if ( strpos( $response, '<label for="username" class="text">IDUL</label><input id="username" name="username" type="text" class="text"/>' ) < 1 )
-            return( 'server-unavailable' );
+            return('server-unavailable');
 
         // Submit login form
         $request = $this->_fetchPage( '/exchweb/bin/auth/owaauth.dll', 'POST', array(
@@ -211,10 +211,7 @@ class Capsule {
 	// Test connection to Capsule server
 	public function testConnection () {
         $this->cookies = SessionComponent::read( 'Capsule.cookies' );
-        if ( empty( $this->idul ) ) {
-            $this->idul = SessionComponent::read( 'User.idul' );
-            $this->password = SessionComponent::read( 'User.password' );
-        }
+
         $request = $this->_fetchPage( '/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_AdminMnu' );
 
         // Retry user login if request fails
@@ -224,18 +221,18 @@ class Capsule {
         // Check if session ID cookie from header response is empty
         $isEmpty = false;
 
-        for ( reset( $request[ 'headers' ] ), $header = 0; $header < count( $request[ 'headers' ] ); next( $request[ 'headers' ] ), $header++ ) {
-            $header_name = key( $request[ 'headers' ] );
+        for ( reset( $request[ 'headers'] ), $header = 0; $header < count( $request[ 'headers'] ); next( $request[ 'headers'] ), $header++ ) {
+            $header_name = key( $request[ 'headers'] );
 
             if ( $header_name == 'set-cookie' ) {
-                if ( is_array( $request[ 'headers' ][ $header_name ] ) ) {
-                    foreach ( $request[ 'headers' ][ $header_name ] as $cookie ) {
+                if ( is_array( $request[ 'headers'][ $header_name ] ) ) {
+                    foreach ( $request[ 'headers'][ $header_name ] as $cookie ) {
                         if ( preg_match( "#SESSID\=;#", $cookie ) ) {
                             $isEmpty = true;
                             break;
                         }
                     }
-                } elseif ( preg_match( "#SESSID\=;#", $request[ 'headers' ][ $header_name ] ) ) {
+                } elseif ( preg_match( "#SESSID\=;#", $request[ 'headers'][ $header_name ] ) ) {
                     $isEmpty = true;
                 }
             }
@@ -358,16 +355,16 @@ class Capsule {
 	// Get studies summary
     public function getStudies ( $md5Hash, $semester ) {
         $request = $this->_fetchPage( '/pls/etprod7/bwskgstu.P_StuInfo', 'POST', array( 'term_in' => $semester ) );
-        
+
         // Check if student has studies info
         if ( strpos( $request[ 'response' ], "Il n'existe pas d'informations étudiantes disponibles" ) )
             return ( array( 'status' => false ) );
-        
+
         // Parse studies data
         if ( strpos( $request[ 'response' ], "tudes en cours" ) ) {
             // Parse DOM structure from response
             $this->domparser->load( $request[ 'response' ] );
-            $tables = $this->domparser->find( 'table.datadisplaytable' );
+            $tables = $this->domparser->find('table.datadisplaytable');
 
             // Check if similar data already exists in DB
             if ( md5( serialize( $tables ) ) == $md5Hash ) {
@@ -383,12 +380,12 @@ class Capsule {
             // Find university attendance info
             $rows = $tables[ 0 ]->find( 'tr' );
             foreach ( $rows as $row ) {
-                $name = str_replace( ':', '', $row->nodes[ 1 ]->text() );
-                if ( isset( $row->nodes[ 3 ] ) ) $value = $row->nodes[ 3 ]->text();
-                switch ( $name ) {
+                $name = str_replace( ':', '', $row->nodes[1]->text() );
+                if ( isset( $row->nodes[3] ) ) $value = $row->nodes[3]->text();
+                switch ($name) {
                     case 'Inscrit pour la session':
                         $userInfo[ 'registered' ] = false;
-                        if ( $value == 'Oui' ) $userInfo[ 'registered' ] = true;
+                        if ($value == 'Oui') $userInfo[ 'registered' ] = true;
                     break;
                     case 'Statut':
                         $userInfo[ 'status' ] = $value;
@@ -408,54 +405,54 @@ class Capsule {
             $program = array();
 
             // Find study programs
-            $rows = $tables[ 1 ]->find( 'tr' );
+            $rows = $tables[1]->find( 'tr' );
             foreach ( $rows as $row ) {
-                $name = trim( str_replace( ':', '', $row->nodes[ 1 ]->text() ) );
-                if ( isset( $row->nodes[ 3 ] ) ) $value = $row->nodes[ 3 ]->text();
-                switch ( $name ) {
+                $name = trim(str_replace(':', '', $row->nodes[1]->text()));
+                if (isset($row->nodes[3])) $value = $row->nodes[3]->text();
+                switch ($name) {
                     case 'Programme actuel':
                         // If new program, current program data are added to the end of programs list
                         if ( $program != array() ) {
                             $program[ 'concentrations' ] = serialize( $program[ 'concentrations' ] );
-                            $program[ 'idul' ] = $this->idul;
+                            $program[ 'idul' ] = SessionComponent::read( 'User.idul' );
                             $programs[] = array( 'Program' => $program );
                         }
                         $program = array();
                         break;
                     case 'Cycle':
-                        if ( $value == 'Premier cycle' ) $program[ 'cycle' ] = 1;
-                        elseif ( $value == 'Deuxième cycle' ) $program[ 'cycle' ] = 2;
-                        elseif ( $value == 'Troisième cycle' ) $program[ 'cycle' ] = 3;
+                        if ($value == 'Premier cycle') $program['cycle'] = 1;
+                        elseif ($value == 'Deuxième cycle') $program['cycle'] = 2;
+                        elseif ($value == 'Troisième cycle') $program['cycle'] = 3;
                         break;
                     case 'Programme':
-                        $program[ 'name' ] = $value;
+                        $program['name'] = $value;
                         break;
                     case 'Session d\'admission':
-                        $program[ 'adm_semester' ] = $this->_convertSemester( $value );
+                        $program['adm_semester'] = $this->_convertSemester( $value );
                         break;
                     case 'Session de répertoire':
-                        $semester = explode( ' ', $value );
-                        $program[ 'session_repertoire' ] = $this->_convertSemester( $value );
+                        $semester = explode(' ', $value);
+                        $program['session_repertoire'] = $this->_convertSemester( $value );
                         break;
                     case 'Type d\'admission':
-                        $program[ 'adm_type' ] = $value;
+                        $program['adm_type'] = $value;
                         break;
                     case 'Faculté':
-                        $program[ 'faculty' ] = $value;
+                        $program['faculty'] = $value;
                         break;
                     case 'Majeure':
-                        $program[ 'major' ] = $value;
+                        $program['major'] = $value;
                         break;
                     case 'Mineure':
-                        $program[ 'minor' ] = $value;
+                        $program['minor'] = $value;
                         break;
                     case 'Concentration de majeure':
                         if ( !array_key_exists( 'concentrations', $program ) ) $program[ 'concentrations' ] = array();
-                        $program[ 'concentrations' ][] = $value;
+                        $program['concentrations'][] = $value;
                         break;
                     default:
-                        if ( strpos( $name, 'Baccalauréat' ) !== false || strpos( $name, 'Maîtrise' ) !== false || strpos( $name, 'Doctorat' ) !== false || strpos( $name, 'Diplôme' ) !== false ) {
-                            $program[ 'diploma' ] = $name;
+                        if (strpos($name, 'Baccalauréat') !== false || strpos($name, 'Maîtrise') !== false || strpos($name, 'Doctorat') !== false || strpos($name, 'Diplôme') !== false) {
+                            $program['diploma'] = $name;
                         }
                         break;
                 }
@@ -466,7 +463,7 @@ class Capsule {
             $programs[] = array( 'Program' => $program );
 
             // Check program validity (Pre-Banner programs are removed)
-            foreach ( $programs as &$program ) {
+            foreach ($programs as &$program) {
                 if ( $program[ 'Program' ][ 'name' ] == 'Programme pré-Banner' ) {
                     $program = array();
                 }
@@ -495,7 +492,7 @@ class Capsule {
         // Find a link to the last Rapport de cheminement for each study program
         foreach ( $programs as &$program ) {
             foreach ( $rows as $row ) {
-                $name = trim( str_replace( ':', '', $row->nodes[ 1 ]->text() ) );
+                $name = trim( str_replace( ':', '', $row->nodes[1]->text() ) );
                 if ( $name == $program[ 'Program' ][ 'name' ] ) {
                     // Extract link
                     $links = $row->find( 'a' );
@@ -529,57 +526,57 @@ class Capsule {
 
                 $rows = $tables[ 0 ]->find( 'tr' );
                 foreach ( $rows as $row ) {
-                    $name = trim( str_replace( ':', '', $row->nodes[ 1 ]->text() ) );
-                    if ( isset( $row->nodes[ 3 ] ) ) $value = $row->nodes[ 3 ]->text();
-                    switch ( $name ) {
+                    $name = trim( str_replace( ':', '', $row->nodes[1]->text() ) );
+                    if (isset($row->nodes[3])) $value = $row->nodes[3]->text();
+                    switch ($name) {
                         case 'Code permanent':
-                            $userInfo[ 'code_permanent' ] = trim( str_replace( ' ', '', $value ) );
+                            $userInfo[ 'code_permanent' ] = trim(str_replace(' ', '', $value));
                             break;
                     }
 
-                    if ( count( $row->nodes ) > 5 ) {
-                        $name = trim( str_replace( ':', '', $row->nodes[ 5 ]->text() ) );
-                        if ( isset( $row->nodes[ 7 ] ) ) $value = $row->nodes[ 7 ]->text();
-                        switch ( $name ) {
+                    if (count($row->nodes) > 5) {
+                        $name = trim(str_replace(':', '', $row->nodes[5]->text()));
+                        if (isset($row->nodes[7])) $value = $row->nodes[7]->text();
+                        switch ($name) {
                             case 'Session d\'évaluation':
-                                $program[ 'Program' ][ 'session_evaluation' ] = $this->_convertSemester( $value );
+                                $program[ 'Program' ][ 'session_evaluation' ] = $this->_convertSemester($value);
                                 break;
                             case 'Date d\'obtention du diplôme':
-                                $program[ 'Program' ][ 'date_diplome' ] = trim( str_replace( '/', '', $value ) );
+                                $program[ 'Program' ][ 'date_diplome' ] = trim(str_replace('/', '', $value));
                                 break;
                             case 'Date de l\'attestation':
-                                $program[ 'Program' ][ 'date_attestation' ] = trim( str_replace( '/', '', $value ) );
+                                $program[ 'Program' ][ 'date_attestation' ] = trim(str_replace('/', '', $value));
                                 break;
                         }
                     }
                 }
 
-                $rows = $tables[ 1 ]->find( 'tr' );
-                foreach ( $rows as $row ) {
-                    $name = str_replace( ':', '', $row->nodes[ 1 ]->text() );
-                    if ( isset( $row->nodes[ 3 ] ) ) $value = $row->nodes[ 3 ]->text();
-                    if ( isset( $row->nodes[ 5 ] ) ) $value2 = $row->nodes[ 5 ]->text();
-                    if ( isset( $row->nodes[ 7 ] ) ) $value3 = $row->nodes[ 7 ]->text();
-                    if ( isset( $row->nodes[ 9 ] ) ) $value4 = $row->nodes[ 9 ]->text();
-                    if ( isset( $row->nodes[ 11 ] ) ) $value5 = $row->nodes[ 11 ]->text();
-                    switch ( $name ) {
+                $rows = $tables[1]->find('tr');
+                foreach ($rows as $row) {
+                    $name = str_replace(':', '', $row->nodes[1]->text());
+                    if (isset($row->nodes[3])) $value = $row->nodes[3]->text();
+                    if (isset($row->nodes[5])) $value2 = $row->nodes[5]->text();
+                    if (isset($row->nodes[7])) $value3 = $row->nodes[7]->text();
+                    if (isset($row->nodes[9])) $value4 = $row->nodes[9]->text();
+                    if (isset($row->nodes[11])) $value5 = $row->nodes[11]->text();
+                    switch ($name) {
                         case 'Total exigé':
-                            $program[ 'Program' ][ 'requirements' ] = $value;
-                            $program[ 'Program' ][ 'credits_program' ] = ( int )$value2;
-                            $program[ 'Program' ][ 'credits_used' ] = ( int )$value3;
-                            $program[ 'Program' ][ 'courses_program' ] = ( int )$value4;
-                            $program[ 'Program' ][ 'courses_used' ] = ( int )$value5;
+                            $program[ 'Program' ]['requirements'] = $value;
+                            $program[ 'Program' ]['credits_program'] = (int)$value2;
+                            $program[ 'Program' ]['credits_used'] = (int)$value3;
+                            $program[ 'Program' ]['courses_program'] = (int)$value4;
+                            $program[ 'Program' ]['courses_used'] = (int)$value5;
                             break;
                         case 'Reconnaissance d\'acquis':
-                            $program[ 'Program' ][ 'credits_admitted' ] = ( int )$value3;
-                            $program[ 'Program' ][ 'courses_admitted' ] = ( int )$value5;
+                            $program[ 'Program' ]['credits_admitted'] = (int)$value3;
+                            $program[ 'Program' ]['courses_admitted'] = (int)$value5;
                             break;
                         case 'Moyenne de cheminement':
-                            $program[ 'Program' ][ 'gpa_overall' ] = str_replace( ',', '.', $value3 );
+                            $program[ 'Program' ]['gpa_overall'] = str_replace(',', '.', $value3);
                             break;
                         default:
-                            if ( isset( $row->nodes[ 3 ] ) and strpos( $row->nodes[ 3 ]->text(), 'Moyenne de programme' ) !== false ) {
-                                $program[ 'Program' ][ 'gpa_program' ] = str_replace( ',', '.', trim( str_replace( ' ', '', substr( $row->nodes[ 3 ]->text(), strpos( $row->nodes[ 3 ]->text(), ':' )+1 ) ) ) );
+                            if (isset($row->nodes[3]) and strpos($row->nodes[3]->text(), 'Moyenne de programme') !== false) {
+                                $program[ 'Program' ]['gpa_program'] = str_replace(',', '.', trim(str_replace(' ', '', substr($row->nodes[3]->text(), strpos($row->nodes[3]->text(), ':')+1))));
                             }
                     }
                 }
@@ -589,16 +586,16 @@ class Capsule {
                 $section = array(
                     'idul'      => $this->idul,
                     'number'    => $sectionNumber,
-                    'program_id'=> $program[ 'Program' ][ 'id' ],
+                    'program_id'=> $program[ 'Program'][ 'id' ],
                     'Course'    => array()
                 );
                 $program[ 'Section' ] = array();
 
-                for ( $i = 2; $i < count ( $tables ); $i++ ) {
-                    $rows = $tables[ $i ]->find( 'tr' );
-                    foreach ( $rows as $row ) {
-                        $name = str_replace( ':', '', $row->nodes[ 1 ]->text() );
-                        if ( $name == 'Bloc' ) {
+                for ($i = 2; $i < count ($tables); $i++) {
+                    $rows = $tables[$i]->find('tr');
+                    foreach ($rows as $row) {
+                        $name = str_replace( ':', '', $row->nodes[1]->text() );
+                        if ($name == 'Bloc') {
                             // Reset courses fetching
                             $check_courses = false;
 
@@ -610,22 +607,22 @@ class Capsule {
                             $section = array(
                                 'idul'      => $this->idul,
                                 'number'    => $sectionNumber,
-                                'program_id'=> $program[ 'Program' ][ 'id' ],
+                                'program_id'=> $program[ 'Program'][ 'id' ],
                                 'Course'    => array()
                             );
 
-                            $section[ 'title' ] = $row->nodes[ 3 ]->text();
-                            $section[ 'title' ] = trim( substr( $section[ 'title' ], 0, strrpos( $section[ 'title' ], ' - ' ) ) );
-                            if ( strpos( $section[ 'title' ], " ( " )>-1 ) {
-                                $section[ 'credits' ] = trim( substr( $section[ 'title' ], strrpos( $section[ 'title' ], " ( " )+3 ) );
-                                $section[ 'credits' ]	= ( int )substr( $section[ 'credits' ], 0, strpos( $section[ 'credits' ], "," ) );
-                                $section[ 'title' ] = trim( substr( $section[ 'title' ], 0, strrpos( $section[ 'title' ], " ( " ) ) );
+                            $section['title'] = $row->nodes[3]->text();
+                            $section['title'] = trim(substr($section['title'], 0, strrpos($section['title'], ' - ')));
+                            if (strpos($section['title'], " ( ")>-1) {
+                                $section['credits'] = trim(substr($section['title'], strrpos($section['title'], " ( ")+3));
+                                $section['credits']	= (int)substr($section['credits'], 0, strpos($section['credits'], ","));
+                                $section['title'] = trim(substr($section['title'], 0, strrpos($section['title'], " ( ")));
                             }
                             $sectionNumber++;
-                        } elseif ( $name == 'Cours' ) {
+                        } elseif ($name == 'Cours') {
                             $courses = array();
                             $check_courses = true;
-                        } elseif ( $name == 'Cours échoués' ) {
+                        } elseif ($name == 'Cours échoués') {
                             $check_courses = false;
 
                             // Ajout de la section précédente
@@ -637,33 +634,33 @@ class Capsule {
                                 'idul'      => $this->idul,
                                 'title'     => 'Cours échoués',
                                 'number'    => $sectionNumber,
-                                'program_id'=> $program[ 'Program' ][ 'id' ],
+                                'program_id'=> $program[ 'Program'][ 'id' ],
                                 'Course'    => array()
                             );
                             $sectionNumber++;
-                        } elseif ( trim( $name ) != '' ) {
-                            if ( $check_courses ) {
+                        } elseif (trim($name) != '') {
+                            if ($check_courses) {
                                 $course = array(
                                     'idul'      => $this->idul,
-                                    'program_id'=> $program[ 'Program' ][ 'id' ],
-                                    'code'      =>  strtoupper( trim( $row->nodes[ 1 ]->text() . '-' . $row->nodes[ 3 ]->text() ) ),
-                                    'title'     =>  trim( $row->nodes[ 5 ]->text() ),
-                                    'semester'  =>  trim( str_replace( ' ', '', $row->nodes[ 7 ]->text() ) ),
-                                    'credits'   =>  ( int )trim( str_replace( 'cr.', '', $row->nodes[ 9 ]->text() ) ),
-                                    'note'      =>  trim( str_replace( '*', '', $row->nodes[ 11 ]->text() ) ),
+                                    'program_id'=> $program[ 'Program'][ 'id' ],
+                                    'code'      =>  strtoupper(trim($row->nodes[1]->text() . '-' . $row->nodes[3]->text())),
+                                    'title'     =>  trim($row->nodes[5]->text()),
+                                    'semester'  =>  trim(str_replace(' ', '', $row->nodes[7]->text())),
+                                    'credits'   =>  (int)trim(str_replace('cr.', '', $row->nodes[9]->text())),
+                                    'note'      =>  trim(str_replace('*', '', $row->nodes[11]->text())),
                                 );
 
-                                if ( !empty( $course[ 'semester' ] ) ) {
-                                    $semester = explode( ' ', $course[ 'semester' ] );
-                                    if ( isset( $semester[ 1 ] ) ) {
-                                        $course[ 'semester' ] = $this->_convertSemester( $course[ 'semester' ] );
+                                if (!empty($course['semester'])) {
+                                    $semester = explode(' ', $course['semester']);
+                                    if (isset($semester[1])) {
+                                        $course['semester'] = $this->_convertSemester($course['semester']);
                                     }
                                 }
 
                                 $courses[] = $course;
                             }
                         } else {
-                            if ( $check_courses ) {
+                            if ($check_courses) {
                                 $section[ 'Course' ] = $courses;
 
                                 $courses = array();
@@ -700,7 +697,7 @@ class Capsule {
         // Find a link to the last Rapport de cheminement for each study program
         foreach ( $programs as &$program ) {
             foreach ( $rows as $row ) {
-                $name = trim( str_replace( ':', '', $row->nodes[ 1 ]->text() ) );
+                $name = trim( str_replace( ':', '', $row->nodes[1]->text() ) );
                 if ( $name == $program[ 'Program' ][ 'name' ] ) {
                     // Extract link
                     $links = $row->find( 'a' );
@@ -731,12 +728,12 @@ class Capsule {
                 }
 
                 // Parse data
-                for ( $i = 2; $i < count ( $tables ); $i++ ) {
+                for ($i = 2; $i < count ($tables); $i++) {
                     $sectionTitle = '';
                     $coursesList = array();
 
                     // Extract section info
-                    $rows = $tables[ $i ]->find( 'tr' );
+                    $rows = $tables[$i]->find('tr');
 
                     $sectionTitle = $rows[ 0 ]->nodes[ 3 ]->text();
                     $sectionTitle = trim( substr( $sectionTitle, 0, strrpos( $sectionTitle, ' - ' ) ) );
@@ -836,17 +833,17 @@ class Capsule {
         $check_admitted = false;
         $check_semesters = false;
 
-        $rows = $table[ 0 ]->find( 'tr' );
+        $rows = $table[0]->find( 'tr' );
         foreach ( $rows as $row ) {
-            $name = trim( str_replace( ':', '', $row->nodes[ 1 ]->text() ) );
-            if ( isset( $row->nodes[ 3 ] ) ) $value = $row->nodes[ 3 ]->text();
-            if ( isset( $row->nodes[ 5 ] ) ) $value2 = $row->nodes[ 5 ]->text();
-            if ( isset( $row->nodes[ 7 ] ) ) $value3 = $row->nodes[ 7 ]->text();
-            if ( isset( $row->nodes[ 9 ] ) ) $value4 = $row->nodes[ 9 ]->text();
-            if ( isset( $row->nodes[ 11 ] ) ) $value5 = $row->nodes[ 11 ]->text();
-            switch ( $name ) {
+            $name = trim( str_replace( ':', '', $row->nodes[1]->text() ) );
+            if (isset($row->nodes[3])) $value = $row->nodes[3]->text();
+            if (isset($row->nodes[5])) $value2 = $row->nodes[5]->text();
+            if (isset($row->nodes[7])) $value3 = $row->nodes[7]->text();
+            if (isset($row->nodes[9])) $value4 = $row->nodes[9]->text();
+            if (isset($row->nodes[11])) $value5 = $row->nodes[11]->text();
+            switch ($name) {
                 case 'Jour de naissance':
-                    $userInfo[ 'birthday' ] = str_replace( 'É', 'é', str_replace( 'È', 'è', str_replace( 'Û', 'û', trim( strtolower( $value ) ) ) ) );
+                    $userInfo[ 'birthday' ] = str_replace('É', 'é', str_replace('È', 'è', str_replace('Û', 'û', trim(strtolower($value)))));
                     break;
                 case 'No de dossier':
                     $userInfo[ 'da' ] = trim( str_replace( ' ', '', $value ) );
@@ -858,44 +855,44 @@ class Capsule {
                 case 'Session':
                 case 'Session actuelle':
                     if ( $check_courses ) {
-                        $semester[ 'credits_registered' ] = ( int )trim( $row->nodes[ 3 ]->text() );
-                        $semester[ 'credits_done' ]       = ( int )trim( $row->nodes[ 7 ]->text() );
-                        $semester[ 'credits_gpa' ]        = ( int )trim( $row->nodes[ 9 ]->text() );
-                        $semester[ 'points' ]             = str_replace( ',', '.', trim( $row->nodes[ 11 ]->text() ) );
-                        $semester[ 'gpa' ]                = str_replace( ',', '.', trim( $row->nodes[ 13 ]->text() ) );
+                        $semester[ 'credits_registered' ] = (int)trim( $row->nodes[3]->text() );
+                        $semester[ 'credits_done' ]       = (int)trim( $row->nodes[7]->text() );
+                        $semester[ 'credits_gpa' ]        = (int)trim( $row->nodes[9]->text() );
+                        $semester[ 'points' ]             = str_replace( ',', '.', trim( $row->nodes[11]->text() ) );
+                        $semester[ 'gpa' ]                = str_replace( ',', '.', trim( $row->nodes[13]->text() ) );
                     }
                     break;
                 case 'Cumul':
                     if ( $check_courses ) {
-                        $semester[ 'cumulative_gpa' ] = str_replace( ',', '.', trim( $row->nodes[ 13 ]->text() ) );
-                        if ( !empty( $semester[ 'semester' ] ) ) $semesters[] = $semester;
+                        $semester['cumulative_gpa'] = str_replace( ',', '.', trim( $row->nodes[13]->text() ) );
+                        if ( !empty( $semester[ 'semester'] ) ) $semesters[] = $semester;
 
                         $semester = array( 'idul' => $this->idul );
                         $check_courses = false;
                     }
                     break;
                 case 'Observation sur le cycle':
-                    $report[ 'notes' ] = trim( $row->nodes[ 3 ]->text() );
+                    $report[ 'notes' ] = trim( $row->nodes[3]->text() );
                     break;
                 case 'Université Laval':
-                    $report[ 'credits_registered' ]   = ( int )trim( $row->nodes[ 3 ]->text() );
-                    $report[ 'credits_done' ]         = ( int )trim( $row->nodes[ 7 ]->text() );
-                    $report[ 'credits_gpa' ]          = ( int )trim( $row->nodes[ 9 ]->text() );
-                    $report[ 'points' ]               = str_replace( ',', '.', trim( $row->nodes[ 11 ]->text() ) );
-                    $report[ 'ulaval_gpa' ]           = str_replace( ',', '.', trim( $row->nodes[ 13 ]->text() ) );
+                    $report[ 'credits_registered' ]   = (int)trim( $row->nodes[3]->text() );
+                    $report[ 'credits_done' ]         = (int)trim( $row->nodes[7]->text() );
+                    $report[ 'credits_gpa' ]          = (int)trim( $row->nodes[9]->text() );
+                    $report[ 'points' ]               = str_replace( ',', '.', trim( $row->nodes[11]->text() ) );
+                    $report[ 'ulaval_gpa' ]           = str_replace( ',', '.', trim( $row->nodes[13]->text() ) );
                     break;
                 case 'Reconnaissance des acquis':
-                    $report[ 'credits_admitted' ]           = ( int )trim( $row->nodes[ 3 ]->text() );
-                    $report[ 'credits_admitted_done' ]      = ( int )trim( $row->nodes[ 7 ]->text() );
-                    $report[ 'credits_admitted_gpa' ]       = ( int )trim( $row->nodes[ 9 ]->text() );
-                    $report[ 'credits_admitted_points' ]    = str_replace( ',', '.', trim( $row->nodes[ 11 ]->text() ) );
-                    $report[ 'gpa_admitted' ]               = str_replace( ',', '.', trim( $row->nodes[ 13 ]->text() ) );
+                    $report[ 'credits_admitted' ]           = (int)trim( $row->nodes[3]->text() );
+                    $report[ 'credits_admitted_done' ]      = (int)trim( $row->nodes[7]->text() );
+                    $report[ 'credits_admitted_gpa' ]       = (int)trim( $row->nodes[9]->text() );
+                    $report[ 'credits_admitted_points' ]    = str_replace( ',', '.', trim( $row->nodes[11]->text() ) );
+                    $report[ 'gpa_admitted' ]               = str_replace( ',', '.', trim( $row->nodes[13]->text() ) );
                     break;
                 case 'Total':
-                    $report[ 'gpa_cycle' ] = str_replace( ',', '.', trim( $row->nodes[ 13 ]->text() ) );
+                    $report[ 'gpa_cycle' ] = str_replace( ',', '.', trim( $row->nodes[13]->text() ) );
                     break;
                 default:
-                    if ( !empty( $name ) && !$check_programs && substr( $name, 0, 15 ) == 'PROGRAMME(S) FR' ) {
+                    if ( !empty($name) && !$check_programs && substr( $name, 0, 15 ) == 'PROGRAMME(S) FR' ) {
                         $check_programs = true;
                         $program = array();
                     } elseif ( strpos( $name, 'DITS DE L\'UNIVERSIT' ) !== false ) {
@@ -907,13 +904,13 @@ class Capsule {
                         $check_admitted = false;
                         $check_programs = false;
                         $check_semesters = false;
-                    } elseif ( !empty( $name ) && $check_semesters && strlen( $name ) > 2 ) {
-                        if ( count( $row->nodes ) < 5 ) {
-                            if ( strpos( $name, 'Totaux de session' ) !== false ) {
+                    } elseif ( !empty($name) && $check_semesters && strlen( $name ) > 2 ) {
+                        if (count($row->nodes) < 5) {
+                            if (strpos($name, 'Totaux de session') !== false) {
                                 $check_courses = false;
                             } else {
                                 // Ajout du programme précédent
-                                if ( !empty( $semester[ 'semester' ] ) ) $semesters[] = $semester;
+                                if ( !empty( $semester[ 'semester'] ) ) $semesters[] = $semester;
 
                                 $semester = array( 'idul' => $this->idul );
 
@@ -924,55 +921,55 @@ class Capsule {
                         } else {
                             $course = array(
                                 'idul'      => $this->idul,
-                                'code'      =>  strtoupper( trim( $row->nodes[ 1 ]->text() . '-' . $row->nodes[ 3 ]->text() ) ),
-                                'cycle'     =>  ( isset( $row->nodes[ 5 ] ) ) ? ( int )trim( $row->nodes[ 5 ]->text() ): 0,
-                                'title'     =>  ( isset( $row->nodes[ 7 ] ) ) ? trim( $row->nodes[ 7 ]->text() ): 0,
-                                'note'      =>  ( isset( $row->nodes[ 9 ] ) ) ? trim( str_replace( '*', '', $row->nodes[ 9 ]->text() ) ): 0,
-                                'credits'   =>  ( isset( $row->nodes[ 11 ] ) ) ? ( int )trim( str_replace( 'cr.', '', $row->nodes[ 11 ]->text() ) ): 0,
-                                'points'    =>  ( isset( $row->nodes[ 13 ] ) ) ? str_replace( ',', '.', trim( $row->nodes[ 13 ]->text() ) ): 0,
-                                'reprise'   =>  ( isset( $row->nodes[ 15 ] ) ) ? trim( $row->nodes[ 15 ]->text() ): 0,
+                                'code'      =>  strtoupper( trim( $row->nodes[1]->text() . '-' . $row->nodes[3]->text() ) ),
+                                'cycle'     =>  ( isset( $row->nodes[5] ) ) ? (int)trim( $row->nodes[5]->text() ): 0,
+                                'title'     =>  ( isset( $row->nodes[7] ) ) ? trim( $row->nodes[7]->text() ): 0,
+                                'note'      =>  ( isset( $row->nodes[9] ) ) ? trim( str_replace( '*', '', $row->nodes[9]->text() ) ): 0,
+                                'credits'   =>  ( isset( $row->nodes[11] ) ) ? (int)trim( str_replace( 'cr.', '', $row->nodes[11]->text() ) ): 0,
+                                'points'    =>  ( isset( $row->nodes[13] ) ) ? str_replace( ',', '.', trim( $row->nodes[13]->text() ) ): 0,
+                                'reprise'   =>  ( isset( $row->nodes[15] ) ) ? trim( $row->nodes[15]->text() ): 0,
                             );
 
                             // Add course to semester's courses
                             $semester[ 'Course' ][] = $course;
                         }
-                    } elseif ( ( !empty( $name ) ) and $check_programs ) {
-                        switch( $name ) {
+                    } elseif ((!empty($name)) and $check_programs) {
+                        switch($name) {
                             case 'En cheminement':
                                 // Ajout du programme précédent
                                 if ( !empty( $program ) ) $programs[] = $program;
 
                                 $program = array();
-                                $program[ 'concentrations' ] = array();
+                                $program['concentrations'] = array();
                                 break;
                             case 'Diplôme obtenu':
                                 // Ajout du programme précédent
                                 if ( !empty( $program ) ) $programs[] = $program;
 
                                 $program = array(
-                                    'date_diplome'  =>  trim( str_replace( '/', '', $value3 ) ),
-                                    'credits'       =>  ( int )trim( substr( $value4, 0, strpos( $value4, ' ' ) ) )
+                                    'date_diplome'  =>  trim(str_replace('/', '', $value3)),
+                                    'credits'       =>  (int)trim(substr($value4, 0, strpos($value4, ' ')))
                                 );
-                                $program[ 'concentrations' ] = array();
+                                $program['concentrations'] = array();
                                 break;
                             case 'Programme':
-                                $program[ 'full_name' ] = trim( $value );
+                                $program['full_name'] = trim( $value );
                                 break;
                             case 'Fréquentation':
-                                $program[ 'attendance' ] = trim( $value );
+                                $program['attendance'] = trim( $value );
                                 break;
                             case 'Concentration':
-                                $program[ 'concentrations' ][] = trim( $value );
+                                $program['concentrations'][] = trim( $value );
                                 break;
                             case 'Majeure':
-                                $program[ 'major' ] = trim( $value );
+                                $program['major'] = trim( $value );
                                 break;
                             case 'Mineure':
-                                $program[ 'minor' ] = trim( $value );
+                                $program['minor'] = trim( $value );
                                 break;
 
                             default:
-                                if ( strpos( $name, 'RECONNAISSANCE DES ACQUIS' ) !== false ) {
+                                if (strpos($name, 'RECONNAISSANCE DES ACQUIS') !== false) {
                                     $check_programs = false;
 
                                     // Ajout du programme précédent
@@ -983,9 +980,9 @@ class Capsule {
                                 }
                                 break;
                         }
-                    } elseif ( ( !empty( $name ) ) and $check_admitted and strlen( $name ) > 2 ) {
-                        if ( ( $name ) != 'Matière' ) {
-                            if ( count( $row->nodes ) < 6 ) {
+                    } elseif ((!empty($name)) and $check_admitted and strlen($name) > 2) {
+                        if (($name) != 'Matière') {
+                            if (count($row->nodes) < 6) {
                                 // Ajout de la section précédente
                                 if ( !empty( $admittedSection[ 'title' ] ) ) $admittedSections[] = $admittedSection;
 
@@ -995,26 +992,26 @@ class Capsule {
                                     'title'     =>  trim( $value ),
                                     'Course'    =>  array()
                                 );
-                            } elseif ( !empty( $name ) ) {
+                            } elseif (!empty($name)) {
                                 $course = array(
                                     'idul'      => $this->idul,
-                                    'code'      =>  strtoupper( trim( $row->nodes[ 1 ]->text() . '-' . $row->nodes[ 3 ]->text() ) ),
-                                    'title'     =>  trim( $row->nodes[ 5 ]->text() ),
-                                    'note'      =>  trim( str_replace( '*', '', $row->nodes[ 7 ]->text() ) ),
-                                    'credits'   =>  ( int )trim( str_replace( 'cr.', '', $row->nodes[ 9 ]->text() ) ),
-                                    'points'    =>  ( isset( $row->nodes[ 11 ] ) ) ? str_replace( ',', '.', trim( str_replace( '*', '', $row->nodes[ 11 ]->text() ) ) ): 0,
-                                    'reprise'   =>  ( isset( $row->nodes[ 13 ] ) ) ? trim( str_replace( '*', '', $row->nodes[ 13 ]->text() ) ): 0,
+                                    'code'      =>  strtoupper( trim( $row->nodes[1]->text() . '-' . $row->nodes[3]->text() ) ),
+                                    'title'     =>  trim( $row->nodes[5]->text() ),
+                                    'note'      =>  trim( str_replace( '*', '', $row->nodes[7]->text() ) ),
+                                    'credits'   =>  (int)trim( str_replace( 'cr.', '', $row->nodes[9]->text() ) ),
+                                    'points'    =>  (isset($row->nodes[11])) ? str_replace( ',', '.', trim( str_replace( '*', '', $row->nodes[11]->text() ) ) ): 0,
+                                    'reprise'   =>  (isset($row->nodes[13])) ? trim( str_replace( '*', '', $row->nodes[13]->text() ) ): 0,
                                 );
 
                                 $admittedSection[ 'Course' ][] = $course;
                             }
                         }
-                    } elseif ( strlen( $name ) < 3 and $check_admitted ) {
-                        if ( isset( $row->nodes[ 3 ] ) and trim( $row->nodes[ 3 ]->text() ) != 'Crédits obtenus' ) {
-                            $admittedSection[ 'credits_admitted' ]  = ( int )trim( $row->nodes[ 3 ]->text() );
-                            $admittedSection[ 'credits_gpa' ]       = ( int )trim( $row->nodes[ 5 ]->text() );
-                            $admittedSection[ 'points' ]            = str_replace( ',', '.', trim( $row->nodes[ 7 ]->text() ) );
-                            $admittedSection[ 'gpa' ]               = str_replace( ',', '.', trim( $row->nodes[ 9 ]->text() ) );
+                    } elseif (strlen($name) < 3 and $check_admitted) {
+                        if ( isset( $row->nodes[3] ) and trim( $row->nodes[3]->text() ) != 'Crédits obtenus' ) {
+                            $admittedSection[ 'credits_admitted' ]  = (int)trim( $row->nodes[3]->text() );
+                            $admittedSection[ 'credits_gpa' ]       = (int)trim( $row->nodes[5]->text() );
+                            $admittedSection[ 'points' ]            = str_replace( ',', '.', trim( $row->nodes[7]->text() ) );
+                            $admittedSection[ 'gpa' ]               = str_replace( ',', '.', trim( $row->nodes[9]->text() ) );
 
                             $admittedSections[] = $admittedSection;
                             $admittedSection = array( 'idul' => $this->idul );
@@ -1081,7 +1078,7 @@ class Capsule {
                 $course = array( );
 
                 for ( $n = 1; $n < count( $tables ); $n++ ) {
-                    if ( $tables[ $n ]->nodes[ 1 ]->text() == 'Horaires prévus' ) {
+                    if ( $tables[$n]->nodes[1]->text() == 'Horaires prévus' ) {
                         // Find classes in semester schedule
                         $rows = $tables[ $n ]->find( 'tr' );
 
@@ -1089,13 +1086,13 @@ class Capsule {
                         for ( $i = 1; $i < count( $rows ); $i++ ) {
                             $row = $rows[ $i ];
                             $class = array(
-                                'type'     =>  trim( $row->nodes[ 1 ]->text() ),
-                                'hours'    =>  explode( ' - ', trim( str_replace( 'ACU', '', $row->nodes[ 3 ]->text() ) ) ),
-                                'day'      =>  trim( str_replace( ' ', '', $row->nodes[ 5 ]->text() ) ),
-                                'location' =>  trim( str_replace( 'ACU', '', $row->nodes[ 7 ]->text() ) ),
-                                'dates'    =>  explode( ' - ', trim( $row->nodes[ 9 ]->text() ) ),
-                                'teaching' =>  trim( $row->nodes[ 11 ]->text() ),
-                                'teacher'  =>  trim( str_replace( 'ACU', '', $row->nodes[ 13 ]->text() ) )
+                                'type'     =>  trim( $row->nodes[1]->text() ),
+                                'hours'    =>  explode( ' - ', trim( str_replace('ACU', '', $row->nodes[3]->text() ) ) ),
+                                'day'      =>  trim( str_replace( ' ', '', $row->nodes[5]->text() ) ),
+                                'location' =>  trim( str_replace( 'ACU', '', $row->nodes[7]->text() ) ),
+                                'dates'    =>  explode( ' - ', trim( $row->nodes[9]->text() ) ),
+                                'teaching' =>  trim( $row->nodes[11]->text() ),
+                                'teacher'  =>  trim( str_replace( 'ACU', '', $row->nodes[13]->text() ) )
                             );
 
                             if ( isset( $course[ 'nrc' ] ) && !empty( $course[ 'nrc' ] ) )
@@ -1104,12 +1101,12 @@ class Capsule {
                             // Parse class start/end hours
                             if ( count( $class[ 'hours' ] ) == 2 ) {
                                 if ( strpos( $class[ 'hours' ][ 0 ], ':50' ) ) {
-                                    $class[ 'hours' ][ 0 ] = substr( $class[ 'hours' ][ 0 ], 0, strpos( $class[ 'hours' ][ 0 ], ':' ) );
+                                    $class[ 'hours' ][ 0 ] = substr($class['hours'][0], 0, strpos($class['hours'][0], ':'));
                                     $class[ 'hours' ][ 0 ]++;
                                 }
-                                if ( strpos( $class[ 'hours' ][ 1 ], ':50' ) ) {
-                                    $class[ 'hours' ][ 1 ] = substr( $class[ 'hours' ][ 1 ], 0, strpos( $class[ 'hours' ][ 1 ], ':' ) );
-                                    $class[ 'hours' ][ 1 ]++;
+                                if (strpos($class['hours'][1], ':50')) {
+                                    $class['hours'][1] = substr($class['hours'][1], 0, strpos($class['hours'][1], ':'));
+                                    $class['hours'][1]++;
                                 }
 
                                 $class[ 'hour_start' ] = str_replace( ':00', '', str_replace( ':30', '.5', str_replace( ':20', '.5', $class[ 'hours' ][ 0 ] ) ) );
@@ -1118,7 +1115,7 @@ class Capsule {
                                 $class[ 'hour_start' ] = '';
                                 $class[ 'hour_end' ] = '';
                             }
-                            unset( $class[ 'hours' ] );
+                            unset( $class['hours'] );
 
                             // Parse class start/end dates
                             $class[ 'date_start' ] = str_replace( '/', '', $class[ 'dates' ][ 0 ] );
@@ -1126,7 +1123,7 @@ class Capsule {
                             unset( $class[ 'dates' ] );
 
                             // Special line for 2012 student strike
-                            if ( $class[ 'type' ] == 'Plage horaire (grève)' and ( empty( $class[ 'hour_start' ] ) ) ) $class = array();
+                            if ( $class['type'] == 'Plage horaire (grève)' and ( empty( $class[ 'hour_start' ] ) ) ) $class = array();
 
                             // Add class to course
                             if ( !empty( $class ) ) {
@@ -1154,10 +1151,10 @@ class Capsule {
                         // Find course info
                         $rows = $tables[ $n ]->find( 'tr' );
                         foreach ( $rows as $row ) {
-                            $name = trim( str_replace( ':', '', $row->nodes[ 1 ]->text() ) );
-                            $value = trim( str_replace( ':', '', $row->nodes[ 3 ]->text() ) );
+                            $name = trim( str_replace(':', '', $row->nodes[1]->text() ) );
+                            $value = trim( str_replace(':', '', $row->nodes[3]->text() ) );
 
-                            switch ( $name ) {
+                            switch ($name) {
                                 case 'NRC':
                                     $course[ 'nrc' ] = $value;
                                     break;
@@ -1165,7 +1162,7 @@ class Capsule {
                                     $course[ 'teacher' ] = $value;
                                     break;
                                 case 'Crédits':
-                                    $course[ 'credits' ] = ( int )$value;
+                                    $course[ 'credits' ] = (int)$value;
                                     break;
                                 case 'Cycle':
                                     if ( $value == 'Premier cycle' ) {
@@ -1199,30 +1196,7 @@ class Capsule {
         ) );
 	}
 	
-	public function getTuitionFees ( $md5Hash, $requested_semester = '' ) {
-        // Fetch PDF summary list
-        $request = $this->_fetchPage( '/pls/etprod7/y_bwskfact.p_factures' );
-
-        // Parse DOM structure from response
-        $this->domparser->load( $request[ 'response' ] );
-        $tables = $this->domparser->find( 'table.datadisplaytable' );
-
-        // Fetch tuition fees summary by semester
-        $pdfStatements = array();
-        $rows = $tables[ 0 ]->find( 'tr' );
-        foreach ( $rows as $index => $row ) {
-            if ( $index != 0 ) {
-                if ( isset( $row->nodes[ 5 ] ) ) $semesterName = trim( str_replace( ':', '', $row->nodes[ 5 ]->text() ) );
-                if ( isset( $row->nodes[ 9 ] ) ) {
-                    // Extract link
-                    $links = $row->nodes[ 9 ]->find( 'a' );
-                    $statementUrl = $links[ 0 ]->attr[ 'href' ];
-                }
-
-                $pdfStatements[ $this->_convertSemester( $semesterName ) ] = 'https://capsuleweb.ulaval.ca/pls/etprod7/' . $statementUrl;
-            }
-        }
-
+	public function getTuitionFees ( $md5Hash, $requested_semester = '') {
         // Get list of tuition fees page
         $request = $this->_fetchPage( '/pls/etprod7/bwskoacc.P_ViewAcct' );
 
@@ -1244,14 +1218,14 @@ class Capsule {
         // Fetch student tuition account info
         $rows = $tables[ 0 ]->find( 'tr' );
         foreach ( $rows as $row ) {
-            $name = trim( str_replace( ':', '', $row->nodes[ 1 ]->text() ) );
-            $value = trim( $row->nodes[ 3 ]->text() );
+            $name = trim( str_replace( ':', '', $row->nodes[1]->text() ) );
+            $value = trim( $row->nodes[3]->text() );
             switch ( $name ) {
                 case 'Numéro de client':
                     $account[ 'account_number' ] = $value;
                     break;
                 default:
-                    if ( strpos( $name, 'Numéro d\'assuré AELIÉS' ) !== false ) {
+                    if (strpos( $name, 'Numéro d\'assuré AELIÉS' ) !== false ) {
                         $account[ 'aelies_number' ] = str_replace( ' ', '', $value );
                     }
                     break;
@@ -1262,20 +1236,20 @@ class Capsule {
         $semester = array();
         $rows = $tables[ 1 ]->find( 'tr' );
         foreach ( $rows as $row ) {
-            if ( isset( $row->nodes[ 1 ] ) ) $name = trim( str_replace( ':', '', $row->nodes[ 1 ]->text() ) );
-            if ( isset( $row->nodes[ 3 ] ) ) $value = trim( str_replace( ' ', '', str_replace( ',', '.', $row->nodes[ 3 ]->text() ) ) );
+            if ( isset( $row->nodes[1] ) ) $name = trim( str_replace( ':', '', $row->nodes[1]->text() ) );
+            if ( isset( $row->nodes[3] ) ) $value = trim( str_replace( ' ', '', str_replace(',', '.', $row->nodes[3]->text() ) ) );
 
             switch ( $name ) {
                 case 'Description':
                     break;
                 case 'Frais de session':
-                    $semester[ 'total' ] = ( float )str_replace( ',', '', str_replace( '$', '', $value ) );
+                    $semester[ 'total' ] = (float)str_replace( ',', '', str_replace( '$', '', $value ) );
                     break;
                 case 'Crédits et paiements de session':
-                    $semester[ 'payments' ] = ( float )str_replace( ',', '', str_replace( '$', '', $value ) );
+                    $semester[ 'payments' ] = (float)str_replace( ',', '', str_replace( '$', '', $value ) );
                     break;
                 case 'Solde de session':
-                    $semester[ 'balance' ] = ( float )str_replace( ',', '', str_replace( '$', '', $value ) );
+                    $semester[ 'balance' ] = (float)str_replace( ',', '', str_replace( '$', '', $value ) );
 
                     // Save last semester and start a new one
                     if ( !empty( $semester ) ) {
@@ -1286,17 +1260,14 @@ class Capsule {
                     $semester = array();
                     break;
                 case 'Solde du compte':
-                    $account[ 'balance' ] = ( float )str_replace( ',', '', str_replace( '$', '', $value ) );
+                    $account[ 'balance' ] = (float)str_replace( ',', '', str_replace( '$', '', $value ) );
                     break;
                 default:
                     if ( strpos( $name, 'Automne ' ) !== false || strpos( $name, 'Été ' ) !== false || strpos( $name, 'Hiver ' ) !== false ) {
                         $semester[ 'semester' ] = $this->_convertSemester( $name );
-                        if ( !empty( $pdfStatements[ $semester[ 'semester' ] ] ) ) {
-                            $semester[ 'pdf_statement_url' ] = $pdfStatements[ $semester[ 'semester' ] ];
-                        }
-                    } elseif ( str_replace( ' ', '', $name ) != '' ) {
+                    } elseif ( str_replace( ' ', '', $name) != '' ) {
                         if ( str_replace( ' ', '', $value ) != '' ) {
-                            $semester[ 'fees' ][] = array( 'name' => $name, 'amount' => ( float )str_replace( ',', '', str_replace( '$', '', $value ) ) );
+                            $semester[ 'fees' ][] = array( 'name' => $name, 'amount' => (float)str_replace( ',', '', str_replace( '$', '', $value ) ) );
                         }
                     }
             }
@@ -1315,269 +1286,623 @@ class Capsule {
         ) );
 	}
 	
-	public function registerCourses ( $nrcArray, $semester ) {
-        // Fetch registration page
-        $request = $this->_fetchPage( '/pls/etprod7/bwskfreg.P_AltPin', 'POST', array( 'term_in' => $semester ) );
+	public function registerCourses ($nrc_array, $semester) {
+		$this->fetcher->cookies = $_SESSION['cookies'];
+		$this->fetcher->debug = $this->debug;
+		
+		if ($_SESSION['referer']=='') {
+			$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_StuMainMnu';
+		} else {
+			$this->fetcher->referer = $_SESSION['referer'];
+		}
+		
+		$this->fetcher->protocol="https";
+		
+		$arguments['HostName'] = $this->host;
+		$arguments["RequestURI"] = "/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_RegMnu";
+		
+		$error=$this->fetcher->Open($arguments);
+	
+		if ($error!="") {
+			error_log(__LINE__);
+			return (false);
+		}
+		
+		$error = $this->fetcher->SendRequest($arguments);
+	
+		if ($error!="") {
+			error_log(__LINE__);
+			return (false);
+		}
+		
+		$headers=array();
+		$error=$this->fetcher->ReadReplyHeaders($headers);
+		if ($error!="") {
+			error_log(__LINE__);
+			return (false);
+		}
+		
+		$this->fetcher->Close();
+		
+		$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_RegMnu';
+		$arguments["RequestURI"] = "/pls/etprod7/bwskfreg.P_AltPin";
+		
+		$error=$this->fetcher->Open($arguments);
+	
+		if ($error!="") {
+			error_log(__LINE__);
+			return (false);
+		}
+		
+		$error = $this->fetcher->SendRequest($arguments);
+	
+		if ($error!="") {
+			error_log(__LINE__);
+			return (false);
+		}
+		
+		$headers=array();
+		$error=$this->fetcher->ReadReplyHeaders($headers);
+		if ($error!="") {
+			error_log(__LINE__);
+			return (false);
+		}
+		
+		$this->fetcher->Close();
+		
+		$this->fetcher->request_method="POST";
+		
+		$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/bwskfreg.P_AltPin';
+		
+		$this->fetcher->Open($arguments);
+		
+		// Envoi du formulaire
+		$arguments["PostValues"] = array(
+			  'term_in'				=>	$semester
+			  );
+		
+		$arguments["RequestURI"] = "/pls/etprod7/bwskfreg.P_AltPin";
+		
+		$error=$this->fetcher->SendRequest($arguments);
+		
+		if ($error!="") {
+			error_log(__LINE__);
+			return (false);
+		}
+		
+		$headers=array();
+		$error=$this->fetcher->ReadReplyHeaders($headers);
+		if ($error!="") {
+			error_log(__LINE__);
+			return (false);
+		}
+		
+		$error = $this->fetcher->ReadWholeReplyBody($body);
+		$response = utf8_encode(html_entity_decode($body));
+		
+		$this->fetcher->Close();
+		
+		if (!$this->checkPage($response)) return (false);
+				
+		// Analyse de la page
+		$data = substr($response, strpos($response, '<TABLE  CLASS="datadisplaytable" SUMMARY="Horaire actuel">')+20);
+		$data = substr($data, strpos($data, '</TR>')+5);
+		$data = substr($data, 0, strpos($data, '<TABLE  CLASS="datadisplaytable"'));
+		$data = explode("<TR>", $data);
+		
+		$arguments['PostString'] = "term_in=".$semester."&RSTS_IN=DUMMY&assoc_term_in=DUMMY&CRN_IN=DUMMY&start_date_in=DUMMY&end_date_in=DUMMY&SUBJ=DUMMY&CRSE=DUMMY&SEC=DUMMY&LEVL=DUMMY&CRED=DUMMY&GMOD=DUMMY&TITLE=DUMMY&MESG=DUMMY&REG_BTN=DUMMY";
+		
+		$number = 0;
+		foreach ($data as $line) {
+			if ($number!=0) {
+				$new = array();
+				
+				$field = substr($line, strpos($line, ' NAME="MESG"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['MESG'] = $field;
+				
+				$new['RSTS_IN'] = '';
+				
+				$field = substr($line, strpos($line, ' NAME="assoc_term_in"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['assoc_term_in'] = $field;
+				
+				$field = substr($line, strpos($line, ' NAME="CRN_IN"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['CRN_IN'] = $field;
+				
+				$field = substr($line, strpos($line, ' NAME="start_date_in"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['start_date_in'] = $field;
+				
+				$field = substr($line, strpos($line, ' NAME="end_date_in"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['end_date_in'] = $field;
+				
+				$field = substr($line, strpos($line, ' NAME="SUBJ"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['SUBJ'] = $field;
+				
+				$field = substr($line, strpos($line, ' NAME="CRSE"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['CRSE'] = $field;
+				
+				$field = substr($line, strpos($line, ' NAME="SEC"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['SEC'] = $field;
+				
+				$field = substr($line, strpos($line, ' NAME="LEVL"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['LEVL'] = $field;
+				
+				$field = substr($line, strpos($line, ' NAME="CRED"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['CRED'] = $field;
+				
+				$field = substr($line, strpos($line, ' NAME="GMOD"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['GMOD'] = $field;
+				
+				$field = substr($line, strpos($line, ' NAME="TITLE"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['TITLE'] = $field;
+				
+				foreach ($new as $name => $value) {
+					$arguments['PostString'] .= "&".$name."=".urlencode($value);
+				}
+			}
+			
+			$number++;
+		}
+		
+		// Ajout des nouveaux NRC
+		for ($n=1; $n<11; $n++) {
+			$arguments['PostString'] .= "&RSTS_IN=RW";
+			if (isset($nrc_array[($n-1)])) {
+				$arguments['PostString'] .= "&CRN_IN=".$nrc_array[($n-1)];
+			} else {
+				$arguments['PostString'] .= "&CRN_IN=";
+			}
+			$arguments['PostString'] .= "&assoc_term_in=";
+			$arguments['PostString'] .= "&start_date_in=";
+			$arguments['PostString'] .= "&end_date_in=";
+		}
+		
+		$data = substr($response, strpos($response, '<H3>Ajout de sections de cours à la feuille de travail</H3>'));
+		$data = substr($data, 0, strpos($data, '<!--  ** START OF twbkwbis.P_CloseDoc **  -->'));
+		$data = substr($data, strpos($data, '<INPUT TYPE="hidden" NAME="regs_row"'));
+				
+		$field = substr($data, strpos($data, ' NAME="regs_row"'), 200);
+		$field = substr($field, strpos($field, ' VALUE="')+8);
+		$field = substr($field, 0, strpos($field, '"'));
+		$arguments['PostString'] .= "&regs_row=".$field;
+		
+		$field = substr($data, strpos($data, ' NAME="wait_row"'), 200);
+		$field = substr($field, strpos($field, ' VALUE="')+8);
+		$field = substr($field, 0, strpos($field, '"'));
+		$arguments['PostString'] .= "&wait_row=".$field;
+		
+		$field = substr($data, strpos($data, ' NAME="add_row"'), 200);
+		$field = substr($field, strpos($field, ' VALUE="')+8);
+		$field = substr($field, 0, strpos($field, '"'));
+		$arguments['PostString'] .= "&add_row=".$field;
+		
+		$arguments['PostString'] .= "&REG_BTN=Soumettre les modifications";
+				
+		$this->fetcher->Close();
+		
+		$this->fetcher->request_method="POST";
+		$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/bwskfreg.P_AltPin';
+		
+		$this->fetcher->Open($arguments);
+		
+		// Envoi du formulaire
+		unset($arguments["PostValues"]);
+		
+		$arguments["RequestURI"] = "/pls/etprod7/bwckcoms.P_Regs";
 
-        // Parse DOM structure from response
-        $this->domparser->load( $request[ 'response' ] );
-        $table = $this->domparser->find( 'table.datadisplaytable' );
-
-        // Log registration data
-        CakeLog::write( 'registration', '------------------------------------------------------------------' );
-        CakeLog::write( 'registration', '1ère requête [ IDUL : ' . $this->idul . ' ]' );
-        CakeLog::write( 'registration', $request[ 'response' ] );
-        CakeLog::write( 'registration', '------------------------------------------------------------------' );
-
-        // Check for error messages in the page
-        if ( preg_match( '/Il vous est impossible\sde vous inscrire dans Capsule, car aucune période/', $request[ 'response' ] ) ) {
-            // Return error message
-            return 'error:Inscription impossible puisque vous n\'avez pas de période d\'inscription accordée. <br>Veuillez communiquer avec votre direction de programme.';
-        } elseif ( preg_match( '/Désolé ce service est présentement\sinaccessible/', $request[ 'response' ] ) ) {
-            // Return error message
-            return 'error:Erreur lors de l\'inscription : Capsule est hors service. Veuillez réessayer plus tard.';
-        } elseif( preg_match( '/Vous pouvez vous\sinscrire durant la période suivante/', $request[ 'response' ] ) ) {
-            // Detect start of registration period for this user
-            $cells = $table[ 0 ]->find( 'td.dddefault' );
-            $initialDate = implode( '-', array_reverse( explode( '/', $cells[ 0 ]->text() ) ) ) . ' à ' . $cells[ 1 ]->text();
-
-            // Return error message
-            return 'error:Erreur lors de l\'inscription : votre période d\'inscription commencera le ' . $initialDate;
-        }
-
-        $postString = "term_in=".$semester."&RSTS_IN=DUMMY&assoc_term_in=DUMMY&CRN_IN=DUMMY&start_date_in=DUMMY&end_date_in=DUMMY&SUBJ=DUMMY&CRSE=DUMMY&SEC=DUMMY&LEVL=DUMMY&CRED=DUMMY&GMOD=DUMMY&TITLE=DUMMY&MESG=DUMMY&REG_BTN=DUMMY";
-
-        if ( count ( $table ) != 0 ) {
-            $inputFields = $table[ 0 ]->find( 'input' );
-            // Parse all table input fields
-            foreach( $inputFields as $field ) {
-                if ( $field->name != '' )  {
-                    $postString .= '&' . $field->name . '=' . urlencode( utf8_decode( $field->value ) );
-
-                    if ( $field->name == 'MESG' ) {
-                        $postString .= '&RSTS_IN=';
-                    }
-                }
-            }
-        }
-
-        // Add NRC of courses to be registered
-        for ( $n = 1; $n < 11; $n++ ) {
-            $postString .= '&RSTS_IN=RW';
-            if ( !empty( $nrcArray[ ( $n - 1 ) ] ) ) {
-                $postString .= '&CRN_IN=' . $nrcArray[ ( $n - 1 ) ];
-            } else {
-                $postString .= '&CRN_IN=';
-            }
-
-            $postString .= '&assoc_term_in=&start_date_in=&end_date_in=';
-        }
-
-        $form = $this->domparser->find( 'form' );
-
-        if ( empty( $form ) || !is_array( $form ) ) {
-            return 'error:Réponse invalide du serveur Capsule';
-        }
-        
-        $inputFields = $form[ 1 ]->find( 'input' );
-        // Parse all form input fields
-        foreach( $inputFields as $field ) {
-            if ( $field->name == 'regs_row' || $field->name == 'wait_row' || $field->name == 'add_row' ) {
-                $postString .= '&' . $field->name . '=' . urlencode( utf8_decode( $field->value ) );
-            }
-        }
-
-        $postString .= '&REG_BTN=' . urlencode( utf8_decode( 'Soumettre les modifications' ) );
-
-        // Submit registration form
-        $request = $this->_fetchPage( '/pls/etprod7/bwckcoms.P_Regs', 'POST', array(), true, array( 'PostString' => $postString ) );
-
-        // Log registration data
-        CakeLog::write( 'registration', '2e requête [ IDUL : ' . $this->idul . ' ]' );
-        CakeLog::write( 'registration', $request[ 'response' ] );
-        CakeLog::write( 'registration', '------------------------------------------------------------------' );
-
-        // Check for error messages in the page
-        if ( preg_match( '/Une erreur s\'est\sproduite empêchant l\'exécution de votre\sopération/', $request[ 'response' ] ) ) {
-            // Return error message
-            return 'error:Erreur lors de l\'inscription. Veuillez réessayer.';
-        }
-
-        // Check if dates need to be confirmed
-        if ( preg_match( '/p_proc_start_date_confirm/', $request[ 'response' ] ) ) {
-            // Confirm dates
-
-            // Parse DOM structure from response
-            $this->domparser->load( $request[ 'response' ] );
-            $forms = $this->domparser->find( 'form' );
-            $inputFields = $forms[ 1 ]->find( 'input' );
-            $table = $this->domparser->find( 'table.datadisplaytable' );
-            $postString = array();
-            
-            // Parse all form input fields
-            foreach( $inputFields as $field ) {
-                if ( !empty( $field->name ) ) {
-                    $postString[] = $field->name . '=' . urlencode( $field->value );
-                }
-            }
-
-            $postString = implode( '&', $postString );
-
-            // Submit 2nd of registration form
-            $request = $this->_fetchPage( '/pls/etprod7/bwckcoms.p_proc_start_date_confirm', 'POST', array(), true, array( 'PostString' => $postString ) );
-
-            // Log registration data
-            CakeLog::write( 'registration', '3e requête [ IDUL : ' . $this->idul . ' ]' );
-            CakeLog::write( 'registration', $request[ 'response' ] );
-            CakeLog::write( 'registration', '------------------------------------------------------------------' );
-        }
-
-        // Parse DOM structure from response
-        $this->domparser->load( $request[ 'response' ] );
-        $table = $this->domparser->find( 'table.datadisplaytable' );
-
-        $coursesStatus = array();
-
-        $inputFields = $table[ 0 ]->find( 'input' );
-        // Parse all table input fields
-        foreach( $inputFields as $field ) {
-            if ( $field->name == 'CRN_IN' && in_array( $field->value, $nrcArray ) )  {
-                $coursesStatus[ $field->value ] = array(
-                    'registered'    =>  true
-                );
-            }
-        }
-
-        // Log registration results
-        CakeLog::write( 'registration-success', $this->idul . ' : ' . implode( ', ', $nrcArray ) );
-
-        if ( strpos( $request[ 'response' ], 'Erreur d\'ajout' ) > 1 ) {
-            // Parse registration errors
-            if ( isset( $table[ 2 ] ) ) {
-                $rows = $table[ 2 ]->find( 'tr' );
-            } else {
-                $rows = $table[ 0 ]->find( 'tr' );
-            }
-
-            foreach( $rows as $rowIndex => $row ) {
-                if ( $rowIndex != 0 ) {
-                    $errorMessage = $row->nodes[ 1 ]->text();
-                    $nrc = $row->nodes[ 3 ]->text();
-                    if ( in_array( $nrc, $nrcArray ) )  {
-                        $coursesStatus[ $nrc ] = array(
-                            'registered'   =>  false,
-                            'error'        =>  $errorMessage
-                        );
-                    }
-                }
-            }
-        }
-
-        return $coursesStatus;
+		$error=$this->fetcher->SendRequest($arguments);
+		
+		if ($error!="") {
+			error_log(__LINE__);
+			return (false);
+		}
+		
+		$headers=array();
+		$error=$this->fetcher->ReadReplyHeaders($headers);
+		if ($error!="") {
+			error_log(__LINE__);
+			return (false);
+		}
+		
+		$error = $this->fetcher->ReadWholeReplyBody($body);
+		$response = utf8_encode(html_entity_decode($body));
+		
+		$this->fetcher->Close();
+		
+		if (!$this->checkPage($response)) return (false);
+				
+		if ($this->fetcher->response_status==404) {
+			error_log(__LINE__);
+			return (false);
+		} else {
+			// Analyse de la réponse
+			$data = substr($response, strpos($response, '<TABLE  CLASS="datadisplaytable" SUMMARY="Horaire actuel">')+20);
+			$data = substr($data, strpos($data, '</TR>')+5);
+			$data = substr($data, 0, strpos($data, '<TABLE  CLASS="datadisplaytable"'));
+			
+			$data = explode("<TR>", $data);
+			
+			$coursesStatus = array();
+			$number = 0;
+			foreach ($data as $line) {
+				if ($number!=0) {
+					$field = substr($line, strpos($line, ' NAME="CRN_IN"'), 200);
+					$field = substr($field, strpos($field, ' VALUE="')+8);
+					$field = substr($field, 0, strpos($field, '"'));
+					$nrc = $field;
+					
+					reset($nrc_array);
+					foreach ($nrc_array as $nrc2) {
+						if ($nrc==$nrc2) {
+							$coursesStatus[] = array(
+													 'nrc'			=>	$nrc,
+													 'registered'	=>	1
+													 );
+							break;
+						}
+					}
+				}
+				
+				$number++;
+			}
+			
+			$data = substr($response, strpos($response, 'Nombre de crédits inscrits'));
+			$data = substr($data, 0, strpos($data, '<H3>Ajout de sections de cours à la feuille de travail</H3>'));
+			
+			if (strpos($data, '<TABLE  CLASS="datadisplaytable" SUMMARY="Cette table de disposition sert à présenter les erreurs d\'inscription.">')>1) {
+				// Analyse des erreurs d'inscription
+				$data = substr($data, strpos($data, '<TABLE  CLASS="datadisplaytable" SUMMARY="Cette table de disposition sert à présenter les erreurs d\'inscription.">'));
+				$data = substr($data, 0, strrpos($data, '</TABLE>'));
+				
+				$data = explode("<TR>", $data);
+			
+				$number = 0;
+				foreach ($data as $line) {
+					if ($number>1) {
+						$line = explode("</TD>", $line);
+						
+						$nrc = trim(strip_tags($line[1]));
+						$error_message = trim(strip_tags($line[0]));
+						
+						reset($nrc_array);
+						foreach ($nrc_array as $nrc2) {
+							if ($nrc==$nrc2) {
+								$coursesStatus[] = array(
+														 'nrc'			=>	$nrc,
+														 'registered'	=>	0,
+														 'error'		=>	$error_message
+														 );
+								break;
+							}
+						}
+					}
+					
+					$number++;
+				}
+			}
+			
+			return ($coursesStatus);
+		}
 	}
 	
-	public function removeCourse ( $nrc, $semester ) {
-        // Fetch registration page
-        $request = $this->_fetchPage( '/pls/etprod7/bwskfreg.P_AltPin', 'POST', array( 'term_in' => $semester ) );
+	public function removeCourse ($nrc, $semester) {
+		$this->fetcher->cookies = $_SESSION['cookies'];
+		$this->fetcher->debug = $this->debug;
+		
+		if ($_SESSION['referer']=='') {
+			$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_StuMainMnu';
+		} else {
+			$this->fetcher->referer = $_SESSION['referer'];
+		}
+		
+		$this->fetcher->protocol="https";
+		
+		$arguments['HostName'] = $this->host;
+		$arguments["RequestURI"] = "/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_RegMnu";
+		
+		$error=$this->fetcher->Open($arguments);
+	
+		if ($error!="") {
+			error_log(__LINE__);
+			return (false);
+		}
+		
+		$error = $this->fetcher->SendRequest($arguments);
+	
+		if ($error!="") {
+			error_log(__LINE__);
+			return (false);
+		}
+		
+		$headers=array();
+		$error=$this->fetcher->ReadReplyHeaders($headers);
+		if ($error!="") {
+			error_log(__LINE__);
+			return (false);
+		}
+		
+		$this->fetcher->Close();
+		
+		$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_RegMnu';
+		$arguments["RequestURI"] = "/pls/etprod7/bwskfreg.P_AltPin";
+		
+		$error=$this->fetcher->Open($arguments);
+	
+		if ($error!="") {
+			error_log(__LINE__);
+			return (false);
+		}
+		
+		$error = $this->fetcher->SendRequest($arguments);
+	
+		if ($error!="") {
+			error_log(__LINE__);
+			return (false);
+		}
+		
+		$headers=array();
+		$error=$this->fetcher->ReadReplyHeaders($headers);
+		if ($error!="") {
+			error_log(__LINE__);
+			return (false);
+		}
+		
+		$this->fetcher->Close();
+		
+		$this->fetcher->request_method="POST";
+		
+		$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/bwskfreg.P_AltPin';
+		
+		$this->fetcher->Open($arguments);
+		
+		// Envoi du formulaire
+		$arguments["PostValues"] = array(
+			  'term_in'				=>	$semester
+			  );
+		
+		$arguments["RequestURI"] = "/pls/etprod7/bwskfreg.P_AltPin";
+		
+		$error=$this->fetcher->SendRequest($arguments);
+		
+		if ($error!="") {
+			error_log(__LINE__);
+			return (false);
+		}
+		
+		$headers=array();
+		$error=$this->fetcher->ReadReplyHeaders($headers);
+		if ($error!="") {
+			error_log(__LINE__);
+			return (false);
+		}
+		
+		$error = $this->fetcher->ReadWholeReplyBody($body);
+		$response = utf8_encode(html_entity_decode($body));
+		
+		$this->fetcher->Close();
+		
+		if (!$this->checkPage($response)) return (false);
+				
+		// Analyse de la page
+		$data = substr($response, strpos($response, '<TABLE  CLASS="datadisplaytable" SUMMARY="Horaire actuel">')+20);
+		$data = substr($data, strpos($data, '</TR>')+5);
+		$data = substr($data, 0, strpos($data, '<TABLE  CLASS="datadisplaytable"'));
+		
+		$data = explode("<TR>", $data);
+		
+		$arguments['PostString'] = "term_in=".$semester."&RSTS_IN=DUMMY&assoc_term_in=DUMMY&CRN_IN=DUMMY&start_date_in=DUMMY&end_date_in=DUMMY&SUBJ=DUMMY&CRSE=DUMMY&SEC=DUMMY&LEVL=DUMMY&CRED=DUMMY&GMOD=DUMMY&TITLE=DUMMY&MESG=DUMMY&REG_BTN=DUMMY";
+		
+		$number = 0;
+		foreach ($data as $line) {
+			if ($number!=0) {
+				$new = array();
+				
+				$field = substr($line, strpos($line, ' NAME="CRN_IN"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$current_nrc = $field;
+				
+				$field = substr($line, strpos($line, ' NAME="MESG"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['MESG'] = $field;
+				
+				if ($current_nrc!=$nrc) {
+					$new['RSTS_IN'] = '';
+				} else {
+					$new['RSTS_IN'] = 'DW';
+				}
+				
+				$field = substr($line, strpos($line, ' NAME="assoc_term_in"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['assoc_term_in'] = $field;
+				
+				$new['CRN_IN'] = $current_nrc;
+				
+				$field = substr($line, strpos($line, ' NAME="start_date_in"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['start_date_in'] = $field;
+				
+				$field = substr($line, strpos($line, ' NAME="end_date_in"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['end_date_in'] = $field;
+				
+				$field = substr($line, strpos($line, ' NAME="SUBJ"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['SUBJ'] = $field;
+				
+				$field = substr($line, strpos($line, ' NAME="CRSE"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['CRSE'] = $field;
+				
+				$field = substr($line, strpos($line, ' NAME="SEC"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['SEC'] = $field;
+				
+				$field = substr($line, strpos($line, ' NAME="LEVL"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['LEVL'] = $field;
+				
+				$field = substr($line, strpos($line, ' NAME="CRED"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['CRED'] = $field;
+				
+				$field = substr($line, strpos($line, ' NAME="GMOD"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['GMOD'] = $field;
+				
+				$field = substr($line, strpos($line, ' NAME="TITLE"'), 200);
+				$field = substr($field, strpos($field, ' VALUE="')+8);
+				$field = substr($field, 0, strpos($field, '"'));
+				$new['TITLE'] = $field;
+				
+				foreach ($new as $name => $value) {
+					$arguments['PostString'] .= "&".$name."=".urlencode($value);
+				}
+			}
+			
+			$number++;
+		}
+		
+		// Ajout des nouveaux NRC
+		for ($n=1; $n<11; $n++) {
+			$arguments['PostString'] .= "&RSTS_IN=RW";
+			$arguments['PostString'] .= "&CRN_IN=";
+			$arguments['PostString'] .= "&assoc_term_in=";
+			$arguments['PostString'] .= "&start_date_in=";
+			$arguments['PostString'] .= "&end_date_in=";
+		}
+		
+		$data = substr($response, strpos($response, '<H3>Ajout de sections de cours à la feuille de travail</H3>'));
+		$data = substr($data, 0, strpos($data, '<!--  ** START OF twbkwbis.P_CloseDoc **  -->'));
+		$data = substr($data, strpos($data, '<INPUT TYPE="hidden" NAME="regs_row"'));
+				
+		$field = substr($data, strpos($data, ' NAME="regs_row"'), 200);
+		$field = substr($field, strpos($field, ' VALUE="')+8);
+		$field = substr($field, 0, strpos($field, '"'));
+		$arguments['PostString'] .= "&regs_row=".$field;
+		
+		$field = substr($data, strpos($data, ' NAME="wait_row"'), 200);
+		$field = substr($field, strpos($field, ' VALUE="')+8);
+		$field = substr($field, 0, strpos($field, '"'));
+		$arguments['PostString'] .= "&wait_row=".$field;
+		
+		$field = substr($data, strpos($data, ' NAME="add_row"'), 200);
+		$field = substr($field, strpos($field, ' VALUE="')+8);
+		$field = substr($field, 0, strpos($field, '"'));
+		$arguments['PostString'] .= "&add_row=".$field;
 
-        // Parse DOM structure from response
-        $this->domparser->load( $request[ 'response' ] );
-        $table = $this->domparser->find( 'table.datadisplaytable' );
+		$arguments['PostString'] .= "&REG_BTN=Soumettre les modifications";
+				
+		$this->fetcher->Close();
+		
+		$this->fetcher->request_method="POST";
+		
+		$this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/bwskfreg.P_AltPin';
+		
+		$this->fetcher->Open($arguments);
+		
+		// Envoi du formulaire
+		unset($arguments["PostValues"]);
+		
+		$arguments["RequestURI"] = "/pls/etprod7/bwckcoms.P_Regs";
 
-        $postString = "term_in=".$semester."&RSTS_IN=DUMMY&assoc_term_in=DUMMY&CRN_IN=DUMMY&start_date_in=DUMMY&end_date_in=DUMMY&SUBJ=DUMMY&CRSE=DUMMY&SEC=DUMMY&LEVL=DUMMY&CRED=DUMMY&GMOD=DUMMY&TITLE=DUMMY&MESG=DUMMY&REG_BTN=DUMMY";
-
-        $rows = $table[ 0 ]->find( 'tr' );
-        foreach ( $rows as $rowIndex => $row ) {
-            if ( $rowIndex != 0 ) {
-                $inputFields = $row->find( 'input' );
-
-                foreach( $inputFields as $field ) {
-                    $postString .= '&' . $field->name . '=' . urlencode( $field->value );
-
-                    if ( $field->name == 'CRN_IN' ) {
-                        if ( $field->value == $nrc ) {
-                            $postString .= '&RSTS_IN=DW';
-                        } else {
-                            $postString .= '&RSTS_IN=';
-                        }
-                    }
-                }
-            }
-        }
-        /*
-        $table = $this->domparser->find( 'table.dataentrytable' );
-        $inputFields = $table[0]->find( 'input' );
-
-        foreach( $inputFields as $field ) {
-            if ( $field->name != '' )  {
-                $postString .= '&' . $field->name . '=' . urlencode( $field->value );
-            }
-        }
-
-        $form = $this->domparser->find( 'form' );
-        $inputFields = $form[1]->find( 'input' );
-
-        $postString = '';
-
-        // Parse all form input fields
-        foreach( $inputFields as $field ) {
-            if ( $field->name != '' )  {
-                $postString .= '&' . $field->name . '=' . urlencode( $field->value );
-
-                // If field contains NRC : check if current NRC is the one to be removed
-                if ( $field->name == 'CRN_IN' ) {
-                    if ( $field->value == $nrc ) {
-                        // Add remove course action
-                        $postString = substr( $postString, 0, strrpos( $postString, '&' ) ) . '&RSTS_IN=DW' . substr( $postString, strrpos( $postString, '&' ) );
-                    } elseif ( $field->value != '' ) {
-                        // Do nothing
-                        $postString = substr( $postString, 0, strrpos( $postString, '&' ) ) . '&RSTS_IN=' . substr( $postString, strrpos( $postString, '&' ) );
-                    }
-                }
-            }
-        }
-*/
-        for ( $n = 1; $n < 11; $n++ ) {
-            $postString .= '&RSTS_IN=RW&CRN_IN=&assoc_term_in=&start_date_in=&end_date_in=';
-        }
-
-        $form = $this->domparser->find( 'form' );
-        $inputFields = $form[ 1 ]->find( 'input' );
-        // Parse all form input fields
-        foreach( $inputFields as $field ) {
-            if ( $field->name == 'regs_row' || $field->name == 'wait_row' || $field->name == 'add_row' ) {
-                $postString .= '&' . $field->name . '=' . urlencode( $field->value );
-            }
-        }
-
-        $postString .= '&REG_BTN=' . urlencode( 'Soumettre les modifications' );
-
-        // Submit registration form
-        $request = $this->_fetchPage( '/pls/etprod7/bwckcoms.P_Regs', 'POST', array(), true, array( 'PostString' => $postString ) );
-
-         // Parse DOM structure from response
-        $this->domparser->load( $request[ 'response' ] );
-
-        $form = $this->domparser->find( 'form' );
-        $inputFields = $form[ 1 ]->find( 'input' );
-
-         // Parse all form input fields
-        foreach( $inputFields as $field ) {
-            if ( $field->name == 'CRN_IN' && $field->value == $nrc ) {
-                // NRC found in response page content : course has not been removed
-                return false;
-            }
-        }
-
-        return true;
+		$error=$this->fetcher->SendRequest($arguments);
+		
+		if ($error!="") {
+			error_log(__LINE__);
+			return (false);
+		}
+		
+		$headers=array();
+		$error=$this->fetcher->ReadReplyHeaders($headers);
+		if ($error!="") {
+			error_log(__LINE__);
+			return (false);
+		}
+		
+		$error = $this->fetcher->ReadWholeReplyBody($body);
+		$response = utf8_encode(html_entity_decode($body));
+		
+		$this->fetcher->Close();
+		
+		if (!$this->checkPage($response)) return (false);
+				
+		if ($this->fetcher->response_status==404) {
+			error_log(__LINE__);
+			return (false);
+		} else {
+			// Analyse de la réponse
+			$data = substr($response, strpos($response, '<TABLE  CLASS="datadisplaytable" SUMMARY="Horaire actuel">')+20);
+			$data = substr($data, strpos($data, '</TR>')+5);
+			$data = substr($data, 0, strpos($data, '<TABLE  CLASS="datadisplaytable"'));
+			
+			$data = explode("<TR>", $data);
+			
+			$number = 0;
+			$found = 0;
+			foreach ($data as $line) {
+				if ($number!=0) {
+					$field = substr($line, strpos($line, ' NAME="CRN_IN"'), 200);
+					$field = substr($field, strpos($field, ' VALUE="')+8);
+					$field = substr($field, 0, strpos($field, '"'));
+					$current_nrc = $field;
+					
+					if ($current_nrc==$nrc) {
+						$found = 1;
+						break;
+					}
+				}
+				
+				$number++;
+			}
+			
+			if ($found==0) {
+				return (true);
+			} else {
+				return (false);
+			}
+		}
 	}
 	
 	public function fetchCourse ( $code, $semester, $fetchClasses = true ) {
-        ini_set( 'memory_limit','50M' );
-        $code = explode( '-', strtoupper( $code ) );
+        ini_set('memory_limit','50M');
+        $code = explode('-', strtoupper( $code ) );
 
         // Fetch course page
-        $request = $this->_fetchPage( '/pls/etprod7/bwckctlg.p_disp_course_detail?cat_term_in=' . $semester . '&subj_code_in=' . $code[ 0 ] . '&crse_numb_in=' . $code[ 1 ] );
+        $request = $this->_fetchPage( '/pls/etprod7/bwckctlg.p_disp_course_detail?cat_term_in=' . $semester . '&subj_code_in=' . $code[0] . '&crse_numb_in=' . $code[1] );
 
         if ( !strpos( $request[ 'response' ], "Aucun cours à afficher" ) ) {
             $course = array( 'code' => implode( '-', $code ) );
@@ -1587,18 +1912,18 @@ class Capsule {
             $tables = $this->domparser->find( 'table.datadisplaytable' );
 
             // Get course title
-            $firstCell = $tables[ 0 ]->find( 'tr td.nttitle' );
-            $course[ 'title' ] = trim( strip_tags( substr( $firstCell[ 0 ]->text(), strpos( $firstCell[ 0 ]->text(), " - " ) + 2 ) ) );
+            $firstCell = $tables[0]->find('tr td.nttitle');
+            $course[ 'title' ] = trim( strip_tags( substr( $firstCell[0]->text(), strpos( $firstCell[0]->text(), " - ") + 2 ) ) );
 
-            $secondCell = $tables[ 0 ]->find( 'tr td.ntdefault' );
-            $parts = explode( '<br>', $secondCell[ 0 ] );
+            $secondCell = $tables[0]->find('tr td.ntdefault');
+            $parts = explode( '<br>', $secondCell[0] );
 
             $checkRestrictions = false;
             $checkPrerequisites = false;
 
             foreach ( $parts as $index => $part ) {
                 if ( $index == 0 ) {
-                    $course[ 'description' ] = trim( strip_tags( str_replace( "", "'", $part ) ) );
+                    $course[ 'description' ] = trim( strip_tags( str_replace("", "'", $part ) ) );
                 } elseif ( $checkRestrictions ) {
                     if ( strpos( $part, '<span' ) ) {
                         $checkRestrictions = false;
@@ -1618,27 +1943,27 @@ class Capsule {
                 } elseif ( strpos( $part, "Crédits" ) ) {
                     if ( strpos( $part, ' OR ' ) ) {
                         $course[ 'credits' ] = substr( $part, strpos( $part, "OR" ) + 3 );
-                        $course[ 'credits' ] = ( int )trim( substr( $course[ 'credits' ], 0, strpos( $course[ 'credits' ], "," ) + 1 ) );
+                        $course[ 'credits' ] = (int)trim( substr( $course[ 'credits' ], 0, strpos( $course[ 'credits' ], "," ) + 1 ) );
                     } else {
-                        $course[ 'credits' ] = ( int )trim( substr( $part, 0, strpos( $part, "," ) + 1 ) );
+                        $course[ 'credits' ] = (int)trim( substr( $part, 0, strpos( $part, "," ) + 1 ) );
                     }
                 } elseif ( strpos( $part, "Heures de cours" ) ) {
-                    $course[ 'hours_theory' ] = ( int )trim( substr( $part, 0, strpos( $part, "," ) + 1 ) );
+                    $course[ 'hours_theory' ] = (int)trim( substr( $part, 0, strpos( $part, "," ) + 1 ) );
                 } elseif ( strpos( $part, "Heures de labo" ) ) {
-                    $course[ 'hours_lab' ] = ( int )trim( substr( $part, 0, strpos( $part, "," ) + 1 ) );
+                    $course[ 'hours_lab' ] = (int)trim( substr( $part, 0, strpos( $part, "," ) + 1 ) );
                 } elseif ( strpos( $part, "Autres heures" ) ) {
-                    $course[ 'hours_other' ] = ( int )trim( substr( $part, 0, strpos( $part, "," ) + 1 ) );
+                    $course[ 'hours_other' ] = (int)trim( substr( $part, 0, strpos( $part, "," ) + 1 ) );
                 } elseif ( strpos( $part, "Cycle(s)" ) ) {
                     $cycle = trim( substr( $part, strpos( $part, "</span>" ) + 7 ) );
-                    switch ( $cycle ) {
+                    switch ($cycle) {
                         case 'Premier cycle':
-                            $course[ 'cycle' ] = 1;
+                            $course['cycle'] = 1;
                         break;
                         case 'Deuxième cycle':
-                            $course[ 'cycle' ] = 2;
+                            $course['cycle'] = 2;
                         break;
                         case 'Troisième cycle':
-                            $course[ 'cycle' ] = 3;
+                            $course['cycle'] = 3;
                         break;
                     }
                 } elseif ( strpos( $part, "Faculté:" ) ) {
@@ -1652,21 +1977,45 @@ class Capsule {
                 } elseif ( strpos( $part, "Préalables:" ) ) {
                     $checkPrerequisites = true;
                 }
-            }
 
-            if ( $fetchClasses ) {
-                $course[ 'Class' ] = array();
-
-                $classes = $this->fetchClasses( $course[ 'code' ], $semester, $request[ 'response' ] );
-
-                if ( $classes && !empty( $classes ) ) {
-                    $course[ 'Class' ] += $classes[ 'Class' ];
-                    $course[ 'av' . $semester ] = true;
-                } else {
-                    $course[ 'av' . $semester ] = false;
+                if ( date( 'm' ) < 3 ) {
+                    $suggestedSemesters = array(
+                        date( 'Y' ) . "01"
+                    );
+                } elseif ( date( 'm' ) > 2 && date( 'm' ) > 6 ) {
+                    $suggestedSemesters = array(
+                        date( 'Y' ) . "09",
+                        date( 'Y' ) . "05"
+                    );
+                } elseif ( date( 'm' ) > 5 && date( 'm' ) < 9 ) {
+                    $suggestedSemesters = array(
+                        date( 'Y' ) . "09",
+                        date( 'Y' ) . "05"
+                    );
+                } elseif ( date( 'm' ) > 8 && date( 'm' ) < 11 ) {
+                    $suggestedSemesters = array(
+                        date( 'Y' ) . "09"
+                    );
+                } elseif ( date( 'm' ) > 10 ) {
+                    $suggestedSemesters = array(
+                        ( date( 'Y' ) + 1 ) . "01"
+                    );
                 }
 
-                $course[ 'checkup_' . $semester ] = time();
+                if ( $fetchClasses ) {
+                    $course[ 'Class' ] = array();
+
+                    foreach ( $suggestedSemesters as $suggestedSemester ) {
+                        $classes = $this->fetchClasses( $course[ 'code' ], $suggestedSemester );
+
+                        if ( $classes && !empty( $classes ) ) {
+                            $course[ 'Class' ] += $classes;
+                            $course[ 'av' . $suggestedSemester ] = true;
+                        } else {
+                            $course[ 'av' . $suggestedSemester ] = false;
+                        }
+                    }
+                }
             }
 
             return array( 'UniversityCourse' => $course );
@@ -1675,38 +2024,34 @@ class Capsule {
         }
     }
 	
-    public function fetchClasses ( $code, $semester, $requestContent = '' ) {
-        $code = explode( '-', strtoupper( $code ) );
+    public function fetchClasses ( $code, $semester ) {
+        $code = explode('-', strtoupper( $code ) );
         $classes = array();
 
-        if ( empty( $request[ 'content' ] ) ) {
-            // Fetch course page
-            $request = $this->_fetchPage( '/pls/etprod7/bwckctlg.p_disp_course_detail?cat_term_in=' . $semester . '&subj_code_in=' . $code[ 0 ] . '&crse_numb_in=' . $code[ 1 ] );
-        } else {
-            $request[ 'response' ] = $request[ 'content' ];
-        }
+        // Fetch course page
+        $request = $this->_fetchPage( '/pls/etprod7/bwckctlg.p_disp_course_detail?cat_term_in=' . $semester . '&subj_code_in=' . $code[0] . '&crse_numb_in=' . $code[1] );
 
         if ( !strpos( $request[ 'response' ], "Aucun cours à afficher" ) ) {
             $part = substr( $request[ 'response' ], strpos( $request[ 'response' ], 'Mode d\'enseignement:' ), 1000 );
             $part = substr( $part, 0, strpos( $part, '<br>' ) );
 
-            if ( strpos( $part, "href=" ) ) {
+            if (strpos($part, "href=")) {
                 $links = array();
                 
                 $part = str_replace( 'href= "', 'href="', $part );
                 if ( strpos( $part, "</a>, <Aa" ) ) {
                     // 2 modes d'enseignement
                     $link = substr( $part, strpos( $part, "/pls/etprod7/" ) );
-                    $link = str_replace( "&amp;", "&", substr( $link, 0, strpos( $link, "\"" ) ) );
+                    $link = str_replace("&amp;", "&", substr( $link, 0, strpos($link, "\"")));
                     $links[] = $link;
                     
                     $link = substr( $part, strpos( $part, ">, " ) + 2 );
                     $link = substr( $link, strpos( $link, "/pls/etprod7/" ) );
-                    $link = str_replace( " &amp;", "&", substr( $link, 0, strpos( $link, "\"" ) ) );
+                    $link = str_replace(" &amp;", "&", substr( $link, 0, strpos( $link, "\"" ) ) );
                     $links[] = $link;
                 } else {
                     $link = substr( $part, strpos( $part, "/pls/etprod7/" ) );
-                    $link = str_replace( "&amp;", "&", substr( $link, 0, strpos( $link, "\"" ) ) );
+                    $link = str_replace("&amp;", "&", substr( $link, 0, strpos($link, "\"")));
                     $links[] = $link;
                 }
 
@@ -1726,7 +2071,7 @@ class Capsule {
 
                     $rows = $tables[ 0 ]->children( -1 );
 
-                    foreach ( $rows as $i => $row ) {
+                    foreach ($rows as $i => $row) {
                         if ( $i == 0 ) continue;
 
                         $cell = $row->nodes[ 1 ];
@@ -1734,7 +2079,7 @@ class Capsule {
                         if ( isset( $cell->attr[ 'class' ] ) && $cell->attr[ 'class' ] == 'ddlabel' ) {
                             // Title cell
 
-                            $class = array( 'semester' => $semester );
+                            $class = array();
 
                             $title = $cell->text();
 
@@ -1769,7 +2114,7 @@ class Capsule {
                             $currentTimetable = $timetables[ $tableIndex ];
                             $tableIndex++;
 
-                            $subrows = $currentTimetable->find( 'tr' );
+                            $subrows = $currentTimetable->find('tr');
 
                             foreach ( $subrows as $index => $subrow ) {
                                 $subclass = array();
@@ -1779,13 +2124,13 @@ class Capsule {
                                     if ( isset( $subrow->nodes[ 3 ] ) ) {
                                         $hours = trim( strip_tags( $subrow->nodes[ 3 ]->text() ) );
                                         if ( $hours != 'ACU' ) {
-                                            $hours = explode( '-', str_replace( " ", "", $hours ) );
-                                            $subclass[ 'hour_start' ] = trim( $hours[ 0 ] );
-                                            $subclass[ 'hour_end' ] = trim( $hours[ 1 ] );
+                                            $hours = explode( '-', str_replace(" ", "", $hours ) );
+                                            $subclass[ 'hour_start' ] = trim( $hours[0] );
+                                            $subclass[ 'hour_end' ] = trim( $hours[1] );
                                         }
                                     }
                                     if ( isset( $subrow->nodes[ 5 ] ) ) {
-                                        $subclass[ 'day' ] = trim( str_replace( "", "'", strtoupper( strip_tags( $subrow->nodes[ 5 ]->text() ) ) ) );
+                                        $subclass[ 'day' ] = trim( str_replace("", "'", strtoupper( strip_tags( $subrow->nodes[ 5 ]->text() ) ) ) );
                                     }
                                     if ( isset( $subrow->nodes[ 7 ] ) ) {
                                         $local = trim( strip_tags( $subrow->nodes[ 7 ]->text() ) );
@@ -1795,8 +2140,8 @@ class Capsule {
                                     }
                                     if ( isset( $subrow->nodes[ 9 ] ) ) {
                                         $days = explode( '-', trim( strip_tags( $subrow->nodes[ 9 ]->text() ) ) );
-                                        $subclass[ 'day_start' ] = trim( str_replace( '/', '', $days[ 0 ] ) );
-                                        $subclass[ 'day_end' ] = trim( str_replace( '/', '', $days[ 1 ] ) );
+                                        $subclass[ 'day_start' ] = trim( str_replace( '/', '', $days[0] ) );
+                                        $subclass[ 'day_end' ] = trim( str_replace( '/', '', $days[1] ) );
                                     }
                                     if ( isset( $subrow->nodes[ 13 ] ) ) {
                                         $teacher = trim( strip_tags( $subrow->nodes[ 13 ]->text() ) );
@@ -1829,7 +2174,7 @@ class Capsule {
         $this->domparser->load( $request[ 'response' ] );
         $tables = $this->domparser->find( '.pagebodydiv>table.datadisplaytable table.datadisplaytable' );
 
-        $cells = $tables[ 0 ]->find( 'tr td.dddefault' );
+        $cells = $tables[ 0 ]->find('tr td.dddefault');
 
         $spots = array(
             'nrc'           =>  $nrc,
@@ -1839,22 +2184,22 @@ class Capsule {
         foreach ( $cells as $index => $cell ) {
             switch ( $index ) {
                 case 0:
-                    $spots[ 'total' ] = ( int )$cell->text();
+                    $spots[ 'total' ] = (int)$cell->text();
                     break;
                 case 1:
-                    $spots[ 'registered' ] = ( int )$cell->text();
+                    $spots[ 'registered' ] = (int)$cell->text();
                     break;
                 case 2:
-                    $spots[ 'remaining' ] = ( int )$cell->text();
+                    $spots[ 'remaining' ] = (int)$cell->text();
                     break;
                 case 3:
-                    $spots[ 'waiting_total' ] = ( int )$cell->text();
+                    $spots[ 'waiting_total' ] = (int)$cell->text();
                     break;
                 case 4:
-                    $spots[ 'waiting_registered' ] = ( int )$cell->text();
+                    $spots[ 'waiting_registered' ] = (int)$cell->text();
                     break;
                 case 5:
-                    $spots[ 'waiting_remaining' ] = ( int )$cell->text();
+                    $spots[ 'waiting_remaining' ] = (int)$cell->text();
                     break;
             }
         }
@@ -1862,213 +2207,7 @@ class Capsule {
         return $spots;
 	}
 	
-    public function searchCourses ( $searchRequest ) {
-        if ( !empty( $searchRequest[ 'code' ] ) ) {
-            $code = strtoupper( trim( str_replace( '-', '', str_replace( ' ', '', $searchRequest[ 'code' ] ) ) ) );
-
-            $postString = (
-                'term_in=' . $searchRequest[ 'semester' ] . 
-                '&sel_subj=dummy' .
-                '&sel_day=dummy' .
-                '&sel_schd=dummy' .
-                '&sel_insm=dummy' .
-                '&sel_camp=dummy' .
-                '&sel_levl=dummy' .
-                '&sel_sess=dummy' .
-                '&sel_instr=dummy' .
-                '&sel_ptrm=dummy' .
-                '&sel_attr=dummy' .
-                '&sel_subj=' . substr( $code, 0, 3 ) .
-                '&sel_crse=' . substr( $code, 3, 4 ) .
-                '&sel_title=' .
-                '&sel_schd=%25' .
-                '&sel_from_cred=' .
-                '&sel_to_cred=' .
-                '&sel_camp=%25' .
-                '&sel_levl=%25' .
-                '&sel_ptrm=%25' .
-                '&sel_instr=%25' .
-                '&sel_sess=%25' .
-                '&sel_attr=%25' .
-                '&begin_hh=0' .
-                '&begin_mi=0' .
-                '&begin_ap=x' .
-                '&end_hh=23' .
-                '&end_mi=59' .
-                '&end_ap=x'
-            );
-        } else {
-            if ( is_array( $searchRequest[ 'subject' ] ) ) {
-                $postString =
-                    'term_in=' . $searchRequest[ 'semester' ] . 
-                    '&sel_subj=dummy' .
-                    '&sel_day=dummy' .
-                    '&sel_schd=dummy' .
-                    '&sel_insm=dummy' .
-                    '&sel_camp=dummy' .
-                    '&sel_levl=dummy' .
-                    '&sel_sess=dummy' .
-                    '&sel_instr=dummy' .
-                    '&sel_ptrm=dummy' .
-                    '&sel_attr=dummy';
-
-                foreach ( $searchRequest[ 'subject' ] as $subject ) {
-                    $postString .= '&sel_subj=' . $subject;
-                }
-
-                $postString .=
-                    '&sel_crse=' .
-                    '&sel_title=' . urlencode( utf8_decode( $searchRequest[ 'keywords' ] ) ) .
-                    '&sel_schd=%25' .
-                    '&sel_from_cred=' .
-                    '&sel_to_cred=' .
-                    '&sel_camp=%25' .
-                    '&sel_levl=%25' .
-                    '&sel_ptrm=%25' .
-                    '&sel_instr=%25' .
-                    '&sel_sess=%25' .
-                    '&sel_attr=%25' .
-                    '&begin_hh=0' .
-                    '&begin_mi=0' .
-                    '&begin_ap=x' .
-                    '&end_hh=23' .
-                    '&end_mi=59' .
-                    '&end_ap=x';
-            } else {
-                $postString = (
-                    'term_in=' . $searchRequest[ 'semester' ] . 
-                    '&sel_subj=dummy' .
-                    '&sel_day=dummy' .
-                    '&sel_schd=dummy' .
-                    '&sel_insm=dummy' .
-                    '&sel_camp=dummy' .
-                    '&sel_levl=dummy' .
-                    '&sel_sess=dummy' .
-                    '&sel_instr=dummy' .
-                    '&sel_ptrm=dummy' .
-                    '&sel_attr=dummy' .
-                    '&sel_subj=' . strtoupper( $searchRequest[ 'subject' ] ) .
-                    '&sel_crse=' .
-                    '&sel_title=' . urlencode( utf8_decode( $searchRequest[ 'keywords' ] ) ) .
-                    '&sel_schd=%25' .
-                    '&sel_from_cred=' .
-                    '&sel_to_cred=' .
-                    '&sel_camp=%25' .
-                    '&sel_levl=%25' .
-                    '&sel_ptrm=%25' .
-                    '&sel_instr=%25' .
-                    '&sel_sess=%25' .
-                    '&sel_attr=%25' .
-                    '&begin_hh=0' .
-                    '&begin_mi=0' .
-                    '&begin_ap=x' .
-                    '&end_hh=23' .
-                    '&end_mi=59' .
-                    '&end_ap=x'
-                );
-            }
-        }
-
-        // Fetch search page
-        $request = $this->_fetchPage( '/pls/etprod7/bwskfcls.P_GetCrse', 'POST', array(), true, array( 'PostString' => $postString ) );
-
-        // Check if courses have been found
-        if ( strpos( $request[ 'response' ], 'Aucun cours ne correspond' ) ) {
-            return array();
-        } else {
-            $courses = array();
-
-            // Parse DOM structure from response
-            $this->domparser->load( $request[ 'response' ] );
-            $tables = $this->domparser->find( 'table.datadisplaytable' );
-
-            $rows = $tables[ 0 ]->find( 'tr' );
-            foreach ( $rows as $rowIndex => $row ) {
-                if ( $rowIndex > 1 ) {
-                    // Check if course is available
-                    if ( count( $row->nodes ) > 5 and strlen( trim( $row->nodes[ 3 ]->text() ) ) > 4 ) {
-                        // Add course NRC and code to results list
-                        $courses[ trim( $row->nodes[ 3 ]->text() ) ] = strtoupper( trim( $row->nodes[ 5 ]->text() ) ) . '-' . trim( $row->nodes[ 7 ]->text() );
-                    }
-                }
-            }
-
-            return $courses;
-        }
-    }
-
-    public function fetchPortailCours() {
-        $this->host = 'www.portaildescours.ulaval.ca';
-        $this->debug = 1;
-        //$this->fetcher->follow_redirect = 0;
-
-        // Define request parameters
-        $this->fetcher->set( array(
-            'debug'             =>  $this->debug,
-            'protocol'          =>  'https',
-            'request_method'    =>  'GET'
-        ) );
-
-        // Define Host name
-        $arguments = array(
-            'HostName'      =>  $this->host,
-            'RequestURI'    =>  '/login.jsp?_js=true',
-        );
-
-        // Open connection to remote server
-        $error = $this->fetcher->Open( $arguments );
-        if ( !empty( $error ) ) return false;
-
-        // Send request data to remote server
-        $error = $this->fetcher->SendRequest( $arguments );
-        if ( !empty( $error ) ) return false;
-
-        // Read response headers from remote server
-        $error = $this->fetcher->ReadReplyHeaders( $headers );
-        if ( !empty( $error ) ) return false;
-
-        // Read response content from remote server
-        $this->fetcher->ReadWholeReplyBody( $response );
-        $response = $response;
-
-        // Close remote server connection
-        $this->fetcher->Close();
-
-         // Get class page
-        //$this->fetcher->SaveCookies( $cookies );
-        //$this->fetcher->cookies = $cookies;
-        /*
-        // Define Host name
-        $arguments = array(
-            'HostName'      =>  'www.portaildescours.ulaval.ca',
-            'RequestURI'    =>  substr( $headers[ 'location' ], strpos( $headers[ 'location' ], ':443/' ) + 4 ),
-        );
-
-        // Open connection to remote server
-        $error = $this->fetcher->Open( $arguments );
-        if ( !empty( $error ) ) return false;
-
-        // Send request data to remote server
-        $error = $this->fetcher->SendRequest( $arguments );
-        if ( !empty( $error ) ) return false;
-
-        // Read response headers from remote server
-        $error = $this->fetcher->ReadReplyHeaders( $headers );
-        if ( !empty( $error ) ) return false;
-
-        // Read response content from remote server
-        $this->fetcher->ReadWholeReplyBody( $response );
-        $response = $response;
-
-        // Close remote server connection
-        $this->fetcher->Close();
-        */
-        // Parse DOM structure from response
-        //$this->domparser->load( $request[ 'response' ] );
-        //$tables = $this->domparser->find( '.pagebodydiv>table.datadisplaytable table.datadisplaytable' );
-    }
-
-    private function _fetchPage ( $url, $method = 'GET', $postVars = array(), $checkPage = true, $otherArguments = array() ) {
+    private function _fetchPage ( $url, $method = 'GET', $postVars = array(), $checkPage = true ) {
         // Define request parameters
         $this->fetcher->set( array(
             'cookies'       =>  $this->cookies,
@@ -2085,10 +2224,6 @@ class Capsule {
 
         if ( !empty( $postVars ) )
             $arguments[ 'PostValues' ] = $postVars;
-
-        if ( !empty( $otherArguments ) ) {
-            $arguments += $otherArguments;
-        }
 
         // Open connection to remote server
         $error = $this->fetcher->Open( $arguments );
@@ -2127,11 +2262,11 @@ class Capsule {
         return ( array( 'headers' => $headers, 'response' => utf8_encode( html_entity_decode( $tidy, ENT_COMPAT, 'cp1252' ) ) ) );
     }
 
-	private function checkPage ( $data ) {
-		if ( !strpos( $data, "<TITLE>Connexion utilisateur | Capsule | Université Laval</TITLE>" ) ) {
-			return ( true );
+	private function checkPage ($data) {
+		if (!strpos($data, "<TITLE>Connexion utilisateur | Capsule | Université Laval</TITLE>")) {
+			return (true);
 		} else {
-			return ( false );
+			return (false);
 		}
 	}
 
@@ -2162,7 +2297,7 @@ class Capsule {
                     break;
             }
 
-            return ( $semester );
+            return ($semester);
         } else {
             // Semester is in text format
             $textSemester = '';
