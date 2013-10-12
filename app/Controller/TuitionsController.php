@@ -21,24 +21,12 @@ class TuitionsController extends AppController {
                 'title' =>  'Frais de scolarité'
             )
         ) );
-        $this->set( 'buttons', array(
-        	array(
-                'action'=>  "app.Cache.reloadData( { name: 'tuition-fees', auto: 0 } );",
-                'type'  =>  'refresh'
-            ),
-            array(
-                'action'=>  "window.print();",
-                'type'  =>  'print'
-            )
-        ) );
 
 		$this->set( 'title_for_layout', 'Frais de scolarité' );
         $this->set( 'sidebar', 'tuitions' );
         $this->setAssets( array(
             '/js/tuitions.js',
-            '/js/jquery.flot.min.js',
-            '/js/jquery.flot.pie.min.js',
-            '/js/jquery.flot.resize.min.js' 
+            '/js/libs/jquery.base64.js'
         ), array( '/css/tuitions.css' ) );
 		$this->set( 'dataObject', 'tuition-fees' );
 
@@ -50,33 +38,35 @@ class TuitionsController extends AppController {
 
 		// Check is data exists in DB
         if ( ( $lastRequest = $this->CacheRequest->requestExists( 'tuition-fees' ) ) && ( !empty( $tuitions[ 'TuitionAccount' ][ 'Semester' ] ) ) ) {
+            $currentSemester = $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ];
+
             // Define tuition fees payment deadlines
-            if ( substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 4, 2 ) == '01' ) {
-                if ( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ] == 201301 ) {
+            if ( substr( $currentSemester[ 'semester' ], 4, 2 ) == '01' ) {
+                if ( $currentSemester[ 'semester' ] == 201301 ) {
                     // Exception for H-2013 semester
                     $deadline = array(
-                        'long'  =>  '1er mars ' . substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 0, 4 ),
+                        'long'  =>  '1er mars ' . substr( $currentSemester[ 'semester' ], 0, 4 ),
                         'small' =>  '1<sup>er</sup> mars',
-                        'date'  =>  substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 0, 4 ) . '0301'
+                        'date'  =>  substr( $currentSemester[ 'semester' ], 0, 4 ) . '0301'
                     );
                 } else {
                     $deadline = array(
-                        'long'  =>  '15 février ' . substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 0, 4 ),
+                        'long'  =>  '15 février ' . substr( $currentSemester[ 'semester' ], 0, 4 ),
                         'small' =>  '15 fév.',
-                        'date'  =>  substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 0, 4 ) . '0215'
+                        'date'  =>  substr( $currentSemester[ 'semester' ], 0, 4 ) . '0215'
                     );
                 }
-            } elseif ( substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 4, 2 ) == '09' ) {
+            } elseif ( substr( $currentSemester[ 'semester' ], 4, 2 ) == '09' ) {
                 $deadline = array(
-                    'long'  =>  '15 octobre ' . substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 0, 4 ),
+                    'long'  =>  '15 octobre ' . substr( $currentSemester[ 'semester' ], 0, 4 ),
                     'small' =>  '15 oct.',
-                    'date'  =>  substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 0, 4 ) . '1015'
+                    'date'  =>  substr( $currentSemester[ 'semester' ], 0, 4 ) . '1015'
                 );
-            } elseif ( substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 4, 2 ) == '05' ) {
+            } elseif ( substr( $currentSemester[ 'semester' ], 4, 2 ) == '05' ) {
                 $deadline = array(
-                    'long'  =>  '15 juin ' . substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 0, 4 ),
+                    'long'  =>  '15 juin ' . substr( $currentSemester[ 'semester' ], 0, 4 ),
                     'small' =>  '15 juin',
-                    'date'  =>  substr( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'semester' ], 0, 4 ) . '0615'
+                    'date'  =>  substr( $currentSemester[ 'semester' ], 0, 4 ) . '0615'
                 );
             }
 
@@ -84,7 +74,7 @@ class TuitionsController extends AppController {
             $chartData = array();
 
             $tuitionFees = 0;
-            foreach ( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'fees' ] as $fee ) {
+            foreach ( $currentSemester[ 'fees' ] as $fee ) {
                 if ( strpos( $fee[ 'name' ], 'Droits de scolarité' ) !== false )
                     $tuitionFees = $fee[ 'amount' ];
 
@@ -92,14 +82,49 @@ class TuitionsController extends AppController {
                     $fee[ 'name' ] = 'Capsule';
 
                 if ( strpos( $fee[ 'name' ], 'Droits de scolarité' ) === false )
-                    $chartData[] = '{label: \'' . addslashes( $fee[ 'name' ] ) . '\', data: ' . round( ( $fee[ 'amount' ] / ( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'total' ] - $tuitionFees ) * 100 ) ) . '}';
+                    $chartData[] = '{label: \'' . addslashes( $fee[ 'name' ] ) . '\', data: ' . round( ( $fee[ 'amount' ] / ( $currentSemester[ 'total' ] - $tuitionFees ) * 100 ) ) . '}';
             }
 
             $this->set( 'chartData', implode( ', ', $chartData ) );
         	$this->set( 'tuitions', $tuitions );
             $this->set( 'deadline', $deadline );
         	$this->set( 'timestamp', $lastRequest[ 'timestamp' ] );
+
+            if ( !empty( $currentSemester[ 'pdf_statement_url' ] ) ) {
+                $this->set( 'buttons', array(
+                    array(
+                        'action'=>  "app.Cache.reloadData( { name: 'tuition-fees', auto: 0 } );",
+                        'type'  =>  'refresh'
+                    ),
+                    array(
+                        'action'=>  "app.Tuitions.downloadPDF( '" . addslashes( $currentSemester[ 'pdf_statement_url' ] ) . "' );",
+                        'type'  =>  'download'
+                    ),
+                    array(
+                        'action'=>  "window.print();",
+                        'type'  =>  'print'
+                    )
+                ) );
+            } else {
+                $this->set( 'buttons', array(
+                    array(
+                        'action'=>  "app.Cache.reloadData( { name: 'tuition-fees', auto: 0 } );",
+                        'type'  =>  'refresh'
+                    ),
+                    array(
+                        'action'=>  "window.print();",
+                        'type'  =>  'print'
+                    )
+                ) );
+            }
         } else {
+            $this->set( 'buttons', array(
+                array(
+                    'action'=>  "app.Cache.reloadData( { name: 'tuition-fees', auto: 0 } );",
+                    'type'  =>  'refresh'
+                )
+            ) );
+
         	if ( !empty( $lastRequest ) )
 				$this->set( 'timestamp', $lastRequest[ 'timestamp' ] );
 
@@ -107,7 +132,7 @@ class TuitionsController extends AppController {
         	$this->viewPath = 'Commons';
 			$this->render( 'no_data' );
 
-            return (true);
+            return ( true );
         }
 	}
 
@@ -131,22 +156,13 @@ class TuitionsController extends AppController {
                 'title' =>  'Relevé par session'
             )
         ) );
-        $this->set( 'buttons', array(
-            array(
-                'action'=>  "app.Cache.reloadData( { name: 'tuition-fees', auto: 0 } );",
-                'type'  =>  'refresh'
-            ),
-            array(
-                'action'=>  "window.print();",
-                'type'  =>  'print'
-            )
-        ) );
 
         $this->set( 'title_for_layout', 'Relevé par session' );
         $this->set( 'dataObject', 'tuition-fees' );
         $this->set( 'sidebar', 'tuitions' );
         $this->setAssets( array(
-            '/js/tuitions.js'
+            '/js/tuitions.js',
+            '/js/libs/jquery.base64.js'
         ), array( '/css/tuitions.css' ) );
 
         $tuitions = $this->StudentTuitionAccount->User->find( 'first', array(
@@ -165,6 +181,34 @@ class TuitionsController extends AppController {
             $this->set( 'tuitions', $tuitions );
             $this->set( 'semestersList', $semestersList );
             $this->set( 'timestamp', $lastRequest[ 'timestamp' ] );
+
+            if ( !empty( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'pdf_statement_url' ] ) ) {
+                $this->set( 'buttons', array(
+                    array(
+                        'action'=>  "app.Cache.reloadData( { name: 'tuition-fees', auto: 0 } );",
+                        'type'  =>  'refresh'
+                    ),
+                    array(
+                        'action'=>  "app.Tuitions.downloadPDF( '" . addslashes( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'pdf_statement_url' ] ) . "' );",
+                        'type'  =>  'download'
+                    ),
+                    array(
+                        'action'=>  "window.print();",
+                        'type'  =>  'print'
+                    )
+                ) );
+            } else {
+                $this->set( 'buttons', array(
+                    array(
+                        'action'=>  "app.Cache.reloadData( { name: 'tuition-fees', auto: 0 } );",
+                        'type'  =>  'refresh'
+                    ),
+                    array(
+                        'action'=>  "window.print();",
+                        'type'  =>  'print'
+                    )
+                ) );
+            }
         } else {
             if ( !empty( $lastRequest ) )
                 $this->set( 'timestamp', $lastRequest[ 'timestamp' ] );
@@ -173,11 +217,18 @@ class TuitionsController extends AppController {
             if ( !empty( $semestersList ) )
                 $this->set( 'semestersList', $semestersList );
 
+            $this->set( 'buttons', array(
+                array(
+                    'action'=>  "app.Cache.reloadData( { name: 'tuition-fees', auto: 0 } );",
+                    'type'  =>  'refresh'
+                )
+            ) );
+
             // No data exists for this page
             $this->viewPath = 'Commons';
             $this->render( 'no_data' );
 
-            return (true);
+            return ( true );
         }
     }
 }

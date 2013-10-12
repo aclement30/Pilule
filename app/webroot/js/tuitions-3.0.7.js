@@ -46,11 +46,15 @@ app.Tuitions.displaySummaryGraph = function ( data ) {
                     show: false
                 }
             }
-        });
+        } );
     };
 
     // Wait until the refresh effect end so the chart is displayed and can be filled
     setTimeout( displayChart, 100 );
+};
+
+app.Tuitions.downloadPDF = function ( url ) {
+    $( '#external-frame' ).attr( 'src', app.baseUrl + 'services/connect/capsule-pdf-statement/' + $.base64Encode( url ) );
 };
 
 app.Tuitions.init = function () {
