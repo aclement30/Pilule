@@ -33,11 +33,6 @@ lib/Cake/Console/Templates/skel/Config/Schema/*.sql
 ehthumbs.db
 Thumbs.db
 
-temp/*
-application/logs/*
-/nbproject/private/
-.idea/*
-nbproject/*
 app/tmp/*
 app/tmp/cache/*
 .sass-cache
