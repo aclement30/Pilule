@@ -24,11 +24,21 @@
 </div>
 
 <br />
+<?php /*
 <h4>Inscription A-2013</h4>
 <div class="sidebar" style="padding-top: 10px;">
     <p style="margin-bottom: 15px;">Vous pouvez maintenant faire votre choix de cours et votre inscription pour l'automne 2013 directement sur Pilule. </p>
     <div style="text-align: center;">
         <a href="<?php echo Router::url( '/' ); ?>choix-cours"><img src="<?php echo Router::url( '/' ); ?>img/registration-module.png" /></a>
+    </div>
+    <hr>
+</div>
+*/ ?>
+<h4>Relevés électroniques</h4>
+<div class="sidebar" style="padding-top: 10px;">
+    <p style="margin-bottom: 15px;">Les relevés électroniques sont maintenant disponibles directement sur Pilule à partir de la session A-2013.</p>
+    <div style="text-align: center;">
+        <img src="<?php echo Router::url( '/' ); ?>img/bouton-releves.png" />
     </div>
     <hr>
 </div>
