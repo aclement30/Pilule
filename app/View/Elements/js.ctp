@@ -8,7 +8,7 @@
         app.isCapsuleOffline = <?php if ( $isCapsuleOffline ) echo 'true'; else echo 'false'; ?>;
 
         app.ipAddress = '<?php echo $this->request->clientIp(); ?>';
-        app.baseUrl = '<?php echo Router::url( '/', true ); ?>';
+        app.baseUrl = '<?php echo Configure::read( 'Pilule.baseUrl' ); ?>';
         app.isMobile = <?php if ( $isMobile ) echo 'true'; else echo 'false'; ?>;
         app.init();
         
@@ -30,7 +30,7 @@
                 ?>app.Cache.reloadData( { name: '<?php echo $dataObject; ?>', auto: 1<?php if ( !empty( $reloadDataCallback ) ) echo ', callback: ' . $reloadDataCallback; ?> } );<?php
             }
         ?>
-    });
+    } );
 </script>
 
 <?php
@@ -53,10 +53,10 @@
     echo $this->Html->script( $scripts );
 ?>
 <div id="fb-root"></div>
-<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
+<script>( function( d, s, id ) {
+  var js, fjs = d.getElementsByTagName( s )[ 0 ];
+  if ( d.getElementById( id ) ) return;
+  js = d.createElement( s ); js.id = id;
   js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=102086416558659";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));</script>
+  fjs.parentNode.insertBefore( js, fjs );
+}( document, 'script', 'facebook-jssdk' ) );</script>

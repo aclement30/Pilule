@@ -2,9 +2,6 @@
 <html lang='fr'>
 <meta charset='utf-8'>
 <head>
-    
-    <base href="<?php echo Router::url( '/', true ); ?>" />
-
     <?php echo $this->element( 'metas' ); ?>
     
     <title><?php if ( isset( $title_for_layout ) && $title_for_layout != 'Pilule - Gestion des études' ) echo $title_for_layout . ' | '; ?>Pilule - Gestion des études</title>
@@ -13,7 +10,7 @@
     <?php echo $this->element( 'css/login' ); ?>
 
     <!--[if lt IE 9]>
-    <link rel="stylesheet" href="<?php echo Router::url( '/' ) ?>css/ie.css?v=2.5" media="screen" type="text/css" />
+    <link rel="stylesheet" href="/css/ie.css?v=2.5" media="screen" type="text/css" />
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <style type="text/css">
         body { background: none; }
@@ -27,14 +24,14 @@
 
     <script type="text/javascript">
       var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-345357-28']);
-      _gaq.push(['_trackPageview']);
+      _gaq.push( [ '_setAccount', 'UA-345357-28' ] );
+      _gaq.push( [ '_trackPageview' ] );
 
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
+      ( function() {
+        var ga = document.createElement( 'script' ); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ( 'https:' == document.location.protocol ? 'https://ssl' : 'http://www' ) + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName( 'script' )[ 0 ]; s.parentNode.insertBefore( ga, s );
+      } )();
 
       <?php if ( isset( $_GET[ 'debug' ] ) and $_GET[ 'debug' ] == 1 ) echo 'var debug = 1;'; else echo 'var debug=0;'; ?>
     </script>
@@ -52,7 +49,7 @@
     </div>
     <![endif]-->
 
-    <?php echo $this->fetch('content'); ?>
+    <?php echo $this->fetch( 'content' ); ?>
 
     <footer class="login">
         <p class="inside">
@@ -68,11 +65,11 @@
                     <div class="nav credits clearfix">
                         <p class="hosting">
                             Projet hébergé par<br />
-                            <img src="<?php echo Router::url( '/' ); ?>img/ulaval-white.png" />
+                            <img src="/img/ulaval-white.png" />
                         </p>
                         <p class="hosting ie-only">
                             Projet hébergé par<br />
-                            <img src="<?php echo Router::url( '/' ); ?>img/ulaval-black.png" />
+                            <img src="/img/ulaval-black.png" />
                         </p>
                         <p class="conception">
                             Conception<br />
@@ -84,10 +81,10 @@
         </p>
     </footer>
 
-    <?php echo $this->element('js'); ?>
+    <?php echo $this->element( 'js' ); ?>
 
     <script type="text/javascript">
-        $(document).ready(function() {
+        $( document ).ready( function() {
             $( '#btn-login' ).on( 'click', app.Users.login );
             $( '#login-form input.idul, #login-form input.password' ).on( 'keyup', function ( e ) {
                 // If Enter key is pressed, submit login form
@@ -101,12 +98,12 @@
             $( '#login-form .help-btn' ).on( 'mouseover', function( e ) {
                 $( this ).addClass( 'btn-danger' );
                 $( this ).find( 'i' ).addClass( 'icon-white' );
-            });
+            } );
 
             $( '#login-form .help-btn' ).on( 'mouseout', function( e ) {
                 $( this ).removeClass( 'btn-danger' );
                 $( this ).find( 'i' ).removeClass( 'icon-white' );
-            });
+            } );
 
             $( '#login-form .help-btn' ).tooltip();
 
@@ -168,7 +165,7 @@
             ( updateResponsive )();
 
             $( window ).resize( updateResponsive );
-        });
+        } );
     </script>
 </body>
 </html>

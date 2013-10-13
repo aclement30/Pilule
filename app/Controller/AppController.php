@@ -1,17 +1,16 @@
 <?php
-App::uses('Controller', 'Controller');
+App::uses( 'Controller', 'Controller' );
 
 class AppController extends Controller {
 	var $isMobile;
 	public $components = array(
         'Session',
         'CapsuleAuth'		=>	array(
+        	'autoRedirect'		=> false,
             'logoutRedirect'	=> array( 'controller' => 'users', 'action' => 'login' ),
             'loginAction'		=> array( 
             	'controller'	=> 'users',
-                'action' 		=> 'login',
-                'plugin'		=> false,
-                'admin'			=> false
+                'action' 		=> 'login'
             )
         )
     );
@@ -24,8 +23,8 @@ class AppController extends Controller {
 	}
 
 	public function beforeRender() {
-		if ($this->name == 'CakeError') {
-			$this->set( 'title_for_layout', 'Page non trouvée');
+		if ( $this->name == 'CakeError' ) {
+			$this->set( 'title_for_layout', 'Page non trouvée' );
 		}
 
 		// Set mobile browser property
@@ -73,7 +72,7 @@ class AppController extends Controller {
 			$this->isMobile = true;
 		}
 		
-		if ( ( isset( $_SERVER[ 'HTTP_ACCEPT' ] ) and strpos( strtolower( $_SERVER[ 'HTTP_ACCEPT' ] ),'application/vnd.wap.xhtml+xml' ) > 0) or ( ( isset( $_SERVER[ 'HTTP_X_WAP_PROFILE' ] ) or isset( $_SERVER[ 'HTTP_PROFILE' ] ) ) ) ) {
+		if ( ( isset( $_SERVER[ 'HTTP_ACCEPT' ] ) and strpos( strtolower( $_SERVER[ 'HTTP_ACCEPT' ] ),'application/vnd.wap.xhtml+xml' ) > 0 ) or ( ( isset( $_SERVER[ 'HTTP_X_WAP_PROFILE' ] ) or isset( $_SERVER[ 'HTTP_PROFILE' ] ) ) ) ) {
 			$this->isMobile = true;
 		}    
 		 
@@ -88,7 +87,7 @@ class AppController extends Controller {
 				'qwap','sage','sams','sany','sch-','sec-','send','seri','sgh-','shar',
 				'sie-','siem','smal','smar','sony','sph-','symb','t-mo','teli','tim-',
 				'tosh','tsm-','upg1','upsi','vk-v','voda','wap-','wapa','wapi','wapp',
-				'wapr','webc','winw','winw','xda ','xda-');
+				'wapr','webc','winw','winw','xda ','xda-' );
 			 
 			if ( in_array( $mobile_ua, $mobile_agents ) ) {
 				$this->isMobile = true;

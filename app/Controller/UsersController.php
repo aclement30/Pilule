@@ -8,7 +8,21 @@ class UsersController extends AppController {
 	public function beforeFilter() {
 		parent::beforeFilter();
 
-		$this->CapsuleAuth->allow( 'login' );
+		$this->CapsuleAuth->allow( array( 'login', 'index' ) );
+	}
+
+	public function index() {
+		// Check if user is logged in
+		if ( $this->Session->check( 'User.idul' ) ) {
+			// Redirect user to dashboard
+			$this->redirect( array( 'action' =>'dashboard' ) );
+		} else {
+			$this->layout = 'login';
+			$this->set( 'title_for_layout', 'Pilule - Gestion des études' );
+			$this->set( 'url', '' );
+			$this->setAssets( array( '/js/users.js' ), null );
+			$this->render( 'login' );
+		}
 	}
 
 	public function login () {
@@ -93,12 +107,6 @@ class UsersController extends AppController {
 	}
 
 	public function dashboard () {
-		$idul = $this->Session->read( 'User.idul' );
-		if ( empty( $idul ) ) {
-			$this->redirect( array( 'action' => 'login' ) );
-			exit();
-		}
-		
 		/*
         // Find user dashboard modules
         $userModules = $this->Module->User->find( 'first', array(

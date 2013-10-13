@@ -1,1 +1,1 @@
-<link rel="stylesheet" href="<?php echo Router::url( '/' ) ?>css/login.css" />
+<link rel="stylesheet" href="/css/login.css" />

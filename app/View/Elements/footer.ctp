@@ -11,7 +11,7 @@
                 </ul>
                 <p class="hosting pull-right">
                     Projet hébergé par<br />
-                    <img src="<?php echo Router::url( '/' ) ?>img/ulaval-black.png" height="36" align="absbottom" />
+                    <img src="/img/ulaval-black.png" height="36" align="absbottom" />
                 </p>
                 <p class="conception pull-right">
                     Conception<br />

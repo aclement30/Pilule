@@ -57,11 +57,11 @@
 						endif;
 					?>
 						<div class="top primary">
-							<img src="<?php echo Router::url( '/' ) ?>img/modules/<?php echo $module[ 'alias' ]; ?>.png" />
+							<img src="/img/modules/<?php echo $module[ 'alias' ]; ?>.png" />
 							<!--<i class="batch-big b-database"></i>-->
 						</div>
 						<div class="bottom">
-							<h5 class="title"><?php echo $module['name']; ?></h5>
+							<h5 class="title"><?php echo $module[ 'name' ]; ?></h5>
 						</div>
 					</a>
 				</div>
