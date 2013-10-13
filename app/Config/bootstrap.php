@@ -96,7 +96,7 @@
  *		'persistent' => true, // [optional] set this to false for non-persistent connections
  *	));
  */
-Cache::config('default', array('engine' => 'File'));
+Cache::config( 'default', array( 'engine' => 'File' ) );
 
 /**
  * The settings below can be used to set additional paths to models, views and controllers.
@@ -160,30 +160,38 @@ Cache::config('default', array('engine' => 'File'));
  *
  * ));
  */
-Configure::write('Dispatcher.filters', array(
+Configure::write( 'Dispatcher.filters', array(
 	'AssetDispatcher',
 	'CacheDispatcher'
-));
+) );
 
 /**
  * Configures default file logging options
  */
-App::uses('CakeLog', 'Log');
-CakeLog::config('debug', array(
+App::uses( 'CakeLog', 'Log' );
+CakeLog::config( 'debug', array(
 	'engine' => 'FileLog',
-	'types' => array('notice', 'info', 'debug'),
+	'types' => array( 'notice', 'info', 'debug' ),
 	'file' => 'debug',
-));
-CakeLog::config('error', array(
+) );
+CakeLog::config( 'error', array(
 	'engine' => 'FileLog',
-	'types' => array('warning', 'error', 'critical', 'alert', 'emergency'),
+	'types' => array( 'warning', 'error', 'critical', 'alert', 'emergency' ),
 	'file' => 'error',
-));
+) );
 
-CakePlugin::load('Postmark');
+CakePlugin::load( 'Postmark' );
 
 define ( 'CURRENT_SEMESTER', 201309 );			// Current semester
 define ( 'DATA_EXPIRATION_DELAY', 21600 );		// Default data expiration delay : 6 hours
+
+Configure::write( 'Superadmin', array( 'cookie' => 'gs127IxunYhWw3b0qfG1!@gmo2q&QSmmhuIQSlqs;.a;Aisg21kuSBG@67126Y!K2hbilq27TBQW*' ) );
+
+if ( $_SERVER[ 'HTTP_HOST' ] == 'www.pilule.ulaval.ca' ) {
+    Configure::write( 'Pilule.baseUrl', 'https://www.pilule.ulaval.ca/' );
+} else {
+    Configure::write( 'Pilule.baseUrl', 'http://' . $_SERVER[ 'HTTP_HOST' ] . '/' );
+}
 
 setlocale( LC_ALL, 'fr_FR.UTF-8' );
 
