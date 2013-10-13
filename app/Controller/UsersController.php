@@ -95,7 +95,7 @@ class UsersController extends AppController {
 	public function dashboard () {
 		$idul = $this->Session->read( 'User.idul' );
 		if ( empty( $idul ) ) {
-			$this->redirect( '/connexion' );
+			$this->redirect( array( 'action' => 'login' ) );
 			exit();
 		}
 		
