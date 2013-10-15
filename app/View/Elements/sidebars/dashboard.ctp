@@ -34,14 +34,14 @@
     <hr>
 </div>
 */ ?>
-<h4>Relevés électroniques</h4>
+<!--<h4>Relevés électroniques</h4>
 <div class="sidebar" style="padding-top: 10px;">
     <p style="margin-bottom: 15px;">Les relevés électroniques sont maintenant disponibles directement sur Pilule à partir de la session A-2013.</p>
     <div style="text-align: center;">
         <img src="<?php echo Router::url( '/' ); ?>img/bouton-releves.png" />
     </div>
     <hr>
-</div>
+</div>-->
 <?php if ( !$isMobile ) : ?>
 <!--
     <div class="mobile-devices-message">

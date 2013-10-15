@@ -96,10 +96,10 @@ class TuitionsController extends AppController {
                         'action'=>  "app.Cache.reloadData( { name: 'tuition-fees', auto: 0 } );",
                         'type'  =>  'refresh'
                     ),
-                    array(
+                    /*array(
                         'action'=>  "app.Tuitions.downloadPDF( '" . addslashes( $currentSemester[ 'pdf_statement_url' ] ) . "' );",
                         'type'  =>  'download'
-                    ),
+                    ),*/
                     array(
                         'action'=>  "window.print();",
                         'type'  =>  'print'
@@ -188,10 +188,10 @@ class TuitionsController extends AppController {
                         'action'=>  "app.Cache.reloadData( { name: 'tuition-fees', auto: 0 } );",
                         'type'  =>  'refresh'
                     ),
-                    array(
+                    /*array(
                         'action'=>  "app.Tuitions.downloadPDF( '" . addslashes( $tuitions[ 'TuitionAccount' ][ 'Semester' ][ 0 ][ 'pdf_statement_url' ] ) . "' );",
                         'type'  =>  'download'
-                    ),
+                    ),*/
                     array(
                         'action'=>  "window.print();",
                         'type'  =>  'print'
