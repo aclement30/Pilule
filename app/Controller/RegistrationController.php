@@ -9,6 +9,12 @@ class RegistrationController extends AppController {
 	private $registrationSemester;
 	private $currentSemester = CURRENT_SEMESTER;
 	private $deadlines = array(
+							'201401'	=> array(
+								'registration_start'=>	'20131104',
+								'edit_selection'	=>	'20140130',
+								'drop_nofee'		=>	'20140204',
+								'drop_fee'			=>	'20140401'
+							),
 							'201309'	=> array(
 								'registration_start'=>	'20130402',
 								'edit_selection'	=>	'20130910',
@@ -41,7 +47,7 @@ class RegistrationController extends AppController {
 							)
 						   );
 	
-	private $registrationSemesters = array( '201301', '201305', '201309' );
+	private $registrationSemesters = array( '201309', '201401' );
 
 	public function beforeFilter () {
 		parent::beforeFilter();
@@ -61,7 +67,7 @@ class RegistrationController extends AppController {
 		if ( $this->Session->read( 'Registration.semester' ) != '' ) {
 			$this->registrationSemester = $this->Session->read( 'Registration.semester' );
 		} else {
-			$this->registrationSemester = '201309';
+			$this->registrationSemester = '201401';
 			$this->Session->write( 'Registration.semester', $this->registrationSemester );
 		}
 
@@ -287,7 +293,7 @@ class RegistrationController extends AppController {
 
                         if ( !empty( $classes[ 'Class' ] ) ) {
                             // Save newly fetched classes for this course
-                            $searchResults[ 0 ][ 'Class'] = $classes[ 'Class' ];
+                            $searchResults[ 0 ][ 'Class' ] = $classes[ 'Class' ];
                             $searchResults[ 0 ][ 'UniversityCourse' ][ 'checkup_' . $this->request->data[ 'Registration' ][ 'semester' ] ] = time();
                             $searchResults[ 0 ][ 'UniversityCourse' ][ 'av' . $this->request->data[ 'Registration' ][ 'semester' ] ] = true;
                             $this->UniversityCourse->set( $searchResults[ 0 ] );
@@ -342,7 +348,7 @@ class RegistrationController extends AppController {
 
 		                            if ( !empty( $classes[ 'Class' ] ) ) {
 		                                // Save newly fetched classes for this course
-		                                $course[ 'Class'] = $classes[ 'Class' ];
+		                                $course[ 'Class' ] = $classes[ 'Class' ];
 		                                $course[ 'UniversityCourse' ][ 'checkup_' . $this->request->data[ 'Registration' ][ 'semester' ] ] = time();
 		                                $course[ 'UniversityCourse' ][ 'av' . $this->request->data[ 'Registration' ][ 'semester' ] ] = true;
 		                                $this->UniversityCourse->set( $course );
@@ -831,7 +837,7 @@ class RegistrationController extends AppController {
         $request = $this->CacheRequest->find( 'first', array(
             'conditions' => array( 'CacheRequest.idul' => $this->Session->read( 'User.idul' ), 'CacheRequest.name' => 'schedule-' . $semester )
         ) );
-        if ( !empty( $request )) {
+        if ( !empty( $request ) ) {
             $md5Hash = array( $request[ 'CacheRequest' ][ 'name' ] => $request[ 'CacheRequest' ][ 'md5' ] );
         } else {
             $md5Hash = array();
