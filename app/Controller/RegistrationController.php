@@ -803,6 +803,14 @@ class RegistrationController extends AppController {
 
 	function unregisterCourse () {
 		if ( $this->request->is( 'ajax' ) ) {
+			// Temporarily disable course removal
+			return new CakeResponse( array(
+            	'body' => json_encode( array(
+            		'status'    			=>  false,
+            		'nrc'					=>	$nrc
+            	) )
+            ) );
+
 			$nrc = $this->request->data[ 'nrc' ];
 			$semester = $this->registrationSemester;
 
