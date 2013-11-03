@@ -187,10 +187,16 @@ define ( 'DATA_EXPIRATION_DELAY', 21600 );		// Default data expiration delay : 6
 
 Configure::write( 'Superadmin', array( 'cookie' => 'gs127IxunYhWw3b0qfG1!@gmo2q&QSmmhuIQSlqs;.a;Aisg21kuSBG@67126Y!K2hbilq27TBQW*' ) );
 
-if ( $_SERVER[ 'HTTP_HOST' ] == 'www.pilule.ulaval.ca' ) {
-    Configure::write( 'Pilule.baseUrl', 'https://www.pilule.ulaval.ca/' );
-} else {
-    Configure::write( 'Pilule.baseUrl', 'http://' . $_SERVER[ 'HTTP_HOST' ] . '/' );
+switch ( $_SERVER[ 'HTTP_HOST' ] ) {
+	case 'www.pilule.ulaval.ca':
+		Configure::write( 'Pilule.baseUrl', 'https://www.pilule.ulaval.ca/' );
+	break;
+	case 'pilule.dev':
+		Configure::write( 'Pilule.baseUrl', 'http://pilule.dev/' );
+	break;
+	default:
+		Configure::write( 'Pilule.baseUrl', 'http://' . $_SERVER[ 'HTTP_HOST' ] . '/' );
+	break;
 }
 
 setlocale( LC_ALL, 'fr_FR.UTF-8' );
