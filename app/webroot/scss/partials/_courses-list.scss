@@ -48,7 +48,7 @@ table.courses-list {
 	}
 }
 
-@media (max-width: 660px) {
+@media only screen and (max-width: 660px) {
 	table.courses-list {
 		margin-bottom: 20px;
 
