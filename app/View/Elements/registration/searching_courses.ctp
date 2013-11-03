@@ -3,7 +3,7 @@
     <div class="hero-unit no-data span12 searching-courses">
         <div class="span1">&nbsp;</div>
         <div class="span3 image">
-            <img src="<?php echo Router::url( '/' ) ?>img/redirect-loading.gif" alt="Chargement" />
+            <img src="/img/redirect-loading.gif" alt="Chargement" />
         </div>
         <div class="span7">
             <p class="lead">

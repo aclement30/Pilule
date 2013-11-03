@@ -6,22 +6,22 @@
 
                     <ul id="user-nav" class="pull-right">
                         <li class="user-name">
-                            <?php echo $user['name']; ?>
+                            <?php echo $user[ 'name' ]; ?>
                         </li>
                         <li class="home">
-                            <a href="<?php echo Router::url( '/', true ) ?>"><img src="<?php echo Router::url( '/', true ) ?>img/icons/home.png"></a>
+                            <a href="/"><img src="/img/icons/home.png"></a>
                         </li>
                         <li class="menu">
-                            <a href="#"><img src="<?php echo Router::url( '/', true ) ?>img/icons/menu.png"></a>
+                            <a href="#"><img src="/img/icons/menu.png"></a>
                         </li>
                         <li class="link-feedback">
-                            <?php echo $this->Html->link( '<img src="' . Router::url( '/', true ) . 'img/icons/feedback.png"> <span>Commentaires</span>', '#', array( 'escape' => false ) ); ?>
+                            <?php echo $this->Html->link( '<img src="/img/icons/feedback.png"> <span>Commentaires</span>', '#', array( 'escape' => false ) ); ?>
                         </li>
                         <li class="link-settings">
-                            <?php echo $this->Html->link( '<img src="' . Router::url( '/', true ) . 'img/icons/settings.png"> <span>Préférences</span>', array( 'controller' => 'settings' ), array( 'escape' => false ) ); ?>
+                            <?php echo $this->Html->link( '<img src="/img/icons/settings.png"> <span>Préférences</span>', array( 'controller' => 'settings' ), array( 'escape' => false ) ); ?>
                         </li>
                         <li>
-                            <?php echo $this->Html->link( '<img src="' . Router::url( '/', true ) . 'img/icons/logout.png"> <span>Déconnexion</span>', array( 'controller' => 'users', 'action' => 'logout' ), array( 'escape' => false ) ); ?>
+                            <?php echo $this->Html->link( '<img src="/img/icons/logout.png"> <span>Déconnexion</span>', array( 'controller' => 'users', 'action' => 'logout' ), array( 'escape' => false ) ); ?>
                         </li>
                     </ul>
                 
@@ -33,7 +33,7 @@
                     </li>
                 </ul>
 
-                <a id="logo" href="<?php echo Router::url( '/', true ) ?>"><img src="<?php echo Router::url( '/' ) ?>img/logo-h1.png"><img src="<?php echo Router::url( '/', true ) ?>img/logo-h1@2x.png" class="hi-res"></a>
+                <a id="logo" href="/"><img src="/img/logo-h1.png"><img src="/img/logo-h1@2x.png" class="hi-res"></a>
             </div>
         </div>
     </div>

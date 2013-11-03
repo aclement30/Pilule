@@ -29,7 +29,7 @@
 <div class="sidebar" style="padding-top: 10px;">
     <p style="margin-bottom: 15px;">Vous pouvez maintenant faire votre choix de cours et votre inscription pour l'automne 2013 directement sur Pilule. </p>
     <div style="text-align: center;">
-        <a href="<?php echo Router::url( '/' ); ?>choix-cours"><img src="<?php echo Router::url( '/' ); ?>img/registration-module.png" /></a>
+        <a href="/choix-cours"><img src="/img/registration-module.png" /></a>
     </div>
     <hr>
 </div>
@@ -38,7 +38,7 @@
 <div class="sidebar" style="padding-top: 10px;">
     <p style="margin-bottom: 15px;">Les relevés électroniques sont maintenant disponibles directement sur Pilule à partir de la session A-2013.</p>
     <div style="text-align: center;">
-        <img src="<?php echo Router::url( '/' ); ?>img/bouton-releves.png" />
+        <img src="/img/bouton-releves.png" />
     </div>
     <hr>
 </div>-->
@@ -49,7 +49,7 @@
         <h4>Version mobile</h4>
         <div class="sidebar" style="padding-top: 10px;">
             <p style="margin-bottom: 15px;">Saviez-vous qu'il existe une <strong>version mobile</strong> de Pilule ? Pour la découvrir, visitez le site depuis votre téléphone intelligent ou votre tablette.</p>
-            <img src="<?php echo Router::url( '/' ); ?>img/mobile-devices.png" />
+            <img src="/img/mobile-devices.png" />
             <hr>
         </div>
     </div>

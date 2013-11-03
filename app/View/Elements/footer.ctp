@@ -3,10 +3,10 @@
         <div class="row">
             <div class="span12 clearfix">
                 <ul class="nav">
-                    <li><a href="<?php echo Router::url( '/' ) ?>support/terms">Conditions d'utilisation</a></li>
-                    <li><a href="<?php echo Router::url( '/' ) ?>support/privacy">Confidentialité des données</a></li>
-                    <li><a href="<?php echo Router::url( '/' ) ?>support/faq">F.A.Q.</a></li>
-                    <li><a href="<?php echo Router::url( '/' ) ?>support/contact">Contact</a></li>
+                    <li><a href="/support/terms">Conditions d'utilisation</a></li>
+                    <li><a href="/support/privacy">Confidentialité des données</a></li>
+                    <li><a href="/support/faq">F.A.Q.</a></li>
+                    <li><a href="/support/contact">Contact</a></li>
                     <li class="github"><iframe width="110" height="20" src="github-btn.html?user=aclement30&repo=pilule&type=fork&count=false" frameborder="0" scrolling="0" allowtransparency="true"></iframe></li>
                 </ul>
                 <p class="hosting pull-right">

@@ -23,7 +23,7 @@
             <div class="row-fluid">
                 <div class="span4">
                     <?php echo $this->Form->button( 'Envoyer', array( 'class' => 'btn btn-success' ) ); ?>
-                    <img src="<?php echo Router::url( '/' ); ?>img/loading-btn.gif" class="loading-btn">
+                    <img src="/img/loading-btn.gif" class="loading-btn">
                 </div>
             </div>
 

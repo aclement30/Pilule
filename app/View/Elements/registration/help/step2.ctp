@@ -1,6 +1,6 @@
-<div class="<?php if ( isset( $modal )) echo 'well'; ?>" style="margin-bottom: 0px;">
+<div class="<?php if ( isset( $modal ) ) echo 'well'; ?>" style="margin-bottom: 0px;">
 	<div style="text-align: center;">
-		<img src="<?php echo Router::url( '/' ) ?>img/registration/available-classes.gif" class="img-polaroid">
+		<img src="/img/registration/available-classes.gif" class="img-polaroid">
 	</div>
 	<br>
 	<p>Lorsque vous cliquez sur un cours, une fenêtre semblable à celle-ci s'ouvre avec les informations relatives au cours. Si le cours est disponible, une liste des cours disponibles à l'inscription est affichée.</p>

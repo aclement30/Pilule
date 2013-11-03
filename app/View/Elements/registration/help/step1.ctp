@@ -1,6 +1,6 @@
-<div class="<?php if ( isset( $modal )) echo 'well'; ?>" style="margin-bottom: 0px;">
+<div class="<?php if ( isset( $modal ) ) echo 'well'; ?>" style="margin-bottom: 0px;">
 	<div style="text-align: center;">
-		<img src="<?php echo Router::url( '/' ) ?>img/registration/courses-list.gif" class="img-polaroid">
+		<img src="/img/registration/courses-list.gif" class="img-polaroid">
 	</div>
 	<br>
 	<p>La page principale présente la liste des cours disponibles à l'inscription. <strong>Cette liste n'est pas exhaustive</strong> et est obtenue en analysant votre rapport de cheminement et la disponibilité des cours pour la session d'inscription.<br><strong>Cette liste ne tient pas compte des préalables ou des restrictions d'inscription.</strong></p>

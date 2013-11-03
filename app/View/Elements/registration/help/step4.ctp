@@ -1,6 +1,6 @@
-<div class="<?php if ( isset( $modal )) echo 'well'; ?>" style="margin-bottom: 0px;">
+<div class="<?php if ( isset( $modal ) ) echo 'well'; ?>" style="margin-bottom: 0px;">
 	<div style="text-align: center;">
-		<img src="<?php echo Router::url( '/' ) ?>img/registration/registered-courses.gif" class="img-polaroid">
+		<img src="/img/registration/registered-courses.gif" class="img-polaroid">
 	</div>
 	<br>
 	<p>Une fois inscrits à un cours, celui apparaît immédiatement dans la liste des cours inscrits dans la colonne de gauche.</p>

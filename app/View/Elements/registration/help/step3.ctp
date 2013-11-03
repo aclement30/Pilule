@@ -1,6 +1,6 @@
-<div class="<?php if ( isset( $modal )) echo 'well'; ?>" style="margin-bottom: 0px;">
+<div class="<?php if ( isset( $modal ) ) echo 'well'; ?>" style="margin-bottom: 0px;">
 	<div style="text-align: center;">
-		<img src="<?php echo Router::url( '/' ) ?>img/registration/courses-selection.gif" class="img-polaroid">
+		<img src="/img/registration/courses-selection.gif" class="img-polaroid">
 	</div>
 	<br>
 	<p>L'inscription à un cours fonctionne un peu comme un panier d'achats. Vous devez d'abord faire une sélection des cours auxquels vous désirez vous inscrire. Puis, en cliquant sur le bouton <strong>Inscription</strong>, une demande d'inscription aux cours sélectionnés sera envoyée à Capsule.</p>

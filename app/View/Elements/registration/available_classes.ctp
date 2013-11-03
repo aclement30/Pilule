@@ -13,7 +13,7 @@
 		foreach ( $classes as $class ) :
 			$number++
 			?>
-			<div class="class span4" data-nrc="<?php echo $class[ 'nrc' ]; ?>" style="<?php if ($number%3==0) echo 'margin-right: 0px;'; ?>">
+			<div class="class span4" data-nrc="<?php echo $class[ 'nrc' ]; ?>" style="<?php if ( $number%3==0 ) echo 'margin-right: 0px;'; ?>">
 				<div class="clearfix">
 					<div class="type"><?php echo $class[ 'timetable' ][ 0 ][ 'type' ]; ?></div>
 					<div class="semester">
@@ -21,7 +21,7 @@
 					</div>
 				</div>
 				<hr>
-				<?php if ( trim( $class[ 'timetable' ][0][ 'day' ] ) != '' && $class[ 'timetable' ][0][ 'day' ] != ' ' ): ?>
+				<?php if ( trim( $class[ 'timetable' ][ 0 ][ 'day' ] ) != '' && $class[ 'timetable' ][ 0 ][ 'day' ] != ' ' ): ?>
 					<div class="timetable">
 						<?php
 							$lastStartEndDates = '';
@@ -33,7 +33,7 @@
 									<tr>
 										<td colspan="4" class="dates">
 											<?php
-												if ( ($timetableClass[ 'day_start' ] . $timetableClass[ 'day_end' ] ) != $lastStartEndDates ) {
+												if ( ( $timetableClass[ 'day_start' ] . $timetableClass[ 'day_end' ] ) != $lastStartEndDates ) {
 													echo strtolower( date( 'd/m/Y', strtotime( substr( $timetableClass[ 'day_start' ], 0, 4 ) . '-' . substr( $timetableClass[ 'day_start' ], 4, 2 ) . '-' . substr( $timetableClass[ 'day_start' ], 6, 2 ) ) ) . " - " . date( 'd/m/Y', strtotime( substr( $timetableClass[ 'day_end' ], 0, 4 ) . '-' . substr( $timetableClass[ 'day_end' ], 4, 2 ) . '-' . substr( $timetableClass[ 'day_end' ], 6, 2 ) ) ) );
 												}
 												$lastStartEndDates = $timetableClass[ 'day_start' ].$timetableClass[ 'day_end' ];
@@ -42,11 +42,11 @@
 									</tr>
 									<tr>
 										<?php
-											if (trim($timetableClass['day']) != '' and $timetableClass['day'] != ' '):
+											if ( trim( $timetableClass[ 'day' ] ) != '' and $timetableClass[ 'day' ] != ' ' ):
 												?>
 												<td style="width: 45%; padding-top: 5px;">
 													<?php
-														switch ($timetableClass['type']) {
+														switch ( $timetableClass[ 'type' ] ) {
 															case 'Cours en classe':
 																echo 'Classe';
 															break;
@@ -57,7 +57,7 @@
 																echo 'C. virt. sync.';
 															break;
 															default:
-																echo $timetableClass['type'];
+																echo $timetableClass[ 'type' ];
 															break;
 														}
 													?>
@@ -69,7 +69,7 @@
 													<div style="clear: both;"></div>
 												</td>
 												<td style="text-align: right; padding-top: 5px;">
-													<?php echo $timetableClass['hour_start'] . " - " . $timetableClass['hour_end']; ?></td>
+													<?php echo $timetableClass[ 'hour_start' ] . " - " . $timetableClass[ 'hour_end' ]; ?></td>
 												<?php
 											endif;
 										?>
@@ -104,7 +104,7 @@
 							<div class="spots clearfix">
 								Places disponibles : <span class="<?php echo $className; ?>"><?php echo $class[ 'Spot' ][ 'remaining' ]; ?></span>
 								<?php if ( empty( $updated ) ) : ?>
-									<img src="<?php echo Router::url( '/' ) ?>img/loading-btn.gif" style="float: right;" />
+									<img src="/img/loading-btn.gif" style="float: right;" />
 								<?php endif; ?>
 							</div>
 							<?php
@@ -118,7 +118,7 @@
 							<div class="spots">
 								Liste d'attente : <span class="<?php echo $className; ?>"><?php echo $class[ 'Spot' ][ 'waiting_remaining' ]; ?></span>
 								<?php if ( empty( $updated ) ) : ?>
-									<img src="<?php echo Router::url( '/' ) ?>img/loading-btn.gif" style="float: right;" />
+									<img src="/img/loading-btn.gif" style="float: right;" />
 								<?php endif; ?>
 							</div>
 							<?php
@@ -126,7 +126,7 @@
 					else:
 						?>
 						<div class="spots clearfix">
-							Actualisation des places...<img src="<?php echo Router::url( '/' ) ?>img/loading-btn.gif" style="float: right;" />
+							Actualisation des places...<img src="/img/loading-btn.gif" style="float: right;" />
 						</div>
 						<?php
 					endif;
@@ -153,7 +153,7 @@
 						<?php
 					endif;
 
-					if ( !empty( $class['teacher'] ) ):
+					if ( !empty( $class[ 'teacher' ] ) ):
 						?>
 						<div>
 							<i class="icon-user"></i>&nbsp;<?php echo $class[ 'teacher' ]; ?>
@@ -174,7 +174,7 @@
 								echo $this->Html->link( '<i class="icon-plus"></i>&nbsp;Ajouter', '#', array( 'class' => 'btn btn-mini js-select-btn', 'escape' => false ) );
 							}
 						?>
-						<img src="<?php echo Router::url( '/' ) ?>img/loading-btn.gif" class="loading-img" />
+						<img src="/img/loading-btn.gif" class="loading-img" />
 					</div>
 				</div>
 			</div>

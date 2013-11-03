@@ -44,7 +44,7 @@
 
 			if ( $allowed ) :
 				// Add base URL to module URL, if internal URL
-				if ( substr( $module[ 'url' ], 0, 5 ) != 'http:' ) $module[ 'url' ] = Router::url( '/' ) . substr( $module[ 'url' ], 1 );
+				if ( substr( $module[ 'url' ], 0, 5 ) != 'http:' ) $module[ 'url' ] = '/' . substr( $module[ 'url' ], 1 );
 
 				?>
 				<div class="<?php echo implode( ' ', $classNames ); ?>" data-id="<?php echo $module[ 'id' ]; ?>" data-url="<?php echo $module[ 'url' ]; ?>" data-target="<?php echo $module[ 'target' ]; ?>">
