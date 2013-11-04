@@ -495,6 +495,10 @@ class Capsule {
         // Find a link to the last Rapport de cheminement for each study program
         foreach ( $programs as &$program ) {
             foreach ( $rows as $row ) {
+                if ( empty( $row->nodes[ 1 ] ) ) {
+                    continue;
+                }
+                
                 $name = trim( str_replace( ':', '', $row->nodes[ 1 ]->text() ) );
                 if ( $name == $program[ 'Program' ][ 'name' ] ) {
                     // Extract link
@@ -526,6 +530,10 @@ class Capsule {
                 }
 
                 // Parse data
+
+                if ( empty( $tables[ 0 ] ) ) {
+                    continue;
+                }
 
                 $rows = $tables[ 0 ]->find( 'tr' );
                 foreach ( $rows as $row ) {
@@ -1724,6 +1732,10 @@ class Capsule {
 
                     $tableIndex = 0;
 
+                    if ( empty( $tables[ 0 ] ) ) {
+                        continue;
+                    }
+
                     $rows = $tables[ 0 ]->children( -1 );
 
                     foreach ( $rows as $i => $row ) {
@@ -1828,6 +1840,10 @@ class Capsule {
         // Parse DOM structure from response
         $this->domparser->load( $request[ 'response' ] );
         $tables = $this->domparser->find( '.pagebodydiv>table.datadisplaytable table.datadisplaytable' );
+
+        if ( empty( $tables[ 0 ] ) ) {
+            return null;
+        }
 
         $cells = $tables[ 0 ]->find( 'tr td.dddefault' );
 
