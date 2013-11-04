@@ -218,7 +218,7 @@ class Capsule {
         $request = $this->_fetchPage( '/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_AdminMnu' );
 
         // Retry user login if request fails
-        if ( !$request || !isset( $request[ 'headers' ] ) )
+        if ( !$request || !isset( $request[ 'headers' ] ) || !is_array( $request[ 'headers' ] ) )
             $this->login( $this->idul, $this->password );
 
         // Check if session ID cookie from header response is empty
