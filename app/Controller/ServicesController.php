@@ -113,7 +113,7 @@ class ServicesController extends AppController {
 			case 'elluminate':
 				$title_for_layout = 'Elluminate';
 				$formUrl = 'https://classevirtuelle.ulaval.ca/elm_login.event?loginPage=index.html';
-				$loadingFrameUrl = 'blank.html';
+				$loadingFrameUrl = '/blank.html';
 				$insideIframe = true;
 				$fields = array(
 					'username'		=>	$this->Session->read( 'User.idul' ),
@@ -138,7 +138,7 @@ class ServicesController extends AppController {
 			case 'pixel':
 				$title_for_layout = 'Pixel';
 				$formUrl = 'https://pixel.fsg.ulaval.ca/index.pl';
-				$loadingFrameUrl = 'blank.html';
+				$loadingFrameUrl = '/blank.html';
 				$fields = array(
 					'envoi'				=>	'Se connecter',
 					'code_utilisateur'	=>	$this->Session->read( 'User.idul' ),
@@ -148,7 +148,7 @@ class ServicesController extends AppController {
 			case 'portailcours':
 				$title_for_layout = 'Portail des cours';
 				$formUrl = 'https://www.portaildescours.ulaval.ca/portail/j_security_check';
-				$loadingFrameUrl = 'blank.html';
+				$loadingFrameUrl = '/blank.html';
 				$fields = array(
 					'j_username'	=>	$this->Session->read( 'User.idul' ),
 					'j_password'	=>	$this->Session->read( 'User.password' )
