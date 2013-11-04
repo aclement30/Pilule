@@ -1390,4 +1390,19 @@ class domParser {
     function loadFile() {$args = func_get_args();$this->load_file($args);}
 }
 
+if(!function_exists('mb_detect_encoding')) { 
+function mb_detect_encoding($string, $enc=null) { 
+    
+    static $list = array('utf-8', 'iso-8859-1', 'windows-1251', 'cp1252');
+    
+    foreach ($list as $item) {
+        $sample = iconv($item, $item, $string);
+        if (md5($sample) == md5($string)) { 
+            if ($enc == $item) { return true; }    else { return $item; } 
+        }
+    }
+    return null;
+}
+}
+
 ?>
