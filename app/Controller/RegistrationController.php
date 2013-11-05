@@ -1,6 +1,6 @@
 <?php
 class RegistrationController extends AppController {
-	public $uses = array( 'CacheRequest', 'CourseSubject', 'User', 'UniversityCourse', 'StudentProgram' );
+	public $uses = array( 'CacheRequest', 'CourseSubject', 'User', 'UniversityCourse', 'StudentProgram', 'RegistrationLog' );
 
 	public $components = array( 'Cookie' );
 
@@ -762,6 +762,8 @@ class RegistrationController extends AppController {
 
 	function registerCourses () {
 		if ( $this->request->is( 'ajax' ) ) {
+			$registrationStartTime = time();
+
 			$semester = $this->registrationSemester;
 
 			// Get student selected courses for registration semester
@@ -794,51 +796,158 @@ class RegistrationController extends AppController {
 			$timeout = ( ( int )$averageResponseTime ) + 60;
 			$this->HttpFetcher->timeout = $timeout;
 
-			$startTime = microtime( true );
+			// Log registration attempt
+			$this->RegistrationLog->create();
+			$this->RegistrationLog->set( array(
+				'idul'	=>	$this->Session->read( 'User.idul' ),
+				'semester'	=>	$semester,
+				'requested_courses'	=>	implode( ',', array_values( $selectedCourses ) )
+			) );
+			$this->RegistrationLog->save();
 
-			// Send course registration request to Capsule
-			$registrationResults = $this->Capsule->registerCourses( array_values( $selectedCourses ), $semester );
+			$logId = $this->RegistrationLog->getLastInsertId();
 
-			$responseTime = microtime( true ) - $startTime;
+			// Check registration availability
+			$registrationAvailability = $this->Capsule->checkRegistrationAvailability( $semester );
 
-			// Save registration response time
-	        $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'registration', null, $responseTime );
+			if ( $registrationAvailability[ 'status' ] ) {
+				// Log registration availability
+				$this->RegistrationLog->updateAll( array( 'is_student_allowed' => true, 'is_service_available' => true, 'is_registration_period' => true, 'has_form' => true ), array( 'id' => $logId ) );
 
-			if ( empty( $registrationResults ) || ( !is_array( $registrationResults ) && substr( $registrationResults, 0, 6 ) == 'error:' ) ) {
-				return new CakeResponse( array(
-	            	'body' => json_encode( array(
-	            		'status'    	=>  false,
-	            		'errorMessage'	=>	substr( $registrationResults, 6 )
-	            	) )
-	            ) );
-			} else {
-				$this->_reloadSemesterSchedule( $semester );
-				
-				foreach ( $selectedCourses as $id => $nrc ) {
-					if ( isset( $registrationResults[ $nrc ] ) && $registrationResults[ $nrc ][ 'registered' ] ) {
-						$this->User->SelectedCourse->delete( $id );
+				$startTime = microtime( true );
 
-						// Update classes spots
-						$this->Capsule->updateClassSpots( $nrc, $semester );
+				// Send course registration request to Capsule
+				$registrationResults = $this->Capsule->registerCourses( array_values( $selectedCourses ), $semester, $registrationAvailability[ 'data' ] );
+
+				$responseTime = microtime( true ) - $startTime;
+
+				// Save registration response time
+		        $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'registration', null, $responseTime );
+
+				$registrationTotalTime = time() - $registrationStartTime;
+
+				if ( $registrationResults[ 'status' ] ) {
+					// Log registration status
+					$this->RegistrationLog->updateAll( array( 'status' => true, 'request_time' => $registrationTotalTime ), array( 'id' => $logId ) );
+
+					// Destroy registration log data
+					$this->RegistrationLog->Data->deleteAll( array( 'registration_log_id' => $logId ) );
+
+					$this->_reloadSemesterSchedule( $semester );
+					
+					foreach ( $selectedCourses as $id => $nrc ) {
+						if ( isset( $registrationResults[ 'coursesStatus' ][ $nrc ] ) && $registrationResults[ 'coursesStatus' ][ $nrc ][ 'registered' ] ) {
+							$this->User->SelectedCourse->delete( $id );
+
+							// Update classes spots
+							$this->Capsule->updateClassSpots( $nrc, $semester );
+						}
 					}
-				}
-				
-				// Save registration results in session
-				$token = md5( uniqid() );
+					
+					// Save registration results in session
+					$token = md5( uniqid() );
 
-				if ( $this->Session->write( 'Registration.results.' . $token, $registrationResults ) ) {
-					return new CakeResponse( array(
+					if ( $this->Session->write( 'Registration.results.' . $token, $registrationResults[ 'coursesStatus' ] ) ) {
+						return new CakeResponse( array(
+			            	'body' => json_encode( array(
+			            		'status'    =>  true,
+			            		'token'		=>	$token
+			            	) )
+			            ) );
+					} else {
+						// Return error message
+						return new CakeResponse( array(
 		            	'body' => json_encode( array(
-		            		'status'    =>  true,
-		            		'token'		=>	$token
+		            		'status'    	=>  false,
+		            		'errorMessage'	=>	'Erreur lors de l\'inscription. Veuillez réessayer.'
 		            	) )
 		            ) );
+					}
 				} else {
+					// Log registration status
+					$this->RegistrationLog->updateAll( array( 'status' => false, 'request_time' => $registrationTotalTime ), array( 'id' => $logId ) );
+
+					// Log response data
+					foreach( $registrationResults[ 'data' ] as $index => $responseData ) {
+						$this->RegistrationLog->Data->create();
+						$this->RegistrationLog->Data->set( array(
+							'registration_log_id'	=>	$logId,
+							'idul'					=>	$this->Session->read( 'User.idul' ),
+							'data'					=>	$responseData,
+							'number'				=>	( $index + 2 )
+						) );
+						$this->RegistrationLog->Data->save();
+					}
+
 					return new CakeResponse( array(
 		            	'body' => json_encode( array(
-		            		'status'    =>  false
+		            		'status'    	=>  false,
+		            		'errorMessage'	=>	'Erreur lors de l\'inscription. Veuillez réessayer.'
 		            	) )
 		            ) );
+				}
+			} else {
+				$registrationTotalTime = time() - $registrationStartTime;
+
+				// Log response data
+				$this->RegistrationLog->Data->create();
+				$this->RegistrationLog->Data->set( array(
+					'registration_log_id'	=>	$logId,
+					'idul'					=>	$this->Session->read( 'User.idul' ),
+					'data'					=>	$registrationAvailability[ 'data' ],
+					'number'				=>	1
+				) );
+				$this->RegistrationLog->Data->save();
+
+				switch( $registrationAvailability[ 'error' ] ) {
+					case 'not-allowed':
+						// Log registration availability
+						$this->RegistrationLog->updateAll( array( 'is_student_allowed' => false, 'status' => false, 'request_time' => $registrationTotalTime ), array( 'id' => $logId ) );
+
+						// Return error message
+						return new CakeResponse( array(
+			            	'body' => json_encode( array(
+			            		'status'    	=>  false,
+			            		'errorMessage'	=>	'Inscription impossible puisque vous n\'avez pas de période d\'inscription accordée. <br>Veuillez communiquer avec votre direction de programme.'
+			            	) )
+			            ) );
+			        break;
+			        case 'service-unavailable':
+						// Log registration availability
+						$this->RegistrationLog->updateAll( array( 'is_service_available' => false, 'status' => false, 'request_time' => $registrationTotalTime ), array( 'id' => $logId ) );
+
+						// Return error message
+						return new CakeResponse( array(
+			            	'body' => json_encode( array(
+			            		'status'    	=>  false,
+			            		'errorMessage'	=>	'Erreur lors de l\'inscription : Capsule est hors service. Veuillez réessayer plus tard.'
+			            	) )
+			            ) );
+			        break;
+			        case 'out-of-period':
+						// Log registration availability
+						$this->RegistrationLog->updateAll( array( 'is_registration_period' => false, 'status' => false, 'request_time' => $registrationTotalTime ), array( 'id' => $logId ) );
+
+						// Return error message
+						return new CakeResponse( array(
+			            	'body' => json_encode( array(
+			            		'status'    	=>  false,
+			            		'errorMessage'	=>	'Erreur lors de l\'inscription : votre période d\'inscription commencera le ' . $registrationAvailability[ 'initialDate' ]
+			            	) )
+			            ) );
+			        break;
+			        case 'no-form':
+						// Log registration availability
+						$this->RegistrationLog->updateAll( array( 'has_form' => false, 'status' => false, 'request_time' => $registrationTotalTime ), array( 'id' => $logId ) );
+
+						// Return error message
+						return new CakeResponse( array(
+			            	'body' => json_encode( array(
+			            		'status'    	=>  false,
+			            		'errorMessage'	=>	'Réponse invalide du serveur Capsule : aucun formulaire.'
+			            	) )
+			            ) );
+			        break;
 				}
 			}
 		}
