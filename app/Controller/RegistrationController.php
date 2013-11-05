@@ -1,6 +1,6 @@
 <?php
 class RegistrationController extends AppController {
-	public $uses = array( 'CourseSubject', 'User', 'UniversityCourse', 'StudentProgram' );
+	public $uses = array( 'CacheRequest', 'CourseSubject', 'User', 'UniversityCourse', 'StudentProgram' );
 
 	public $components = array( 'Cookie' );
 
@@ -490,10 +490,24 @@ class RegistrationController extends AppController {
                 'contain'		=>	array( 'Class' => array( 'conditions' => array( 'Class.semester' => $this->registrationSemester ), 'Spot' ) )
             ) );
 
+			// Retrieve average response time for getting class spots from Capsule
+			$averageResponseTime = $this->CacheRequest->getAverageResponseTime( 'registration-class-spots' );
+
+			// Update HTTP fetcher timeout
+			$timeout = ( ( int )$averageResponseTime ) + 10;
+			$this->HttpFetcher->timeout = $timeout;
+
+			$averageResponseTime = 0;
+			$responseTimes = array();
+
 			foreach ( $course[ 'Class' ] as &$class ) {
 				if ( empty( $class[ 'Spot' ] ) ) {
+					$startTime = microtime( true );
+
 					// Update class spots
 					$class[ 'Spot' ] = $this->Capsule->updateClassSpots( $class[ 'nrc' ], $semester );
+
+					$responseTime[] = microtime( true ) - $startTime;
 
 					// Save updated class spots
 					$this->UniversityCourse->Class->set( $class );
@@ -509,9 +523,13 @@ class RegistrationController extends AppController {
 						( $remainingSpots < 20 && $lastUpdate < ( time() - ( 3600 ) ) ) ) {		// Less than 20 spots and last update was more than 1 hour ago
 						$spotId = $class[ 'Spot' ][ 'id' ];
 
+						$startTime = microtime( true );
+
 						// Update class spots
 						$class[ 'Spot' ] = $this->Capsule->updateClassSpots( $class[ 'nrc' ], $semester );
 						$class[ 'Spot' ][ 'id' ] = $spotId;
+
+						$responseTime[] = microtime( true ) - $startTime;
 
 						// Save updated class spots
 						$this->UniversityCourse->Class->set( $class );
@@ -519,6 +537,10 @@ class RegistrationController extends AppController {
 					}
 				}
 			}
+
+			// Save average response time
+			$averageResponseTime = array_sum( $responseTimes ) / count( $responseTimes );
+	        $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'registration-class-spots', null, $averageResponseTime );
 
 			// Get student registered courses for registration semester
 			$registeredCourses = $this->User->ScheduleSemester->Course->find( 'list', array(
@@ -755,11 +777,32 @@ class RegistrationController extends AppController {
 
 			}
 
+			// Retrieve average response time for login to Capsule
+			$averageResponseTime = $this->CacheRequest->getAverageResponseTime( 'login' );
+
+			// Update HTTP fetcher timeout
+			$timeout = ( ( int )$averageResponseTime ) + 10;
+			$this->HttpFetcher->timeout = $timeout;
+
 			// Test connection to Capsule server
 			$this->CapsuleAuth->testConnection();
 
+			// Retrieve average response time for registration with Capsule
+			$averageResponseTime = $this->CacheRequest->getAverageResponseTime( 'registration' );
+
+			// Update HTTP fetcher timeout
+			$timeout = ( ( int )$averageResponseTime ) + 60;
+			$this->HttpFetcher->timeout = $timeout;
+
+			$startTime = microtime( true );
+
 			// Send course registration request to Capsule
 			$registrationResults = $this->Capsule->registerCourses( array_values( $selectedCourses ), $semester );
+
+			$responseTime = microtime( true ) - $startTime;
+
+			// Save registration response time
+	        $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'registration', null, $responseTime );
 
 			if ( empty( $registrationResults ) || ( !is_array( $registrationResults ) && substr( $registrationResults, 0, 6 ) == 'error:' ) ) {
 				return new CakeResponse( array(

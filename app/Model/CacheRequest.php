@@ -10,7 +10,7 @@ class CacheRequest extends AppModel {
 	);
 	
 	// Save Capsule data request
-	public function saveRequest ( $idul, $dataObject, $md5Hash = '' ) {
+	public function saveRequest ( $idul, $dataObject, $md5Hash = '', $responseTime = 0 ) {
 		// Find similar request in DB
 		$request = $this->find( 'first', array(
 			'conditions'	=>	array( 'CacheRequest.idul' => CakeSession::read( 'User.idul' ), 'CacheRequest.name' => $dataObject )
@@ -20,16 +20,20 @@ class CacheRequest extends AppModel {
 			$request = array( 'CacheRequest' => array(
 				'idul'			=>	$idul,
 				'name'			=>	$dataObject,
-				'timestamp'		=>	time()
+				'timestamp'		=>	time(),
+				'response_time'	=>	$responseTime
 			) );
 		} else {
 			$request[ 'CacheRequest' ][ 'timestamp' ] = time();
+			if ( !empty( $responseTime ) ) {
+				$request[ 'CacheRequest' ][ 'response_time' ] = $responseTime;
+			}
 		}
 
-		if ( !empty( $md5Hash ) )
+		if ( !empty( $md5Hash ) ) {
 			$request[ 'CacheRequest' ][ 'md5' ] = $md5Hash;
+		}
 
-		$this->create();
 		$this->set( $request );
 
 		// Update data request timestamp
@@ -41,7 +45,7 @@ class CacheRequest extends AppModel {
 	}
 
 	// Check if a data request exists
-    public function requestExists ( $dataObject, $md5Hash = '') {
+    public function requestExists ( $dataObject, $md5Hash = '' ) {
     	// Find similar request in DB
 		$request = $this->find( 'first', array(
 			'conditions'	=>	array( 'CacheRequest.idul' => CakeSession::read( 'User.idul' ), 'CacheRequest.name' => $dataObject )
@@ -78,6 +82,23 @@ class CacheRequest extends AppModel {
 			return true;
 		} else {
 			return false;
+		}
+    }
+
+    // Calculate average response time from Capsule for a specific request
+    public function getAverageResponseTime( $requestType ) {
+    	$averageTime = $this->find( 'all', array(
+		    'fields'     => array( 'AVG(CacheRequest.response_time) AS AverageResponseTme' ),
+		    'conditions' => array(
+		    	'name'				=>	$requestType,
+		    	'response_time !=' 	=>  0
+		    ),
+		    'order'		 =>	array( 'timestamp DESC' ),
+		    'limit'		 =>	20
+		) );
+
+		if ( !empty( $averageTime ) ) {
+			return array_shift( array_shift( array_shift( $averageTime ) ) );
 		}
     }
 }

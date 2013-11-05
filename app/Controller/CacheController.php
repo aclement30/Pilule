@@ -1,8 +1,8 @@
 <?php
-App::import('Component', 'Auth');
-App::import('Vendor', 'HttpFetcher' );
-App::import('Vendor', 'Capsule' );
-App::import('Vendor', 'domparser' );
+App::import( 'Component', 'Auth' );
+App::import( 'Vendor', 'HttpFetcher' );
+App::import( 'Vendor', 'Capsule' );
+App::import( 'Vendor', 'domparser' );
 
 class CacheController extends AppController {
 	public $name = 'Cache';
@@ -56,20 +56,31 @@ class CacheController extends AppController {
             	$request = $this->CacheRequest->find( 'first', array(
             		'conditions' => array( 'CacheRequest.idul' => $this->Session->read( 'User.idul' ), 'CacheRequest.name' => 'studies-summary' )
             	) );
-            	if ( !empty( $request )) {
+            	if ( !empty( $request ) ) {
             		$md5Hash = $request[ 'CacheRequest' ][ 'md5' ];
             	} else {
             		$md5Hash = null;
             	}
 
+                // Retrieve average response time for retrieving studies summary Capsule
+                $averageResponseTime = $this->CacheRequest->getAverageResponseTime( 'studies-summary' );
+
+                // Update HTTP fetcher timeout
+                $timeout = ( ( int )$averageResponseTime ) + 10;
+                $this->HttpFetcher->timeout = $timeout;
+
+                $startTime = microtime( true );
+
 				// Load studies programs
 				$result = $this->Capsule->getStudies( $md5Hash, CURRENT_SEMESTER );
 
-                if ($result === true) {
+                $responseTime = microtime( true ) - $startTime;
+
+                if ( $result === true ) {
                     // Similar data have been found in DB (not reloaded)
 
                     // Update last data checkup timestamp
-                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-summary', $result[ 'md5Hash' ] );
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-summary', $result[ 'md5Hash' ], $responseTime );
                 } elseif ( !$result ) {
                     // Unknown error
                     $error = true;
@@ -84,7 +95,7 @@ class CacheController extends AppController {
                     $this->User->saveField( 'empty_data', true );
 
                     // Update last data checkup timestamp
-                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-summary' );
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-summary', null, $responseTime );
                 } elseif ( $result[ 'status' ] ) {
                     // Delete user's program(s) saved in DB
                     $this->User->Program->deleteAll( array(
@@ -99,7 +110,7 @@ class CacheController extends AppController {
 					$this->User->Program->saveAll( $result[ 'programs' ] );
 
                     // Update last data checkup timestamp
-                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-summary', $result[ 'md5Hash'] );
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-summary', $result[ 'md5Hash' ], $responseTime );
 				}
 
 				// Check if user has programs, if not skip the next part
@@ -113,7 +124,7 @@ class CacheController extends AppController {
             	$requests = $this->CacheRequest->find( 'all', array(
             		'conditions' => array( 'CacheRequest.idul' => $this->Session->read( 'User.idul' ), 'CacheRequest.name LIKE' => 'studies-details-program-%' )
             	) );
-            	if ( !empty( $requests )) {
+            	if ( !empty( $requests ) ) {
                     $md5Hash = array();
                     foreach ( $requests as $request ) {
                         $md5Hash[ $request[ 'CacheRequest' ][ 'name' ] ] = $request[ 'CacheRequest' ][ 'md5' ];
@@ -122,13 +133,24 @@ class CacheController extends AppController {
             		$md5Hash = array();
             	}
 
+                // Retrieve average response time for retrieving studies details Capsule
+                $averageResponseTime = $this->CacheRequest->getAverageResponseTime( 'studies-details' );
+
+                // Update HTTP fetcher timeout
+                $timeout = ( ( int )$averageResponseTime ) + 10;
+                $this->HttpFetcher->timeout = $timeout;
+
+                $startTime = microtime( true );
+
 				// Load Rapport de cheminement
                 $result = $this->Capsule->getStudiesDetails( $md5Hash, CURRENT_SEMESTER, $userPrograms );
+
+                $responseTime = microtime( true ) - $startTime;
 
                 if ( $result[ 'status' ] ) {
                     foreach ( $result[ 'md5Hash' ] as $name => $hash ) {
                         // Update last data checkup timestamp
-                        $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), $name, $hash );
+                        $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), $name, $hash, $responseTime );
                     }
 
                     // Save student info
@@ -140,7 +162,7 @@ class CacheController extends AppController {
                     // Save programs studies data
                     $this->User->Program->saveAll( $result[ 'programs' ], array( 'deep' => true ) );
 
-                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-details' );
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-details', null, $responseTime );
                 } else {
 					// Enregistrement de l'erreur
 					//$this->mErrors->addError('reload-data', 'studies-details : parsing error');
@@ -155,7 +177,7 @@ class CacheController extends AppController {
                 $requests = $this->CacheRequest->find( 'all', array(
                     'conditions' => array( 'CacheRequest.idul' => $this->Session->read( 'User.idul' ), 'CacheRequest.name LIKE' => 'studies-courses-' . $semester . '-program-%' )
                 ) );
-                if ( !empty( $requests )) {
+                if ( !empty( $requests ) ) {
                     $md5Hash = array();
                     foreach ( $requests as $request ) {
                         $md5Hash[ $request[ 'CacheRequest' ][ 'name' ] ] = $request[ 'CacheRequest' ][ 'md5' ];
@@ -172,8 +194,12 @@ class CacheController extends AppController {
 
                 if ( empty( $userPrograms ) ) break;
 
+                $startTime = microtime( true );
+
                 // Load Rapport de cheminement détaillé
                 $result = $this->Capsule->getStudiesCourses( $md5Hash, $semester, $userPrograms );
+
+                $responseTime = microtime( true ) - $startTime;
 
                 if ( $result[ 'status' ] ) {
                     $this->loadModel( 'UniversityCourse' );
@@ -224,7 +250,7 @@ class CacheController extends AppController {
                 $requests = $this->CacheRequest->find( 'all', array(
                     'conditions' => array( 'CacheRequest.idul' => $this->Session->read( 'User.idul' ), 'CacheRequest.name LIKE' => 'studies-courses-' . $semester . '-program-%' )
                 ) );
-                if ( !empty( $requests )) {
+                if ( !empty( $requests ) ) {
                     $md5Hash = array();
                     foreach ( $requests as $request ) {
                         $md5Hash[ $request[ 'CacheRequest' ][ 'name' ] ] = $request[ 'CacheRequest' ][ 'md5' ];
@@ -241,13 +267,24 @@ class CacheController extends AppController {
 
                 if ( empty( $userPrograms ) ) break;
 
+                // Retrieve average response time for retrieving studies details Capsule
+                $averageResponseTime = $this->CacheRequest->getAverageResponseTime( 'studies-details' );
+
+                // Update HTTP fetcher timeout
+                $timeout = ( ( int )$averageResponseTime ) + 10;
+                $this->HttpFetcher->timeout = $timeout;
+
+                $startTime = microtime( true );
+
                 // Load Rapport de cheminement détaillé
                 $result = $this->Capsule->getStudiesCourses( $md5Hash, $semester, $userPrograms );
+
+                $responseTime = microtime( true ) - $startTime;
 
                 if ( $result[ 'status' ] ) {
                     foreach ( $result[ 'md5Hash' ] as $name => $hash ) {
                         // Update last data checkup timestamp
-                        $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), $name, $hash );
+                        $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), $name, $hash, $responseTime );
                     }
 
                     $this->loadModel( 'UniversityCourse' );
@@ -276,7 +313,7 @@ class CacheController extends AppController {
 
                                         if ( !empty( $classes[ 'Class' ] ) ) {
                                             // Save newly fetched classes for this course
-                                            $course[ 'Class'] = $classes[ 'Class' ];
+                                            $course[ 'Class' ] = $classes[ 'Class' ];
                                             $course[ 'UniversityCourse' ][ 'checkup_' . $semester ] = time();
                                             $course[ 'UniversityCourse' ][ 'av' . $semester ] = true;
                                             $this->UniversityCourse->set( $course );
@@ -314,7 +351,7 @@ class CacheController extends AppController {
                     // Save programs courses data
                     $this->User->Program->saveAll( $result[ 'programs' ], array( 'deep' => true ) );
                     
-                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-courses-' . $semester );
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-courses-' . $semester, null, $responseTime );
                 } else {
                     // Enregistrement de l'erreur
                     //$this->mErrors->addError('reload-data', 'studies-details : parsing error');
@@ -327,20 +364,31 @@ class CacheController extends AppController {
                 $request = $this->CacheRequest->find( 'first', array(
                     'conditions' => array( 'CacheRequest.idul' => $this->Session->read( 'User.idul' ), 'CacheRequest.name' => 'studies-report' )
                 ) );
-                if ( !empty( $request )) {
+                if ( !empty( $request ) ) {
                     $md5Hash = $request[ 'CacheRequest' ][ 'md5' ];
                 } else {
                     $md5Hash = null;
                 }
 
+                // Retrieve average response time for retrieving studies report from Capsule
+                $averageResponseTime = $this->CacheRequest->getAverageResponseTime( 'studies-report' );
+
+                // Update HTTP fetcher timeout
+                $timeout = ( ( int )$averageResponseTime ) + 10;
+                $this->HttpFetcher->timeout = $timeout;
+
+                $startTime = microtime( true );
+
 				// Load report
                 $result = $this->Capsule->getReport( $md5Hash );
+
+                $responseTime = microtime( true ) - $startTime;
 
                 if ( $result === true ) {
                 	// Similar data have been found in DB (not reloaded)
 
                     // Update last data checkup timestamp
-                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-report', $result[ 'md5Hash' ] );
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-report', $result[ 'md5Hash' ], $responseTime );
                 } elseif ( !$result ) {
                     // Unknown error
                     $error = true;
@@ -358,7 +406,7 @@ class CacheController extends AppController {
                     $this->User->Report->saveAll( $result[ 'report' ], array( 'deep' => true ) );
 
                     // Update last data checkup timestamp
-                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-report', $result[ 'md5Hash'] );
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-report', $result[ 'md5Hash' ], $responseTime );
                 }
 			    break;
 			case 'schedule':
@@ -366,7 +414,7 @@ class CacheController extends AppController {
                 $requests = $this->CacheRequest->find( 'all', array(
                     'conditions' => array( 'CacheRequest.idul' => $this->Session->read( 'User.idul' ), 'CacheRequest.name LIKE' => 'schedule-%' )
                 ) );
-                if ( !empty( $requests )) {
+                if ( !empty( $requests ) ) {
                     $md5Hash = array();
                     foreach ( $requests as $request ) {
                         $md5Hash[ $request[ 'CacheRequest' ][ 'name' ] ] = $request[ 'CacheRequest' ][ 'md5' ];
@@ -375,9 +423,20 @@ class CacheController extends AppController {
                     $md5Hash = array();
                 }
 
+                // Retrieve average response time for retrieving schedule from Capsule
+                $averageResponseTime = $this->CacheRequest->getAverageResponseTime( 'schedule' );
+
+                // Update HTTP fetcher timeout
+                $timeout = ( ( int )$averageResponseTime ) + 10;
+                $this->HttpFetcher->timeout = $timeout;
+
+                $startTime = microtime( true );
+
 				// Loading schedule
 				$result = $this->Capsule->getSchedule( $md5Hash );
                 
+                $responseTime = microtime( true ) - $startTime;
+
                 // Similar data have been found in DB (not reloaded)
                 if ( !$result ) {
                     // Unknown error
@@ -396,7 +455,7 @@ class CacheController extends AppController {
                         $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), $name, $hash );
                     }
 
-                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'schedule' );
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'schedule', null, $responseTime );
                 }
 			    break;
 			case 'tuition-fees':
@@ -404,18 +463,29 @@ class CacheController extends AppController {
                 $request = $this->CacheRequest->find( 'first', array(
                     'conditions' => array( 'CacheRequest.idul' => $this->Session->read( 'User.idul' ), 'CacheRequest.name' => 'tuition-fees' )
                 ) );
-                if ( !empty( $request )) {
+                if ( !empty( $request ) ) {
                     $md5Hash = $request[ 'CacheRequest' ][ 'md5' ];
                 } else {
                     $md5Hash = null;
                 }
 
+                // Retrieve average response time for retrieving tuition fees from Capsule
+                $averageResponseTime = $this->CacheRequest->getAverageResponseTime( 'tuition-fees' );
+
+                // Update HTTP fetcher timeout
+                $timeout = ( ( int )$averageResponseTime ) + 10;
+                $this->HttpFetcher->timeout = $timeout;
+
+                $startTime = microtime( true );
+
 				// Loading student tuition fees
 				$result = $this->Capsule->getTuitionFees( $md5Hash );
 
+                $responseTime = microtime( true ) - $startTime;
+
                 if ( $result === true ) {
                     // Update last data checkup timestamp
-                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'tuition-fees', $result[ 'md5Hash' ] );
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'tuition-fees', $result[ 'md5Hash' ], $responseTime );
                 } elseif ( !$result ) {
                     // Unknown error
                     $error = true;
@@ -429,7 +499,7 @@ class CacheController extends AppController {
                     $this->User->TuitionAccount->saveAll( $result[ 'tuitions' ], array( 'deep' => true ) );
 
                     // Update last data checkup timestamp
-                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'tuition-fees', $result[ 'md5Hash'] );
+                    $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'tuition-fees', $result[ 'md5Hash' ], $responseTime );
                 }
 			    break;
             /*

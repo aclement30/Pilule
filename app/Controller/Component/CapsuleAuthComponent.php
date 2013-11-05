@@ -1,8 +1,8 @@
 <?php
-App::import('Component', 'Auth');
-App::import('Vendor', 'HttpFetcher' );
-App::import('Vendor', 'Capsule' );
-App::import('Vendor', 'domparser' );
+App::import( 'Component', 'Auth' );
+App::import( 'Vendor', 'HttpFetcher' );
+App::import( 'Vendor', 'Capsule' );
+App::import( 'Vendor', 'domparser' );
 
 class CapsuleAuthComponent extends AuthComponent {
 	private $Capsule;
@@ -24,7 +24,18 @@ class CapsuleAuthComponent extends AuthComponent {
 		$this->_setDefaults();
 		$isAuthenticated = false;
 
+		// Retrieve average response time for login to Capsule
+		$averageResponseTime = $this->controller->CacheRequest->getAverageResponseTime( 'login' );
+
+		// Update HTTP fetcher timeout
+		$timeout = ( ( int )$averageResponseTime ) + 10;
+		$this->controller->HttpFetcher->timeout = $timeout;
+
+		$startTime = microtime( true );
+
 		$this->identify( $idul, $password );
+
+		$responseTime = microtime( true ) - $startTime;
 
 		switch ( $this->authResponse ) {
             case 'success':
@@ -33,17 +44,28 @@ class CapsuleAuthComponent extends AuthComponent {
             break;
             case 'server-unavailable':
             case 'server-connection':
+            	// Increment HTTP fetcher timeout
+            	$this->controller->HttpFetcher->timeout = ( $this->controller->HttpFetcher->timeout + 10 );
+
+            	$startTime = microtime( true );
+
                 // Second attempt
                 $this->identify( $idul, $password );
-		
+			
+				$responseTime = microtime( true ) - $startTime;
+
                 if ( $this->authResponse == 'success' ) {
                 	$isAuthenticated = true;
                 } else {
 	                // Capsule seems offline
 	                $this->Session->write( 'Capsule.isOffline', true );
 
+	                $startTime = microtime( true );
+
 	                // Attempt to authenticate the user with Exchange
 	                $this->identify( $idul, $password, 'exchange' );
+
+	                $responseTime = microtime( true ) - $startTime;
 
 	                // User has been authenticated with Exchange
 	                if ( $this->authResponse == 'success' ) {
@@ -76,10 +98,13 @@ class CapsuleAuthComponent extends AuthComponent {
 	            $this->controller->User->save( $user );
 	        }
 
+	        // Save login response time
+	        $this->controller->CacheRequest->saveRequest( $idul, 'login', null, $responseTime );
+
 			$this->Session->renew();
 			$this->Session->write( self::$sessionKey, $idul );
 			$this->Session->write( 'User.idul', $idul );
-			$this->Session->write( 'User.password', $password);
+			$this->Session->write( 'User.password', $password );
 			$this->Session->write( 'Capsule.cookies', $this->controller->Capsule->cookies );
 		} else {
 			return false;
