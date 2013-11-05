@@ -539,9 +539,11 @@ class RegistrationController extends AppController {
 			}
 
 			// Save average response time
-			$averageResponseTime = array_sum( $responseTimes ) / count( $responseTimes );
-	        $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'registration-class-spots', null, $averageResponseTime );
-
+            if ( count( $responseTimes ) != 0 ) {
+                $averageResponseTime = array_sum( $responseTimes ) / count( $responseTimes );
+	            $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'registration-class-spots', null, $averageResponseTime );
+            }
+            
 			// Get student registered courses for registration semester
 			$registeredCourses = $this->User->ScheduleSemester->Course->find( 'list', array(
 				'conditions'	=>	array(
