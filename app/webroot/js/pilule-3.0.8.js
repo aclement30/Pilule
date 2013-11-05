@@ -17,7 +17,7 @@ app.init = function () {
         // If in standalone app mode, prevent links from opening in Safari
         if ( ( 'standalone' in window.navigator ) && window.navigator.standalone ) {
             var curnode, location = document.location, stop = /^(a|html)$/i;
-            document.addEventListener( 'click', function(e) {
+            document.addEventListener( 'click', function( e ) {
                 curnode = e.target;
                 while ( !( stop ).test( curnode.nodeName ) ) {
                     curnode = curnode.parentNode;
@@ -33,7 +33,7 @@ app.init = function () {
     }
     
     // Create iframe to display external websites (Capsule, Exchange)
-    $( '<iframe id="external-frame" name="external-frame" frameborder="0" src="blank.html" style="width: 0px; height: 0px;">' ).appendTo( 'body' );
+    $( '<iframe id="external-frame" name="external-frame" frameborder="0" src="' + app.baseUrl + 'blank.html" style="width: 0px; height: 0px;">' ).appendTo( 'body' );
 
     // Responsive design
     if ( $( window ).width() <= 660 ) {
@@ -46,9 +46,9 @@ app.init = function () {
     if ( $( window ).width() <= 480 ) {
         // If there is a sidebar, autoscroll to content
         if ( $( '.sidebar .col-nav' ).length != 0 ) {
-            $( 'html, body' ).animate({
+            $( 'html, body' ).animate( {
                 scrollTop: ( $( 'h4.header' ).offset().top - 90 )
-            }, 1);
+            }, 1 );
         }
     }
 
@@ -58,22 +58,22 @@ app.init = function () {
 
     $( ".dial" ).knob();
   
-    for (var a=[],i=0;i<20;++i) a[i]=i;
+    for ( var a=[],i=0;i<20;++i ) a[ i ]=i;
 
     // http://stackoverflow.com/questions/962802#962890
-    function shuffle(array) {
+    function shuffle( array ) {
         var tmp, current, top = array.length;
-        if(top) while(--top) {
-            current = Math.floor(Math.random() * (top + 1));
-            tmp = array[current];
-            array[current] = array[top];
-            array[top] = tmp;
+        if( top ) while( --top ) {
+            current = Math.floor( Math.random() * ( top + 1 ) );
+            tmp = array[ current ];
+            array[ current ] = array[ top ];
+            array[ top ] = tmp;
         }
         return array;
     }
 
-    $(".sparklines").each(function(){
-        $(this).sparkline(shuffle(a), {
+    $( ".sparklines" ).each( function(){
+        $( this ).sparkline( shuffle( a ), {
             type: 'line',
             width: '150',
             lineColor: '#333',
@@ -84,20 +84,20 @@ app.init = function () {
             highlightSpotColor: '#EA494A',
             highlightLineColor: '#EA494A',
             fillColor: '#FFF'
-        });
-    });
+        } );
+    } );
 
-    $(".sortable").tablesorter();
+    $( ".sortable" ).tablesorter();
 
-    $(".pbar").peity("bar", {
-        colours: ["#EA494A"],
+    $( ".pbar" ).peity( "bar", {
+        colours: [ "#EA494A" ],
         strokeWidth: 4,
         height: 32,
         max: null,
         min: 0,
         spacing: 4,
         width: 58
-    });
+    } );
 
     $( '#in-nav .external-frame a' ).on( 'click', app.Common.closeExternalFrame );
 
@@ -128,9 +128,9 @@ app.Layout.expand = function ( e ) {
     $( e.currentTarget ).closest( '.table-panel' ).toggleClass( 'expanded' );
 
     if ( $( e.currentTarget ).closest( '.table-panel' ).hasClass( 'expanded' ) ) {
-        $('html, body').animate({
+        $( 'html, body' ).animate( {
             scrollTop: ( $( e.currentTarget ).closest( '.table-panel' ).offset().top - 80 )
-        }, 400);
+        }, 400 );
     }
     
     return false;
@@ -150,15 +150,15 @@ app.Layout.displaySubmenu = function () {
 
     if ( submenu.is( ':visible' ) ) {
         submenu.slideUp( 'normal', function() {
-        });
+        } );
     } else {
-        submenu.slideDown( 'normal', function() { });
+        submenu.slideDown( 'normal', function() { } );
     }
 
-    if ( $(document).scrollTop() != 0 ) {
-        $( 'html, body' ).animate({
+    if ( $( document ).scrollTop() != 0 ) {
+        $( 'html, body' ).animate( {
             scrollTop: ( 0 )
-        }, 200);
+        }, 200 );
     }
 
     return false;
@@ -202,7 +202,7 @@ app.Common.loadExternalFrameForm = function() {
 
             return false;
         }
-    });
+    } );
 };
 
 app.Common.closeExternalFrame = function () {
@@ -326,10 +326,10 @@ app.Common.sendFeedback = function () {
 
                 app.Common.displayMessage( "Nous avons bien reçu vos commentaires ! Merci." );
             } else {
-                app.Common.dispatchError({
+                app.Common.dispatchError( {
                     message:    "Une erreur est survenue durant l'envoi du message.",
                     context:    'feedback-error'
-                });
+                } );
             }
         }
     } );
