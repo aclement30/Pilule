@@ -396,6 +396,11 @@ app.Common.dispatchError = function ( error ) {
         // Pass the error message to the error handler
         ( app.errorHandler )( error );
     } else {
+        if ( $( '#modal.loading' ).length != 0 ) {
+            // Close loading modal
+            $( '#modal.loading' ).modal( 'hide' );
+        }
+        
         app.Common.displayError( error.message );
     }
 };
