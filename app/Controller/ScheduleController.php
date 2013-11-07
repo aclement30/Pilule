@@ -161,7 +161,7 @@ class ScheduleController extends AppController {
         ) );
 
 		// Check is data exists in DB
-        if ( ( $lastRequest = $this->CacheRequest->requestExists( 'schedule-' . $semester ) ) && !empty( $schedule[ 'Course' ] ) ) {
+        if ( ( $lastRequest = $this->CacheRequest->requestExists( 'schedule' ) ) && !empty( $schedule[ 'Course' ] ) ) {
             $this->set( 'semester', $semester );
             $this->set( 'semesterDates', $this->semesterDates[ $semester ] );
             $this->set( 'semestersList', $semestersList );
