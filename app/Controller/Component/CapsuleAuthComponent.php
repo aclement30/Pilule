@@ -11,6 +11,9 @@ class CapsuleAuthComponent extends AuthComponent {
 	public $authResponse;
 	private $controller;
 
+    // Store the password for access during page loading
+    public $userPassword;
+
 	public function initialize( Controller &$controller ) {
 		$this->controller = $controller;
 
@@ -18,6 +21,14 @@ class CapsuleAuthComponent extends AuthComponent {
 		$this->controller->HttpFetcher = new HttpFetcher;
 		$this->controller->domparser = new domparser;
 		$this->controller->Capsule = new Capsule( $this->controller->HttpFetcher, $this->controller->domparser );
+
+        // Decrypt user password
+        if ( $this->Session->check( 'User.password' ) ) {
+            $this->userPassword = $this->_decrypt( $this->Session->read( 'User.password' ) );
+        }
+
+        // Set user password for Capsule lib
+        $this->controller->Capsule->password = $this->userPassword;
 	}
 
 	public function login( $idul = null, $password ) {
@@ -104,7 +115,7 @@ class CapsuleAuthComponent extends AuthComponent {
 			$this->Session->renew();
 			$this->Session->write( self::$sessionKey, $idul );
 			$this->Session->write( 'User.idul', $idul );
-			$this->Session->write( 'User.password', $password );
+			$this->Session->write( 'User.password', $this->_encrypt( $password ) );
 			$this->Session->write( 'Capsule.cookies', $this->controller->Capsule->cookies );
 		} else {
 			return false;
@@ -121,6 +132,14 @@ class CapsuleAuthComponent extends AuthComponent {
     	}
 
     	return true;
+    }
+
+    protected function _encrypt( $data ) {
+        return Security::rijndael( $idul . Configure::read( 'Security.salt' ) . $data, Configure::read( 'Security.key' ), 'encrypt' );
+    }
+
+    protected function _decrypt( $encrypted ) {
+        return substr( Security::rijndael( $encrypted, Configure::read( 'Security.key' ), 'decrypt' ), strlen( $idul . Configure::read( 'Security.salt' ) ) );
     }
 
     public function testConnection () {

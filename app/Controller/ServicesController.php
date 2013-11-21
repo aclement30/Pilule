@@ -26,7 +26,7 @@ class ServicesController extends AppController {
 				$insideIframe = true;
 				$fields = array(
 					'sid'		=>	$this->Session->read( 'User.idul' ),
-					'PIN'		=>	$this->Session->read( 'User.password' )
+					'PIN'		=>	$this->CapsuleAuth->userPassword
 				);
 				break;
 			case 'capsule-registration':
@@ -38,7 +38,7 @@ class ServicesController extends AppController {
 					// Login form
 					array(
 						'sid'		=>	$this->Session->read( 'User.idul' ),
-						'PIN'		=>	$this->Session->read( 'User.password' )
+						'PIN'		=>	$this->CapsuleAuth->userPassword
 					),
 					// Registration page
 					array(
@@ -55,7 +55,7 @@ class ServicesController extends AppController {
 					// Login form
 					array(
 						'sid'		=>	$this->Session->read( 'User.idul' ),
-						'PIN'		=>	$this->Session->read( 'User.password' )
+						'PIN'		=>	$this->CapsuleAuth->userPassword
 					),
 					// Address page
 					array(
@@ -71,7 +71,7 @@ class ServicesController extends AppController {
 					// Login form
 					array(
 						'sid'		=>	$this->Session->read( 'User.idul' ),
-						'PIN'		=>	$this->Session->read( 'User.password' )
+						'PIN'		=>	$this->CapsuleAuth->userPassword
 					),
 					// Fiscal statement page
 					array(
@@ -87,7 +87,7 @@ class ServicesController extends AppController {
 					// Login form
 					array(
 						'sid'		=>	$this->Session->read( 'User.idul' ),
-						'PIN'		=>	$this->Session->read( 'User.password' )
+						'PIN'		=>	$this->CapsuleAuth->userPassword
 					),
 					// PDF statement page
 					array(
@@ -103,7 +103,7 @@ class ServicesController extends AppController {
 					// Login form
 					array(
 						'sid'		=>	$this->Session->read( 'User.idul' ),
-						'PIN'		=>	$this->Session->read( 'User.password' )
+						'PIN'		=>	$this->CapsuleAuth->userPassword
 					),
 					// Admission page
 					array(
@@ -117,7 +117,7 @@ class ServicesController extends AppController {
 				$insideIframe = true;
 				$fields = array(
 					'username'		=>	$this->Session->read( 'User.idul' ),
-					'password'		=>	$this->Session->read( 'User.password' )
+					'password'		=>	$this->CapsuleAuth->userPassword
 				);
 				break;
 			case 'exchange':
@@ -130,7 +130,7 @@ class ServicesController extends AppController {
 					'flags'			=>	0,
 					'forcedownlevel'=>	0,
 					'username'		=>	$this->Session->read( 'User.idul' ),
-					'password'		=>	$this->Session->read( 'User.password' ),
+					'password'		=>	$this->CapsuleAuth->userPassword,
 					'isUtf8'		=>	1,
 					'trusted'		=>	0
 				);
@@ -142,7 +142,7 @@ class ServicesController extends AppController {
 				$fields = array(
 					'envoi'				=>	'Se connecter',
 					'code_utilisateur'	=>	$this->Session->read( 'User.idul' ),
-					'password'			=>	$this->Session->read( 'User.password' )
+					'password'			=>	$this->CapsuleAuth->userPassword
 				);
 				break;
 			case 'portailcours':
@@ -151,7 +151,7 @@ class ServicesController extends AppController {
 				$loadingFrameUrl = Configure::read( 'Pilule.baseUrl' ) . 'blank.html';
 				$fields = array(
 					'j_username'	=>	$this->Session->read( 'User.idul' ),
-					'j_password'	=>	$this->Session->read( 'User.password' )
+					'j_password'	=>	$this->CapsuleAuth->userPassword
 				);
 				break;
 

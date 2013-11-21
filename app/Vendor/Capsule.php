@@ -13,9 +13,9 @@ class Capsule {
     public $referer;
     public $userName;
 
-    // Private vars (used for relogin if server connection is lost)
+    // User credentials vars (used for relogin if server connection is lost)
     private $idul;
-    private $password;
+    public $password;   // Password is filled by CapsuleAuth component
 
 	public function __construct( &$fetcher, &$domparser ) {
         $this->fetcher = $fetcher;
@@ -213,7 +213,6 @@ class Capsule {
         $this->cookies = SessionComponent::read( 'Capsule.cookies' );
         if ( empty( $this->idul ) ) {
             $this->idul = SessionComponent::read( 'User.idul' );
-            $this->password = SessionComponent::read( 'User.password' );
         }
         $request = $this->_fetchPage( '/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_AdminMnu' );
 

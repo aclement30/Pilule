@@ -32,7 +32,7 @@
  * In production mode, flash messages redirect after a time interval.
  * In development mode, you need to click the flash message to continue.
  */
-	Configure::write('debug', 0);
+	Configure::write( 'debug', 0 );
 
 /**
  * Configure the Error handler used to handle errors for your application.  By default
@@ -48,11 +48,11 @@
  *
  * @see ErrorHandler for more information on error handling and configuration.
  */
-	Configure::write('Error', array(
+	Configure::write( 'Error', array(
 		'handler' => 'ErrorHandler::handleError',
 		'level' => E_ALL & ~E_DEPRECATED,
 		'trace' => true
-	));
+	) );
 
 /**
  * Configure the Exception handler used for uncaught exceptions.  By default,
@@ -70,16 +70,16 @@
  *
  * @see ErrorHandler for more information on exception handling and configuration.
  */
-	Configure::write('Exception', array(
+	Configure::write( 'Exception', array(
 		'handler' => 'ErrorHandler::handleException',
 		'renderer' => 'ExceptionRenderer',
 		'log' => true
-	));
+	) );
 
 /**
  * Application wide charset encoding
  */
-	Configure::write('App.encoding', 'UTF-8');
+	Configure::write( 'App.encoding', 'UTF-8' );
 
 /**
  * To configure CakePHP *not* to use mod_rewrite and to
@@ -110,7 +110,8 @@
  *	`manager_index()` and `/manager/controller/index`
  *
  */
-	//Configure::write('Routing.prefixes', array('admin'));
+
+Configure::write( 'Routing.prefixes', array( 'api' ) );
 
 /**
  * Turn off all caching application-wide.
@@ -133,7 +134,7 @@
  * Defines the default error type when using the log() function. Used for
  * differentiating error logging and debugging. Currently PHP supports LOG_DEBUG.
  */
-	define('LOG_ERROR', LOG_ERR);
+	define( 'LOG_ERROR', LOG_ERR );
 
 /**
  * Session configuration.
@@ -172,14 +173,14 @@
  * the cake shell command: cake schema create Sessions
  *
  */
-	Configure::write('Session', array(
+	Configure::write( 'Session', array(
 		'defaults' => 'database'
-	));
+	) );
 
 /**
  * The level of CakePHP security.
  */
-	Configure::write('Security.level', 'medium');
+	Configure::write( 'Security.level', 'medium' );
 
 /**
  * A random string used in security hashing methods.
@@ -190,6 +191,11 @@
  * A random numeric string (digits only) used to encrypt/decrypt strings.
  */
 	Configure::write('Security.cipherSeed', '67859745360967544453968396425');
+
+/**
+ * A random string used to encrypt/decrypt passwords
+ */
+	Configure::write( 'Security.key', 'key' );
 
 /**
  * Apply timestamps with the last modified time to static assets (js, css, images).
@@ -222,8 +228,8 @@
  * The classname and database used in CakePHP's
  * access control lists.
  */
-	Configure::write('Acl.classname', 'DbAcl');
-	Configure::write('Acl.database', 'default');
+	Configure::write( 'Acl.classname', 'DbAcl' );
+	Configure::write( 'Acl.database', 'default' );
 
 /**
  * Uncomment this line and correct your server timezone to fix 
@@ -241,13 +247,13 @@ date_default_timezone_set( 'America/New_York' );
  *       and their setttings.
  */
 $engine = 'File';
-if (extension_loaded('apc') && function_exists('apc_dec') && (php_sapi_name() !== 'cli' || ini_get('apc.enable_cli'))) {
+if ( extension_loaded( 'apc' ) && function_exists( 'apc_dec' ) && ( php_sapi_name() !== 'cli' || ini_get( 'apc.enable_cli' ) ) ) {
 	$engine = 'Apc';
 }
 
 // In development mode, caches should expire quickly.
 $duration = '+999 days';
-if (Configure::read('debug') >= 1) {
+if ( Configure::read( 'debug' ) >= 1 ) {
 	$duration = '+10 seconds';
 }
 
@@ -258,22 +264,22 @@ $prefix = 'myapp_';
  * Configure the cache used for general framework caching.  Path information,
  * object listings, and translation cache files are stored with this configuration.
  */
-Cache::config('_cake_core_', array(
+Cache::config( '_cake_core_', array(
 	'engine' => $engine,
 	'prefix' => $prefix . 'cake_core_',
 	'path' => CACHE . 'persistent' . DS,
-	'serialize' => ($engine === 'File'),
+	'serialize' => ( $engine === 'File' ),
 	'duration' => $duration
-));
+) );
 
 /**
  * Configure the cache for model and datasource caches.  This cache configuration
  * is used to store schema descriptions, and table listings in connections.
  */
-Cache::config('_cake_model_', array(
+Cache::config( '_cake_model_', array(
 	'engine' => $engine,
 	'prefix' => $prefix . 'cake_model_',
 	'path' => CACHE . 'models' . DS,
-	'serialize' => ($engine === 'File'),
+	'serialize' => ( $engine === 'File' ),
 	'duration' => $duration
-));
+) );
