@@ -448,7 +448,7 @@ class CacheController extends AppController {
                     ) );
 
                     // Save schedule data
-                    $this->User->ScheduleSemester->saveAll( $result[ 'schedule' ], array( 'deep' => true ) );
+                    if ( !empty( $result[ 'schedule' ] ) ) $this->User->ScheduleSemester->saveAll( $result[ 'schedule' ], array( 'deep' => true ) );
 
                     // Update last data checkup timestamp
                     foreach ( $result[ 'md5Hash' ] as $name => $hash ) {

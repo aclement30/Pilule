@@ -1082,6 +1082,7 @@ class Capsule {
                 }
 
                 $scheduleSemester = array(
+                    'idul'      =>  $this->idul,
                     'Course'    =>  array(),
                     'semester'  =>  $semester
                 );
@@ -1193,7 +1194,6 @@ class Capsule {
 
                 // Add semester to schedule
                 if ( !empty( $scheduleSemester[ 'Course' ] ) ) {
-                    $scheduleSemester[ 'idul' ] = $this->idul;
                     $schedule[] = array( 'ScheduleSemester' => $scheduleSemester );
                 }
             }
