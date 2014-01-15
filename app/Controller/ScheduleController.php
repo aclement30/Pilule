@@ -62,22 +62,14 @@ class ScheduleController extends AppController {
 
         // Set holidays
         $this->holidays = array(
-            'action-graces' =>  20121008,
-            'reading-week-201209'  =>  array(
-                strtotime( '10 October 2012' ),
-                strtotime( '3 November 2012, 23:59' )
-            ),
-            'noel'          =>  array(
-                strtotime( '22 December 2012' ),
-                strtotime( '2 January 2013, 23:59' )
-            ),
-            'reading-week-201301'  =>  array(
-                strtotime( '11 March 2013' ),
-                strtotime( '16 March 2013, 23:59' )
+            //'action-graces' =>  20121008,
+            'reading-week-201401'  =>  array(
+                strtotime( '3 March 2014' ),
+                strtotime( '8 March 2014, 23:59' )
             ),
             'easter'          =>  array(
-                strtotime( '29 March 2013' ),
-                strtotime( '1 April 2013, 23:59' )
+                strtotime( '18 March 2014' ),
+                strtotime( '21 March 2014, 23:59' )
             ),
         );
 
