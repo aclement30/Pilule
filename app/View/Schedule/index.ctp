@@ -200,8 +200,14 @@
 															<span class="short"><?php echo $this->Text->truncate( $course[ 'title' ], 35, array( 'exact' => false ) ); ?></span>
 															<span class="full"><?php echo $course[ 'title' ]; ?></span>
 														</div>
-														<div class="teacher"><i class="icon-user icon-white"></i> <?php echo $cell[ 'class' ][ 'teacher' ]; ?></div>
-														<div class="location"><i class="icon-map-marker icon-white"></i><span class="label">Local :</span> <?php echo $cell[ 'class' ][ 'locationShort' ]; ?></div>
+														<?php if ( !empty( $cell[ 'class' ][ 'teacher' ] ) ): ?>
+															<div class="teacher"><i class="icon-user icon-white"></i> <?php echo $cell[ 'class' ][ 'teacher' ]; ?></div>
+														<?php endif; ?>
+														<?php if ( !empty( $cell[ 'class' ][ 'locationShort' ] ) ): ?>
+															<div class="location"><i class="icon-map-marker icon-white"></i><span class="label">Local :</span> <?php echo $cell[ 'class' ][ 'locationShort' ]; ?></div>
+														<?php else: ?>
+															<div class="location"><i class="icon-briefcase icon-white"></i> <?php echo $cell[ 'class' ][ 'type' ]; ?></div>
+														<?php endif; ?>
 													</div>
 												</td>
 												<?php
