@@ -33,6 +33,9 @@ VERSION:2.0
 		} else {
 			$event[ 'endTime' ] .= ':00';
 		}
+
+		preg_replace( '/([1-9])\:/', '0${0}:', $event[ 'startTime' ] );
+		preg_replace( '/([1-9])\:/', '0${0}:', $event[ 'endTime' ] );	
 	?>
 BEGIN:VEVENT
 SEQUENCE:1
