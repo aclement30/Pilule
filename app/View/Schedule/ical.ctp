@@ -33,6 +33,14 @@ VERSION:2.0
 		} else {
 			$event[ 'endTime' ] .= ':00';
 		}
+
+		// Add 0 padding before hour, if hour is before 10
+		if ( substr( $event[ 'startTime' ], 0, 1 ) > 2 ) {
+			$event[ 'startTime' ] = '0' . $event[ 'startTime' ];
+		}
+		if ( substr( $event[ 'endTime' ], 0, 1 ) > 2 ) {
+			$event[ 'endTime' ] = '0' . $event[ 'endTime' ];
+		}
 	?>
 BEGIN:VEVENT
 SEQUENCE:1
