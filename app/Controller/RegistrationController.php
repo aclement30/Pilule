@@ -9,6 +9,18 @@ class RegistrationController extends AppController {
 	private $registrationSemester;
 	private $currentSemester = CURRENT_SEMESTER;
 	private $deadlines = array(
+                            '201409'    => array(
+                                'registration_start'=>  '20140331',
+                                'edit_selection'    =>  '20140909',
+                                'drop_nofee'        =>  '20140916',
+                                'drop_fee'          =>  '20141111'
+                            ),
+                            '201405'    => array(
+                                'registration_start'=>  '20140310',
+                                'edit_selection'    =>  '20140502',
+                                'drop_nofee'        =>  '20140822',
+                                'drop_fee'          =>  '20140822'
+                            ),
 							'201401'	=> array(
 								'registration_start'=>	'20131104',
 								'edit_selection'	=>	'20140130',
@@ -47,7 +59,7 @@ class RegistrationController extends AppController {
 							)
 						   );
 	
-	private $registrationSemesters = array( '201309', '201401' );
+	private $registrationSemesters = array( '201405', '201409' );
 
 	public function beforeFilter () {
 		parent::beforeFilter();
@@ -449,29 +461,32 @@ class RegistrationController extends AppController {
                 'contain'		=>	array( 'Class' => array( 'conditions' => array( 'Class.semester' => $this->registrationSemester ), 'Spot' ) )
             ) );
 
-			// Get student registered courses for registration semester
-			$registeredCourses = $this->User->ScheduleSemester->Course->find( 'list', array(
-				'conditions'	=>	array(
-					'Course.idul' 		=>	$this->Session->read( 'User.idul' ),
-					'Course.semester'	=>	$semester
-				),
-				'fields'	=>	array( 'id', 'nrc' )
-			) );
-			
-			// Get student selected courses for registration semester
-			$selectedCourses = $this->User->SelectedCourse->find( 'list', array(
-				'conditions'	=>	array(
-					'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
-					'SelectedCourse.semester'	=>	$semester
-				),
-				'fields'	=>	array( 'id', 'nrc' )
-			) );
+            if ( !empty( $course ) ) {
+    			// Get student registered courses for registration semester
+    			$registeredCourses = $this->User->ScheduleSemester->Course->find( 'list', array(
+    				'conditions'	=>	array(
+    					'Course.idul' 		=>	$this->Session->read( 'User.idul' ),
+    					'Course.semester'	=>	$semester
+    				),
+    				'fields'	=>	array( 'id', 'nrc' )
+    			) );
+    			
+    			// Get student selected courses for registration semester
+    			$selectedCourses = $this->User->SelectedCourse->find( 'list', array(
+    				'conditions'	=>	array(
+    					'SelectedCourse.idul' 		=>	$this->Session->read( 'User.idul' ),
+    					'SelectedCourse.semester'	=>	$semester
+    				),
+    				'fields'	=>	array( 'id', 'nrc' )
+    			) );
+
+                $this->set( 'registeredCourses', $registeredCourses );
+                $this->set( 'selectedCourses', $selectedCourses );
+                $this->set( 'classes', $course[ 'Class' ] );
+            }
 
 			$this->set( 'course', $course );
 			$this->set( 'semester', $semester );
-			$this->set( 'classes', $course[ 'Class' ] );
-			$this->set( 'registeredCourses', $registeredCourses );
-			$this->set( 'selectedCourses', $selectedCourses );
 
 			$this->layout = 'ajax';
 			$this->render( 'modals/course_info' );

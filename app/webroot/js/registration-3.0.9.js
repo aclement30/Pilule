@@ -122,7 +122,7 @@ app.Registration.repaintTableRows = function () {
 	$( '.main .courses-list tbody' ).each( function( index, tbody ) {
 		$( tbody ).find( 'tr' ).css( 'backgroundColor', '#fff' );
 		$( tbody ).find( 'tr:visible:even' ).css( 'backgroundColor', '#f9f9f9' );
-	});
+	} );
 };
 
 app.Registration.toggleCoursesDisplay = function ( e ) {
@@ -205,44 +205,44 @@ app.Registration.addSelectedCourse = function ( response ) {
 	    } );
 	} else {
 		if ( response.errorCode == 2 ) {		// Unknown error during course selection
-			app.Common.dispatchError({
+			app.Common.dispatchError( {
 				message: 	"Le cours n'a pas pu être ajouté à votre sélection.",
 				context: 	'registration-error'
-			});
+			} );
 		} else if ( response.errorCode == 3 ) {		// Unknown error during course selection
 			stopLoading();
 		} else if ( response.errorCode == 4 ) {		// Error : similar course already selected
 			stopLoading();
 
 			if ( confirm( "Vous avez déjà sélectionné un cours similaire, mais avec un horaire différent. Voulez-vous le remplacer par celui-ci ?" ) ) {
-				ajax.request({
+				ajax.request( {
 			        url:     		'/registration/selectCourse.json',
 			        data:           {
 			            replace: 	'yes',
 			           	nrc: 		response.nrc
 			        },
 			        callback:       app.Registration.addSelectedCourse
-			    });
+			    } );
 			} else {
-				ajax.request({
+				ajax.request( {
 			        url:     		'/registration/selectCourse.json',
 			        data:           {
 			            replace: 	'no',
 			           	nrc: 		response.nrc
 			        },
 			        callback:       app.Registration.addSelectedCourse
-			    });
+			    } );
 			}
 		} else if ( response.errorCode == 5 ) {		// Error : course already registered
-			app.Common.dispatchError({
+			app.Common.dispatchError( {
 				message: 	"Vous êtes déjà inscrit à ce cours.",
 				context: 	'registration-error'
-			});
+			} );
 		} else if ( response.errorCode == 6 ) {		// Error : similar course already registered
-			app.Common.dispatchError({
+			app.Common.dispatchError( {
 				message: 	"Vous êtes déjà inscrit à un cours similaire, mais avec un horaire différent.",
 				context: 	'registration-error'
-			});
+			} );
 		}
 	}
 };
@@ -274,20 +274,20 @@ app.Registration.removeSelectedCourse = function ( response ) {
 	        } );
 	    } );
 	} else {
-		app.Common.dispatchError({
+		app.Common.dispatchError( {
 			message: 	"Le cours n'a pas pu être enlevé de votre sélection.",
 			context: 	'registration-error'
-		});
+		} );
 	}
 };
 
 app.Registration.registerCourses = function () {
 	// Check if at least one course has been selected
 	if ( $( '.aside .table-panel.selected-courses table tbody tr' ).length != 0 ) {
-		app.Common.showLoadingModal({
+		app.Common.showLoadingModal( {
 			title: 		'Inscription en cours',
 			message: 	'Veuillez patienter pendant que Pilule procède à l\'inscription des cours sélectionnés.'
-		});
+		} );
 		
 		// Send AJAX request
 	    ajax.request( {
@@ -308,15 +308,15 @@ app.Registration.addRegisteredCourses = function ( response ) {
 		document.location = app.baseUrl + 'choix-cours/resultats/' + response.token;
 	} else {
 		if ( response.errorMessage ) {
-			app.Common.dispatchError({
+			app.Common.dispatchError( {
 				message: 	response.errorMessage,
 				context: 	'registration-error'
-			});
+			} );
 		} else {
-			app.Common.dispatchError({
+			app.Common.dispatchError( {
 				message: 	"L'inscription aux cours sélectionnés a échouée.",
 				context: 	'registration-error'
-			});
+			} );
 		}
 	}
 };
@@ -326,19 +326,19 @@ app.Registration.unregisterCourse = function ( e ) {
 	$( e.currentTarget ).parent().addClass( 'loading' );
 
 	var question = '';
-	if (app.Registration.currentDate > app.Registration.deadline_drop_nofee) {
+	if ( app.Registration.currentDate > app.Registration.deadline_drop_nofee ) {
 		question = "Si vous abandonnez le cours, vous payerez les droits de scolarité, mais vous n'aurez pas de mention d'échec.\nVoulez-vous continuer ?";
-	} else if (app.Registration.currentDate > app.Registration.deadline_edit_selection) {
+	} else if ( app.Registration.currentDate > app.Registration.deadline_edit_selection ) {
 		question = "Si vous abandonnez le cours, vous ne payerez pas les droits de scolarité et n'aurez pas de mention d'échec.\nVoulez-vous continuer ?";
 	} else {
 		question = "Êtes-vous certain de vouloir retirer ce cours de votre horaire ?\nCette modification est irréversible.";
 	}
 
-	if (confirm(question)) {
-		app.Common.showLoadingModal({
+	if ( confirm( question ) ) {
+		app.Common.showLoadingModal( {
 			title: 		'Désinscription en cours',
 			message: 	'Veuillez patienter pendant que Pilule procède à la désinscription du cours demandé.'
-		});
+		} );
 
 		// Send AJAX request
 	    ajax.request( {
@@ -364,24 +364,24 @@ app.Registration.removeRegisteredCourse = function ( response ) {
 	        } );
 	    } );
 	} else {
-		app.Common.dispatchError({
+		app.Common.dispatchError( {
 			message: 	"La désinscription du cours a échouée.",
 			context: 	'registration-error'
-		});
+		} );
 	}
 };
 
 app.Registration.changeDisplay = function ( type ) {
-	if (type == 'all') {
-		$('.courses tr.unavailable').show();
+	if ( type == 'all' ) {
+		$( '.courses tr.unavailable' ).show();
 	} else {
-		$('.courses tr.unavailable').hide();
+		$( '.courses tr.unavailable' ).hide();
 	}
 
-	$('.courses').each(function(index, value) {
-		$(value).find('tr').css('backgroundColor', '#fff');
-		$(value).find('tr:visible:odd').css('backgroundColor', '#dae6f1');
-	});
+	$( '.courses' ).each( function( index, value ) {
+		$( value ).find( 'tr' ).css( 'backgroundColor', '#fff' );
+		$( value ).find( 'tr:visible:odd' ).css( 'backgroundColor', '#dae6f1' );
+	} );
 };
 
 app.Registration.changeSemester = function ( e ) {
@@ -402,14 +402,18 @@ app.Registration.changeSemester = function ( e ) {
 };
 
 app.Registration.changeProgram = function ( e ) {
-	var semester = $( '.semesters-dropdown select' ).val();
+	if ( $( '.semesters-dropdown select' ).length != 0 ) {
+		var semester = $( '.semesters-dropdown select' ).val();
+	} else {
+		var semester = $( '.semesters-dropdown ul.dropdown-menu li.selected a' ).data( 'semester' );
+	}
 
 	if ( e.currentTarget ) {
 		e.preventDefault;
 
 		// Param is an event, retrieve the semester
 		if ( $( e.currentTarget ).is( 'select' ) ) {
-            document.location = app.baseUrl + 'choix-cours/' + semester + '/' + $( e.currentTarget ).val();
+        	document.location = app.baseUrl + 'choix-cours/' + semester + '/' + $( e.currentTarget ).val();
         } else {
 			document.location = app.baseUrl + 'choix-cours/' + semester + '/' + $( this ).data( 'program' );
 		}
@@ -429,17 +433,17 @@ app.Registration.displayHelp = function ( step ) {
 			$( '#modal .modal-footer .btn.js-prev' ).on( 'click', function(){
 				app.Registration.displayHelp( step - 1 );
 				return false;
-			});
+			} );
 			$( '#modal .modal-footer .btn.js-next' ).on( 'click', function(){
 				app.Registration.displayHelp( step + 1 );
 				return false;
-			});
+			} );
 			$( '#modal .modal-footer .btn.js-close' ).on( 'click', function(){
 				// Close modal
 				$( '#modal' ).modal( 'hide' );
 
 				return false;
-			});
+			} );
 
 			if ( step == 1 ) {
 				$( '#modal .modal-footer .btn.js-next' ).fadeIn();
@@ -456,16 +460,16 @@ app.Registration.displayHelp = function ( step ) {
 
 app.Registration.formatFieldCode = function ( input ) {
 	var v = input.value;
-	if (v.match(/^[a-zA-Z]{3}$/) !== null) {
+	if ( v.match( /^[a-zA-Z]{3}$/ ) !== null ) {
 		input.value = v + '-';
 	}
 };
 
 app.Registration.updateCourses = function () {
-	$('#loading-bar').show();
-	$('#results').fadeIn();
+	$( '#loading-bar' ).show();
+	$( '#results' ).fadeIn();
 	
-	$('#form-update').submit();
+	$( '#form-update' ).submit();
 };
 
 $( document ).ready( app.Registration.init );
@@ -479,9 +483,9 @@ var registrationObj = {
 	deadline_drop_fee: '',
 	deadline_drop_nofee: '',
 	deadline_edit_selection: '',
-	getCourseInfo: function (that, code) {
-		if ($(window).height()<650) {
-			var popupHeight = $(window).height() - 50;
+	getCourseInfo: function ( that, code ) {
+		if ( $( window ).height()<650 ) {
+			var popupHeight = $( window ).height() - 50;
 		} else {
 			var popupHeight = 600;
 		}
@@ -489,7 +493,7 @@ var registrationObj = {
 		loading();
 	
 		var src = './registration/w_getcourseinfo/code/'+code+'/semester/'+this.semester;
-		$.modal('<iframe src="' + src + '" height="'+popupHeight+'" width="700" style="border:0;" onload="javascript:stopLoading();">', {
+		$.modal( '<iframe src="' + src + '" height="'+popupHeight+'" width="700" style="border:0;" onload="javascript:stopLoading();">', {
 			containerCss:{
 				backgroundColor:"#fff",
 				borderColor:"#fff",
@@ -498,128 +502,128 @@ var registrationObj = {
 				width: 700
 			},
 			overlayClose:true
-		});
+		} );
 	},
-	addSelectedCourse: function (nrc) {
-		loading("Ajout du cours à la sélection...");
+	addSelectedCourse: function ( nrc ) {
+		loading( "Ajout du cours à la sélection..." );
 		
-		!sendData('GET','./registration/s_selectcourse', 'semester/'+this.semester+'/nrc/'+nrc);
+		!sendData( 'GET','./registration/s_selectcourse', 'semester/'+this.semester+'/nrc/'+nrc );
 	},
-	addSelectedCourseCallback: function (response, nrc, total, credits) {
-		if (response==1) {
+	addSelectedCourseCallback: function ( response, nrc, total, credits ) {
+		if ( response==1 ) {
 			$.modal.close();
 			
-			resultMessage("Le cours a été ajouté à votre sélection.");
+			resultMessage( "Le cours a été ajouté à votre sélection." );
 			
-			$('#selected-courses .credits-total').html(credits+' crédits');
-			$('#selected-courses .courses-total').html(total+' cours');
+			$( '#selected-courses .credits-total' ).html( credits+' crédits' );
+			$( '#selected-courses .courses-total' ).html( total+' cours' );
 			
-			$('a.delete-link').mouseover(function(){$(this).children(":first").attr('src', './images/cross.png');});
-			$('a.delete-link').mouseout(function(){$(this).children(":first").attr('src', './images/cross-gray.png');});
+			$( 'a.delete-link' ).mouseover( function(){$( this ).children( ":first" ).attr( 'src', './images/cross.png' );} );
+			$( 'a.delete-link' ).mouseout( function(){$( this ).children( ":first" ).attr( 'src', './images/cross-gray.png' );} );
 			
 			this.selectionTotal++;
-		} else if (response==2) {
-			errorMessage("Le cours n'a pas pu être ajouté à votre sélection.");
-		} else if (response==3) {
+		} else if ( response==2 ) {
+			errorMessage( "Le cours n'a pas pu être ajouté à votre sélection." );
+		} else if ( response==3 ) {
 			stopLoading();
-		} else if (response==4) {
+		} else if ( response==4 ) {
 			stopLoading();
-			if (confirm("Vous avez déjà sélectionné un cours similaire, mais avec un horaire différent. Voulez-vous le remplacer par celui-ci ?")) {
-				!sendData('GET','./registration/s_selectcourse', 'semester/'+this.semester+'/nrc/'+nrc+'/replace/yes');
+			if ( confirm( "Vous avez déjà sélectionné un cours similaire, mais avec un horaire différent. Voulez-vous le remplacer par celui-ci ?" ) ) {
+				!sendData( 'GET','./registration/s_selectcourse', 'semester/'+this.semester+'/nrc/'+nrc+'/replace/yes' );
 			} else {
-				!sendData('GET','./registration/s_selectcourse', 'semester/'+this.semester+'/nrc/'+nrc+'/replace/no');
+				!sendData( 'GET','./registration/s_selectcourse', 'semester/'+this.semester+'/nrc/'+nrc+'/replace/no' );
 			}
-		} else if (response==5) {
-			errorMessage("Vous êtes déjà inscrit à ce cours.");
-		} else if (response==6) {
-			errorMessage("Vous êtes déjà inscrit à un cours similaire, mais avec un horaire différent.");
+		} else if ( response==5 ) {
+			errorMessage( "Vous êtes déjà inscrit à ce cours." );
+		} else if ( response==6 ) {
+			errorMessage( "Vous êtes déjà inscrit à un cours similaire, mais avec un horaire différent." );
 		}
 	},
-	removeSelectedCourse: function (nrc) {
-		loading("Retrait du cours de la sélection...");
+	removeSelectedCourse: function ( nrc ) {
+		loading( "Retrait du cours de la sélection..." );
 		
-		!sendData('GET','./registration/s_unselectcourse', 'semester/'+this.semester+'/nrc/'+nrc);
+		!sendData( 'GET','./registration/s_unselectcourse', 'semester/'+this.semester+'/nrc/'+nrc );
 	},
-	removeSelectedCourseCallback: function (response, nrc, total, credits) {
-		if (response==1) {
-			resultMessage("Le cours a été retiré de votre sélection.");
+	removeSelectedCourseCallback: function ( response, nrc, total, credits ) {
+		if ( response==1 ) {
+			resultMessage( "Le cours a été retiré de votre sélection." );
 			
-			$('#selected-courses .credits-total').html(credits+' crédits');
-			$('#selected-courses .courses-total').html(total+' cours');
+			$( '#selected-courses .credits-total' ).html( credits+' crédits' );
+			$( '#selected-courses .courses-total' ).html( total+' cours' );
 			
 			this.selectionTotal--;
-		} else if (response==2) {
-			errorMessage("Le cours n'a pas pu être enlevé de votre sélection.");
+		} else if ( response==2 ) {
+			errorMessage( "Le cours n'a pas pu être enlevé de votre sélection." );
 		}
 	},
-	removeRegisteredCourse: function (nrc) {
+	removeRegisteredCourse: function ( nrc ) {
 		var question = '';
-		if (this.currentDate>this.deadline_drop_nofee) {
+		if ( this.currentDate>this.deadline_drop_nofee ) {
 			question = "Si vous abandonnez le cours, vous payerez les droits de scolarité, mais vous n'aurez pas de mention d'échec.\nVoulez-vous continuer ?";
-		} else if (this.currentDate>this.deadline_edit_selection) {
+		} else if ( this.currentDate>this.deadline_edit_selection ) {
 			question = "Si vous abandonnez le cours, vous ne payerez pas les droits de scolarité et n'aurez pas de mention d'échec.\nVoulez-vous continuer ?";
 		} else {
 			question = "Voulez-vous vraiment retirer ce cours de votre horaire ?";
 		}
-		if (confirm(question)) {
-			loading("Désinscription du cours...");
+		if ( confirm( question ) ) {
+			loading( "Désinscription du cours..." );
 			
-			!sendData('GET','./registration/s_removeregisteredcourse', 'semester/'+this.semester+'/nrc/'+nrc);
+			!sendData( 'GET','./registration/s_removeregisteredcourse', 'semester/'+this.semester+'/nrc/'+nrc );
 		}
 	},
-	removeRegisteredCourseCallback: function (response, nrc, total, credits) {
-		if (response==1) {
-			resultMessage("Vous avez été désinscrit du cours.");
+	removeRegisteredCourseCallback: function ( response, nrc, total, credits ) {
+		if ( response==1 ) {
+			resultMessage( "Vous avez été désinscrit du cours." );
 			
-			$('#registered-courses .credits-total').html(credits+' crédits');
-			$('#registered-courses .courses-total').html(total+' cours');
+			$( '#registered-courses .credits-total' ).html( credits+' crédits' );
+			$( '#registered-courses .courses-total' ).html( total+' cours' );
 		}
 	},
 	registerCourses: function () {
-		if (this.selectionTotal!=0) {
-			loading("Inscription aux cours sélectionnés...");
+		if ( this.selectionTotal!=0 ) {
+			loading( "Inscription aux cours sélectionnés..." );
 			
-			!sendData('GET','./registration/s_registercourses', 'semester/'+this.semester);
+			!sendData( 'GET','./registration/s_registercourses', 'semester/'+this.semester );
 		} else {
-			errorMessage("Vous devez d'abord ajouter un cours à votre sélection pour vous inscrire.");
+			errorMessage( "Vous devez d'abord ajouter un cours à votre sélection pour vous inscrire." );
 		}
 	},
 	configure: function () {
-		loading("Enregistrement en cours...");
+		loading( "Enregistrement en cours..." );
 		
-		$('#form-configure').submit();
+		$( '#form-configure' ).submit();
 	},
-	configureCallback: function (response) {
-		if (response == 1) {
-			resultMessage('Les paramètres ont été enregistrés.');
+	configureCallback: function ( response ) {
+		if ( response == 1 ) {
+			resultMessage( 'Les paramètres ont été enregistrés.' );
 			
 			document.location.hash = '#!/registration/courses';
 		} else {
-			errorMessage("Une erreur est survenue durant l'enregistrement des paramètres...");
+			errorMessage( "Une erreur est survenue durant l'enregistrement des paramètres..." );
 		}
 	},
-	changeDisplay: function (type) {
-		if (type == 'all') {
-			$('.courses tr.unavailable').show();
+	changeDisplay: function ( type ) {
+		if ( type == 'all' ) {
+			$( '.courses tr.unavailable' ).show();
 		} else {
-			$('.courses tr.unavailable').hide();
+			$( '.courses tr.unavailable' ).hide();
 		}
 		
-		$('.courses').each(function(index, value) {
-			$(value).find('tr').css('backgroundColor', '#fff');
-			$(value).find('tr:visible:odd').css('backgroundColor', '#dae6f1');
-		});
+		$( '.courses' ).each( function( index, value ) {
+			$( value ).find( 'tr' ).css( 'backgroundColor', '#fff' );
+			$( value ).find( 'tr:visible:odd' ).css( 'backgroundColor', '#dae6f1' );
+		} );
 	},
-	selectSemester: function (semester) {
-		loading('Chargement des cours au programme...');
+	selectSemester: function ( semester ) {
+		loading( 'Chargement des cours au programme...' );
 		
-		!sendData('GET','./registration/courses', 'semester/'+semester);
+		!sendData( 'GET','./registration/courses', 'semester/'+semester );
 	},
-	displayHelp: function (step) {
+	displayHelp: function ( step ) {
 		loading();
 		
-		if ($(window).height()<570) {
-			var popupHeight = $(window).height() - 50;
+		if ( $( window ).height()<570 ) {
+			var popupHeight = $( window ).height() - 50;
 		} else {
 			var popupHeight = 520;
 		}
@@ -627,7 +631,7 @@ var registrationObj = {
 		loading();
 	
 		var src = './registration/w_help/';
-		$.modal('<iframe src="' + src + '" height="'+popupHeight+'" width="700" style="border:0;" onload="javascript:stopLoading();">', {
+		$.modal( '<iframe src="' + src + '" height="'+popupHeight+'" width="700" style="border:0;" onload="javascript:stopLoading();">', {
 			containerCss:{
 				backgroundColor:"#fff",
 				borderColor:"#fff",
@@ -636,18 +640,18 @@ var registrationObj = {
 				width: 700
 			},
 			overlayClose:true
-		});
+		} );
 	},
-	formatFieldCode: function (input) {
+	formatFieldCode: function ( input ) {
 		var v = input.value;
-		if (v.match(/^[a-zA-Z]{3}$/) !== null) {
+		if ( v.match( /^[a-zA-Z]{3}$/ ) !== null ) {
 			input.value = v + '-';
 		}
 	},
 	updateCourses: function () {
-		$('#loading-bar').show();
-		$('#results').fadeIn();
+		$( '#loading-bar' ).show();
+		$( '#results' ).fadeIn();
 		
-		$('#form-update').submit();
+		$( '#form-update' ).submit();
 	}
 };
