@@ -499,6 +499,7 @@ class Capsule {
                 }
                 
                 $name = trim( str_replace( ':', '', $row->nodes[ 1 ]->text() ) );
+
                 if ( $name == $program[ 'Program' ][ 'name' ] ) {
                     // Extract link
                     $links = $row->find( 'a' );
@@ -506,7 +507,9 @@ class Capsule {
                     break;
                 }
             }
+        }
 
+        foreach ( $programs as &$program ) {
             if ( isset( $program[ 'Program' ][ 'link' ] ) and ( !empty( $program[ 'Program' ][ 'link' ] ) ) ) {
                 // Fetch Attestation de cheminement
                 $request = $this->_fetchPage( '/pls/etprod7/bwckcapp.P_VerifyDispEvalViewOption', 'POST', array(
@@ -715,7 +718,9 @@ class Capsule {
                     break;
                 }
             }
+        }
 
+        foreach ( $programs as &$program ) {
             if ( isset( $program[ 'Program' ][ 'link' ] ) and ( !empty( $program[ 'Program' ][ 'link' ] ) ) ) {
                 // Fetch Rapport de cheminement détaillé
                 $request = $this->_fetchPage( '/pls/etprod7/bwckcapp.P_VerifyDispEvalViewOption', 'POST', array(
