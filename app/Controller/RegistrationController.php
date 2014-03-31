@@ -79,9 +79,15 @@ class RegistrationController extends AppController {
 		if ( $this->Session->read( 'Registration.semester' ) != '' ) {
 			$this->registrationSemester = $this->Session->read( 'Registration.semester' );
 		} else {
-			$this->registrationSemester = '201401';
+			$this->registrationSemester = '201409';
 			$this->Session->write( 'Registration.semester', $this->registrationSemester );
 		}
+
+        // If unregistration is still possible for current semester, add it to the registration semesters list
+        if ( !in_array( $this->currentSemester, $this->registrationSemesters ) && $this->deadlines[ $this->currentSemester ][ 'drop_fee' ] >= date( 'Ymd' ) ) {
+            $this->registrationSemesters[] = $this->currentSemester;
+            sort( $this->registrationSemesters );
+        }
 
 		$this->CapsuleAuth->allow( 'enableBetaRegistration' );
 	}
