@@ -88,15 +88,6 @@ class RegistrationController extends AppController {
             $this->registrationSemesters[] = $this->currentSemester;
             sort( $this->registrationSemesters );
         }
-
-		$this->CapsuleAuth->allow( 'enableBetaRegistration' );
-	}
-
-	public function enableBetaRegistration() {
-		// Save temporary cookie
-		$this->Cookie->write( 'pilule-registration-temp', 'yes', false, '30 days' );
-
-		$this->redirect( array( 'action' => 'index' ) );
 	}
 
 	public function index ( $semester = null, $programId = null ) {
@@ -597,7 +588,7 @@ class RegistrationController extends AppController {
 		if ( $this->request->is( 'ajax' ) ) {
 			$this->set( 'step', $step );
 
-			if ( $step == 5 ) {
+			if ( $step == 1 ) {
 				// Save cookie
 				$this->Cookie->write( 'pilule-registration-help', 'completed', false, '1 year' );
 			}
