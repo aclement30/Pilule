@@ -5,7 +5,7 @@
         ?><div class="no-print" style="float: left;"><?php
             // Display programs dropdown
             echo $this->element( 'programs_dropdown', array( 'programsList' => $programsList, 'selectedProgram' => $program[ 'Program' ][ 'id' ], 'float' => 'left' ) );
-        ?></div><?php
+        ?></div><div style="clear: both;"></div><?php
     endif;
 ?>
 
