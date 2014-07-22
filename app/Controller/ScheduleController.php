@@ -102,8 +102,25 @@ class ScheduleController extends AppController {
             '201309'    =>  array(
                 date( 'Y-m-d', strtotime( '2 September 2013' ) ), date( 'Y-m-d', strtotime( '13 December 2013' ) )
             ),
+            // Year 2014
             '201401'    =>  array(
                 date( 'Y-m-d', strtotime( '13 January 2014' ) ), date( 'Y-m-d', strtotime( '25 April 2014' ) )
+            ),
+            '201405'    =>  array(
+                date( 'Y-m-d', strtotime( '5 May 2014' ) ), date( 'Y-m-d', strtotime( '15 August 2014' ) )
+            ),
+            '201409'    =>  array(
+                date( 'Y-m-d', strtotime( '1 September 2014' ) ), date( 'Y-m-d', strtotime( '14 December 2014' ) )
+            ),
+            // Year 2015
+            '201501'    =>  array(
+                date( 'Y-m-d', strtotime( '12 January 2015' ) ), date( 'Y-m-d', strtotime( '24 April 2015' ) )
+            ),
+            '201505'    =>  array(
+                date( 'Y-m-d', strtotime( '4 May 2015' ) ), date( 'Y-m-d', strtotime( '14 August 2015' ) )
+            ),
+            '201509'    =>  array(
+                date( 'Y-m-d', strtotime( '31 August 2015' ) ), date( 'Y-m-d', strtotime( '11 December 2015' ) )
             )
         );
 	}
