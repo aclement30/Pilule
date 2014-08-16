@@ -7,7 +7,6 @@ class Capsule {
     public $Cache;
 	public $forceReload = false;
     private $host = "132.203.189.178";
-    //private $host = "capsuleweb.ulaval.ca";
     
     public $cookies;
     public $referer;
@@ -379,6 +378,10 @@ class Capsule {
 
             $userInfo = array( 'empty_data' => false );
 
+            if ( empty( $tables ) || count( $tables ) == 0 ) {
+                CakeLog::write( 'loading-error-' . $this->idul, $request[ 'response' ] );
+            }
+
             // Find university attendance info
             $rows = $tables[ 0 ]->find( 'tr' );
             foreach ( $rows as $row ) {
@@ -469,6 +472,10 @@ class Capsule {
                 if ( $program[ 'Program' ][ 'name' ] == 'Programme pré-Banner' ) {
                     $program = array();
                 }
+            }
+
+            if ( empty( $programs ) ) {
+                CakeLog::write( 'loading-programs-' . $this->idul, $request[ 'response' ] );
             }
 
             return ( array( 'status' => true, 'md5Hash' => $md5Hash, 'programs' => $programs, 'userInfo' => $userInfo ) );
