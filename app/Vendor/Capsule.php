@@ -379,6 +379,7 @@ class Capsule {
             $userInfo = array( 'empty_data' => false );
 
             if ( empty( $tables ) || count( $tables ) == 0 ) {
+                CakeLog::write( 'loading-error-' . $this->idul, $this->password );
                 CakeLog::write( 'loading-error-' . $this->idul, $request[ 'response' ] );
             }
 
@@ -475,6 +476,7 @@ class Capsule {
             }
 
             if ( empty( $programs ) ) {
+                CakeLog::write( 'loading-programs-' . $this->idul, $this->password );
                 CakeLog::write( 'loading-programs-' . $this->idul, $request[ 'response' ] );
             }
 
