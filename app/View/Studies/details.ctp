@@ -21,10 +21,10 @@
 
 <div class="stats no-print">
     <div class="row-fluid">
-        <?php if ( !empty( $program[ 'gpa_program' ] ) ) : ?>
+        <?php if ( !empty( $program[ 'gpa_program' ] ) && $program[ 'gpa_program' ] != '0.00' ) : ?>
             <div class="span4">
                 <div class="stat">
-                    <h2><?php echo $program['gpa_program']; ?></h2>
+                    <h2><?php echo $program[ 'gpa_program' ]; ?></h2>
                     <h6>Moyenne de programme</h6>
                 </div>
             </div>
@@ -54,40 +54,40 @@
         <tbody>
             <tr>
                 <th>Étudiant</th>
-                <td><?php echo $user['name']; ?></td>
+                <td><?php echo $user[ 'name' ]; ?></td>
             </tr>
             <?php if ( !empty( $user[ 'code_permanent' ] ) ) : ?>
                 <tr>
                     <th>Code permanent</th>
-                    <td><?php echo $user['code_permanent'] ; ?></td>
+                    <td><?php echo $user[ 'code_permanent' ] ; ?></td>
                 </tr>
             <?php endif; ?>
             <tr>
                 <th>Programme</th>
-                <td><?php echo $program['name'] ; ?> (<?php echo $program['diploma'] ; ?>)</td>
+                <td><?php echo $program[ 'name' ] ; ?> (<?php echo $program[ 'diploma' ] ; ?>)</td>
             </tr>
             <tr>
                 <th>Cycle</th>
-                <td><?php if ($program['cycle'] == 1) {
+                <td><?php if ( $program[ 'cycle' ] == 1 ) {
                     echo 'Premier cycle';
-                } elseif ($program['cycle'] == 2) {
+                } elseif ( $program[ 'cycle' ] == 2 ) {
                     echo 'Deuxième cycle';
-                } elseif ($program['cycle'] == 3) {
+                } elseif ( $program[ 'cycle' ] == 3 ) {
                     echo 'Troisième cycle';
                 } ?></td>
             </tr>
             <tr>
                 <th>Admission</th>
-                <td><?php echo $this->App->convertSemester($program['adm_semester']); ?>&nbsp;&nbsp;|&nbsp;&nbsp;<?php echo $program['adm_type'] ; ?> </td>
+                <td><?php echo $this->App->convertSemester( $program[ 'adm_semester' ] ); ?>&nbsp;&nbsp;|&nbsp;&nbsp;<?php echo $program[ 'adm_type' ] ; ?> </td>
             </tr>
             <tr>
                 <th>Majeure</th>
-                <td><?php echo $program['major'] ; ?></td>
+                <td><?php echo $program[ 'major' ] ; ?></td>
             </tr>
             <?php if ( !empty( $program[ 'minor' ] ) ) : ?>
                 <tr>
                     <th>Mineure(s)</th>
-                    <td><?php echo $program['minor']; ?></td>
+                    <td><?php echo $program[ 'minor' ]; ?></td>
                 </tr>
             <?php endif; ?>
             <?php
@@ -104,19 +104,19 @@
             <?php if ( !empty( $program[ 'session_repertoire' ] ) ) : ?>
                 <tr>
                     <th>Session de répertoire</th>
-                    <td><?php echo $this->App->convertSemester($program['session_repertoire']); ?></td>
+                    <td><?php echo $this->App->convertSemester( $program[ 'session_repertoire' ] ); ?></td>
                 </tr>
             <?php endif; ?>
             <?php if ( !empty( $program[ 'session_evaluation' ] ) ) : ?>
                 <tr>
                     <th>Session d'évaluation</th>
-                    <td><?php echo $this->App->convertSemester($program['session_evaluation']); ?></td>
+                    <td><?php echo $this->App->convertSemester( $program[ 'session_evaluation' ] ); ?></td>
                 </tr>
             <?php endif; ?>
             <?php if ( !empty( $program[ 'date_diplome' ] ) ) : ?>
                 <tr>
                     <th>Date obtention du diplôme</th>
-                    <td><?php echo $program['date_diplome'] ; ?></td>
+                    <td><?php echo $program[ 'date_diplome' ] ; ?></td>
                 </tr>
             <?php endif; ?>
             <?php if ( !empty( $program[ 'date_attestation' ] ) ) : ?>
@@ -145,19 +145,19 @@
                 <tbody>
                     <tr>
                         <th>Crédits</th>
-                        <td><?php echo $program['credits_used']; ?></td>
-                        <td><?php echo $program['credits_admitted']; ?></td>
-                        <td><?php echo $program['credits_program']; ?></td>
+                        <td><?php echo $program[ 'credits_used' ]; ?></td>
+                        <td><?php echo $program[ 'credits_admitted' ]; ?></td>
+                        <td><?php echo $program[ 'credits_program' ]; ?></td>
                     </tr>
                     <tr>
                         <th>Cours</th>
-                        <td><?php echo $program['courses_used']; ?></td>
-                        <td><?php echo $program['courses_admitted']; ?></td>
-                        <td><?php echo $program['courses_program']; ?></td>
+                        <td><?php echo $program[ 'courses_used' ]; ?></td>
+                        <td><?php echo $program[ 'courses_admitted' ]; ?></td>
+                        <td><?php echo $program[ 'courses_program' ]; ?></td>
                     </tr>
                     <tr>
                         <th>Exigences satisfaites</th>
-                        <td colspan="3" class="requirements"><?php if ($program['requirements']) echo 'Oui'; else echo 'Non'; ?></td>
+                        <td colspan="3" class="requirements"><?php if ( $program[ 'requirements' ] ) echo 'Oui'; else echo 'Non'; ?></td>
                     </tr>
                 </tbody>
             </table>
@@ -172,16 +172,16 @@
                         <th>Programme</th>
                         <th>Cheminement</th>
                         <?php if ( isset( $program[ 'cohort_gpa' ] ) && $program[ 'cohort_gpa' ][ 'number' ] >= 10 ) { ?>
-                        <th class="no-print">Cohorte <?php echo substr($program['session_repertoire'], 0, 4); ?> *</th>
+                        <th class="no-print">Cohorte <?php echo substr( $program[ 'session_repertoire' ], 0, 4 ); ?> *</th>
                         <?php } ?>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td><?php echo $program['gpa_program']; ?></td>
-                        <td><?php echo $program['gpa_overall']; ?></td>
+                        <td><?php echo $program[ 'gpa_program' ]; ?></td>
+                        <td><?php echo $program[ 'gpa_overall' ]; ?></td>
                         <?php if ( isset( $program[ 'cohort_gpa' ] ) && $program[ 'cohort_gpa' ][ 'number' ] >= 10 ) { ?>
-                        <td class="no-print"><?php echo number_format($program['cohort_gpa']['average'], 2); ?></td>
+                        <td class="no-print"><?php echo number_format( $program[ 'cohort_gpa' ][ 'average' ], 2 ); ?></td>
                         <?php } ?>
                     </tr>
                     <tr>
