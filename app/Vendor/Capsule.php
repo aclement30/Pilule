@@ -493,7 +493,9 @@ class Capsule {
                 }
             }
 
-            $program[ 'concentrations' ] = serialize( $program[ 'concentrations' ] );
+            if ( !empty( $program[ 'concentrations' ] ) && is_array( $program[ 'concentrations' ] ) ) {
+                $program[ 'concentrations' ] = serialize( $program[ 'concentrations' ] );
+            }
             $program[ 'idul' ] = $this->idul;
             $programs[] = array( 'Program' => $program );
 
