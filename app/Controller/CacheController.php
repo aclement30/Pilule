@@ -72,13 +72,12 @@ class CacheController extends AppController {
                 $startTime = microtime( true );
 
 				// Load studies programs
-				$result = $this->Capsule->getStudies( $md5Hash, CURRENT_SEMESTER );
+				$result = $this->Capsule->getStudies( $md5Hash );
 
                 $responseTime = microtime( true ) - $startTime;
 
                 if ( $result === true ) {
                     // Similar data have been found in DB (not reloaded)
-
                     // Update last data checkup timestamp
                     $this->CacheRequest->saveRequest( $this->Session->read( 'User.idul' ), 'studies-summary', $result[ 'md5Hash' ], $responseTime );
                 } elseif ( !$result ) {
@@ -143,7 +142,7 @@ class CacheController extends AppController {
                 $startTime = microtime( true );
 
 				// Load Rapport de cheminement
-                $result = $this->Capsule->getStudiesDetails( $md5Hash, CURRENT_SEMESTER, $userPrograms );
+                $result = $this->Capsule->getStudiesDetails( $md5Hash, null, $userPrograms );
 
                 $responseTime = microtime( true ) - $startTime;
 
@@ -197,7 +196,7 @@ class CacheController extends AppController {
                 $startTime = microtime( true );
 
                 // Load Rapport de cheminement détaillé
-                $result = $this->Capsule->getStudiesCourses( $md5Hash, $semester, $userPrograms );
+                $result = $this->Capsule->getStudiesCourses( $md5Hash, null, $userPrograms );
 
                 $responseTime = microtime( true ) - $startTime;
 
@@ -277,7 +276,7 @@ class CacheController extends AppController {
                 $startTime = microtime( true );
 
                 // Load Rapport de cheminement détaillé
-                $result = $this->Capsule->getStudiesCourses( $md5Hash, $semester, $userPrograms );
+                $result = $this->Capsule->getStudiesCourses( $md5Hash, null, $userPrograms );
 
                 $responseTime = microtime( true ) - $startTime;
 
@@ -526,7 +525,7 @@ class CacheController extends AppController {
         if ( $this->debugMode ) {
             print ob_get_clean();
         } else {
-            CakeLog::write( 'loading-data', ob_get_clean() );
+            //CakeLog::write( 'loading-data', ob_get_clean() );
         }
 
         if ( $error ) {

@@ -354,11 +354,40 @@ class Capsule {
     */
 
 	// Get studies summary
-    public function getStudies ( $md5Hash, $semester ) {
-        $request = $this->_fetchPage( '/pls/etprod7/bwskgstu.P_StuInfo', 'POST', array( 'term_in' => $semester ) );
-        
+    public function getStudies ( $md5Hash, $semester = null ) {
+        if ( !empty( $semester ) || CakeSession::check( 'Capsule.semester' ) ) {
+            if ( CakeSession::check( 'Capsule.semester' ) ) {
+                $semester = CakeSession::read( 'Capsule.semester' );
+            }
+
+            // Get list of Rapport de cheminement
+            $request = $this->_fetchPage( '/pls/etprod7/bwskgstu.P_StuInfo', 'POST', array( 'term_in' => $semester ) );
+        } else {
+            // Fetch semesters list
+            $request = $this->_fetchPage( '/pls/etprod7/bwskgstu.P_StuInfo', 'POST', array( 'term_in' => '' ) );
+            
+            // Parse DOM structure from response
+            $this->domparser->load( $request[ 'response' ] );
+
+            // Find first available semester
+            $select = $this->domparser->find( 'select#term_id' );
+
+            if ( !empty( $select ) ) {
+                $options = $select[ 0 ]->find( 'option' );
+                $semester = $options[ 0 ]->getAttribute( 'value' );
+
+                if ( empty( $semester ) )
+                    return ( array( 'status' => false ) );
+
+                CakeSession::write( 'Capsule.semester', $semester );
+
+                // Get list of Rapport de cheminement
+                $request = $this->_fetchPage( '/pls/etprod7/bwskgstu.P_StuInfo', 'POST', array( 'term_in' => $semester ) );
+            }
+        }
+
         // Check if student has studies info
-        if ( strpos( $request[ 'response' ], "Il n'existe pas d'informations étudiantes disponibles" ) )
+        if ( strpos( $request[ 'response' ], "tudiantes disponibles" ) )
             return ( array( 'status' => false ) );
         
         // Parse studies data
@@ -490,11 +519,39 @@ class Capsule {
 	}
 	
 	// Rapport de cheminement
-	public function getStudiesDetails ( $md5Hash, $semester, $programs ) {
-        $userInfo = array();
+	public function getStudiesDetails ( $md5Hash, $semester = null, $programs ) {
+        if ( !empty( $semester ) || CakeSession::check( 'Capsule.semester' ) ) {
+            if ( CakeSession::check( 'Capsule.semester' ) ) {
+                $semester = CakeSession::read( 'Capsule.semester' );
+            }
 
-        // Get list of Rapport de cheminement
-        $request = $this->_fetchPage( '/pls/etprod7/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => $semester ) );
+            // Get list of Rapport de cheminement
+            $request = $this->_fetchPage( '/pls/etprod7/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => $semester ) );
+        } else {
+            // Fetch semesters list
+            $request = $this->_fetchPage( '/pls/etprod7/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => '' ) );
+            
+            // Parse DOM structure from response
+            $this->domparser->load( $request[ 'response' ] );
+
+            // Find first available semester
+            $select = $this->domparser->find( 'select#term_in_id' );
+
+            if ( !empty( $select ) ) {
+                $options = $select[ 0 ]->find( 'option' );
+                $semester = $options[ 0 ]->getAttribute( 'value' );
+
+                if ( empty( $semester ) )
+                    return ( array( 'status' => false ) );
+
+                CakeSession::write( 'Capsule.semester', $semester );
+
+                // Get list of Rapport de cheminement
+                $request = $this->_fetchPage( '/pls/etprod7/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => $semester ) );
+            }
+        }
+
+        $userInfo = array();
 
         // Parse DOM structure from response
         $this->domparser->load( $request[ 'response' ] );
@@ -706,11 +763,39 @@ class Capsule {
 	}
 	
     // Rapport de cheminement détaillé
-    public function getStudiesCourses ( $md5Hash, $semester, $programs ) {
-        $userInfo = array();
+    public function getStudiesCourses ( $md5Hash, $semester = null, $programs ) {
+        if ( !empty( $semester ) || CakeSession::check( 'Capsule.semester' ) ) {
+            if ( CakeSession::check( 'Capsule.semester' ) ) {
+                $semester = CakeSession::read( 'Capsule.semester' );
+            }
 
-        // Get list of Rapport de cheminement
-        $request = $this->_fetchPage( '/pls/etprod7/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => $semester ) );
+            // Get list of Rapport de cheminement
+            $request = $this->_fetchPage( '/pls/etprod7/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => $semester ) );
+        } else {
+            // Fetch semesters list
+            $request = $this->_fetchPage( '/pls/etprod7/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => '' ) );
+            
+            // Parse DOM structure from response
+            $this->domparser->load( $request[ 'response' ] );
+
+            // Find first available semester
+            $select = $this->domparser->find( 'select#term_in_id' );
+
+            if ( !empty( $select ) ) {
+                $options = $select[ 0 ]->find( 'option' );
+                $semester = $options[ 0 ]->getAttribute( 'value' );
+
+                if ( empty( $semester ) )
+                    return ( array( 'status' => false ) );
+
+                CakeSession::write( 'Capsule.semester', $semester );
+
+                // Get list of Rapport de cheminement
+                $request = $this->_fetchPage( '/pls/etprod7/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => $semester ) );
+            }
+        }
+
+        $userInfo = array();
 
         // Parse DOM structure from response
         $this->domparser->load( $request[ 'response' ] );
