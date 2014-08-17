@@ -182,7 +182,7 @@ CakeLog::config( 'error', array(
 
 CakePlugin::load( 'Postmark' );
 
-define ( 'CURRENT_SEMESTER', 201401 );			// Current semester
+define ( 'CURRENT_SEMESTER', 201409 );			// Current semester
 define ( 'DATA_EXPIRATION_DELAY', 21600 );		// Default data expiration delay : 6 hours
 
 Configure::write( 'Superadmin', array( 'cookie' => 'gs127IxunYhWw3b0qfG1!@gmo2q&QSmmhuIQSlqs;.a;Aisg21kuSBG@67126Y!K2hbilq27TBQW*' ) );
