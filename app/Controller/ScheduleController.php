@@ -127,8 +127,13 @@ class ScheduleController extends AppController {
 
 	public function index ( $semester = null ) {
         // Check if a semester has been provided
-        if ( empty( $semester ) )
-            $semester = CURRENT_SEMESTER;
+        if ( empty( $semester ) ) {
+            $semestersList = $this->StudentScheduleSemester->find( 'list', array(
+                'conditions'    =>  array( 'StudentScheduleSemester.idul' => $this->Session->read( 'User.idul' ) )
+            ) );
+
+            $semester = current( $semestersList );
+        }
         
 		// Set basic page parameters
 		$this->set( 'breadcrumb', array(
@@ -159,7 +164,7 @@ class ScheduleController extends AppController {
 		$this->set( 'title_for_layout', 'Horaire<span class="long"> de cours</span>' );
         $this->setAssets( array( '/js/schedule.js' ), array( '/css/schedule.css' ) );
         $this->set( 'dataObject', 'schedule' );
-        
+       
 		$schedule = $this->StudentScheduleSemester->find( 'first', array(
 			'conditions'	=>	array( 'StudentScheduleSemester.idul' => $this->Session->read( 'User.idul' ), 'StudentScheduleSemester.semester' => $semester  ),
         	'contain'		=>	array( 'Course' => array( 'Class' ) )
