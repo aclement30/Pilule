@@ -16,7 +16,7 @@ class CacheRequest extends AppModel {
 			'conditions'	=>	array( 'CacheRequest.idul' => CakeSession::read( 'User.idul' ), 'CacheRequest.name' => $dataObject )
 		) );
 
-		if ( !isset( $request[ 'CacheRequest' ] ) or empty( $request[ 'CacheRequest' ] ) ) {
+		if ( empty( $request[ 'CacheRequest' ] ) ) {
 			$request = array( 'CacheRequest' => array(
 				'idul'			=>	$idul,
 				'name'			=>	$dataObject,
@@ -34,6 +34,7 @@ class CacheRequest extends AppModel {
 			$request[ 'CacheRequest' ][ 'md5' ] = $md5Hash;
 		}
 
+		$this->create();
 		$this->set( $request );
 
 		// Update data request timestamp
