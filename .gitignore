@@ -36,3 +36,5 @@ Thumbs.db
 app/tmp/*
 app/tmp/cache/*
 .sass-cache
+Capfile
+config
