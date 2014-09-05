@@ -20,7 +20,7 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
-App::uses('Helper', 'View');
+App::uses( 'Helper', 'View' );
 
 /**
  * Application helper
@@ -58,7 +58,7 @@ class AppHelper extends Helper {
                     break;
             }
 
-            return ($semester);
+            return ( $semester );
         } else {
             // Semester is in text format
             $textSemester = '';
@@ -103,9 +103,9 @@ class AppHelper extends Helper {
 
                 // Check if semester begins before on first class day
                 if ( ( $params[ 'weekdays' ][ $class[ 'day' ] ] + 1 ) < date( 'N', mktime( floor( $class[ 'hour_start' ] ), 0, 0, substr( $class[ 'date_start' ], 4, 2 ), substr( $class[ 'date_start' ], 6, 2 ), substr( $class[ 'date_start' ], 0, 4 ) ) ) ) {
-                    $firstDay = mktime( floor( $class[ 'hour_start' ] ), 0, 0, substr( $class[ 'date_start' ], 4, 2 ), substr( $class[ 'date_start' ], 6, 2), substr( $class[ 'date_start' ], 0, 4 ) ) + ( ( ( 6 - $params[ 'weekdays' ][ $class[ 'day' ] ] ) + $params[ 'weekdays' ][ $class[ 'day' ] ] ) * 3600 * 24 );
+                    $firstDay = mktime( floor( $class[ 'hour_start' ] ), 0, 0, substr( $class[ 'date_start' ], 4, 2 ), substr( $class[ 'date_start' ], 6, 2 ), substr( $class[ 'date_start' ], 0, 4 ) ) + ( ( ( 6 - $params[ 'weekdays' ][ $class[ 'day' ] ] ) + $params[ 'weekdays' ][ $class[ 'day' ] ] ) * 3600 * 24 );
                 } else {
-                    $firstDay = mktime( floor( $class[ 'hour_start' ] ), 0, 0, substr( $class[ 'date_start' ], 4, 2 ), substr( $class[ 'date_start' ], 6, 2), substr( $class[ 'date_start' ], 0, 4 ) ) + ( ( ( $params[ 'weekdays' ][ $class[ 'day' ] ] + 1 ) - date( 'N', mktime( floor( $class[ 'hour_start' ] ), 0, 0, substr( $class[ 'date_start' ], 4, 2 ), substr( $class[ 'date_start' ], 6, 2 ), substr( $class[ 'date_start' ], 0, 4 ) ) ) ) * 3600 * 24 );
+                    $firstDay = mktime( floor( $class[ 'hour_start' ] ), 0, 0, substr( $class[ 'date_start' ], 4, 2 ), substr( $class[ 'date_start' ], 6, 2 ), substr( $class[ 'date_start' ], 0, 4 ) ) + ( ( ( $params[ 'weekdays' ][ $class[ 'day' ] ] + 1 ) - date( 'N', mktime( floor( $class[ 'hour_start' ] ), 0, 0, substr( $class[ 'date_start' ], 4, 2 ), substr( $class[ 'date_start' ], 6, 2 ), substr( $class[ 'date_start' ], 0, 4 ) ) ) ) * 3600 * 24 );
                 }
                 $lastDay = mktime( floor( $class[ 'hour_end' ] ), 0, 0, substr( $class[ 'date_end' ], 4, 2 ), substr( $class[ 'date_end' ], 6, 2 ), substr( $class[ 'date_end' ], 0, 4 ) );
                 $currentDay = $firstDay;
@@ -153,6 +153,9 @@ class AppHelper extends Helper {
                             'startTime' =>  $class[ 'hour_start' ],
                             'endDay'    =>  date( 'Y-m-d' , $currentDay ),
                             'endTime'   =>  $class[ 'hour_end' ],
+                            'nrc'       =>  $course[ 'Course' ][ 'nrc' ],
+                            'semester'  =>  $params[ 'semester' ],
+                            'type'      =>  $class[ 'type' ],
                             'allDay'    =>  false
                         );
                     }
@@ -164,12 +167,12 @@ class AppHelper extends Helper {
         }
 
         if ( $params[ 'semester' ] == CURRENT_SEMESTER ) {
-            $schedule[ 'startDay' ] = (int)date( 'd' );
-            $schedule[ 'startMonth' ] = (int)date( 'm' );
+            $schedule[ 'startDay' ] = ( int )date( 'd' );
+            $schedule[ 'startMonth' ] = ( int )date( 'm' );
             $schedule[ 'startYear' ] = date( 'Y' );
         } else {
-            $schedule[ 'startDay' ] = (int)substr( $schedule[ 'startDate' ], 6, 2 );
-            $schedule[ 'startMonth' ] = (int)substr( $schedule[ 'startDate' ], 4, 2 );
+            $schedule[ 'startDay' ] = ( int )substr( $schedule[ 'startDate' ], 6, 2 );
+            $schedule[ 'startMonth' ] = ( int )substr( $schedule[ 'startDate' ], 4, 2 );
             $schedule[ 'startYear' ] = substr( $schedule[ 'startDate' ], 0, 4 );
         }
 
@@ -325,6 +328,8 @@ class AppHelper extends Helper {
                             }
 
                             $class[ 'teacher' ] = str_replace( ' (P)', '', $class[ 'teacher' ] );
+                            $class[ 'code' ] = array_shift( Set::extract( '/Course[id=' . $class[ 'course_id' ] . ']/code', $courses ) );
+                            $class[ 'semester' ] = $params[ 'semester' ];
 
                             $timetable[ $currentTime ][ $index ][ 'class' ] = $class;
                             $timetable[ $currentTime ][ $index ][ 'length' ] = $classLength;
@@ -371,12 +376,12 @@ class AppHelper extends Helper {
         }
 
         if ( $params[ 'semester' ] == CURRENT_SEMESTER ) {
-            $schedule[ 'startDay' ] = (int)date( 'd' );
-            $schedule[ 'startMonth' ] = (int)date( 'm' );
+            $schedule[ 'startDay' ] = ( int )date( 'd' );
+            $schedule[ 'startMonth' ] = ( int )date( 'm' );
             $schedule[ 'startYear' ] = date( 'Y' );
         } else {
-            $schedule[ 'startDay' ] = (int)substr( $schedule[ 'startDate' ], 6, 2 );
-            $schedule[ 'startMonth' ] = (int)substr( $schedule[ 'startDate' ], 4, 2 );
+            $schedule[ 'startDay' ] = ( int )substr( $schedule[ 'startDate' ], 6, 2 );
+            $schedule[ 'startMonth' ] = ( int )substr( $schedule[ 'startDate' ], 4, 2 );
             $schedule[ 'startYear' ] = substr( $schedule[ 'startDate' ], 0, 4 );
         }
 

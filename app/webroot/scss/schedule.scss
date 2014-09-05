@@ -137,6 +137,15 @@
                     .location .label {
                         display: none;
                     }
+
+                    a {
+                        color: white;
+                        text-decoration: underline;
+
+                        &:hover {
+                            color: black;
+                        }
+                    }
                 }
 
                 &.length-half {

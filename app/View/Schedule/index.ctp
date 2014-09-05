@@ -206,7 +206,15 @@
 														<?php if ( !empty( $cell[ 'class' ][ 'locationShort' ] ) ): ?>
 															<div class="location"><i class="icon-map-marker icon-white"></i><span class="label">Local :</span> <?php echo $cell[ 'class' ][ 'locationShort' ]; ?></div>
 														<?php else: ?>
-															<div class="location"><i class="icon-briefcase icon-white"></i> <?php echo $cell[ 'class' ][ 'type' ]; ?></div>
+															<div class="location">
+																<i class="icon-briefcase icon-white"></i> 
+																<?php
+																	if ( preg_match( '/Classe virtuelle synchrone/', $cell[ 'class' ][ 'type' ] ) ) :
+																		// Display link to virtual class
+																		echo $this->Html->link( $cell[ 'class' ][ 'type' ], 'https://connect.ulaval.ca/' . strtolower( $cell[ 'class' ][ 'code' ] ) . '-' . $cell[ 'class' ][ 'nrc' ] . '-' . str_replace( '-', '', strtolower( $this->App->convertSemester( $cell[ 'class' ][ 'semester' ], true ) ) ), array( 'escape' => false, 'target' => '_blank' ) );
+																	else:
+																		echo $cell[ 'class' ][ 'type' ];
+																	endif; ?></div>
 														<?php endif; ?>
 													</div>
 												</td>

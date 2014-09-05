@@ -25,13 +25,13 @@ VERSION:2.0
 		if ( floor( $event[ 'startTime' ] ) != $event[ 'startTime' ] ) {
 			$event[ 'startTime' ] = str_replace( '.5', ':30', $event[ 'startTime' ] );
 		} else {
-			$event[ 'startTime' ] .= ':00';
+			$event[ 'startTime' ] = ( int )$event[ 'startTime' ] . ':00';
 		}
 
 		if ( floor( $event[ 'endTime' ] ) != $event[ 'endTime' ] ) {
 			$event[ 'endTime' ] = str_replace( '.5', ':30', $event[ 'endTime' ] );
 		} else {
-			$event[ 'endTime' ] .= ':00';
+			$event[ 'endTime' ] = ( int )$event[ 'endTime' ] . ':00';
 		}
 
 		// Add 0 padding before hour, if hour is before 10
@@ -51,6 +51,8 @@ SUMMARY:<?php echo $event[ 'title' ]; ?>
 DTEND;TZID=Canada/Eastern:<?php echo str_replace( ':', '', str_replace( '-', '', str_replace( ' ', 'T', $event[ 'endDay' ] . ' ' . $event[ 'endTime' ] . '00' ) ) ); ?>
 
 LOCATION:<?php echo $event[ 'location' ]; ?>
+
+<?php if ( preg_match( '/Classe virtuelle synchrone/', $event[ 'type' ] ) ) echo 'URL;VALUE=URI:https://connect.ulaval.ca/' . strtolower( $event[ 'code' ] ) . '-' . $event[ 'nrc' ] . '-' . str_replace( '-', '', strtolower( $this->App->convertSemester( $event[ 'semester' ], true ) ) ); ?>
 
 END:VEVENT
 <?php endforeach; ?>
