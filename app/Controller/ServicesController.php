@@ -3,7 +3,7 @@ class ServicesController extends AppController {
 	public $layout = 'redirection';
 	public $uses = array( 'User' );
 
-	public function connect( $service = null ) {
+	public function connect( $service = null, $redirectUrl = null ) {
 		if ( empty( $service ) )
 			throw new NotFoundException();
 
@@ -26,16 +26,98 @@ class ServicesController extends AppController {
 				$insideIframe = true;
 				$fields = array(
 					'sid'		=>	$this->Session->read( 'User.idul' ),
-					'PIN'		=>	$this->Session->read( 'User.password' )
+					'PIN'		=>	$this->CapsuleAuth->userPassword
+				);
+				break;
+			case 'capsule-registration':
+				$title_for_layout = 'Capsule';
+				$formUrl = array( 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_ValLogin', 'https://capsuleweb.ulaval.ca/pls/etprod7/bwskfreg.P_AltPin' );
+				$loadingFrameUrl = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_WWWLogin';
+				$insideIframe = true;
+				$fields = array(
+					// Login form
+					array(
+						'sid'		=>	$this->Session->read( 'User.idul' ),
+						'PIN'		=>	$this->CapsuleAuth->userPassword
+					),
+					// Registration page
+					array(
+						'term_in'		=>	$this->Session->read( 'Registration.semester' )
+					)
+				);
+				break;
+			case 'capsule-address':
+				$title_for_layout = 'Capsule';
+				$formUrl = array( 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_ValLogin', 'https://capsuleweb.ulaval.ca/pls/etprod7/bwgkogad.P_SelectAtypUpdate' );
+				$loadingFrameUrl = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_WWWLogin';
+				$insideIframe = true;
+				$fields = array(
+					// Login form
+					array(
+						'sid'		=>	$this->Session->read( 'User.idul' ),
+						'PIN'		=>	$this->CapsuleAuth->userPassword
+					),
+					// Address page
+					array(
+					)
+				);
+				break;
+			case 'capsule-fiscal-statement':
+				$title_for_layout = 'Capsule';
+				$formUrl = array( 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_ValLogin', 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_CanTaxMnu' );
+				$loadingFrameUrl = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_WWWLogin';
+				$insideIframe = true;
+				$fields = array(
+					// Login form
+					array(
+						'sid'		=>	$this->Session->read( 'User.idul' ),
+						'PIN'		=>	$this->CapsuleAuth->userPassword
+					),
+					// Fiscal statement page
+					array(
+					)
+				);
+				break;
+			case 'capsule-pdf-statement':
+				$title_for_layout = 'Capsule';
+				$formUrl = array( 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_ValLogin', base64_decode( $redirectUrl ) );
+				$loadingFrameUrl = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_WWWLogin';
+				$insideIframe = true;
+				$fields = array(
+					// Login form
+					array(
+						'sid'		=>	$this->Session->read( 'User.idul' ),
+						'PIN'		=>	$this->CapsuleAuth->userPassword
+					),
+					// PDF statement page
+					array(
+					)
+				);
+				break;
+			case 'capsule-admission':
+				$title_for_layout = 'Capsule';
+				$formUrl = array( 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_ValLogin', 'https://capsuleweb.ulaval.ca/pls/etprod7/bwzkappl.P_Offer' );
+				$loadingFrameUrl = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_WWWLogin';
+				$insideIframe = true;
+				$fields = array(
+					// Login form
+					array(
+						'sid'		=>	$this->Session->read( 'User.idul' ),
+						'PIN'		=>	$this->CapsuleAuth->userPassword
+					),
+					// Admission page
+					array(
+					)
 				);
 				break;
 			case 'adobeconnect':
 				$title_for_layout = 'Adobe Connect';
 				$formUrl = 'https://connect.ulaval.ca/system/login?domain=connect.ulaval.ca&next=%2Fadmin%3Fdomain%3Dconnect.ulaval.ca&set-lang=fr';
+				$loadingFrameUrl = Configure::read( 'Pilule.baseUrl' ) . 'blank.html';
 				$insideIframe = true;
 				$fields = array(
 					'username'		=>	$this->Session->read( 'User.idul' ),
-					'password'		=>	$this->Session->read( 'User.password' )
+					'password'		=>	$this->CapsuleAuth->userPassword
 				);
 				break;
 			case 'exchange':
@@ -48,7 +130,7 @@ class ServicesController extends AppController {
 					'flags'			=>	0,
 					'forcedownlevel'=>	0,
 					'username'		=>	$this->Session->read( 'User.idul' ),
-					'password'		=>	$this->Session->read( 'User.password' ),
+					'password'		=>	$this->CapsuleAuth->userPassword,
 					'isUtf8'		=>	1,
 					'trusted'		=>	0
 				);
@@ -56,18 +138,20 @@ class ServicesController extends AppController {
 			case 'pixel':
 				$title_for_layout = 'Pixel';
 				$formUrl = 'https://pixel.fsg.ulaval.ca/index.pl';
+				$loadingFrameUrl = Configure::read( 'Pilule.baseUrl' ) . 'blank.html';
 				$fields = array(
 					'envoi'				=>	'Se connecter',
 					'code_utilisateur'	=>	$this->Session->read( 'User.idul' ),
-					'password'			=>	$this->Session->read( 'User.password' )
+					'password'			=>	$this->CapsuleAuth->userPassword
 				);
 				break;
 			case 'portailcours':
 				$title_for_layout = 'Portail des cours';
 				$formUrl = 'https://www.portaildescours.ulaval.ca/portail/j_security_check';
+				$loadingFrameUrl = Configure::read( 'Pilule.baseUrl' ) . 'blank.html';
 				$fields = array(
 					'j_username'	=>	$this->Session->read( 'User.idul' ),
-					'j_password'	=>	$this->Session->read( 'User.password' )
+					'j_password'	=>	$this->CapsuleAuth->userPassword
 				);
 				break;
 
