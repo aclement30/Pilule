@@ -21,8 +21,8 @@ class ServicesController extends AppController {
 				break;
 			case 'capsule':
 				$title_for_layout = 'Capsule';
-				$formUrl = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_ValLogin';
-				$loadingFrameUrl = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_WWWLogin';
+				$formUrl = 'https://capsuleweb.ulaval.ca/pls/etprod8/twbkwbis.P_ValLogin';
+				$loadingFrameUrl = 'https://capsuleweb.ulaval.ca/pls/etprod8/twbkwbis.P_WWWLogin';
 				$insideIframe = true;
 				$fields = array(
 					'sid'		=>	$this->Session->read( 'User.idul' ),
@@ -31,8 +31,8 @@ class ServicesController extends AppController {
 				break;
 			case 'capsule-registration':
 				$title_for_layout = 'Capsule';
-				$formUrl = array( 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_ValLogin', 'https://capsuleweb.ulaval.ca/pls/etprod7/bwskfreg.P_AltPin' );
-				$loadingFrameUrl = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_WWWLogin';
+				$formUrl = array( 'https://capsuleweb.ulaval.ca/pls/etprod8/twbkwbis.P_ValLogin', 'https://capsuleweb.ulaval.ca/pls/etprod8/bwskfreg.P_AltPin' );
+				$loadingFrameUrl = 'https://capsuleweb.ulaval.ca/pls/etprod8/twbkwbis.P_WWWLogin';
 				$insideIframe = true;
 				$fields = array(
 					// Login form
@@ -48,8 +48,8 @@ class ServicesController extends AppController {
 				break;
 			case 'capsule-address':
 				$title_for_layout = 'Capsule';
-				$formUrl = array( 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_ValLogin', 'https://capsuleweb.ulaval.ca/pls/etprod7/bwgkogad.P_SelectAtypUpdate' );
-				$loadingFrameUrl = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_WWWLogin';
+				$formUrl = array( 'https://capsuleweb.ulaval.ca/pls/etprod8/twbkwbis.P_ValLogin', 'https://capsuleweb.ulaval.ca/pls/etprod8/bwgkogad.P_SelectAtypUpdate' );
+				$loadingFrameUrl = 'https://capsuleweb.ulaval.ca/pls/etprod8/twbkwbis.P_WWWLogin';
 				$insideIframe = true;
 				$fields = array(
 					// Login form
@@ -64,8 +64,8 @@ class ServicesController extends AppController {
 				break;
 			case 'capsule-fiscal-statement':
 				$title_for_layout = 'Capsule';
-				$formUrl = array( 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_ValLogin', 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_CanTaxMnu' );
-				$loadingFrameUrl = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_WWWLogin';
+				$formUrl = array( 'https://capsuleweb.ulaval.ca/pls/etprod8/twbkwbis.P_ValLogin', 'https://capsuleweb.ulaval.ca/pls/etprod8/twbkwbis.P_GenMenu?name=bmenu.P_CanTaxMnu' );
+				$loadingFrameUrl = 'https://capsuleweb.ulaval.ca/pls/etprod8/twbkwbis.P_WWWLogin';
 				$insideIframe = true;
 				$fields = array(
 					// Login form
@@ -80,8 +80,8 @@ class ServicesController extends AppController {
 				break;
 			case 'capsule-pdf-statement':
 				$title_for_layout = 'Capsule';
-				$formUrl = array( 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_ValLogin', base64_decode( $redirectUrl ) );
-				$loadingFrameUrl = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_WWWLogin';
+				$formUrl = array( 'https://capsuleweb.ulaval.ca/pls/etprod8/twbkwbis.P_ValLogin', base64_decode( $redirectUrl ) );
+				$loadingFrameUrl = 'https://capsuleweb.ulaval.ca/pls/etprod8/twbkwbis.P_WWWLogin';
 				$insideIframe = true;
 				$fields = array(
 					// Login form
@@ -96,8 +96,8 @@ class ServicesController extends AppController {
 				break;
 			case 'capsule-admission':
 				$title_for_layout = 'Capsule';
-				$formUrl = array( 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_ValLogin', 'https://capsuleweb.ulaval.ca/pls/etprod7/bwzkappl.P_Offer' );
-				$loadingFrameUrl = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_WWWLogin';
+				$formUrl = array( 'https://capsuleweb.ulaval.ca/pls/etprod8/twbkwbis.P_ValLogin', 'https://capsuleweb.ulaval.ca/pls/etprod8/bwzkappl.P_Offer' );
+				$loadingFrameUrl = 'https://capsuleweb.ulaval.ca/pls/etprod8/twbkwbis.P_WWWLogin';
 				$insideIframe = true;
 				$fields = array(
 					// Login form

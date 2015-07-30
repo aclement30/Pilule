@@ -33,7 +33,7 @@ class Capsule {
         // Define request arguments
         $arguments = array(
             'HostName'      =>  $this->host,
-            'RequestURI'    =>  "/pls/etprod7/twbkwbis.P_WWWLogin"
+            'RequestURI'    =>  "/pls/etprod8/twbkwbis.P_WWWLogin"
         );
 
         // Open connection to remote server
@@ -67,7 +67,7 @@ class Capsule {
             return( 'server-unavailable' );
 
         // Submit login form
-        $request = $this->_fetchPage( '/pls/etprod7/twbkwbis.P_ValLogin', 'POST', array(
+        $request = $this->_fetchPage( '/pls/etprod8/twbkwbis.P_ValLogin', 'POST', array(
             'sid' =>  $idul,
             'PIN' =>  $password
         ) );
@@ -82,7 +82,7 @@ class Capsule {
             $this->cookies = $cookies;
 
             // Extract user full name from server response
-            $this->userName = substr( $request[ 'response' ], strpos( $request[ 'response' ], "<meta http-equiv=\"refresh\" content=\"0;url=/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_MainMnu&amp;msg=WELCOME" ) );
+            $this->userName = substr( $request[ 'response' ], strpos( $request[ 'response' ], "<meta http-equiv=\"refresh\" content=\"0;url=/pls/etprod8/twbkwbis.P_GenMenu?name=bmenu.P_MainMnu&amp;msg=WELCOME" ) );
             $this->userName = substr( $this->userName, strpos( $this->userName, "WELCOME+" ) + 8 );
             $this->userName = urldecode( substr( $this->userName, 0, strpos( $this->userName, "+bienvenue" ) - 1 ) );
 
@@ -104,7 +104,7 @@ class Capsule {
         $exchange = true;
 
         // Test for Capsule availability
-        $request = $this->_fetchPage( '/pls/etprod7/twbkwbis.P_WWWLogin', 'GET', array(), false );
+        $request = $this->_fetchPage( '/pls/etprod8/twbkwbis.P_WWWLogin', 'GET', array(), false );
 
         if ( !$request ) {
             $capsule = false;
@@ -213,7 +213,7 @@ class Capsule {
         if ( empty( $this->idul ) ) {
             $this->idul = SessionComponent::read( 'User.idul' );
         }
-        $request = $this->_fetchPage( '/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_AdminMnu' );
+        $request = $this->_fetchPage( '/pls/etprod8/twbkwbis.P_GenMenu?name=bmenu.P_AdminMnu' );
 
         // Retry user login if request fails
         if ( !$request || !isset( $request[ 'headers' ] ) || !is_array( $request[ 'headers' ] ) )
@@ -255,7 +255,7 @@ class Capsule {
         $this->fetcher->debug = $this->debug;
 
         if ($this->CI->session->userdata('capsule_referer')=='') {
-            $this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_StuMainMnu';
+            $this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod8/twbkwbis.P_GenMenu?name=bmenu.P_StuMainMnu';
         } else {
             $this->fetcher->referer = $this->CI->session->userdata('capsule_referer');
         }
@@ -263,7 +263,7 @@ class Capsule {
         $this->fetcher->protocol="https";
 
         $arguments['HostName'] = $this->host;
-        $arguments["RequestURI"] = "/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_AdminMnu";
+        $arguments["RequestURI"] = "/pls/etprod8/twbkwbis.P_GenMenu?name=bmenu.P_AdminMnu";
         $error=$this->fetcher->Open($arguments);
         if ($error!="") {
             error_log(__FILE__." : ligne ".__LINE__." | ".$error);
@@ -285,8 +285,8 @@ class Capsule {
 
         $this->fetcher->Close();
 
-        $this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_GenMenu?name=bmenu.P_AdminMnu';
-        $arguments["RequestURI"] = "/pls/etprod7/bwskoacc.P_ViewHold";
+        $this->fetcher->referer = 'https://capsuleweb.ulaval.ca/pls/etprod8/twbkwbis.P_GenMenu?name=bmenu.P_AdminMnu';
+        $arguments["RequestURI"] = "/pls/etprod8/bwskoacc.P_ViewHold";
         $error=$this->fetcher->Open($arguments);
         if ($error!="") {
             error_log(__FILE__." : ligne ".__LINE__." | ".$error);
@@ -361,10 +361,10 @@ class Capsule {
             }
 
             // Get list of Rapport de cheminement
-            $request = $this->_fetchPage( '/pls/etprod7/bwskgstu.P_StuInfo', 'POST', array( 'term_in' => $semester ) );
+            $request = $this->_fetchPage( '/pls/etprod8/bwskgstu.P_StuInfo', 'POST', array( 'term_in' => $semester ) );
         } else {
             // Fetch semesters list
-            $request = $this->_fetchPage( '/pls/etprod7/bwskgstu.P_StuInfo', 'POST', array( 'term_in' => '' ) );
+            $request = $this->_fetchPage( '/pls/etprod8/bwskgstu.P_StuInfo', 'POST', array( 'term_in' => '' ) );
             
             // Parse DOM structure from response
             $this->domparser->load( $request[ 'response' ] );
@@ -382,7 +382,7 @@ class Capsule {
                 CakeSession::write( 'Capsule.semester', $semester );
 
                 // Get list of Rapport de cheminement
-                $request = $this->_fetchPage( '/pls/etprod7/bwskgstu.P_StuInfo', 'POST', array( 'term_in' => $semester ) );
+                $request = $this->_fetchPage( '/pls/etprod8/bwskgstu.P_StuInfo', 'POST', array( 'term_in' => $semester ) );
             }
         }
 
@@ -528,10 +528,10 @@ class Capsule {
             }
 
             // Get list of Rapport de cheminement
-            $request = $this->_fetchPage( '/pls/etprod7/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => $semester ) );
+            $request = $this->_fetchPage( '/pls/etprod8/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => $semester ) );
         } else {
             // Fetch semesters list
-            $request = $this->_fetchPage( '/pls/etprod7/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => '' ) );
+            $request = $this->_fetchPage( '/pls/etprod8/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => '' ) );
             
             // Parse DOM structure from response
             $this->domparser->load( $request[ 'response' ] );
@@ -549,7 +549,7 @@ class Capsule {
                 CakeSession::write( 'Capsule.semester', $semester );
 
                 // Get list of Rapport de cheminement
-                $request = $this->_fetchPage( '/pls/etprod7/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => $semester ) );
+                $request = $this->_fetchPage( '/pls/etprod8/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => $semester ) );
             }
         }
 
@@ -580,7 +580,7 @@ class Capsule {
         foreach ( $programs as &$program ) {
             if ( isset( $program[ 'Program' ][ 'link' ] ) and ( !empty( $program[ 'Program' ][ 'link' ] ) ) ) {
                 // Fetch Attestation de cheminement
-                $request = $this->_fetchPage( '/pls/etprod7/bwckcapp.P_VerifyDispEvalViewOption', 'POST', array(
+                $request = $this->_fetchPage( '/pls/etprod8/bwckcapp.P_VerifyDispEvalViewOption', 'POST', array(
                     'request_no'        =>  substr( $program[ 'Program' ][ 'link' ], strpos( $program[ 'Program' ][ 'link' ], "_no=" ) + 4 ),
                     'program_summary'   =>  '1'
                 ) );
@@ -772,10 +772,10 @@ class Capsule {
             }
 
             // Get list of Rapport de cheminement
-            $request = $this->_fetchPage( '/pls/etprod7/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => $semester ) );
+            $request = $this->_fetchPage( '/pls/etprod8/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => $semester ) );
         } else {
             // Fetch semesters list
-            $request = $this->_fetchPage( '/pls/etprod7/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => '' ) );
+            $request = $this->_fetchPage( '/pls/etprod8/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => '' ) );
             
             // Parse DOM structure from response
             $this->domparser->load( $request[ 'response' ] );
@@ -793,7 +793,7 @@ class Capsule {
                 CakeSession::write( 'Capsule.semester', $semester );
 
                 // Get list of Rapport de cheminement
-                $request = $this->_fetchPage( '/pls/etprod7/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => $semester ) );
+                $request = $this->_fetchPage( '/pls/etprod8/bwcksmmt.P_DispPrevEval', 'POST', array( 'term_in' => $semester ) );
             }
         }
 
@@ -819,7 +819,7 @@ class Capsule {
         foreach ( $programs as &$program ) {
             if ( isset( $program[ 'Program' ][ 'link' ] ) and ( !empty( $program[ 'Program' ][ 'link' ] ) ) ) {
                 // Fetch Rapport de cheminement détaillé
-                $request = $this->_fetchPage( '/pls/etprod7/bwckcapp.P_VerifyDispEvalViewOption', 'POST', array(
+                $request = $this->_fetchPage( '/pls/etprod8/bwckcapp.P_VerifyDispEvalViewOption', 'POST', array(
                     'request_no'        =>  substr( $program[ 'Program' ][ 'link' ], strpos( $program[ 'Program' ][ 'link' ], "_no=" ) + 4 ),
                     'program_summary'   =>  '3'
                 ) );
@@ -917,7 +917,7 @@ class Capsule {
 	// Student report
 	public function getReport ( $md5Hash ) {
         // Get list of student report page
-        $request = $this->_fetchPage( '/pls/etprod7/bwskotrn.P_ViewTran', 'POST', array( 'levl' => '1', 'tprt' => 'WEB' ) );
+        $request = $this->_fetchPage( '/pls/etprod8/bwskotrn.P_ViewTran', 'POST', array( 'levl' => '1', 'tprt' => 'WEB' ) );
 
         // Parse DOM structure from response
         $this->domparser->load( $request[ 'response' ] );
@@ -1165,7 +1165,7 @@ class Capsule {
 
         foreach ( $suggestedSemesters as $semester ) {
             // Get list of student report page
-            $request = $this->_fetchPage( '/pls/etprod7/bwskfshd.P_CrseSchdDetl', 'POST', array( 'term_in' => $semester ) );
+            $request = $this->_fetchPage( '/pls/etprod8/bwskfshd.P_CrseSchdDetl', 'POST', array( 'term_in' => $semester ) );
 
             if ( !strpos( $request[ 'response' ], "Vous n'êtes pas actuellement inscrit pour la session." ) ) {
                 // Parse DOM structure from response
@@ -1309,7 +1309,7 @@ class Capsule {
 	
 	public function getTuitionFees ( $md5Hash, $requested_semester = '' ) {
         // Fetch PDF summary list
-        $request = $this->_fetchPage( '/pls/etprod7/y_bwskfact.p_factures' );
+        $request = $this->_fetchPage( '/pls/etprod8/y_bwskfact.p_factures' );
 
         // Parse DOM structure from response
         $this->domparser->load( $request[ 'response' ] );
@@ -1327,12 +1327,12 @@ class Capsule {
                     $statementUrl = $links[ 0 ]->attr[ 'href' ];
                 }
 
-                $pdfStatements[ $this->_convertSemester( $semesterName ) ] = 'https://capsuleweb.ulaval.ca/pls/etprod7/' . $statementUrl;
+                $pdfStatements[ $this->_convertSemester( $semesterName ) ] = 'https://capsuleweb.ulaval.ca/pls/etprod8/' . $statementUrl;
             }
         }
 
         // Get list of tuition fees page
-        $request = $this->_fetchPage( '/pls/etprod7/bwskoacc.P_ViewAcct' );
+        $request = $this->_fetchPage( '/pls/etprod8/bwskoacc.P_ViewAcct' );
 
         // Parse DOM structure from response
         $this->domparser->load( $request[ 'response' ] );
@@ -1425,7 +1425,7 @@ class Capsule {
 	
     public function checkRegistrationAvailability( $semester ) {
         // Fetch registration page
-        $request = $this->_fetchPage( '/pls/etprod7/bwskfreg.P_AltPin', 'POST', array( 'term_in' => $semester ) );
+        $request = $this->_fetchPage( '/pls/etprod8/bwskfreg.P_AltPin', 'POST', array( 'term_in' => $semester ) );
 
         // Check for error messages in the page
         if ( preg_match( '/Il vous est impossible\sde vous inscrire dans Capsule, car aucune période/', $request[ 'response' ] ) ) {
@@ -1479,7 +1479,7 @@ class Capsule {
 	public function registerCourses ( $nrcArray, $semester, $requestResponse = null ) {
         if ( empty( $requestResponse ) ) {
             // Fetch registration page
-            $request = $this->_fetchPage( '/pls/etprod7/bwskfreg.P_AltPin', 'POST', array( 'term_in' => $semester ) );
+            $request = $this->_fetchPage( '/pls/etprod8/bwskfreg.P_AltPin', 'POST', array( 'term_in' => $semester ) );
         } else {
             $request = array( 'response' => $requestResponse );
         }
@@ -1531,7 +1531,7 @@ class Capsule {
         $postString .= '&REG_BTN=' . urlencode( utf8_decode( 'Soumettre les modifications' ) );
 
         // Submit registration form
-        $request = $this->_fetchPage( '/pls/etprod7/bwckcoms.P_Regs', 'POST', array(), true, array( 'PostString' => $postString ) );
+        $request = $this->_fetchPage( '/pls/etprod8/bwckcoms.P_Regs', 'POST', array(), true, array( 'PostString' => $postString ) );
 
         $responseData[] = $request[ 'response' ];
 
@@ -1565,7 +1565,7 @@ class Capsule {
             $postString = implode( '&', $postString );
 
             // Submit 2nd of registration form
-            $request = $this->_fetchPage( '/pls/etprod7/bwckcoms.p_proc_start_date_confirm', 'POST', array(), true, array( 'PostString' => $postString ) );
+            $request = $this->_fetchPage( '/pls/etprod8/bwckcoms.p_proc_start_date_confirm', 'POST', array(), true, array( 'PostString' => $postString ) );
 
             $responseData[] = $request[ 'response' ];
         }
@@ -1617,7 +1617,7 @@ class Capsule {
 	
 	public function removeCourse ( $nrc, $semester ) {
         // Fetch registration page
-        $request = $this->_fetchPage( '/pls/etprod7/bwskfreg.P_AltPin', 'POST', array( 'term_in' => $semester ) );
+        $request = $this->_fetchPage( '/pls/etprod8/bwskfreg.P_AltPin', 'POST', array( 'term_in' => $semester ) );
 
         // Parse DOM structure from response
         $this->domparser->load( $request[ 'response' ] );
@@ -1692,7 +1692,7 @@ class Capsule {
         $postString .= '&REG_BTN=' . urlencode( 'Soumettre les modifications' );
 
         // Submit registration form
-        $request = $this->_fetchPage( '/pls/etprod7/bwckcoms.P_Regs', 'POST', array(), true, array( 'PostString' => $postString ) );
+        $request = $this->_fetchPage( '/pls/etprod8/bwckcoms.P_Regs', 'POST', array(), true, array( 'PostString' => $postString ) );
 
          // Parse DOM structure from response
         $this->domparser->load( $request[ 'response' ] );
@@ -1716,7 +1716,7 @@ class Capsule {
         $code = explode( '-', strtoupper( $code ) );
 
         // Fetch course page
-        $request = $this->_fetchPage( '/pls/etprod7/bwckctlg.p_disp_course_detail?cat_term_in=' . $semester . '&subj_code_in=' . $code[ 0 ] . '&crse_numb_in=' . $code[ 1 ] );
+        $request = $this->_fetchPage( '/pls/etprod8/bwckctlg.p_disp_course_detail?cat_term_in=' . $semester . '&subj_code_in=' . $code[ 0 ] . '&crse_numb_in=' . $code[ 1 ] );
 
         if ( !strpos( $request[ 'response' ], "Aucun cours à afficher" ) ) {
             $course = array( 'code' => implode( '-', $code ) );
@@ -1820,7 +1820,7 @@ class Capsule {
 
         if ( empty( $request[ 'content' ] ) ) {
             // Fetch course page
-            $request = $this->_fetchPage( '/pls/etprod7/bwckctlg.p_disp_course_detail?cat_term_in=' . $semester . '&subj_code_in=' . $code[ 0 ] . '&crse_numb_in=' . $code[ 1 ] );
+            $request = $this->_fetchPage( '/pls/etprod8/bwckctlg.p_disp_course_detail?cat_term_in=' . $semester . '&subj_code_in=' . $code[ 0 ] . '&crse_numb_in=' . $code[ 1 ] );
         } else {
             $request[ 'response' ] = $request[ 'content' ];
         }
@@ -1835,16 +1835,16 @@ class Capsule {
                 $part = str_replace( 'href= "', 'href="', $part );
                 if ( strpos( $part, "</a>, <Aa" ) ) {
                     // 2 modes d'enseignement
-                    $link = substr( $part, strpos( $part, "/pls/etprod7/" ) );
+                    $link = substr( $part, strpos( $part, "/pls/etprod8/" ) );
                     $link = str_replace( "&amp;", "&", substr( $link, 0, strpos( $link, "\"" ) ) );
                     $links[] = $link;
                     
                     $link = substr( $part, strpos( $part, ">, " ) + 2 );
-                    $link = substr( $link, strpos( $link, "/pls/etprod7/" ) );
+                    $link = substr( $link, strpos( $link, "/pls/etprod8/" ) );
                     $link = str_replace( " &amp;", "&", substr( $link, 0, strpos( $link, "\"" ) ) );
                     $links[] = $link;
                 } else {
-                    $link = substr( $part, strpos( $part, "/pls/etprod7/" ) );
+                    $link = substr( $part, strpos( $part, "/pls/etprod8/" ) );
                     $link = str_replace( "&amp;", "&", substr( $link, 0, strpos( $link, "\"" ) ) );
                     $links[] = $link;
                 }
@@ -1966,7 +1966,7 @@ class Capsule {
 
 	public function updateClassSpots ( $nrc, $semester ) {
         // Get class page
-        $request = $this->_fetchPage( '/pls/etprod7/bwckschd.p_disp_detail_sched?term_in=' . $semester . '&crn_in=' . $nrc );
+        $request = $this->_fetchPage( '/pls/etprod8/bwckschd.p_disp_detail_sched?term_in=' . $semester . '&crn_in=' . $nrc );
 
         // Parse DOM structure from response
         $this->domparser->load( $request[ 'response' ] );
@@ -2117,7 +2117,7 @@ class Capsule {
         }
 
         // Fetch search page
-        $request = $this->_fetchPage( '/pls/etprod7/bwskfcls.P_GetCrse', 'POST', array(), true, array( 'PostString' => $postString ) );
+        $request = $this->_fetchPage( '/pls/etprod8/bwskfcls.P_GetCrse', 'POST', array(), true, array( 'PostString' => $postString ) );
 
         // Check if courses have been found
         if ( strpos( $request[ 'response' ], 'Aucun cours ne correspond' ) ) {

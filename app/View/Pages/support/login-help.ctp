@@ -27,6 +27,6 @@
     <li>Videz la <a href="http://www.commentcamarche.net/faq/3037-vider-le-cache-internet" target="_blank">mémoire cache de votre navigateur</a>. Ils arrivent que des vieux fichiers s'accumulent et causent des erreurs.</li>
     <li>Vérifiez que la touche Caps Lock n'est pas activée.</li>
     <li>Assurez-vous d'avoir les bons identifiants en main (IDUL et mot de passe de Capsule).</li>
-    <li>Essayez de vous <a href="https://capsuleweb.ulaval.ca/pls/etprod7/twbkwbis.P_WWWLogin" target="_blank">connecter sur Capsule</a>.</li>
+    <li>Essayez de vous <a href="https://capsuleweb.ulaval.ca/pls/etprod8/twbkwbis.P_WWWLogin" target="_blank">connecter sur Capsule</a>.</li>
     <li>Si c'est votre première visite sur Pilule, assurez-vous de vous être connecté au moins une fois sur Capsule au préalable. Les étudiants qui n'ont jamais ouvert de session utilisateur sur Capsule obtiendront une erreur à la connexion sur Pilule.</li>
 </ul>
