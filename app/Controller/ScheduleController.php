@@ -68,9 +68,13 @@ class ScheduleController extends AppController {
                 strtotime( '8 March 2014, 23:59' )
             ),
             'easter'          =>  array(
-                strtotime( '18 March 2014' ),
-                strtotime( '21 March 2014, 23:59' )
+                strtotime( '3 April 2015' ),
+                strtotime( '6 April 2015, 23:59' )
             ),
+			'reading-week-201501'  =>  array(
+				strtotime( '2 March 2015' ),
+				strtotime( '7 March 2015, 23:59' )
+			),
         );
 
         // Set semester start/end dates

@@ -9,6 +9,24 @@ class RegistrationController extends AppController {
 	private $registrationSemester;
 	private $currentSemester = CURRENT_SEMESTER;
 	private $deadlines = array(
+							'201509'    => array(
+								'registration_start'=>  '20150330',
+								'edit_selection'    =>  '20150908',
+								'drop_nofee'        =>  '20150914',
+								'drop_fee'          =>  '20151109'
+							),
+							'201505'    => array(
+								'registration_start'=>  '20150309',
+								'edit_selection'    =>  '20150501',
+								'drop_nofee'        =>  '20150821',
+								'drop_fee'          =>  '20150821'
+							),
+							'201501'	=> array(
+								'registration_start'=>	'20141103',
+								'edit_selection'	=>	'20150120',
+								'drop_nofee'		=>	'20150126',
+								'drop_fee'			=>	'20150323'
+							),
                             '201409'    => array(
                                 'registration_start'=>  '20140331',
                                 'edit_selection'    =>  '20140909',
@@ -59,7 +77,7 @@ class RegistrationController extends AppController {
 							)
 						   );
 	
-	private $registrationSemesters = array( '201405', '201409' );
+	private $registrationSemesters = array( '201409', '201501' );
 
 	public function beforeFilter () {
 		parent::beforeFilter();
@@ -79,7 +97,7 @@ class RegistrationController extends AppController {
 		if ( $this->Session->read( 'Registration.semester' ) != '' ) {
 			$this->registrationSemester = $this->Session->read( 'Registration.semester' );
 		} else {
-			$this->registrationSemester = '201409';
+			$this->registrationSemester = '201501';
 			$this->Session->write( 'Registration.semester', $this->registrationSemester );
 		}
 
