@@ -75,6 +75,10 @@ class ScheduleController extends AppController {
 				strtotime( '2 March 2015' ),
 				strtotime( '7 March 2015, 23:59' )
 			),
+			'reading-week-201509'  =>  array(
+				strtotime( '26 October 2015' ),
+				strtotime( '31 October 2015, 23:59' )
+			),
         );
 
         // Set semester start/end dates
@@ -125,7 +129,11 @@ class ScheduleController extends AppController {
             ),
             '201509'    =>  array(
                 date( 'Y-m-d', strtotime( '31 August 2015' ) ), date( 'Y-m-d', strtotime( '11 December 2015' ) )
-            )
+            ),
+			// Year 2016
+			'201601'    =>  array(
+				date( 'Y-m-d', strtotime( '11 January 2016' ) ), date( 'Y-m-d', strtotime( '22 April 2016' ) )
+			)
         );
 	}
 
