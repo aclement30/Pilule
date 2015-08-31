@@ -55,7 +55,7 @@
                             <?php echo $this->Html->link( '<i class="schedule"></i><br>Horaire', array( 'controller' => 'schedule' ), array( 'escape' => false ) ); ?>
                         </li>
                         <li class="exchange">
-                            <?php echo $this->Html->link( '<i class="exchange"></i><br>Exchange', '#', array( 'escape' => false, 'data-url' => '/services/exchange' ) ); ?>
+                            <a href="https://exchange.ulaval.ca/" target="_blank"><i class="exchange"></i><br>Exchange</a>
                         </li>
                         <li class="<?php if ( $this->request->params[ 'controller' ] == 'tuitions' ) echo 'active'; ?>">
                             <?php echo $this->Html->link( '<i class="tuitions"></i><br>Frais<span class="long"> de</span> scol<span class="long">arité</span>', array( 'controller' => 'tuitions' ), array( 'escape' => false ) ); ?>
