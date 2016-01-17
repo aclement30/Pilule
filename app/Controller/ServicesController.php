@@ -110,9 +110,9 @@ class ServicesController extends AppController {
 					)
 				);
 				break;
-			case 'elluminate':
-				$title_for_layout = 'Elluminate';
-				$formUrl = 'https://classevirtuelle.ulaval.ca/elm_login.event?loginPage=index.html';
+			case 'adobeconnect':
+				$title_for_layout = 'Adobe Connect';
+				$formUrl = 'https://connect.ulaval.ca/system/login?domain=connect.ulaval.ca&next=%2Fadmin%3Fdomain%3Dconnect.ulaval.ca&set-lang=fr';
 				$loadingFrameUrl = Configure::read( 'Pilule.baseUrl' ) . 'blank.html';
 				$insideIframe = true;
 				$fields = array(
