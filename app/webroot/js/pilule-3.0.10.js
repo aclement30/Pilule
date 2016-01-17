@@ -101,7 +101,7 @@ app.init = function () {
 
     $( '#in-nav .external-frame a' ).on( 'click', app.Common.closeExternalFrame );
 
-    $( '#in-sub-nav li.exchange a' ).on( 'click', function( e ){
+   /* $( '#in-sub-nav li.exchange a' ).on( 'click', function( e ){
         if ( $( window ).width() > 660 ) {
             app.Common.openExternalWebsite( app.baseUrl + $( '#in-sub-nav li.exchange a' ).data( 'url' ) );
 
@@ -109,7 +109,7 @@ app.init = function () {
         } else {
             $( this ).attr( 'href', $( '#in-sub-nav li.exchange a' ).data( 'url' ) ).attr( 'target', '_blank' );
         }
-    } );
+    } );*/
 
     $( '#in-nav .link-feedback a' ).on( 'click', app.Common.feedback );
 };
